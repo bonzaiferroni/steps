@@ -1,10 +1,10 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ponder.steps.ExampleProfileRoute
 import pondui.ui.controls.*
@@ -18,7 +18,7 @@ fun ExampleListScreen() {
     val state by viewModel.state.collectAsState()
 
     Cloud(state.isCreatingItem, viewModel::toggleIsCreatingItem) {
-        Controls {
+        ControlSet {
             TextField(state.newLabel, viewModel::setLabel)
             Button("Add", onClick = viewModel::createNewItem)
         }
@@ -29,8 +29,9 @@ fun ExampleListScreen() {
             items(state.examples) {
                 Row(Spacing.Unit) {
                     Text(it.label)
-                    Controls {
-                        Button("Delete", background = Pond.colors.secondary, onClick = { viewModel.deleteItem(it) })
+                    Expando()
+                    ControlSet {
+                        Button("Delete", background = Pond.colors.tertiary, onClick = { viewModel.deleteItem(it) })
                         RouteButton("View") { ExampleProfileRoute(it.id) }
                     }
                 }
