@@ -14,7 +14,7 @@ class ExampleProfileModel(
     init {
         viewModelScope.launch {
             val example = store.readExample(route.exampleId)
-            setState { it.copy(example = example, symtrix = example.symtrix) }
+            setState { it.copy(example = example, label = example.label) }
         }
     }
 
@@ -22,12 +22,12 @@ class ExampleProfileModel(
         setState { it.copy(isEditing = !it.isEditing) }
     }
 
-    fun setSymtrix(value: String) {
-        setState { it.copy(symtrix = value) }
+    fun setLabel(value: String) {
+        setState { it.copy(label = value) }
     }
 
     fun finalizeEdit() {
-        val example = stateNow.example?.copy(symtrix = stateNow.symtrix) ?: return
+        val example = stateNow.example?.copy(label = stateNow.label) ?: return
         viewModelScope.launch {
             val isSuccess = store.updateExample(example)
             if (isSuccess) {
@@ -40,6 +40,6 @@ class ExampleProfileModel(
 
 data class ExampleProfileState(
     val example: Example? = null,
-    val symtrix: String = "",
+    val label: String = "",
     val isEditing: Boolean = false
 )

@@ -25,11 +25,11 @@ class ExampleListModel(
         if (!stateNow.isValidNewItem) return
         viewModelScope.launch {
             val exampleId = store.createExample(NewExample(
-                symtrix = stateNow.newSymtrix
+                label = stateNow.newLabel
             ))
             if (exampleId > 0) {
                 refreshItems()
-                setState { it.copy(newSymtrix = "") }
+                setState { it.copy(newLabel = "") }
             }
         }
     }
@@ -43,14 +43,14 @@ class ExampleListModel(
         }
     }
 
-    fun setSymtrix(symtrix: String) {
-        setState { it.copy(newSymtrix = symtrix) }
+    fun setLabel(label: String) {
+        setState { it.copy(newLabel = label) }
     }
 }
 
 data class ExampleListState(
     val examples: List<Example> = emptyList(),
-    val newSymtrix: String = "",
+    val newLabel: String = "",
 ) {
-    val isValidNewItem get() = newSymtrix.isNotBlank()
+    val isValidNewItem get() = newLabel.isNotBlank()
 }

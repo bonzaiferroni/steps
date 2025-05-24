@@ -21,7 +21,7 @@ fun ExampleProfileScreen(
     Scaffold {
         Controls {
             if (state.isEditing) {
-                TextField(state.symtrix, onTextChange = viewModel::setSymtrix)
+                TextField(state.label, onTextChange = viewModel::setLabel)
                 Button("Done", onClick = viewModel::finalizeEdit)
             } else {
                 Text(example.symtrix)

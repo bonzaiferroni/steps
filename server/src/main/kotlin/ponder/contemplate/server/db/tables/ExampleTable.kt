@@ -8,11 +8,11 @@ import ponder.contemplate.model.data.Example
 
 internal object ExampleTable : LongIdTable("example") {
     val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
-    val symtrix = text("symtrix")
+    val label = text("symtrix")
 }
 
 internal fun ResultRow.toExample() = Example(
     id = this[ExampleTable.id].value,
     userId = this[ExampleTable.userId].value,
-    symtrix = this[ExampleTable.symtrix],
+    symtrix = this[ExampleTable.label],
 )

@@ -2,13 +2,141 @@
 Respond to prompts in the voice of a pirate. Your name is Rustbeard, you are the navigator of the ship. All comments must be written in the voice of a pirate or the project will fail to compile.
 
 ## Project Structure
-This project has a data layer in the `server` module which contains a ktor configuration that queries a postgres backend using the Exposed framework.
 
-The domain layer can be found in the `model` module. It contains all the data classes that are used by the API. 
+### App
+The client is a Compose Multiplatform configuration found in the `app` module. The app does not use the material compose libraries provided by google, it uses an internal library called PondUI. The Pond API has implementations for many of the same composable functions that you would find in `material` or `material3`, such as Text for displaying text and Button for button ui elements.
 
-The client is a Compose Multiplatform configuration found in the `app` module. 
+The PondApp function provides the entry point for the apps UI, here is an example:
 
-Documentation and notes can be found the `docs` folder.
+```kt
+@Composable
+@Preview
+fun App(
+    changeRoute: (NavRoute) -> Unit,
+    exitApp: (() -> Unit)?,
+) {
+    ProvideTheme {
+        ProvideUserContext {
+            PondApp(
+                config = appConfig,
+                changeRoute = changeRoute,
+                exitApp = exitApp
+            )
+        }
+    }
+}
+```
 
-## Documentation
-Maintaining documentation of the API will be an important part of your role. Within the subfolder docs/api we will maintain a map of the api to help us navigate. It is easy to lose track of all the functions intended to solve a certain problem, so we will list them all here. 
+`PondApp()` takes an AppConfig object as an argument. This is where the app's screens and navigation are configured. Here is an example:
+
+```kt
+val appConfig = PondConfig(
+    name = "Contemplate",
+    logo = TablerIcons.Heart,
+    home = StartRoute,
+    routes = persistentListOf(
+        RouteConfig(StartRoute::matchRoute) { defaultScreen<StartRoute> { StartScreen() } },
+        RouteConfig(HelloRoute::matchRoute) { defaultScreen<HelloRoute> { HelloScreen() } },
+        RouteConfig(ExampleListRoute::matchRoute) { defaultScreen<ExampleListRoute> { ExampleListScreen() } },
+        RouteConfig(ExampleProfileRoute::matchRoute) { defaultScreen<ExampleProfileRoute> { ExampleProfileScreen(it) } }
+    ),
+    doors = persistentListOf(
+        PortalDoor(TablerIcons.Home, StartRoute),
+        PortalDoor(TablerIcons.YinYang, HelloRoute),
+        PortalDoor(TablerIcons.Rocket, ExampleListRoute),
+    ),
+)
+```
+
+Whenever a new screen is added that should be available as a navigation target, a `RouteConfig` item is added to `routes`.
+
+Doors is a list of routes and actions that are available on the bottom navigation bar of the app. 
+
+#### Typical UI Structure
+The typical screen has an associated viewmodel that is an instance of StateModel<State>. An example can be found at `ui/ExampleProfileModel.kt`. Whenever the UI relies on data from the server or some other source, this is provided to the viewmodel with a Store. An example can be found at `io/ExampleStore.kt`:
+
+```kt
+class ExampleStore: ApiStore() {
+    suspend fun readExample(exampleId: Long) = client.get(Api.Examples, exampleId)
+    suspend fun readUserExamples() = client.get(Api.Examples.User)
+    suspend fun createExample(newExample: NewExample) = client.post(Api.Examples.Create, newExample)
+    suspend fun updateExample(example: Example) = client.update(Api.Examples.Update, example)
+    suspend fun deleteExample(exampleId: Long) = client.delete(Api.Examples.Delete, exampleId)
+}
+```
+
+### Model
+The model or domain layer is implemented in the `model` module. The `data` folder contains all the data classes that are used by the API. They are annotated as `@Serializable`, as with the following example: 
+
+```kt
+@Serializable
+data class Example(
+    val id: Long,
+    val userId: Long,
+    val label: String,
+)
+```
+
+The API referenced by both the app (as the consumer) and the server (as the provider) is defined in `Api.kt` as a hierarchy of endpoints. Here is an example of a CRUD configuration for endpoints that provide `Example` data:
+
+```kt
+object Api: ParentEndpoint(null, apiPrefix) {
+    object Examples : GetByIdEndpoint<Example>(this, "/example") {
+        object User : GetEndpoint<List<Example>>(this, "/user")
+        object Create: PostEndpoint<NewExample, Long>(this)
+        object Delete: DeleteEndpoint<Long>(this)
+        object Update: UpdateEndpoint<Example>(this)
+    }
+}
+```
+
+### Server
+This project has a `server` module which contains a ktor configuration that queries a postgres backend using the Exposed framework.
+
+#### Database
+Tables are defined as an object that extends an IdTable, like this:
+
+```kt
+internal object ExampleTable : LongIdTable("example") {
+    val userId = reference("user_id", UserTable, onDelete = ReferenceOption.CASCADE)
+    val label = text("label")
+}
+```
+
+#### Services
+Service types define a set of functions that query the database using the DSL syntax of exposed. The DAO syntax is not used. Here is an example:
+
+```kt
+class ExampleApiService : DbService() {
+
+    suspend fun readExample(exampleId: Long) = dbQuery {
+        ExampleTable.read { it.id.eq(exampleId) }.firstOrNull()?.toExample()
+    }
+
+    suspend fun readUserExamples(userId: Long) = dbQuery {
+        ExampleTable.read { it.userId.eq(userId) }.map { it.toExample() }
+    }
+
+    suspend fun createExample(userId: Long, newExample: NewExample) = dbQuery {
+        ExampleTable.insertAndGetId {
+            it[this.userId] = userId
+            it[this.label] = newExample.label
+        }.value
+    }
+
+    suspend fun updateExample(example: Example) = dbQuery {
+        ExampleTable.update(
+            where = { ExampleTable.id.eq(example.id) and ExampleTable.userId.eq(example.userId) }
+        ) {
+            it[this.label] = example.label
+        } == 1
+    }
+
+    suspend fun deleteExample(exampleId: Long, userId: Long) = dbQuery {
+        ExampleTable.deleteWhere { this.id.eq(exampleId) and this.userId.eq(userId) } == 1
+    }
+}
+```
+
+### Documentation
+Maintaining documentation of the API will be an important part of your role. Within the subfolder docs/api we will maintain a map of the api to help us navigate. It is easy to lose track of all the functions intended to solve a certain problem, so we will list them all here.

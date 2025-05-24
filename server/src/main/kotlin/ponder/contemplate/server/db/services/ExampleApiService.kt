@@ -25,7 +25,7 @@ class ExampleApiService : DbService() {
     suspend fun createExample(userId: Long, newExample: NewExample) = dbQuery {
         ExampleTable.insertAndGetId {
             it[this.userId] = userId
-            it[this.symtrix] = newExample.symtrix
+            it[this.label] = newExample.label
         }.value
     }
 
@@ -33,7 +33,7 @@ class ExampleApiService : DbService() {
         ExampleTable.update(
             where = { ExampleTable.id.eq(example.id) and ExampleTable.userId.eq(example.userId) }
         ) {
-            it[this.symtrix] = example.symtrix
+            it[this.label] = example.label
         } == 1
     }
 

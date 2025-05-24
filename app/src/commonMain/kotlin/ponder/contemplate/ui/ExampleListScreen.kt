@@ -22,7 +22,7 @@ fun ExampleListScreen(
     val state by viewModel.state.collectAsState()
     Scaffold {
         Controls {
-            TextField(state.newSymtrix, viewModel::setSymtrix)
+            TextField(state.newLabel, viewModel::setLabel)
             Button("Add", onClick = viewModel::createNewItem)
         }
         LazyColumn {
