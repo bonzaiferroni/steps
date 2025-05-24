@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Fox Wombat",
+    "username": "wombat",
+    "password": "dayhush22",
+    "email": "fox@owlmail.com",
+    "roles": ["ADMIN", "USER"]
+  }
+]
