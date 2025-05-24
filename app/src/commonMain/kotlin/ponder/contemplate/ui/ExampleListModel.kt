@@ -29,7 +29,7 @@ class ExampleListModel(
             ))
             if (exampleId > 0) {
                 refreshItems()
-                setState { it.copy(newLabel = "") }
+                setState { it.copy(newLabel = "", isCreatingItem = false) }
             }
         }
     }
@@ -46,11 +46,16 @@ class ExampleListModel(
     fun setLabel(label: String) {
         setState { it.copy(newLabel = label) }
     }
+
+    fun toggleIsCreatingItem() {
+        setState { it.copy(isCreatingItem = !it.isCreatingItem) }
+    }
 }
 
 data class ExampleListState(
     val examples: List<Example> = emptyList(),
     val newLabel: String = "",
+    val isCreatingItem: Boolean = false,
 ) {
     val isValidNewItem get() = newLabel.isNotBlank()
 }

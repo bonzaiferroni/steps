@@ -29,7 +29,7 @@ dependencyResolutionManagement {
 }
 
 include(":pondui")
-project(":pondui").projectDir = file("../pondui/library")
+project(":pondui").projectDir = file("pondui/library")
 include(":kabinet")
 project(":kabinet").projectDir = file("../kabinet/library")
 include(":klutch")

@@ -1,0 +1,3 @@
+[submodule "pondui"]
+	path = pondui
+	url = https://github.com/bonzaiferroni/pond-compose.git

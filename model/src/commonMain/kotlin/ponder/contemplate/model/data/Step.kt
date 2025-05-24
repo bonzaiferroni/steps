@@ -1,5 +1,8 @@
 package ponder.contemplate.model.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Step(
     val id: Int,
     val parentId: Int?,

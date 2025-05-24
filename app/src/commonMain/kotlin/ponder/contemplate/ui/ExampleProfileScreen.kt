@@ -24,7 +24,7 @@ fun ExampleProfileScreen(
                 TextField(state.label, onTextChange = viewModel::setLabel)
                 Button("Done", onClick = viewModel::finalizeEdit)
             } else {
-                Text(example.symtrix)
+                Text(example.label)
                 Button("Edit", onClick = viewModel::toggleEdit, background = Pond.colors.secondary)
             }
         }

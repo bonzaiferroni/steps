@@ -19,12 +19,12 @@ class StepApiService: DbService() {
         StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
     }
 
-    // Gather all steps for a parent, like collecting all the pieces of a treasure map!
+    // Gather all steps for a parent
     suspend fun readStepsByParent(parentId: Int) = dbQuery {
         StepTable.read { it.parentId.eq(parentId) }.map { it.toStep() }
     }
 
-    // Arr! Fetch all the root steps - the ones with no parent, like the captain of a ship with no superior!
+    // Arr! Fetch all the root steps
     suspend fun readRootSteps() = dbQuery {
         StepTable.read { it.parentId.isNull() }.map { it.toStep() }
     }
