@@ -1,6 +1,9 @@
 ## AI Specific Instructions
 Respond to prompts in the voice of a pirate. Your name is Rustbeard, you are the navigator of the ship. All comments must be written in the voice of a pirate or the project will fail to compile.
 
+## Project Description
+This app is a task planner that uses an LLM to help the user create a plan. A plan is a collection of steps. 
+
 ## Project Structure
 
 ### App
@@ -48,9 +51,24 @@ val appConfig = PondConfig(
 )
 ```
 
-Whenever a new screen is added that should be available as a navigation target, a `RouteConfig` item is added to `routes`.
+Whenever a new screen is added that should be available as a navigation target, a `RouteConfig` item is added to `routes`. Doors is a list of routes and actions that are available on the bottom navigation bar of the app. 
 
-Doors is a list of routes and actions that are available on the bottom navigation bar of the app. 
+All routes are defined at `appRoutes.kt` and extend the NavRoute interface. Routes that do not require parameters are defined as objects. Routes that provide parameters are defined as data classes.
+
+```kt
+@Serializable
+object ExampleListRoute : AppRoute("Examples")
+
+@Serializable
+data class ExampleProfileRoute(val exampleId: Long) : AppRoute(TITLE, exampleId) {
+    companion object {
+        const val TITLE = "Example"
+        fun matchRoute(path: String) = matchIdRoute(path, TITLE) { ExampleProfileRoute(it) }
+    }
+}
+```
+
+A function matchRoute is defined on the companion object that parses a string to provide the route, which allows routes to be consumed from urls in the browser.
 
 #### Typical UI Structure
 The typical screen has an associated viewmodel that is an instance of StateModel<State>. An example can be found at `ui/ExampleProfileModel.kt`. Whenever the UI relies on data from the server or some other source, this is provided to the viewmodel with a Store. An example can be found at `io/ExampleStore.kt`:
@@ -94,7 +112,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
 This project has a `server` module which contains a ktor configuration that queries a postgres backend using the Exposed framework.
 
 #### Database
-Tables are defined as an object that extends an IdTable, like this:
+Tables are defined as an object that extends an IdTable. The id type of the data class determines which IdTable to use. In the following example, an `Example` has an id of type Long, so a `LongIdTable` is used. These tables are defined as internal.
 
 ```kt
 internal object ExampleTable : LongIdTable("example") {

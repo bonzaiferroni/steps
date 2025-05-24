@@ -14,5 +14,5 @@ internal object ExampleTable : LongIdTable("example") {
 internal fun ResultRow.toExample() = Example(
     id = this[ExampleTable.id].value,
     userId = this[ExampleTable.userId].value,
-    symtrix = this[ExampleTable.label],
+    label = this[ExampleTable.label],
 )

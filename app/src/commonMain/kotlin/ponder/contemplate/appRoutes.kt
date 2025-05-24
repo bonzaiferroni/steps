@@ -14,6 +14,9 @@ object HelloRoute : AppRoute("Hello")
 object ExampleListRoute : AppRoute("Examples")
 
 @Serializable
+object RootStepsRoute : AppRoute("Root Steps")
+
+@Serializable
 data class ExampleProfileRoute(val exampleId: Long) : AppRoute(TITLE, exampleId) {
     companion object {
         const val TITLE = "Example"
