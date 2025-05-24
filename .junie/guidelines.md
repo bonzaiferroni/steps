@@ -34,7 +34,7 @@ fun App(
 
 ```kt
 val appConfig = PondConfig(
-    name = "Contemplate",
+    name = "Steps",
     logo = TablerIcons.Heart,
     home = StartRoute,
     routes = persistentListOf(
@@ -71,7 +71,11 @@ data class ExampleProfileRoute(val exampleId: Long) : AppRoute(TITLE, exampleId)
 A function matchRoute is defined on the companion object that parses a string to provide the route, which allows routes to be consumed from urls in the browser.
 
 #### Typical UI Structure
-The typical screen has an associated viewmodel that is an instance of StateModel<State>. An example can be found at `ui/ExampleProfileModel.kt`. Whenever the UI relies on data from the server or some other source, this is provided to the viewmodel with a Store. An example can be found at `io/ExampleStore.kt`:
+The typical screen has an associated viewmodel that is an instance of StateModel<State>. An example can be found at `ExampleProfileModel.kt`. Whenever the UI relies on data from the server or some other source, this is provided to the viewmodel with a Store. An example can be found at `ExampleStore.kt`:
+
+Files that define the Composable layer should import and use controls from pond.ui.controls  `import pondui.ui.controls.*`. To provide commonly used types from compose, the entire runtime namespace should also be imported `import androidx.compose.runtime.*`. Composable functions that define the content of a screen will typically define a viewModel and a state. An example can be found at `ExampleProfileScreen.kt`. More information about defining the composable layer can be found in the following documents:
+
+* `Layouts.md`
 
 ```kt
 class ExampleStore: ApiStore() {

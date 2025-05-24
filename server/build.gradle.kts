@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.serialization)
 }
 
-group = "ponder.contemplate.server" // change to your local namespace
+group = "ponder.steps.server" // change to your local namespace
 version = "0.0.1"
 
 application {

@@ -76,11 +76,11 @@ kotlin {
 }
 
 android {
-    namespace = "ponder.contemplate"
+    namespace = "ponder.steps"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "ponder.contemplate"
+        applicationId = "ponder.steps"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -108,11 +108,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "ponder.contemplate.MainKt"
+        mainClass = "ponder.steps.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "ponder.contemplate"
+            packageName = "ponder.steps"
             packageVersion = "1.0.0"
         }
     }
