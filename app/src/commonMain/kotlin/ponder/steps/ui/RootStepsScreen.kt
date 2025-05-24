@@ -6,10 +6,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
-import pondui.ui.controls.Button
-import pondui.ui.controls.Controls
-import pondui.ui.controls.Text
+import pondui.ui.controls.*
 import pondui.ui.nav.Scaffold
+import pondui.ui.theme.Spacing
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!
 @Composable
@@ -17,17 +16,24 @@ fun RootStepsScreen(
     viewModel: RootStepsModel = viewModel { RootStepsModel() }
 ) {
     val state by viewModel.state.collectAsState()
+
+    // Add a cloud dialog for creating new root steps, like a pirate's secret meetin' spot!
+    Cloud(state.isAddingStep, viewModel::toggleAddingStep) {
+        Controls {
+            TextField(state.newStepLabel, viewModel::setNewStepLabel, placeholder = "Enter step name")
+            Button("Add Root Step", onClick = viewModel::createNewRootStep)
+        }
+    }
+
     Scaffold {
         // If we have no root steps, show a message like a lookout with nothin' to report!
         if (state.rootSteps.isEmpty()) {
             Text("Arr! No root steps found. Create some to start yer plan!")
         } else {
             // Display all the root steps, like a list of captains in our pirate fleet!
-            LazyColumn {
+            LazyColumn(Spacing.Unit) {
                 items(state.rootSteps) { step ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                    Row(Spacing.Unit) {
                         Text(step.label)
                         Controls {
                             Button("View Details", onClick = { viewModel.navigateToStep(step) })
@@ -36,5 +42,8 @@ fun RootStepsScreen(
                 }
             }
         }
+
+        // Add a button to create new root steps, like a call to arms for new recruits!
+        Button("Add", onClick = viewModel::toggleAddingStep)
     }
 }

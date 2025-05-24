@@ -32,6 +32,6 @@ val appConfig = PondConfig(
         PortalDoor(TablerIcons.Home, StartRoute),
         PortalDoor(TablerIcons.YinYang, HelloRoute),
         PortalDoor(TablerIcons.Rocket, ExampleListRoute),
-        PortalDoor(TablerIcons.List, RootStepsRoute),
+        PortalDoor(TablerIcons.List, RootStepsRoute, "Roots"),
     ),
 )
