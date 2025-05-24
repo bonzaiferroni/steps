@@ -31,9 +31,9 @@ dependencyResolutionManagement {
 include(":pondui")
 project(":pondui").projectDir = file("pondui/library")
 include(":kabinet")
-project(":kabinet").projectDir = file("../kabinet/library")
+project(":kabinet").projectDir = file("kabinet/library")
 include(":klutch")
-project(":klutch").projectDir = file("../klutch/library")
+project(":klutch").projectDir = file("klutch/library")
 
 include(":app")
 include(":model")

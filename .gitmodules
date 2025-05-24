@@ -1,3 +1,9 @@
 [submodule "pondui"]
 	path = pondui
 	url = https://github.com/bonzaiferroni/pond-compose.git
+[submodule "kabinet"]
+	path = kabinet
+	url = https://github.com/bonzaiferroni/kabinet.git
+[submodule "klutch"]
+	path = klutch
+	url = https://github.com/bonzaiferroni/klutch.git
