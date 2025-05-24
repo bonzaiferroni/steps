@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 import pondui.CacheFile
 import pondui.WatchWindow
 import pondui.WindowSize
+import pondui.ui.core.ProvideAddressContext
 import pondui.ui.nav.AppRoute
 
 fun main() {
@@ -18,16 +19,20 @@ fun main() {
             cacheFlow.value = cacheFlow.value.copy(windowSize = it)
         }
 
-        Window(
-            state = windowState,
-            onCloseRequest = ::exitApplication,
-            title = "App",
-            undecorated = true,
+        ProvideAddressContext(
+            initialAddress = cache.address,
         ) {
-            App(
-                changeRoute = { cacheFlow.value = cache.copy(route = it as AppRoute) },
-                exitApp = ::exitApplication
-            )
+            Window(
+                state = windowState,
+                onCloseRequest = ::exitApplication,
+                title = "App",
+                undecorated = true,
+            ) {
+                App(
+                    changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
+                    exitApp = ::exitApplication
+                )
+            }
         }
     }
 }
@@ -35,5 +40,5 @@ fun main() {
 @Serializable
 data class AppCache(
     val windowSize: WindowSize = WindowSize(600, 800),
-    val route: AppRoute = StartRoute
+    val address: String? = null
 )
