@@ -1,6 +1,5 @@
 package ponder.steps.ui
 
-import androidx.lifecycle.viewModelScope
 import kabinet.clients.GeminiClient
 import pondui.ui.core.StateModel
 

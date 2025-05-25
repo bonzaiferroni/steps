@@ -3,8 +3,6 @@ package ponder.steps.ui
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kabinet.clients.GeminiClient
-import kabinet.log.LogLevel
-import ponder.steps.GeminiRoute
 import pondui.ui.controls.Text
 import pondui.ui.nav.Scaffold
 
