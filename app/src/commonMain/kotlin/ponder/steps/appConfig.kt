@@ -5,10 +5,12 @@ import compose.icons.tablericons.Heart
 import compose.icons.tablericons.Home
 import compose.icons.tablericons.List
 import compose.icons.tablericons.Rocket
+import compose.icons.tablericons.Star
 import compose.icons.tablericons.YinYang
 import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.ui.ExampleListScreen
 import ponder.steps.ui.ExampleProfileScreen
+import ponder.steps.ui.GeminiScreen
 import ponder.steps.ui.HelloScreen
 import ponder.steps.ui.RootStepsScreen
 import ponder.steps.ui.StartScreen
@@ -26,12 +28,14 @@ val appConfig = PondConfig(
         RouteConfig(HelloRoute::matchRoute) { defaultScreen<HelloRoute> { HelloScreen() } },
         RouteConfig(ExampleListRoute::matchRoute) { defaultScreen<ExampleListRoute> { ExampleListScreen() } },
         RouteConfig(ExampleProfileRoute::matchRoute) { defaultScreen<ExampleProfileRoute> { ExampleProfileScreen(it) } },
-        RouteConfig(RootStepsRoute::matchRoute) { defaultScreen<RootStepsRoute> { RootStepsScreen() } }
+        RouteConfig(RootStepsRoute::matchRoute) { defaultScreen<RootStepsRoute> { RootStepsScreen() } },
+        RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } }
     ),
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),
         PortalDoor(TablerIcons.YinYang, HelloRoute),
         PortalDoor(TablerIcons.Rocket, ExampleListRoute),
         PortalDoor(TablerIcons.List, RootStepsRoute, "Roots"),
+        PortalDoor(TablerIcons.Star, GeminiRoute),
     ),
 )
