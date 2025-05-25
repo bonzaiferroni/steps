@@ -1,12 +1,16 @@
 package ponder.steps.model
 
 import kabinet.api.*
+import kabinet.clients.GeminiMessage
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.NewExample
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 
 object Api: ParentEndpoint(null, apiPrefix) {
+    object Gemini : ParentEndpoint(this, "/gemini") {
+        object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
+    }
     object Examples : GetByIdEndpoint<Example>(this, "/example") {
         object User : GetEndpoint<List<Example>>(this, "/user")
         object Create: PostEndpoint<NewExample, Long>(this)

@@ -17,5 +17,6 @@ fun Application.configureApiRoutes() {
         serveUsers()
         serveExamples()
         serveSteps()
+        serveGemini()
     }
 }
