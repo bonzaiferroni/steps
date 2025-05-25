@@ -29,7 +29,7 @@ fun StartScreen() {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Pond.ruler.columnGrouped
+            verticalArrangement = Pond.ruler.columnSpaced
         ) {
             RouteButton("Go to Hello") { HelloRoute }
             Button(onClick = { showContent = !showContent }) {

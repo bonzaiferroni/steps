@@ -20,7 +20,7 @@ fun ExampleListScreen() {
     Cloud(state.isCreatingItem, viewModel::toggleIsCreatingItem) {
         ControlSet {
             TextField(state.newLabel, viewModel::setLabel)
-            Button("Add", onClick = viewModel::createNewItem)
+            ControlSetButton("Add", onClick = viewModel::createNewItem)
         }
     }
 
@@ -31,7 +31,7 @@ fun ExampleListScreen() {
                     Text(it.label)
                     Expando()
                     ControlSet {
-                        Button("Delete", background = Pond.colors.tertiary, onClick = { viewModel.deleteItem(it) })
+                        DangerButton("Delete") { viewModel.deleteItem(it) }
                         RouteButton("View") { ExampleProfileRoute(it.id) }
                     }
                 }
