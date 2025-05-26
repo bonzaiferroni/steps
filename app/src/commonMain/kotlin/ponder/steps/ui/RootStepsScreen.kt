@@ -3,6 +3,7 @@ package ponder.steps.ui
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import pondui.ui.controls.*
 import pondui.ui.nav.Scaffold
@@ -18,8 +19,12 @@ fun RootStepsScreen(
     // Add a cloud dialog for creating new root steps, like a pirate's secret meetin' spot!
     Cloud(state.isAddingStep, viewModel::toggleAddingStep) {
         ControlSet {
-            TextField(state.newStepLabel, viewModel::setNewStepLabel, placeholder = "Enter step name")
-            Button("Add Root Step", onClick = viewModel::createNewRootStep)
+            TextField(
+                text = state.newStepLabel,
+                onTextChange = viewModel::setNewStepLabel,
+                placeholder = "Enter step name",
+            )
+            ControlSetButton("Add", onClick = viewModel::createNewRootStep)
         }
     }
 
