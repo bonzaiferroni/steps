@@ -31,7 +31,7 @@ fun GeminiScreen() {
     val state by viewModel.state.collectAsState()
 
     Scaffold {
-        Column(Spacing.Unit) {
+        Column(1) {
             // Messages display area
             LazyColumn(Spacing.Unit, modifier = Modifier.weight(1f)) {
                 items(state.messages) { message ->

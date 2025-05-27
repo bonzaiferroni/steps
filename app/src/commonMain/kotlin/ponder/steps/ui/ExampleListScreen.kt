@@ -27,7 +27,7 @@ fun ExampleListScreen() {
     Scaffold {
         LazyColumn(Spacing.Unit) {
             items(state.examples) {
-                Row(Spacing.Unit) {
+                Row(1) {
                     Text(it.label)
                     Expando()
                     ControlSet {
