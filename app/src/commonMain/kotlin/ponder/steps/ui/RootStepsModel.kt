@@ -35,7 +35,7 @@ class RootStepsModel(
                 label = stateNow.newStepLabel,
                 position = stateNow.rootSteps.size // Put it at the end of the list, like the newest recruit in the crew!
             ))
-            if (stepId > 0) {
+            if (stepId != null) {
                 refreshItems()
                 setState { it.copy(newStepLabel = "", isAddingStep = false) }
             }
@@ -50,7 +50,7 @@ class RootStepsModel(
         setState { it.copy(isAddingStep = !it.isAddingStep) }
     }
 
-    fun removeStep(stepId: Int) {
+    fun removeStep(stepId: String) {
         viewModelScope.launch {
             store.deleteStep(stepId)
             refreshItems()
@@ -76,7 +76,7 @@ class RootStepsModel(
         setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit) }
     }
 
-    fun modifyLabelEdit(label: String, stepId: Int) {
+    fun modifyLabelEdit(label: String, stepId: String) {
         setState { state ->
             val updatedEdits = state.stepLabelEdits.map {
                 if (it.id == stepId) it.copy(label = label) else it
@@ -97,6 +97,6 @@ data class RootStepsState(
 }
 
 data class StepLabelEdit(
-    val id: Int,
+    val id: String,
     val label: String,
 )

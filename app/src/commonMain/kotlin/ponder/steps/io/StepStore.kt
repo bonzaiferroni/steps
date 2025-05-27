@@ -22,5 +22,5 @@ class StepStore: ApiStore() {
     suspend fun updateStep(step: Step) = client.update(Api.Steps.Update, step)
 
     // Remove a step from the plan, like crossing out a false lead on yer treasure hunt!
-    suspend fun deleteStep(stepId: Int) = client.delete(Api.Steps.Delete, stepId)
+    suspend fun deleteStep(stepId: String) = client.delete(Api.Steps.Delete, stepId)
 }

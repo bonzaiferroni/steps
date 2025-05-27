@@ -12,5 +12,5 @@ class GeminiStore : ApiStore() {
     /**
      * Send a list o' messages to the AI and get back a response, savvy?
      */
-    suspend fun chat(messages: List<GeminiMessage>): String = client.post(Api.Gemini.Chat, messages)
+    suspend fun chat(messages: List<GeminiMessage>) = client.post(Api.Gemini.Chat, messages)
 }

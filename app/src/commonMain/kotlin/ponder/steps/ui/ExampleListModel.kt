@@ -27,7 +27,7 @@ class ExampleListModel(
             val exampleId = store.createExample(NewExample(
                 label = stateNow.newLabel
             ))
-            if (exampleId > 0) {
+            if (exampleId != null) {
                 refreshItems()
                 setState { it.copy(newLabel = "", isCreatingItem = false) }
             }

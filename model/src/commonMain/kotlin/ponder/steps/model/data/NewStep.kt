@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NewStep(
-    val parentId: Int?,
+    val parentId: String?,
     val label: String,
-    val position: Int,
+    val position: Int?,
 )

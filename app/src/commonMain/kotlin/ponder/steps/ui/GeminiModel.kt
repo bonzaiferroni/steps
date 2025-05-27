@@ -46,7 +46,7 @@ class GeminiModel(
         viewModelScope.launch {
             try {
                 val allMessages = stateNow.messages
-                val response = geminiStore.chat(allMessages)
+                val response = geminiStore.chat(allMessages) ?: return@launch
                 val message = GeminiMessage(GeminiRole.Assistant, response)
 
                 // Add the AI response to the list

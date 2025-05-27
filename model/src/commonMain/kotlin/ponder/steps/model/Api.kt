@@ -21,8 +21,8 @@ object Api: ParentEndpoint(null, apiPrefix) {
     object Steps: GetByIdEndpoint<Step>(this, "/step") {
         object Parent : GetEndpoint<List<Step>>(this, "/parent/{id}")
         object Root : GetEndpoint<List<Step>>(this, "/root")
-        object Create: PostEndpoint<NewStep, Int>(this)
-        object Delete: DeleteEndpoint<Int>(this)
+        object Create: PostEndpoint<NewStep, String>(this)
+        object Delete: DeleteEndpoint<String>(this)
         object Update: UpdateEndpoint<Step>(this)
     }
 }

@@ -7,14 +7,14 @@ import ponder.steps.server.db.services.StepApiService
 
 fun Routing.serveSteps(service: StepApiService = StepApiService()) {
     // Ahoy! This route be for fetchin' a single step by its id!
-    getById(Api.Steps) { stepId, endpoint ->
-        service.readStep(stepId.toInt())
+    getById(Api.Steps, { it }) { stepId, endpoint ->
+        service.readStep(stepId)
     }
 
     authenticateJwt {
         // Gather all steps for a parent, like collectin' all pieces of a treasure map!
         get(Api.Steps.Parent) {
-            val parentId = call.getIdOrThrow { it.toIntOrNull() }
+            val parentId = call.getIdOrThrow { it }
             service.readStepsByParent(parentId)
         }
 
@@ -35,7 +35,7 @@ fun Routing.serveSteps(service: StepApiService = StepApiService()) {
 
         // Remove a step from the plan, like crossin' out a spot on yer map that turned out to be empty!
         delete(Api.Steps.Delete) { stepId, endpoint ->
-            service.deleteStep(stepId.toInt())
+            service.deleteStep(stepId)
         }
     }
 }
