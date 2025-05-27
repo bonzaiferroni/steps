@@ -9,11 +9,14 @@ import pondui.WatchWindow
 import pondui.WindowSize
 import pondui.ui.core.ProvideAddressContext
 import pondui.ui.nav.AppRoute
+import pondui.ui.nav.KeyCaster
+import pondui.ui.nav.LocalKeyCaster
 
 fun main() {
     application {
         val cacheFlow = CacheFile("appcache.json") { AppCache() }
         val cache by cacheFlow.collectAsState()
+        val keyCaster = remember { KeyCaster() }
 
         val windowState = WatchWindow(cache.windowSize) {
             cacheFlow.value = cacheFlow.value.copy(windowSize = it)
@@ -22,16 +25,19 @@ fun main() {
         ProvideAddressContext(
             initialAddress = cache.address,
         ) {
-            Window(
-                state = windowState,
-                onCloseRequest = ::exitApplication,
-                title = "App",
-                undecorated = true,
-            ) {
-                App(
-                    changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
-                    exitApp = ::exitApplication
-                )
+            CompositionLocalProvider(LocalKeyCaster provides keyCaster) {
+                Window(
+                    state = windowState,
+                    onCloseRequest = ::exitApplication,
+                    title = "App",
+                    undecorated = true,
+                    onPreviewKeyEvent = keyCaster::keyEvent
+                ) {
+                    App(
+                        changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
+                        exitApp = ::exitApplication
+                    )
+                }
             }
         }
     }
