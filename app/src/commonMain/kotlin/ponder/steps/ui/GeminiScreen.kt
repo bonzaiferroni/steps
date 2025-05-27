@@ -33,7 +33,7 @@ fun GeminiScreen() {
     Scaffold {
         Column(1) {
             // Messages display area
-            LazyColumn(Spacing.Unit, modifier = Modifier.weight(1f)) {
+            LazyColumn(1, modifier = Modifier.weight(1f)) {
                 items(state.messages) { message ->
                     val isUser = message.role == GeminiRole.User
                     if (isUser) {

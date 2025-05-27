@@ -1,16 +1,22 @@
 package ponder.steps.ui
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewmodel.compose.viewModel
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Trash
+import kotlinx.collections.immutable.persistentListOf
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.nav.Scaffold
+import pondui.ui.theme.Pond
 import pondui.ui.theme.Spacing
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!
@@ -36,18 +42,18 @@ fun RootStepsScreen() {
     }
 
     Scaffold {
-        // If we have no root steps, show a message like a lookout with nothin' to report!
-        if (state.rootSteps.isEmpty()) {
-            Text("Arr! No root steps found. Create some to start yer plan!")
-        } else {
-            // Display all the root steps, like a list of captains in our pirate fleet!
-            LazyColumn(Spacing.Unit) {
-                items(state.rootSteps) { step ->
-                    ControlSet {
-                        Text(step.label)
-                        Expando()
-                        Button("View Details", onClick = { viewModel.navigateToStep(step) })
-                    }
+        LazyColumn(
+            spacingUnits = 1,
+            modifier = Modifier.fillMaxWidth()
+                .animateContentSize()
+        ) {
+            items(state.rootSteps, key = { it.id }) { step ->
+                Row(1, modifier = Modifier.animateItem()) {
+                    Text(step.label)
+                    Expando()
+                    RowMenu(items = persistentListOf(
+                        RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step.id) }
+                    ))
                 }
             }
         }

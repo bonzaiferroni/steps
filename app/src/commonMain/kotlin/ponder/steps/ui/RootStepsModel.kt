@@ -49,6 +49,13 @@ class RootStepsModel(
     fun toggleAddingStep() {
         setState { it.copy(isAddingStep = !it.isAddingStep) }
     }
+
+    fun removeStep(stepId: Int) {
+        viewModelScope.launch {
+            store.deleteStep(stepId)
+            refreshItems()
+        }
+    }
 }
 
 data class RootStepsState(

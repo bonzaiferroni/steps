@@ -25,13 +25,13 @@ fun ExampleListScreen() {
     }
 
     Scaffold {
-        LazyColumn(Spacing.Unit) {
+        LazyColumn(1) {
             items(state.examples) {
                 Row(1) {
                     Text(it.label)
                     Expando()
                     ControlSet {
-                        DangerButton("Delete") { viewModel.deleteItem(it) }
+                        Button("Delete", background = Pond.colors.danger) { viewModel.deleteItem(it) }
                         RouteButton("View") { ExampleProfileRoute(it.id) }
                     }
                 }
