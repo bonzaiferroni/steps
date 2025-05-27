@@ -1,23 +1,30 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
+import compose.icons.tablericons.CircleCheck
+import compose.icons.tablericons.Edit
 import compose.icons.tablericons.Trash
+import compose.icons.tablericons.X
 import kotlinx.collections.immutable.persistentListOf
+import pondui.ui.behavior.FadeIn
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.nav.Scaffold
 import pondui.ui.theme.Pond
-import pondui.ui.theme.Spacing
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!
 @Composable
@@ -49,10 +56,36 @@ fun RootStepsScreen() {
         ) {
             items(state.rootSteps, key = { it.id }) { step ->
                 Row(1, modifier = Modifier.animateItem()) {
-                    Text(step.label)
+                    val stepLabelEdit = state.stepLabelEdits.firstOrNull() { it.id == step.id}
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier.height(Pond.ruler.unitSpacing * 7)
+                    ) {
+                        FadeIn(stepLabelEdit != null, offsetX = 20) {
+                            ControlSet {
+                                TextField(
+                                    text = stepLabelEdit?.label ?: "",
+                                    onTextChange = { viewModel.modifyLabelEdit(it, step.id) },
+                                    modifier = Modifier.onEnterPressed { viewModel.acceptLabelEdit(stepLabelEdit!!)}
+                                        .takeInitialFocus(),
+                                    initialSelectAll = true
+                                )
+                                ControlSetButton(TablerIcons.CircleCheck) { viewModel.acceptLabelEdit(stepLabelEdit!!) }
+                            }
+                        }
+                        FadeIn(stepLabelEdit == null, offsetX = 20) {
+                            Text(step.label)
+                        }
+                    }
+
                     Expando()
                     RowMenu(items = persistentListOf(
-                        RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step.id) }
+                        RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step.id) },
+                        if (stepLabelEdit != null) {
+                            RowMenuItem(TablerIcons.X) { viewModel.cancelLabelEdit(stepLabelEdit)}
+                        } else {
+                            RowMenuItem(TablerIcons.Edit) { viewModel.startLabelEdit(step) }
+                        },
                     ))
                 }
             }

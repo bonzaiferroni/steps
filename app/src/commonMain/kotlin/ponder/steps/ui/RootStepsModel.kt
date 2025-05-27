@@ -56,13 +56,47 @@ class RootStepsModel(
             refreshItems()
         }
     }
+
+    fun startLabelEdit(step: Step) {
+        setState { it.copy(stepLabelEdits = it.stepLabelEdits + StepLabelEdit(step.id, step.label)) }
+    }
+
+    fun acceptLabelEdit(stepLabelEdit: StepLabelEdit) {
+        val step = stateNow.rootSteps.firstOrNull { it.id == stepLabelEdit.id} ?: return
+        viewModelScope.launch {
+            val isSuccess = store.updateStep(step.copy(label = stepLabelEdit.label))
+            if (isSuccess) {
+                setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit) }
+                refreshItems()
+            }
+        }
+    }
+
+    fun cancelLabelEdit(stepLabelEdit: StepLabelEdit) {
+        setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit) }
+    }
+
+    fun modifyLabelEdit(label: String, stepId: Int) {
+        setState { state ->
+            val updatedEdits = state.stepLabelEdits.map {
+                if (it.id == stepId) it.copy(label = label) else it
+            }
+            state.copy(stepLabelEdits = updatedEdits)
+        }
+    }
 }
 
 data class RootStepsState(
     val rootSteps: List<Step> = emptyList(),
     val newStepLabel: String = "",
     val isAddingStep: Boolean = false,
+    val stepLabelEdits: List<StepLabelEdit> = emptyList()
 ) {
     // Check if the new step is valid, like makin' sure yer compass is pointin' north!
     val isValidNewStep get() = newStepLabel.isNotBlank()
 }
+
+data class StepLabelEdit(
+    val id: Int,
+    val label: String,
+)
