@@ -12,24 +12,19 @@ class PathModel(
     private val store: StepStore = StepStore()
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
-        refreshItems()
+        refreshItems(pathId)
     }
 
-    fun refreshItems() {
+    fun refreshItems(parentId: String?) {
         viewModelScope.launch {
-            val parentId = pathId
             if (parentId != null) {
                 val parent = store.readParent(parentId, true)
                 setState { it.copy(parent = parent, steps = parent.children ?: emptyList()) }
             } else {
                 val steps = store.readRootSteps(true)
-                setState { it.copy(steps = steps) }
+                setState { it.copy(ancestors = emptyList(), parent = null, steps = steps) }
             }
         }
-    }
-
-    fun navigateToStep(step: Step) {
-        // This function will be implemented when we add navigation to step details
     }
 
     fun createNewStep() {
@@ -97,19 +92,22 @@ class PathModel(
 
     fun navigateForward(step: Step) {
         val steps = step.children ?: return
-        setState {
-            it.copy(parent = step, steps = steps)
-        }
-        if (steps.any { it.children == null }) {
-            viewModelScope.launch {
-                val children = store.readChildren(step.id, true)
-                setState { it.copy(parent = step.copy(children = children), steps = children) }
-            }
-        }
+        val ancestors = stateNow.parent?.let { listOf(it) } ?: emptyList()
+        setState { it.copy(parent = step, steps = steps, ancestors = ancestors) }
+        refreshItems(step.id)
+    }
+
+    fun navigateBack(step: Step) {
+        val steps = step.children ?: return
+        val ancestors = stateNow.ancestors.indexOfFirst { it.id == step.id }
+            .let { stateNow.ancestors.subList(0, it) }
+        setState { it.copy(parent = step, steps = steps, ancestors = ancestors) }
+        refreshItems(step.id)
     }
 }
 
 data class RootStepsState(
+    val ancestors: List<Step> = emptyList(),
     val parent: Step? = null,
     val steps: List<Step> = emptyList(),
     val newStepLabel: String = "",

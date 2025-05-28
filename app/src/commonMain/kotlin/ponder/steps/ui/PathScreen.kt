@@ -49,6 +49,17 @@ fun PathScreen() {
     }
 
     Scaffold {
+        ControlSet {
+            if (state.parent != null) {
+                ControlSetButton("Root") { viewModel.refreshItems(null) }
+            }
+            for (ancestor in state.ancestors) {
+                ControlSetButton(ancestor.label) { viewModel.navigateBack(ancestor) }
+            }
+            state.parent?.let {
+                Text("${it.label}:")
+            }
+        }
         LazyColumn(
             spacingUnits = 1,
             modifier = Modifier.fillMaxWidth()
