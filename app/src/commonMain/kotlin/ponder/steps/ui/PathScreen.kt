@@ -22,11 +22,13 @@ import compose.icons.tablericons.Edit
 import compose.icons.tablericons.Trash
 import compose.icons.tablericons.X
 import kotlinx.collections.immutable.persistentListOf
+import ponder.steps.PathRoute
 import pondui.ui.behavior.FadeIn
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
+import pondui.ui.nav.LocalNav
 import pondui.ui.nav.Scaffold
 import pondui.ui.theme.Pond
 
@@ -35,6 +37,11 @@ import pondui.ui.theme.Pond
 fun PathScreen() {
     val viewModel: PathModel = viewModel { PathModel() }
     val state by viewModel.state.collectAsState()
+    val nav = LocalNav.current
+
+    LaunchedEffect(state.pathId) {
+        nav.setRoute(PathRoute(state.pathId), true)
+    }
 
     HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)
 

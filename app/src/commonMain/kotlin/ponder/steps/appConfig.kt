@@ -28,14 +28,14 @@ val appConfig = PondConfig(
         RouteConfig(HelloRoute::matchRoute) { defaultScreen<HelloRoute> { HelloScreen() } },
         RouteConfig(ExampleListRoute::matchRoute) { defaultScreen<ExampleListRoute> { ExampleListScreen() } },
         RouteConfig(ExampleProfileRoute::matchRoute) { defaultScreen<ExampleProfileRoute> { ExampleProfileScreen(it) } },
-        RouteConfig(RootStepsRoute::matchRoute) { defaultScreen<RootStepsRoute> { PathScreen() } },
+        RouteConfig(PathRoute::matchRoute) { defaultScreen<PathRoute> { PathScreen() } },
         RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } }
     ),
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),
         PortalDoor(TablerIcons.YinYang, HelloRoute),
         PortalDoor(TablerIcons.Rocket, ExampleListRoute),
-        PortalDoor(TablerIcons.List, RootStepsRoute, "Roots"),
+        PortalDoor(TablerIcons.List, PathRoute(), "Roots"),
         PortalDoor(TablerIcons.Star, GeminiRoute),
     ),
 )

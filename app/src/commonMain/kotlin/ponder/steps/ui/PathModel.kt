@@ -8,7 +8,7 @@ import ponder.steps.model.data.NewStep
 import pondui.ui.core.StateModel
 
 class PathModel(
-    val pathId: String? = null,
+    pathId: String? = null,
     private val store: StepStore = StepStore()
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
@@ -17,13 +17,10 @@ class PathModel(
 
     fun refreshItems(parentId: String?) {
         viewModelScope.launch {
-            if (parentId != null) {
-                val parent = store.readParent(parentId, true)
-                setState { it.copy(parent = parent, steps = parent.children ?: emptyList()) }
-            } else {
-                val steps = store.readRootSteps(true)
-                setState { it.copy(ancestors = emptyList(), parent = null, steps = steps) }
-            }
+            val parent = parentId?.let { store.readParent(parentId, true) }
+            val steps = parent?.children ?: store.readRootSteps(true)
+            val ancestors = if (parentId != null) stateNow.ancestors else emptyList()
+            setState { it.copy(parent = parent, steps = steps, ancestors = ancestors, pathId = parentId) }
         }
     }
 
@@ -107,6 +104,7 @@ class PathModel(
 }
 
 data class RootStepsState(
+    val pathId: String? = null,
     val ancestors: List<Step> = emptyList(),
     val parent: Step? = null,
     val steps: List<Step> = emptyList(),
