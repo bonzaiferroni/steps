@@ -21,6 +21,8 @@ class GeminiService(
     suspend fun generateText(vararg parts: String) = client.generateTextFromParts(*parts)
 
     suspend fun chat(messages: List<GeminiMessage>) = client.generateTextFromMessages(messages)
+
+    suspend fun generateImage(text: String) = client.generateImage(text)
 }
 
 private val log = LoggerFactory.getLogger("Gemini")

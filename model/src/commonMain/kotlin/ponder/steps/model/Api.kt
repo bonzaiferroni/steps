@@ -10,6 +10,7 @@ import ponder.steps.model.data.Step
 object Api: ParentEndpoint(null, apiPrefix) {
     object Gemini : ParentEndpoint(this, "/gemini") {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
+        object Image : PostEndpoint<String, String>(this, "/image")
     }
     object Examples : GetByIdEndpoint<Example>(this, "/example") {
         object User : GetEndpoint<List<Example>>(this, "/user")

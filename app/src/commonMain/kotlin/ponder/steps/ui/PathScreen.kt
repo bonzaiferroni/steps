@@ -19,6 +19,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.CircleCheck
 import compose.icons.tablericons.Edit
+import compose.icons.tablericons.Olympics
 import compose.icons.tablericons.Trash
 import compose.icons.tablericons.X
 import kotlinx.collections.immutable.persistentListOf
@@ -127,6 +128,7 @@ fun PathScreen() {
                             } else {
                                 RowMenuItem(TablerIcons.Edit) { viewModel.startLabelEdit(step) }
                             },
+                            RowMenuItem(TablerIcons.Olympics) { viewModel.generateImage(step) },
                             RowMenuItem(TablerIcons.ArrowRight) { viewModel.navigateForward(step)}
                         ))
                 }

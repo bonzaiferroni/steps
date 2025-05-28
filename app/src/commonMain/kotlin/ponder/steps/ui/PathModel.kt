@@ -2,6 +2,7 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ponder.steps.io.GeminiStore
 import ponder.steps.io.StepStore
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
@@ -9,7 +10,8 @@ import pondui.ui.core.StateModel
 
 class PathModel(
     pathId: String? = null,
-    private val store: StepStore = StepStore()
+    private val store: StepStore = StepStore(),
+    private val geminiStore: GeminiStore = GeminiStore()
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
         refreshItems(pathId)
@@ -100,6 +102,12 @@ class PathModel(
             .let { stateNow.ancestors.subList(0, it) }
         setState { it.copy(parent = step, steps = steps, ancestors = ancestors) }
         refreshItems(step.id)
+    }
+
+    fun generateImage(step: Step) {
+        viewModelScope.launch {
+            geminiStore.image(step.label)
+        }
     }
 }
 

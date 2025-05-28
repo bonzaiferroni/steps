@@ -4,6 +4,8 @@ import io.ktor.server.routing.Routing
 import klutch.server.*
 import ponder.steps.model.Api
 import ponder.steps.server.clients.GeminiService
+import java.io.File
+import java.util.Base64
 
 /**
  * Arr! This be the route for the Gemini AI chat, ye scallywags!
@@ -15,4 +17,17 @@ fun Routing.serveGemini(service: GeminiService = GeminiService()) {
         // Send the messages to the AI and get a response
         service.chat(messages)
     }
+
+    post(Api.Gemini.Image) { request, endpoint ->
+        val data = service.generateImage(request) ?: error("could not generate image")
+        val bytes = Base64.getDecoder().decode(data)
+        val filename = "img/${requestToFilename(request)}.png"
+        File(filename).writeBytes(bytes)
+        filename
+    }
 }
+
+fun requestToFilename(input: String): String =
+    input
+        .take(64)
+        .replace(Regex("[^A-Za-z0-9]"), "_")
