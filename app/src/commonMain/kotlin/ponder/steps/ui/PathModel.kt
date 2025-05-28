@@ -7,37 +7,45 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
 import pondui.ui.core.StateModel
 
-class RootStepsModel(
+class PathModel(
+    val pathId: String? = null,
     private val store: StepStore = StepStore()
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
         refreshItems()
     }
 
-    // Arr! Fetch all the root steps from the server, like gathering all the captains at a pirate council!
     fun refreshItems() {
         viewModelScope.launch {
-            val rootSteps = store.readRootSteps(true)
-            setState { it.copy(rootSteps = rootSteps) }
+            val parentId = pathId
+            if (parentId != null) {
+                val parent = store.readParent(parentId, true)
+                setState { it.copy(parent = parent, steps = parent.children ?: emptyList()) }
+            } else {
+                val steps = store.readRootSteps(true)
+                setState { it.copy(steps = steps) }
+            }
         }
     }
 
-    // Navigate to a step's details, like followin' a treasure map to its destination!
     fun navigateToStep(step: Step) {
         // This function will be implemented when we add navigation to step details
     }
 
-    fun createNewRootStep() {
+    fun createNewStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
+            val parentId = stateNow.parent?.id
+            val label = stateNow.newStepLabel
+            val position = stateNow.steps.size
             val stepId = store.createStep(NewStep(
-                parentId = null, // -1 indicates a root step with no parent, like a captain with no admiral!
-                label = stateNow.newStepLabel,
-                position = stateNow.rootSteps.size // Put it at the end of the list, like the newest recruit in the crew!
+                parentId = parentId,
+                label = label,
+                position = position
             ))
             if (stepId != null) {
-                refreshItems()
-                setState { it.copy(newStepLabel = "", isAddingStep = false) }
+                val step = Step(stepId, parentId, label, position, null)
+                setState { it.copy(newStepLabel = "", isAddingStep = false, steps = it.steps + step) }
             }
         }
     }
@@ -52,8 +60,10 @@ class RootStepsModel(
 
     fun removeStep(stepId: String) {
         viewModelScope.launch {
-            store.deleteStep(stepId)
-            refreshItems()
+            val isSuccess = store.deleteStep(stepId)
+            if (isSuccess) {
+                setState { it.copy(steps = it.steps.filter { step -> step.id != stepId }) }
+            }
         }
     }
 
@@ -62,12 +72,12 @@ class RootStepsModel(
     }
 
     fun acceptLabelEdit(stepLabelEdit: StepLabelEdit) {
-        val step = stateNow.rootSteps.firstOrNull { it.id == stepLabelEdit.id} ?: return
+        val step = stateNow.steps.firstOrNull { it.id == stepLabelEdit.id} ?: return
         viewModelScope.launch {
             val isSuccess = store.updateStep(step.copy(label = stepLabelEdit.label))
             if (isSuccess) {
-                setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit) }
-                refreshItems()
+                val steps = stateNow.steps.map { if (it.id == stepLabelEdit.id) step.copy(label = stepLabelEdit.label) else it }
+                setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit, steps = steps) }
             }
         }
     }
@@ -84,10 +94,24 @@ class RootStepsModel(
             state.copy(stepLabelEdits = updatedEdits)
         }
     }
+
+    fun navigateForward(step: Step) {
+        val steps = step.children ?: return
+        setState {
+            it.copy(parent = step, steps = steps)
+        }
+        if (steps.any { it.children == null }) {
+            viewModelScope.launch {
+                val children = store.readChildren(step.id, true)
+                setState { it.copy(parent = step.copy(children = children), steps = children) }
+            }
+        }
+    }
 }
 
 data class RootStepsState(
-    val rootSteps: List<Step> = emptyList(),
+    val parent: Step? = null,
+    val steps: List<Step> = emptyList(),
     val newStepLabel: String = "",
     val isAddingStep: Boolean = false,
     val stepLabelEdits: List<StepLabelEdit> = emptyList()

@@ -4,7 +4,6 @@ import klutch.db.DbService
 import klutch.db.read
 import klutch.utils.*
 import org.jetbrains.exposed.sql.JoinType
-import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -23,31 +22,36 @@ class StepApiService : DbService() {
 
     suspend fun readStep(stepId: String, includeChildren: Boolean) = dbQuery {
         val step = StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
-        if (includeChildren) step?.readChildren()?.first() else step
+        if (includeChildren) step?.addChildren()?.first() else step
     }
 
-    suspend fun readStepsByParent(parentId: String, includeChildren: Boolean) = dbQuery {
-        val steps = StepAspect.read { it.parentId.eq(UUID.fromString(parentId)) }
-        if (includeChildren) steps.readChildren() else steps
+    suspend fun readParent(parentId: String, includeChildren: Boolean) = dbQuery {
+        val step = readStep(parentId, true)
+        if (includeChildren) step?.copy(children = step.children?.addChildren()) else step
     }
 
-    private fun Step.readChildren() = listOf(this).readChildren()
-
-    private fun List<Step>.readChildren(): List<Step> {
-        val parentIds = this.map { it.id.toUUID() }
-        val children = StepPositionTable.join(StepTable, JoinType.LEFT, StepPositionTable.stepId, StepTable.id)
-            .select(StepPositionTable.position, StepTable.id, StepTable.label)
-            .where { StepPositionTable.parentId.inList(parentIds) }
-            .map { it.toStep() }
-        return this.map { parent ->
-            parent.copy(children = children.filter { it.parentId == parent.id }.sortedBy { it.position })
-        }
+    suspend fun readChildren(parentId: String, includeChildren: Boolean) = dbQuery {
+        val steps = StepAspect.read { it.parentId.eq(parentId) }
+        if (includeChildren) steps.addChildren() else steps
     }
 
     suspend fun readRootSteps(includeChildren: Boolean) = dbQuery {
         val subQuery = StepPositionTable.select(StepPositionTable.stepId)
         val steps = StepTable.read { it.id.notInSubQuery(subQuery) }.map { it.toStep() }
-        if (includeChildren) steps.readChildren() else steps
+        if (includeChildren) steps.addChildren() else steps
+    }
+
+    private fun Step.addChildren() = listOf(this).addChildren()
+
+    private fun List<Step>.addChildren(): List<Step> {
+        val parentIds = this.map { it.id.toUUID() }
+        val children = StepPositionTable.join(StepTable, JoinType.LEFT, StepPositionTable.stepId, StepTable.id)
+            .select(StepPositionTable.position, StepPositionTable.parentId, StepTable.id, StepTable.label)
+            .where { StepPositionTable.parentId.inList(parentIds) }
+            .map { it.toStep() }
+        return this.map { parent ->
+            parent.copy(children = children.filter { it.parentId == parent.id }.sortedBy { it.position })
+        }
     }
 
     suspend fun createStep(newStep: NewStep) = dbQuery {

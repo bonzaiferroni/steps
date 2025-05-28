@@ -6,11 +6,14 @@ import ponder.steps.model.data.NewStep
 import pondui.io.ApiStore
 
 class StepStore: ApiStore() {
-    suspend fun readStep(stepId: Int, includeChildren: Boolean) =
+    suspend fun readStep(stepId: String, includeChildren: Boolean) =
         client.get(Api.Steps, stepId, Api.Steps.includeChildren.write(includeChildren))
 
-    suspend fun readStepsByParent(parentId: Int, includeChildren: Boolean) =
+    suspend fun readParent(parentId: String, includeChildren: Boolean) =
         client.get(Api.Steps.Parent, parentId, Api.Steps.Parent.includeChildren.write(includeChildren))
+
+    suspend fun readChildren(parentId: String, includeChildren: Boolean) =
+        client.get(Api.Steps.Children, parentId, Api.Steps.Children.includeChildren.write(includeChildren))
 
     suspend fun readRootSteps(includeChildren: Boolean) =
         client.get(Api.Steps.Root, Api.Steps.includeChildren.write(includeChildren))

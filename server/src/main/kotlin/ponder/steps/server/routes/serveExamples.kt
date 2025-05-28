@@ -9,7 +9,7 @@ import ponder.steps.model.Api
 import ponder.steps.server.db.services.ExampleApiService
 
 fun Routing.serveExamples(service: ExampleApiService = ExampleApiService()) {
-    getById(Api.Examples, { it.toLong()} ) { exampleId, endpoint ->
+    get(Api.Examples, { it.toLong()} ) { exampleId, endpoint ->
         service.readExample(exampleId)
     }
 

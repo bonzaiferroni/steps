@@ -2,7 +2,6 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.*
@@ -13,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
+import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.CircleCheck
 import compose.icons.tablericons.Edit
 import compose.icons.tablericons.Trash
@@ -28,8 +28,8 @@ import pondui.ui.theme.Pond
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!
 @Composable
-fun RootStepsScreen() {
-    val viewModel: RootStepsModel = viewModel { RootStepsModel() }
+fun PathScreen() {
+    val viewModel: PathModel = viewModel { PathModel() }
     val state by viewModel.state.collectAsState()
 
     HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)
@@ -42,9 +42,9 @@ fun RootStepsScreen() {
                 onTextChange = viewModel::setNewStepLabel,
                 placeholder = "Enter step name",
                 modifier = Modifier.takeInitialFocus()
-                    .onEnterPressed(viewModel::createNewRootStep)
+                    .onEnterPressed(viewModel::createNewStep)
             )
-            ControlSetButton("Add", onClick = viewModel::createNewRootStep)
+            ControlSetButton("Add", onClick = viewModel::createNewStep)
         }
     }
 
@@ -54,9 +54,9 @@ fun RootStepsScreen() {
             modifier = Modifier.fillMaxWidth()
                 .animateContentSize()
         ) {
-            items(state.rootSteps, key = { it.id }) { step ->
+            items(state.steps, key = { it.id }) { step ->
                 Row(1, modifier = Modifier.animateItem()) {
-                    val stepLabelEdit = state.stepLabelEdits.firstOrNull() { it.id == step.id}
+                    val stepLabelEdit = state.stepLabelEdits.firstOrNull() { it.id == step.id }
                     Box(
                         contentAlignment = Alignment.CenterStart,
                         modifier = Modifier.height(Pond.ruler.unitSpacing * 7)
@@ -66,7 +66,7 @@ fun RootStepsScreen() {
                                 TextField(
                                     text = stepLabelEdit?.label ?: "",
                                     onTextChange = { viewModel.modifyLabelEdit(it, step.id) },
-                                    modifier = Modifier.onEnterPressed { viewModel.acceptLabelEdit(stepLabelEdit!!)}
+                                    modifier = Modifier.onEnterPressed { viewModel.acceptLabelEdit(stepLabelEdit!!) }
                                         .takeInitialFocus(),
                                     initialSelectAll = true
                                 )
@@ -77,16 +77,22 @@ fun RootStepsScreen() {
                             Text(step.label)
                         }
                     }
+                    if (step.children?.isNotEmpty() == true) {
+                        Button(TablerIcons.ArrowRight) { viewModel.navigateForward(step) }
+                    }
 
                     Expando()
-                    RowMenu(items = persistentListOf(
-                        RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step.id) },
-                        if (stepLabelEdit != null) {
-                            RowMenuItem(TablerIcons.X) { viewModel.cancelLabelEdit(stepLabelEdit)}
-                        } else {
-                            RowMenuItem(TablerIcons.Edit) { viewModel.startLabelEdit(step) }
-                        },
-                    ))
+
+                    RowMenu(
+                        items = persistentListOf(
+                            RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step.id) },
+                            if (stepLabelEdit != null) {
+                                RowMenuItem(TablerIcons.X) { viewModel.cancelLabelEdit(stepLabelEdit) }
+                            } else {
+                                RowMenuItem(TablerIcons.Edit) { viewModel.startLabelEdit(step) }
+                            },
+                            RowMenuItem(TablerIcons.ArrowRight) { viewModel.navigateForward(step)}
+                        ))
                 }
             }
         }

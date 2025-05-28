@@ -12,7 +12,7 @@ import ponder.steps.ui.ExampleListScreen
 import ponder.steps.ui.ExampleProfileScreen
 import ponder.steps.ui.GeminiScreen
 import ponder.steps.ui.HelloScreen
-import ponder.steps.ui.RootStepsScreen
+import ponder.steps.ui.PathScreen
 import ponder.steps.ui.StartScreen
 import pondui.ui.core.PondConfig
 import pondui.ui.core.RouteConfig
@@ -28,7 +28,7 @@ val appConfig = PondConfig(
         RouteConfig(HelloRoute::matchRoute) { defaultScreen<HelloRoute> { HelloScreen() } },
         RouteConfig(ExampleListRoute::matchRoute) { defaultScreen<ExampleListRoute> { ExampleListScreen() } },
         RouteConfig(ExampleProfileRoute::matchRoute) { defaultScreen<ExampleProfileRoute> { ExampleProfileScreen(it) } },
-        RouteConfig(RootStepsRoute::matchRoute) { defaultScreen<RootStepsRoute> { RootStepsScreen() } },
+        RouteConfig(RootStepsRoute::matchRoute) { defaultScreen<RootStepsRoute> { PathScreen() } },
         RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } }
     ),
     doors = persistentListOf(

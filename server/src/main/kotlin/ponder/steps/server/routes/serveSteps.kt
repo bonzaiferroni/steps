@@ -7,16 +7,21 @@ import ponder.steps.server.db.services.StepApiService
 
 fun Routing.serveSteps(service: StepApiService = StepApiService()) {
     // Ahoy! This route be for fetchin' a single step by its id!
-    getById(Api.Steps, { it }) { stepId, endpoint ->
+    get(Api.Steps, { it }) { stepId, endpoint ->
         val includeChildren = endpoint.includeChildren.readParam(call)
         service.readStep(stepId, includeChildren)
     }
 
     authenticateJwt {
-        get(Api.Steps.Parent) { endpoint ->
+        get(Api.Steps.Parent, { it }) { id, endpoint ->
+            val includeChildren = endpoint.includeChildren.readParam(call)
+            service.readParent(id, includeChildren)
+        }
+
+        get(Api.Steps.Children, { it }) { id, endpoint ->
             val parentId = call.getIdOrThrow { it }
             val includeChildren = endpoint.includeChildren.readParam(call)
-            service.readStepsByParent(parentId, includeChildren)
+            service.readChildren(parentId, includeChildren)
         }
 
         get(Api.Steps.Root) { endpoint ->
