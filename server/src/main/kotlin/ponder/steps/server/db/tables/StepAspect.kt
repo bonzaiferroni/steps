@@ -17,7 +17,7 @@ object StepAspect: Aspect<StepAspect, Step>(
 
 fun ResultRow.toStep() = Step(
     id = this[StepAspect.stepId].toString(),
-    parentId = this.getOrNull(StepAspect.parentId).toString(),
+    parentId = this.getOrNull(StepAspect.parentId)?.toString(),
     label = this[StepAspect.label],
     position = this.getOrNull(StepAspect.position)
 )

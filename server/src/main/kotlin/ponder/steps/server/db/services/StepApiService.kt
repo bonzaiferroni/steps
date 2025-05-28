@@ -64,7 +64,8 @@ class StepApiService : DbService() {
 
         if (!updated) return@dbQuery null
 
-        step.parentId?.let { parentId ->
+        val parentId = step.parentId
+        if (parentId != null) {
             val equalsParent = StepPositionTable.parentId.eq(UUID.fromString(parentId))
             val equalsStep = StepPositionTable.stepId.eq(UUID.fromString(step.id))
             StepPositionTable.update(
