@@ -19,5 +19,6 @@ fun ResultRow.toStep() = Step(
     id = this[StepAspect.stepId].toString(),
     parentId = this.getOrNull(StepAspect.parentId)?.toString(),
     label = this[StepAspect.label],
-    position = this.getOrNull(StepAspect.position)
+    position = this.getOrNull(StepAspect.position),
+    children = null
 )

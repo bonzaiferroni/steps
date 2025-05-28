@@ -6,21 +6,18 @@ import ponder.steps.model.data.NewStep
 import pondui.io.ApiStore
 
 class StepStore: ApiStore() {
-    // Fetch a single step by its id, like finding a specific spot on yer treasure map!
-    suspend fun readStep(stepId: Int) = client.get(Api.Steps, stepId)
+    suspend fun readStep(stepId: Int, includeChildren: Boolean) =
+        client.get(Api.Steps, stepId, Api.Steps.includeChildren.write(includeChildren))
 
-    // Fetch all steps for a parent, like gathering all the clues that lead to the treasure!
-    suspend fun readStepsByParent(parentId: Int) = client.get(Api.Steps.Parent, "id" to parentId.toString())
+    suspend fun readStepsByParent(parentId: Int, includeChildren: Boolean) =
+        client.get(Api.Steps.Parent, parentId, Api.Steps.Parent.includeChildren.write(includeChildren))
 
-    // Arr! Fetch all the root steps - the ones with no parent, like the captain of a ship with no superior!
-    suspend fun readRootSteps() = client.get(Api.Steps.Root)
+    suspend fun readRootSteps(includeChildren: Boolean) =
+        client.get(Api.Steps.Root, Api.Steps.includeChildren.write(includeChildren))
 
-    // Add a new step to the plan, like marking a new X on yer map!
     suspend fun createStep(newStep: NewStep) = client.post(Api.Steps.Create, newStep)
 
-    // Update a step, like correcting the coordinates on yer map when ye get better bearings!
     suspend fun updateStep(step: Step) = client.update(Api.Steps.Update, step)
 
-    // Remove a step from the plan, like crossing out a false lead on yer treasure hunt!
     suspend fun deleteStep(stepId: String) = client.delete(Api.Steps.Delete, stepId)
 }

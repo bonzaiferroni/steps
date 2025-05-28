@@ -8,4 +8,5 @@ data class Step(
     val parentId: String?,
     val label: String,
     val position: Int?,
+    val children: List<Step>?
 )

@@ -17,7 +17,7 @@ class RootStepsModel(
     // Arr! Fetch all the root steps from the server, like gathering all the captains at a pirate council!
     fun refreshItems() {
         viewModelScope.launch {
-            val rootSteps = store.readRootSteps()
+            val rootSteps = store.readRootSteps(true)
             setState { it.copy(rootSteps = rootSteps) }
         }
     }

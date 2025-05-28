@@ -2,6 +2,8 @@ package ponder.steps.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
+import klutch.utils.*
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -19,23 +21,35 @@ import java.util.UUID
 
 class StepApiService : DbService() {
 
-    // Avast ye! This function fetches a single step by its id, or returns null if the treasure be not found!
-    suspend fun readStep(stepId: String) = dbQuery {
-        StepTable.read { it.id.eq(UUID.fromString(stepId)) }.firstOrNull()?.toStep()
+    suspend fun readStep(stepId: String, includeChildren: Boolean) = dbQuery {
+        val step = StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
+        if (includeChildren) step?.readChildren()?.first() else step
     }
 
-    // Gather all steps for a parent
-    suspend fun readStepsByParent(parentId: String) = dbQuery {
-        StepAspect.read { it.parentId.eq(UUID.fromString(parentId)) }
+    suspend fun readStepsByParent(parentId: String, includeChildren: Boolean) = dbQuery {
+        val steps = StepAspect.read { it.parentId.eq(UUID.fromString(parentId)) }
+        if (includeChildren) steps.readChildren() else steps
     }
 
-    // Arr! Fetch all the root steps
-    suspend fun readRootSteps() = dbQuery {
+    private fun Step.readChildren() = listOf(this).readChildren()
+
+    private fun List<Step>.readChildren(): List<Step> {
+        val parentIds = this.map { it.id.toUUID() }
+        val children = StepPositionTable.join(StepTable, JoinType.LEFT, StepPositionTable.stepId, StepTable.id)
+            .select(StepPositionTable.position, StepTable.id, StepTable.label)
+            .where { StepPositionTable.parentId.inList(parentIds) }
+            .map { it.toStep() }
+        return this.map { parent ->
+            parent.copy(children = children.filter { it.parentId == parent.id }.sortedBy { it.position })
+        }
+    }
+
+    suspend fun readRootSteps(includeChildren: Boolean) = dbQuery {
         val subQuery = StepPositionTable.select(StepPositionTable.stepId)
-        StepTable.read { it.id.notInSubQuery(subQuery) }.map { it.toStep() }
+        val steps = StepTable.read { it.id.notInSubQuery(subQuery) }.map { it.toStep() }
+        if (includeChildren) steps.readChildren() else steps
     }
 
-    // Add a new step to the plan, like marking a new spot on yer treasure map!
     suspend fun createStep(newStep: NewStep) = dbQuery {
         if (newStep.parentId != null && newStep.position == null) return@dbQuery null
 
@@ -54,7 +68,6 @@ class StepApiService : DbService() {
         stepId.toString()
     }
 
-    // Update a step, like redrawing part of yer map when ye find better information!
     suspend fun updateStep(step: Step) = dbQuery {
         val updated = StepTable.update(
             where = { StepTable.id.eq(UUID.fromString(step.id)) }
@@ -78,7 +91,6 @@ class StepApiService : DbService() {
         true
     }
 
-    // Remove a step from the plan, like crossing out a spot on yer map that turned out to be empty!
     suspend fun deleteStep(stepId: String) = dbQuery {
         StepTable.deleteWhere { this.id.eq(UUID.fromString(stepId)) } == 1
     }

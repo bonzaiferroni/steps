@@ -19,8 +19,14 @@ object Api: ParentEndpoint(null, apiPrefix) {
     }
 
     object Steps: GetByIdEndpoint<Step>(this, "/step") {
-        object Parent : GetEndpoint<List<Step>>(this, "/parent/{id}")
-        object Root : GetEndpoint<List<Step>>(this, "/root")
+        val includeChildren = EndpointParam("includeChildren", { it.toBoolean() }, { it.toString()})
+
+        object Parent : GetByIdEndpoint<List<Step>>(this, "/parent/{id}") {
+            val includeChildren = EndpointParam("includeChildren", { it.toBoolean() }, { it.toString()})
+        }
+        object Root : GetEndpoint<List<Step>>(this, "/root") {
+            val includeChildren = EndpointParam("includeChildren", { it.toBoolean() }, { it.toString()})
+        }
         object Create: PostEndpoint<NewStep, String>(this)
         object Delete: DeleteEndpoint<String>(this)
         object Update: UpdateEndpoint<Step>(this)

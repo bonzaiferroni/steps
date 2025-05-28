@@ -112,6 +112,8 @@ object Api: ParentEndpoint(null, apiPrefix) {
 }
 ```
 
+When retrieving an item by id, `GetByIdEndpoint<T>` is used. Query parameters can be defined with `EndpointParam<T>`.
+
 ### Server
 This project has a `server` module which contains a ktor configuration that queries a postgres backend using the Exposed framework.
 
