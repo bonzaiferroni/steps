@@ -2,6 +2,8 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.*
@@ -9,8 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.CircleCheck
@@ -49,7 +53,7 @@ fun PathScreen() {
     }
 
     Scaffold {
-        ControlSet {
+        ControlSet(modifier = Modifier.height(Pond.ruler.unitSpacing * 7)) {
             if (state.parent != null) {
                 ControlSetButton("Root") { viewModel.refreshItems(null) }
             }
@@ -66,11 +70,23 @@ fun PathScreen() {
                 .animateContentSize()
         ) {
             items(state.steps, key = { it.id }) { step ->
-                Row(1, modifier = Modifier.animateItem()) {
+                Row(1, modifier = Modifier.height(Pond.ruler.unitSpacing * 7)
+                    .animateItem()) {
+
+                    FadeIn(rotationZ = 180, scale = true, durationMillis = 500) {
+                        AsyncImage(
+                            model = "http://localhost:8080/img/horse.png",
+                            contentDescription = null,
+                            modifier = Modifier.clip(Pond.ruler.round)
+                                .fillMaxHeight()
+                                .aspectRatio(1f)
+                        )
+                    }
+
                     val stepLabelEdit = state.stepLabelEdits.firstOrNull() { it.id == step.id }
                     Box(
                         contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier.height(Pond.ruler.unitSpacing * 7)
+                        modifier = Modifier.fillMaxHeight()
                     ) {
                         FadeIn(stepLabelEdit != null, offsetX = 20) {
                             ControlSet {
@@ -89,7 +105,9 @@ fun PathScreen() {
                         }
                     }
                     if (step.children?.isNotEmpty() == true) {
-                        Button(TablerIcons.ArrowRight) { viewModel.navigateForward(step) }
+                        FadeIn(offsetX = 20) {
+                            Button(TablerIcons.ArrowRight) { viewModel.navigateForward(step) }
+                        }
                     }
 
                     Expando()
