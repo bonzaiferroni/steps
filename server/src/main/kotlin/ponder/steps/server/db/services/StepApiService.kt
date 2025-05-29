@@ -77,9 +77,10 @@ class StepApiService : DbService() {
             where = { StepTable.id.eq(UUID.fromString(step.id)) }
         ) {
             it[this.label] = step.label
+            it[this.imgUrl] = step.imgUrl
         } == 1
 
-        if (!updated) return@dbQuery null
+        if (!updated) return@dbQuery false
 
         val parentId = step.parentId
         if (parentId != null) {

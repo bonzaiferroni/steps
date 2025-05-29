@@ -18,6 +18,9 @@ class StepStore: ApiStore() {
     suspend fun readRootSteps(includeChildren: Boolean) =
         client.get(Api.Steps.Root, Api.Steps.includeChildren.write(includeChildren))
 
+    suspend fun generateImage(stepId: String) =
+        client.get(Api.Steps.GenerateImage, stepId)
+
     suspend fun createStep(newStep: NewStep) = client.post(Api.Steps.Create, newStep)
 
     suspend fun updateStep(step: Step) = client.update(Api.Steps.Update, step)

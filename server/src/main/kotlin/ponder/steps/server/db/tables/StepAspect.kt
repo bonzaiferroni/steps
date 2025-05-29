@@ -13,6 +13,7 @@ object StepAspect: Aspect<StepAspect, Step>(
     val parentId = add(StepPositionTable.parentId)
     val label = add(StepTable.label)
     val position = add(StepPositionTable.position)
+    val imgUrl = add(StepTable.imgUrl)
 }
 
 fun ResultRow.toStep() = Step(
@@ -20,5 +21,6 @@ fun ResultRow.toStep() = Step(
     parentId = this.getOrNull(StepAspect.parentId)?.toString(),
     label = this[StepAspect.label],
     position = this.getOrNull(StepAspect.position),
+    imgUrl = this[StepAspect.imgUrl],
     children = null
 )

@@ -19,11 +19,7 @@ fun Routing.serveGemini(service: GeminiService = GeminiService()) {
     }
 
     post(Api.Gemini.Image) { request, endpoint ->
-        val data = service.generateImage(request) ?: error("could not generate image")
-        val bytes = Base64.getDecoder().decode(data)
-        val filename = "img/${requestToFilename(request)}.png"
-        File(filename).writeBytes(bytes)
-        filename
+        service.generateImage(request)
     }
 }
 

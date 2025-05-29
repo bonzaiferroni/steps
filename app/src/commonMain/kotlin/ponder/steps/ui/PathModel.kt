@@ -38,7 +38,7 @@ class PathModel(
                 position = position
             ))
             if (stepId != null) {
-                val step = Step(stepId, parentId, label, position, null)
+                val step = Step(stepId, parentId, label, position, null, null)
                 setState { it.copy(newStepLabel = "", isAddingStep = false, steps = it.steps + step) }
             }
         }
@@ -106,7 +106,9 @@ class PathModel(
 
     fun generateImage(step: Step) {
         viewModelScope.launch {
-            geminiStore.image(step.label)
+            val url = store.generateImage(step.id)
+            val steps = stateNow.steps.map { it -> if (it.id == step.id) it.copy(imgUrl = url) else it }
+            setState { it.copy(steps =  steps) }
         }
     }
 }

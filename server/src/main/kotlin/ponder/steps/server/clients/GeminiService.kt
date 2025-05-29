@@ -7,6 +7,9 @@ import klutch.log.LogLevel
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ponder.steps.server.plugins.env
+import ponder.steps.server.routes.requestToFilename
+import java.io.File
+import java.util.Base64
 
 class GeminiService(
     val client: GeminiClient = GeminiClient(
@@ -22,7 +25,13 @@ class GeminiService(
 
     suspend fun chat(messages: List<GeminiMessage>) = client.generateTextFromMessages(messages)
 
-    suspend fun generateImage(text: String) = client.generateImage(text)
+    suspend fun generateImage(text: String): String {
+        val data = client.generateImage(text) ?: error("Unable to generate image")
+        val bytes = Base64.getDecoder().decode(data)
+        val filename = "img/${requestToFilename(text)}.png"
+        File(filename).writeBytes(bytes)
+        return filename
+    }
 }
 
 private val log = LoggerFactory.getLogger("Gemini")

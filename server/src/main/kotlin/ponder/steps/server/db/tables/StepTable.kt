@@ -10,4 +10,5 @@ import kotlin.uuid.Uuid
 
 internal object StepTable : UUIDTable("step") {
     val label = text("label")
+    val imgUrl = text("img_url").nullable()
 }

@@ -83,7 +83,7 @@ fun PathScreen() {
 
                     FadeIn(rotationZ = 180, scale = true, durationMillis = 500) {
                         AsyncImage(
-                            model = "http://localhost:8080/img/horse.png",
+                            model = "http://localhost:8080/${step.imgUrl ?: "img/horse.png"}",
                             contentDescription = null,
                             modifier = Modifier.clip(Pond.ruler.round)
                                 .fillMaxHeight()
