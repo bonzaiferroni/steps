@@ -40,8 +40,10 @@ fun PathScreen() {
     val state by viewModel.state.collectAsState()
     val nav = LocalNav.current
 
-    LaunchedEffect(state.pathId) {
-        nav.setRoute(PathRoute(state.pathId), true)
+    LaunchedEffect(state.path) {
+        state.path?.id?.let {
+            nav.setRoute(PathRoute(it), true)
+        }
     }
 
     HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)
@@ -62,13 +64,13 @@ fun PathScreen() {
 
     Scaffold {
         ControlSet(modifier = Modifier.height(Pond.ruler.unitSpacing * 7)) {
-            if (state.parent != null) {
+            if (state.path != null) {
                 ControlSetButton("Root") { viewModel.refreshItems(null) }
             }
             for (ancestor in state.ancestors) {
                 ControlSetButton(ancestor.label) { viewModel.navigateBack(ancestor) }
             }
-            state.parent?.let {
+            state.path?.let {
                 Text("${it.label}:")
             }
         }

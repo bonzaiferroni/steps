@@ -6,7 +6,7 @@ import klutch.db.tables.RefreshTokenTable
 import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
 import ponder.steps.server.db.tables.ExampleTable
-import ponder.steps.server.db.tables.StepPositionTable
+import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepTable
 
 fun Application.configureDatabases() {
@@ -20,7 +20,7 @@ val dbTables = listOf(
     RefreshTokenTable,
     ExampleTable,
     StepTable,
-    StepPositionTable
+    PathStepTable
 )
 
 //CREATE DATABASE example_db;

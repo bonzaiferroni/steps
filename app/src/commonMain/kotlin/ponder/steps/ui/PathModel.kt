@@ -2,34 +2,32 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.GeminiStore
 import ponder.steps.io.StepStore
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
 import pondui.ui.core.StateModel
 
 class PathModel(
-    pathId: String? = null,
+    initialPathId: Long? = null,
     private val store: StepStore = StepStore(),
-    private val geminiStore: GeminiStore = GeminiStore()
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
-        refreshItems(pathId)
+        refreshItems(initialPathId)
     }
 
-    fun refreshItems(parentId: String?) {
+    fun refreshItems(pathId: Long? = stateNow.path?.id) {
         viewModelScope.launch {
-            val parent = parentId?.let { store.readParent(parentId, true) }
-            val steps = parent?.children ?: store.readRootSteps(true)
-            val ancestors = if (parentId != null) stateNow.ancestors else emptyList()
-            setState { it.copy(parent = parent, steps = steps, ancestors = ancestors, pathId = parentId) }
+            val path = pathId?.let { store.readPath(pathId, true) }
+            val steps = path?.children ?: store.readRootSteps(true)
+            val ancestors = if (pathId != null) stateNow.ancestors else emptyList()
+            setState { it.copy(path = path, steps = steps, ancestors = ancestors) }
         }
     }
 
     fun createNewStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            val parentId = stateNow.parent?.id
+            val parentId = stateNow.path?.id
             val label = stateNow.newStepLabel
             val position = stateNow.steps.size
             val stepId = store.createStep(NewStep(
@@ -38,8 +36,7 @@ class PathModel(
                 position = position
             ))
             if (stepId != null) {
-                val step = Step(stepId, parentId, label, position, null, null)
-                setState { it.copy(newStepLabel = "", isAddingStep = false, steps = it.steps + step) }
+                refreshItems()
             }
         }
     }
@@ -52,7 +49,7 @@ class PathModel(
         setState { it.copy(isAddingStep = !it.isAddingStep) }
     }
 
-    fun removeStep(stepId: String) {
+    fun removeStep(stepId: Long) {
         viewModelScope.launch {
             val isSuccess = store.deleteStep(stepId)
             if (isSuccess) {
@@ -80,7 +77,7 @@ class PathModel(
         setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit) }
     }
 
-    fun modifyLabelEdit(label: String, stepId: String) {
+    fun modifyLabelEdit(label: String, stepId: Long) {
         setState { state ->
             val updatedEdits = state.stepLabelEdits.map {
                 if (it.id == stepId) it.copy(label = label) else it
@@ -91,8 +88,8 @@ class PathModel(
 
     fun navigateForward(step: Step) {
         val steps = step.children ?: return
-        val ancestors = stateNow.parent?.let { listOf(it) } ?: emptyList()
-        setState { it.copy(parent = step, steps = steps, ancestors = ancestors) }
+        val ancestors = stateNow.path?.let { listOf(it) } ?: emptyList()
+        setState { it.copy(path = step, steps = steps, ancestors = ancestors) }
         refreshItems(step.id)
     }
 
@@ -100,7 +97,7 @@ class PathModel(
         val steps = step.children ?: return
         val ancestors = stateNow.ancestors.indexOfFirst { it.id == step.id }
             .let { stateNow.ancestors.subList(0, it) }
-        setState { it.copy(parent = step, steps = steps, ancestors = ancestors) }
+        setState { it.copy(path = step, steps = steps, ancestors = ancestors) }
         refreshItems(step.id)
     }
 
@@ -114,9 +111,8 @@ class PathModel(
 }
 
 data class RootStepsState(
-    val pathId: String? = null,
     val ancestors: List<Step> = emptyList(),
-    val parent: Step? = null,
+    val path: Step? = null,
     val steps: List<Step> = emptyList(),
     val newStepLabel: String = "",
     val isAddingStep: Boolean = false,
@@ -127,6 +123,6 @@ data class RootStepsState(
 }
 
 data class StepLabelEdit(
-    val id: String,
+    val id: Long,
     val label: String,
 )

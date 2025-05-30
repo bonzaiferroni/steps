@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StepPosition(
-    val parentId: String,
-    val stepId: String,
+    val parentId: Long,
+    val stepId: Long,
     val position: Int,
 )

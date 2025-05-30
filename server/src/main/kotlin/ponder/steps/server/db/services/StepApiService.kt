@@ -2,7 +2,6 @@ package ponder.steps.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
-import klutch.utils.*
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -13,30 +12,29 @@ import org.jetbrains.exposed.sql.update
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
 import ponder.steps.server.db.tables.StepAspect
-import ponder.steps.server.db.tables.StepPositionTable
+import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.toStep
-import java.util.UUID
 
 class StepApiService : DbService() {
 
-    suspend fun readStep(stepId: String, includeChildren: Boolean) = dbQuery {
+    suspend fun readStep(stepId: Long, includeChildren: Boolean) = dbQuery {
         val step = StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
         if (includeChildren) step?.addChildren()?.first() else step
     }
 
-    suspend fun readParent(parentId: String, includeChildren: Boolean) = dbQuery {
+    suspend fun readParent(parentId: Long, includeChildren: Boolean) = dbQuery {
         val step = readStep(parentId, true)
         if (includeChildren) step?.copy(children = step.children?.addChildren()) else step
     }
 
-    suspend fun readChildren(parentId: String, includeChildren: Boolean) = dbQuery {
-        val steps = StepAspect.read { it.parentId.eq(parentId) }
+    suspend fun readChildren(parentId: Long, includeChildren: Boolean) = dbQuery {
+        val steps = StepAspect.read { it.pathId.eq(parentId) }
         if (includeChildren) steps.addChildren() else steps
     }
 
     suspend fun readRootSteps(includeChildren: Boolean) = dbQuery {
-        val subQuery = StepPositionTable.select(StepPositionTable.stepId)
+        val subQuery = PathStepTable.select(PathStepTable.stepId)
         val steps = StepTable.read { it.id.notInSubQuery(subQuery) }.map { it.toStep() }
         if (includeChildren) steps.addChildren() else steps
     }
@@ -44,10 +42,10 @@ class StepApiService : DbService() {
     private fun Step.addChildren() = listOf(this).addChildren()
 
     private fun List<Step>.addChildren(): List<Step> {
-        val parentIds = this.map { it.id.toUUID() }
-        val children = StepPositionTable.join(StepTable, JoinType.LEFT, StepPositionTable.stepId, StepTable.id)
-            .select(StepPositionTable.position, StepPositionTable.parentId, StepTable.id, StepTable.label)
-            .where { StepPositionTable.parentId.inList(parentIds) }
+        val parentIds = this.map { it.id }
+        val children = PathStepTable.join(StepTable, JoinType.LEFT, PathStepTable.stepId, StepTable.id)
+            .select(PathStepTable.position, PathStepTable.pathId, StepTable.id, StepTable.label)
+            .where { PathStepTable.pathId.inList(parentIds) }
             .map { it.toStep() }
         return this.map { parent ->
             parent.copy(children = children.filter { it.parentId == parent.id }.sortedBy { it.position })
@@ -62,8 +60,8 @@ class StepApiService : DbService() {
         }.value
 
         newStep.parentId?.let { parentId ->
-            StepPositionTable.insert {
-                it[this.parentId] = UUID.fromString(parentId)
+            PathStepTable.insert {
+                it[this.pathId] = parentId
                 it[this.stepId] = stepId
                 it[this.position] = newStep.position!!
             }
@@ -74,7 +72,7 @@ class StepApiService : DbService() {
 
     suspend fun updateStep(step: Step) = dbQuery {
         val updated = StepTable.update(
-            where = { StepTable.id.eq(UUID.fromString(step.id)) }
+            where = { StepTable.id.eq(step.id) }
         ) {
             it[this.label] = step.label
             it[this.imgUrl] = step.imgUrl
@@ -84,9 +82,9 @@ class StepApiService : DbService() {
 
         val parentId = step.parentId
         if (parentId != null) {
-            val equalsParent = StepPositionTable.parentId.eq(UUID.fromString(parentId))
-            val equalsStep = StepPositionTable.stepId.eq(UUID.fromString(step.id))
-            StepPositionTable.update(
+            val equalsParent = PathStepTable.pathId.eq(parentId)
+            val equalsStep = PathStepTable.stepId.eq(step.id)
+            PathStepTable.update(
                 where = { equalsParent and equalsStep }
             ) {
                 it[this.position] = step.position!!
@@ -96,7 +94,7 @@ class StepApiService : DbService() {
         true
     }
 
-    suspend fun deleteStep(stepId: String) = dbQuery {
-        StepTable.deleteWhere { this.id.eq(UUID.fromString(stepId)) } == 1
+    suspend fun deleteStep(stepId: Long) = dbQuery {
+        StepTable.deleteWhere { this.id.eq(stepId) } == 1
     }
 }

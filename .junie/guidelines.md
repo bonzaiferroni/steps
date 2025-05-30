@@ -166,3 +166,10 @@ class ExampleApiService : DbService() {
 
 ### Documentation
 Maintaining documentation of the API will be an important part of your role. Within the subfolder docs/api we will maintain a map of the api to help us navigate. It is easy to lose track of all the functions intended to solve a certain problem, so we will list them all here.
+
+## Miscellaneous Points
+
+* Whenever a time value is needed, we use Instant from the kotlinx library. When converting datetime values from the database, we use `toInstantUtc()`
+* We avoid using default values in data classes that are initialized by the database. 
+* We do use default values in data classes that represent UI state in compose.
+* 

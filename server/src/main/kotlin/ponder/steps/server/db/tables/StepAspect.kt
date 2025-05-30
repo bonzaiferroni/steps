@@ -6,19 +6,19 @@ import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.Step
 
 object StepAspect: Aspect<StepAspect, Step>(
-    StepTable.join(StepPositionTable, JoinType.LEFT, StepTable.id, StepPositionTable.stepId),
+    StepTable.join(PathStepTable, JoinType.LEFT, StepTable.id, PathStepTable.stepId),
     ResultRow::toStep
 )  {
     val stepId = add(StepTable.id)
-    val parentId = add(StepPositionTable.parentId)
+    val pathId = add(PathStepTable.pathId)
     val label = add(StepTable.label)
-    val position = add(StepPositionTable.position)
+    val position = add(PathStepTable.position)
     val imgUrl = add(StepTable.imgUrl)
 }
 
 fun ResultRow.toStep() = Step(
-    id = this[StepAspect.stepId].toString(),
-    parentId = this.getOrNull(StepAspect.parentId)?.toString(),
+    id = this[StepAspect.stepId].value,
+    parentId = this.getOrNull(StepAspect.pathId)?.value,
     label = this[StepAspect.label],
     position = this.getOrNull(StepAspect.position),
     imgUrl = this[StepAspect.imgUrl],
