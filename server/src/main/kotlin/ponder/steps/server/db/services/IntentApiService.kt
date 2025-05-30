@@ -3,6 +3,7 @@ package ponder.steps.server.db.services
 import klutch.db.DbService
 import klutch.db.readById
 import klutch.db.readColumn
+import klutch.db.readCount
 import klutch.utils.nowToLocalDateTimeUtc
 import klutch.utils.toInstantUtc
 import klutch.utils.toLocalDateTimeUtc
@@ -17,6 +18,7 @@ import ponder.steps.server.db.tables.IntentPathTable
 import ponder.steps.server.db.tables.IntentTable
 import ponder.steps.server.db.tables.TrekTable
 import ponder.steps.server.db.tables.toIntent
+import ponder.steps.server.models.Trek
 import kotlin.time.Duration.Companion.minutes
 
 class IntentApiService: DbService() {
@@ -31,20 +33,24 @@ fun syncIntentsWithTreks(userId: Long) {
     }.map { it.value }
 
     // read active treks
-    val trekQuestIds = TrekTable.readColumn(TrekTable.intentId) {
+    val trekIntentIds = TrekTable.readColumn(TrekTable.intentId) {
         TrekTable.userId.eq(userId) and TrekTable.finishedAt.isNull()
     }.map { it.value }
 
-    for (intentId in activeIntentIds - trekQuestIds) {
+    for (intentId in activeIntentIds - trekIntentIds) {
         val intent = IntentTable.readById(intentId).toIntent()
         val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
+
+        val pathIds = readPathIds(intentId)
+        val (stepId, breadCrumbs) = stepIn(intent.rootId, emptyList(), pathIds)
 
         TrekTable.insert {
             it[this.userId] = userId
             it[this.intentId] = intent.id
             it[this.rootId] = intent.rootId
-            it[this.pathId] = null
-            it[this.positionId] = intent.rootId
+            it[this.stepId] = stepId
+            it[this.breadCrumbs] = breadCrumbs
+            it[this.pathIds] = pathIds
             it[this.stepIndex] = 0
             it[this.stepCount] = readStepCount(intent.id)
             it[this.availableAt] = availableAt.toLocalDateTimeUtc()
@@ -56,17 +62,15 @@ fun syncIntentsWithTreks(userId: Long) {
     }
 }
 
-fun readStepCount(questId: Long): Int {
-    val pathIds = readPathIds(questId)
-    val stepCount = PathStepTable.select(PathStepTable.stepId)
-        .where { PathStepTable.pathId.inList(pathIds) }
-        .count().toInt()
+fun readStepCount(intentId: Long): Int {
+    val pathIds = readPathIds(intentId)
+    val stepCount = PathStepTable.readCount(PathStepTable.stepId) { PathStepTable.pathId.inList(pathIds) }
     return stepCount - pathIds.size
 }
 
-fun readPathIds(questId: Long) = IntentPathTable.select(IntentPathTable.pathId)
-    .where { IntentPathTable.intentId.eq(questId) }
-    .map { it[IntentPathTable.pathId].value }
+fun readPathIds(intentId: Long) = IntentPathTable.readColumn(IntentPathTable.pathId) {
+    IntentPathTable.intentId.eq(intentId)
+}.map { it.value }
 
 fun resolveAvailableAtFromLastTrek(intent: Intent): Instant? {
     val repeatMins = intent.repeatMins ?: return null

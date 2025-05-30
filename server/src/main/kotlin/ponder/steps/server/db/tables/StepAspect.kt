@@ -18,7 +18,7 @@ object StepAspect: Aspect<StepAspect, Step>(
 
 fun ResultRow.toStep() = Step(
     id = this[StepAspect.stepId].value,
-    parentId = this.getOrNull(StepAspect.pathId)?.value,
+    pathId = this.getOrNull(StepAspect.pathId)?.value,
     label = this[StepAspect.label],
     position = this.getOrNull(StepAspect.position),
     imgUrl = this[StepAspect.imgUrl],

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Step(
     val id: Long,
     val userId: Long,
-    val parentId: Long?,
+    val pathId: Long?,
     val label: String,
     val description: String?,
     val position: Int?,

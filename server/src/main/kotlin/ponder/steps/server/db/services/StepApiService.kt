@@ -48,7 +48,7 @@ class StepApiService : DbService() {
             .where { PathStepTable.pathId.inList(parentIds) }
             .map { it.toStep() }
         return this.map { parent ->
-            parent.copy(children = children.filter { it.parentId == parent.id }.sortedBy { it.position })
+            parent.copy(children = children.filter { it.pathId == parent.id }.sortedBy { it.position })
         }
     }
 
@@ -80,7 +80,7 @@ class StepApiService : DbService() {
 
         if (!updated) return@dbQuery false
 
-        val parentId = step.parentId
+        val parentId = step.pathId
         if (parentId != null) {
             val equalsParent = PathStepTable.pathId.eq(parentId)
             val equalsStep = PathStepTable.stepId.eq(step.id)

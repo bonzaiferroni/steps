@@ -172,4 +172,6 @@ Maintaining documentation of the API will be an important part of your role. Wit
 * Whenever a time value is needed, we use Instant from the kotlinx library. When converting datetime values from the database, we use `toInstantUtc()`
 * We avoid using default values in data classes that are initialized by the database. 
 * We do use default values in data classes that represent UI state in compose.
-* 
+* There are a few rules of thumb for ordering properties on a data class:
+  * Id properties are defined first
+  * Instant properties are defined last

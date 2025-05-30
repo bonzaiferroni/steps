@@ -6,19 +6,21 @@ import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import ponder.steps.model.data.Trek
+import ponder.steps.server.models.Trek
 
 internal object TrekTable : LongIdTable("trek") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
     val intentId = reference("quest_id", IntentTable.id, ReferenceOption.CASCADE)
     val rootId = reference("root_id", StepTable.id, ReferenceOption.CASCADE)
     val pathId = reference("path_id", StepTable.id, ReferenceOption.CASCADE).nullable()
-    val positionId = reference("position_id", StepTable.id, ReferenceOption.CASCADE)
+    val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
     val stepIndex = integer("step_index")
     val stepCount = integer("step_count")
+    val pathIds = array<Long>("path_ids")
+    val breadCrumbs = array<Long>("bread_crumbs")
     val availableAt = datetime("available_at")
-    val startedAt = datetime("started_at")
-    val progressAt = datetime("progress_at")
+    val startedAt = datetime("started_at").nullable()
+    val progressAt = datetime("progress_at").nullable()
     val finishedAt = datetime("finished_at").nullable()
     val expectedAt = datetime("expected_at").nullable()
 }
@@ -29,12 +31,14 @@ fun ResultRow.toTrek() = Trek(
     rootId = this[TrekTable.rootId].value,
     intentId = this[TrekTable.intentId].value,
     pathId = this[TrekTable.pathId]?.value,
-    positionId = this[TrekTable.positionId].value,
-    position = this[TrekTable.stepIndex],
+    stepId = this[TrekTable.stepId].value,
+    stepIndex = this[TrekTable.stepIndex],
     stepCount = this[TrekTable.stepCount],
+    pathIds = this[TrekTable.pathIds].toList(),
+    breadCrumbs = this[TrekTable.breadCrumbs].toList(),
     availableAt = this[TrekTable.availableAt].toInstantUtc(),
-    startedAt = this[TrekTable.startedAt].toInstantUtc(),
-    progressAt = this[TrekTable.progressAt].toInstantUtc(),
+    startedAt = this[TrekTable.startedAt]?.toInstantUtc(),
+    progressAt = this[TrekTable.progressAt]?.toInstantUtc(),
     finishedAt = this[TrekTable.finishedAt]?.toInstantUtc(),
     expectedAt = this[TrekTable.expectedAt]?.toInstantUtc()
 )
