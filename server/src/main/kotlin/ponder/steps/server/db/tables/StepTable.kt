@@ -20,6 +20,7 @@ internal object StepTable : LongIdTable("step") {
     val audioUrl = text("audio_url").nullable()
     val isPublic = bool("is_public").default(false)
     val expectedMins = integer("expected_mins").nullable()
+    val pathSize = integer("path_size")
     val createdAt = datetime("created_at")
     val editedAt = datetime("edited_at")
 }

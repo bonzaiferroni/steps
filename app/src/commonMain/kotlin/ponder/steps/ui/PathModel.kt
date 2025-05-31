@@ -31,7 +31,7 @@ class PathModel(
             val label = stateNow.newStepLabel
             val position = stateNow.steps.size
             val stepId = store.createStep(NewStep(
-                parentId = parentId,
+                pathId = parentId,
                 label = label,
                 position = position
             ))

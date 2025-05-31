@@ -41,7 +41,7 @@ fun JourneyScreen() {
                                 return@Box
                             }
                             if (availableIn.isPositive()) {
-                                Text("Available ${availableIn.formatSpanLong()}")
+                                Text("Available ${(-availableIn).formatSpanLong()}")
                                 return@Box
                             }
                             if (startedAt == null) {

@@ -20,7 +20,7 @@ import ponder.steps.server.db.tables.toTrek
 class JourneyService: DbService() {
 
     suspend fun readUserTreks(userId: Long) = dbQuery {
-        syncIntentsWithTreks(userId)
+        syncIntentsWithTreks(userId) // temporary
         TrekItemAspect.read { TrekTable.userId.eq(userId) }
     }
 
@@ -118,4 +118,4 @@ fun stepOut(providedBreadCrumbs: List<Long>): Pair<Long?, List<Long>> {
     return nextStepId to breadCrumbs
 }
 
-fun isPath(stepId: Long) = TrekPathTable.readCount(TrekPathTable.trekId) { TrekPathTable.pathId.eq(stepId) } > 0
+fun isPath(stepId: Long) = TrekPathTable.readCount { TrekPathTable.pathId.eq(stepId) } > 0

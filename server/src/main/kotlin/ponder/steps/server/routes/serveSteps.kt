@@ -5,10 +5,10 @@ import klutch.server.*
 import klutch.utils.getUserId
 import ponder.steps.model.Api
 import ponder.steps.server.clients.GeminiService
-import ponder.steps.server.db.services.StepApiService
+import ponder.steps.server.db.services.PathService
 
 fun Routing.serveSteps(
-    service: StepApiService = StepApiService(),
+    service: PathService = PathService(),
     gemini: GeminiService = GeminiService()
 ) {
     // Ahoy! This route be for fetchin' a single step by its id!

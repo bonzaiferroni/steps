@@ -2,6 +2,7 @@ package ponder.steps.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
+import klutch.db.readCount
 import klutch.utils.nowToLocalDateTimeUtc
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.JoinType
@@ -19,7 +20,7 @@ import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.toStep
 
-class StepApiService : DbService() {
+class PathService : DbService() {
 
     suspend fun readStep(stepId: Long, includeChildren: Boolean) = dbQuery {
         val step = StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
@@ -56,7 +57,7 @@ class StepApiService : DbService() {
     }
 
     suspend fun createStep(newStep: NewStep, userId: Long) = dbQuery {
-        if (newStep.parentId != null && newStep.position == null) return@dbQuery null
+        if (newStep.pathId != null && newStep.position == null) return@dbQuery null
 
         val stepId = StepTable.insertAndGetId {
             it[this.label] = newStep.label
@@ -66,11 +67,16 @@ class StepApiService : DbService() {
             it[this.isPublic] = false
         }.value
 
-        newStep.parentId?.let { parentId ->
+        newStep.pathId?.let { pathId ->
             PathStepTable.insert {
-                it[this.pathId] = parentId
+                it[this.pathId] = pathId
                 it[this.stepId] = stepId
                 it[this.position] = newStep.position!!
+            }
+
+            val pathSize = PathStepTable.readCount { it.pathId.eq(pathId) }
+            StepTable.update(where = { StepTable.id.eq(pathId) }) {
+                it[this.pathSize] = pathSize
             }
         }
 

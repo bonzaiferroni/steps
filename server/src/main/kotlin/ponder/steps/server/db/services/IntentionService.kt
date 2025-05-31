@@ -110,7 +110,7 @@ fun syncIntentsWithTreks(userId: Long) {
 
 fun readStepCount(intentId: Long): Int {
     val pathIds = readPathIds(intentId)
-    val stepCount = PathStepTable.readCount(PathStepTable.stepId) { PathStepTable.pathId.inList(pathIds) }
+    val stepCount = PathStepTable.readCount { PathStepTable.pathId.inList(pathIds) }
     return stepCount - pathIds.size + 1
 }
 
