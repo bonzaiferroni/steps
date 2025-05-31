@@ -18,7 +18,7 @@ object ExampleListRoute : AppRoute("Examples")
 @Serializable
 data class PathRoute(val pathId: Long? = null) : IdRoute<Long>(TITLE, pathId) {
     companion object {
-        const val TITLE = "Path"
+        const val TITLE = "Paths"
         fun matchRoute(path: String) = matchLongIdRoute(path, TITLE) { PathRoute(it) }
     }
 }

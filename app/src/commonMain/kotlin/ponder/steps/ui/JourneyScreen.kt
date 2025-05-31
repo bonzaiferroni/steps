@@ -66,8 +66,10 @@ fun JourneyScreen() {
                             }
 
                             // row 3
+                            val completeButtonText = if (item.stepIndex + 1 == item.stepCount) "Complete Trek"
+                            else "Complete Step"
                             Button(
-                                text = "Complete Step",
+                                text = completeButtonText,
                                 modifier = Modifier.weight(1f)
                             ) { viewModel.completeStep(item) }
                             if (item.stepPathSize > 0) {
