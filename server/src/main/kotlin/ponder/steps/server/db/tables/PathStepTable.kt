@@ -9,7 +9,11 @@ import ponder.steps.model.data.PathStep
 object PathStepTable: LongIdTable("step_position") {
     val pathId = reference("parent_id", StepTable.id, ReferenceOption.CASCADE)
     val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
-    val position = integer("position").uniqueIndex()
+    val position = integer("position")
+
+    init {
+        uniqueIndex(pathId, position)
+    }
 }
 
 fun ResultRow.toPathStep() = PathStep(
