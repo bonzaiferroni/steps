@@ -36,7 +36,7 @@ class PathModel(
                 position = position
             ))
             if (stepId != null) {
-                setState { it.copy(isAddingStep = false) }
+                setState { it.copy(isAddingStep = false, newStepLabel = "") }
                 refreshItems()
             }
         }

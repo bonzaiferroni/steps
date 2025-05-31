@@ -63,7 +63,12 @@ class JourneyModel: StateModel<JourneyState>(JourneyState()) {
     }
 
     fun stepIntoPath(item: TrekItem) {
-
+        viewModelScope.launch {
+            val success = journeyStore.stepIntoPath(item.trekId)
+            if (success == true) {
+                refreshItems()
+            }
+        }
     }
 }
 

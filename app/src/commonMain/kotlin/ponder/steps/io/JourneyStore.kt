@@ -8,4 +8,5 @@ class JourneyStore: ApiStore() {
     suspend fun completeStep(trekId: Long) = client.post(Api.Journey.CompleteStep, trekId)
     suspend fun startTrek(trekId: Long) = client.post(Api.Journey.StartTrek, trekId)
     suspend fun pauseTrek(trekId: Long) = client.post(Api.Journey.PauseTrek, trekId)
+    suspend fun stepIntoPath(trekId: Long) = client.post(Api.Journey.StepIntoPath, trekId)
 }

@@ -1,9 +1,11 @@
 package ponder.steps.server.db.services
 
 import klutch.db.DbService
+import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.db.readSingle
 import klutch.db.readSingleOrNull
+import klutch.db.readValue
 import klutch.db.updateById
 import klutch.utils.nowToLocalDateTimeUtc
 import klutch.utils.toLocalDateTimeUtc
@@ -11,6 +13,7 @@ import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import ponder.steps.server.db.tables.PathStepTable
+import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekItemAspect
 import ponder.steps.server.db.tables.TrekPathTable
 import ponder.steps.server.db.tables.TrekTable
@@ -73,7 +76,7 @@ class JourneyService: DbService() {
         val trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
             ?: error("Trek not found")
 
-        if (!isPath(trek.stepId)) error("Step is not a path: ${trek.stepId}")
+        if (pathSize(trek.stepId) == 0) error("Step is not a path: ${trek.stepId}")
 
         val pathIds = trek.pathIds + trek.stepId
         val (stepId, breadCrumbs) = stepIn(trek.stepId, trek.breadCrumbs, pathIds)
@@ -82,6 +85,7 @@ class JourneyService: DbService() {
             it[this.breadCrumbs] = breadCrumbs
             it[this.stepId] = stepId
             it[this.pathIds] = pathIds
+            it[this.stepCount] = readStepCount(pathIds)
         } == 1
     }
 }
@@ -103,7 +107,6 @@ fun stepIn(stepId: Long, providedBreadCrumbs: List<Long>, pathIds: List<Long>): 
 // returns the next step above the current path, the null if the trek is finished
 fun stepOut(providedBreadCrumbs: List<Long>): Pair<Long?, List<Long>> {
     if (providedBreadCrumbs.isEmpty()) error("Stepped out of empty breadCrumbs")
-    if (providedBreadCrumbs.size == 1) return providedBreadCrumbs.last() to emptyList()
     var stepId = providedBreadCrumbs.last()
     var breadCrumbs = providedBreadCrumbs - stepId
     var nextStepId: Long? = null
@@ -118,4 +121,4 @@ fun stepOut(providedBreadCrumbs: List<Long>): Pair<Long?, List<Long>> {
     return nextStepId to breadCrumbs
 }
 
-fun isPath(stepId: Long) = TrekPathTable.readCount { TrekPathTable.pathId.eq(stepId) } > 0
+fun pathSize(stepId: Long) = StepTable.readValue(StepTable.pathSize) { it.id.eq(stepId) }

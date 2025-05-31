@@ -57,6 +57,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object CompleteStep : PostEndpoint<Long, Boolean>(this, "/complete")
         object StartTrek : PostEndpoint<Long, Boolean>(this, "/start")
         object PauseTrek : PostEndpoint<Long, Boolean>(this, "/pause")
+        object StepIntoPath : PostEndpoint<Long, Boolean>(this, "/step-into-path")
     }
 }
 

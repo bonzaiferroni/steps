@@ -71,7 +71,7 @@ fun JourneyScreen() {
                                 modifier = Modifier.weight(1f)
                             ) { viewModel.completeStep(item) }
                             if (item.stepPathSize > 0) {
-                                Button("Step into") { viewModel.stepInto(item) }
+                                Button("Step into") { viewModel.stepIntoPath(item) }
                             }
                             Button(
                                 text = "Pause", background = Pond.colors.secondary,

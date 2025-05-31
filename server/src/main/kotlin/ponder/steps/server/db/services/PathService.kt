@@ -16,12 +16,13 @@ import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.update
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
-import ponder.steps.server.db.tables.StepAspect
+import ponder.steps.server.db.tables.PathAspect
 import ponder.steps.server.db.tables.PathStepTable
+import ponder.steps.server.db.tables.StepAspect
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.toStep
 
-class PathService : DbService() {
+class PathService : DbService(1) {
 
     suspend fun readStep(stepId: Long, includeChildren: Boolean) = dbQuery {
         val step = StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
@@ -34,7 +35,7 @@ class PathService : DbService() {
     }
 
     suspend fun readChildren(parentId: Long, includeChildren: Boolean) = dbQuery {
-        val steps = StepAspect.read { it.pathId.eq(parentId) }
+        val steps = PathAspect.read { it.pathId.eq(parentId) }
         if (includeChildren) steps.addChildren() else steps
     }
 
@@ -48,10 +49,11 @@ class PathService : DbService() {
 
     private fun List<Step>.addChildren(): List<Step> {
         val parentIds = this.map { it.id }
-        val children = PathStepTable.join(StepTable, JoinType.LEFT, PathStepTable.stepId, StepTable.id)
-            .select(PathStepTable.position, PathStepTable.pathId, StepTable.id, StepTable.label)
-            .where { PathStepTable.pathId.inList(parentIds) }
-            .map { it.toStep() }
+        val children = StepAspect.read { PathStepTable.pathId.inList(parentIds) }
+//        val children = PathStepTable.join(StepTable, JoinType.LEFT, PathStepTable.stepId, StepTable.id)
+//            .select(PathStepTable.position, PathStepTable.pathId, StepTable.id, StepTable.label)
+//            .where { PathStepTable.pathId.inList(parentIds) }
+//            .map { it.toStep() }
         return this.map { parent ->
             parent.copy(children = children.filter { it.pathId == parent.id }.sortedBy { it.position })
         }
@@ -66,6 +68,7 @@ class PathService : DbService() {
             it[this.createdAt] = Clock.nowToLocalDateTimeUtc()
             it[this.editedAt] = Clock.nowToLocalDateTimeUtc()
             it[this.isPublic] = false
+            it[this.pathSize] = 0
         }.value
 
         newStep.pathId?.let { pathId ->

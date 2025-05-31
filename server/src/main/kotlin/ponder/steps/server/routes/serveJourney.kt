@@ -27,5 +27,10 @@ fun Routing.serveJourney(service: JourneyService = JourneyService()) {
             val userId = call.getUserId()
             service.pauseTrek(trekId, userId)
         }
+
+        post(Api.Journey.StepIntoPath) { trekId, endpoint ->
+            val userId = call.getUserId()
+            service.stepIntoPath(trekId, userId)
+        }
     }
 }

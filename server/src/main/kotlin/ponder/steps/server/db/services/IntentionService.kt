@@ -98,7 +98,7 @@ fun syncIntentsWithTreks(userId: Long) {
             it[this.breadCrumbs] = breadCrumbs
             it[this.pathIds] = pathIds
             it[this.stepIndex] = 0
-            it[this.stepCount] = readStepCount(intent.id)
+            it[this.stepCount] = readStepCount(pathIds)
             it[this.availableAt] = availableAt.toLocalDateTimeUtc()
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
             it[this.startedAt] = null
@@ -108,10 +108,10 @@ fun syncIntentsWithTreks(userId: Long) {
     }
 }
 
-fun readStepCount(intentId: Long): Int {
-    val pathIds = readPathIds(intentId)
+fun readStepCount(pathIds: List<Long>): Int {
+    if (pathIds.isEmpty()) return 1
     val stepCount = PathStepTable.readCount { PathStepTable.pathId.inList(pathIds) }
-    return stepCount - pathIds.size + 1
+    return stepCount
 }
 
 fun readPathIds(intentId: Long) = IntentPathTable.readColumn(IntentPathTable.pathId) {
