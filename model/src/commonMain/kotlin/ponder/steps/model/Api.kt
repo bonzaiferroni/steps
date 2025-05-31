@@ -3,7 +3,9 @@ package ponder.steps.model
 import kabinet.api.*
 import kabinet.clients.GeminiMessage
 import ponder.steps.model.data.Example
+import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewExample
+import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 
@@ -38,8 +40,11 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Update: UpdateEndpoint<Step>(this)
     }
 
-    object Intent: GetByIdEndpoint<Intent>(this, "/intent") {
-
+    object Intents: GetByIdEndpoint<Intent>(this, "/intent") {
+        object User : GetEndpoint<List<Intent>>(this, "/user")
+        object Create: PostEndpoint<NewIntent, Long>(this)
+        object Delete: DeleteEndpoint<Long>(this)
+        object Update: UpdateEndpoint<Intent>(this)
     }
 }
 

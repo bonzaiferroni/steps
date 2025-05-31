@@ -15,3 +15,12 @@ data class Intent(
     val completedAt: Instant?,
     val scheduledAt: Instant?,
 )
+
+@Serializable
+data class NewIntent(
+    val rootId: Long,
+    val label: String,
+    val repeatMins: Int? = null,
+    val expectedMins: Int? = null,
+    val scheduledAt: Instant? = null,
+)
