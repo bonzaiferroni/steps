@@ -13,4 +13,5 @@ data class TrekItem(
     val expectedMinutes: Int?,
     val availableAt: Instant,
     val startedAt: Instant?,
+    val finishedAt: Instant?,
 )

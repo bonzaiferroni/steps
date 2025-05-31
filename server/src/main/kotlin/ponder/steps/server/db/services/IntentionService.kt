@@ -100,8 +100,8 @@ fun syncIntentsWithTreks(userId: Long) {
             it[this.stepIndex] = 0
             it[this.stepCount] = readStepCount(intent.id)
             it[this.availableAt] = availableAt.toLocalDateTimeUtc()
-            it[this.startedAt] = Clock.nowToLocalDateTimeUtc()
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
+            it[this.startedAt] = null
             it[this.finishedAt] = null
             it[this.expectedAt] = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes }?.toLocalDateTimeUtc()
         }
@@ -111,7 +111,7 @@ fun syncIntentsWithTreks(userId: Long) {
 fun readStepCount(intentId: Long): Int {
     val pathIds = readPathIds(intentId)
     val stepCount = PathStepTable.readCount(PathStepTable.stepId) { PathStepTable.pathId.inList(pathIds) }
-    return stepCount - pathIds.size
+    return stepCount - pathIds.size + 1
 }
 
 fun readPathIds(intentId: Long) = IntentPathTable.readColumn(IntentPathTable.pathId) {

@@ -16,13 +16,11 @@ fun Routing.serveJourney(service: JourneyService = JourneyService()) {
         post(Api.Journey.CompleteStep) { trekId, endpoint ->
             val userId = call.getUserId()
             service.completeStep(trekId, userId)
-            true
         }
 
         post(Api.Journey.StartTrek) { trekId, endpoint ->
             val userId = call.getUserId()
-            service.stepIntoCurrentPath(trekId, userId)
-            true
+            service.startTrek(trekId, userId)
         }
     }
 }

@@ -9,6 +9,7 @@ import klutch.utils.nowToLocalDateTimeUtc
 import klutch.utils.toLocalDateTimeUtc
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.TrekItemAspect
 import ponder.steps.server.db.tables.TrekPathTable
@@ -19,7 +20,14 @@ import ponder.steps.server.db.tables.toTrek
 class JourneyService: DbService() {
 
     suspend fun readUserTreks(userId: Long) = dbQuery {
+        syncIntentsWithTreks(userId)
         TrekItemAspect.read { TrekTable.userId.eq(userId) }
+    }
+
+    suspend fun startTrek(trekId: Long, userId: Long) = dbQuery {
+        TrekTable.update(where = { TrekTable.id.eq(trekId) and TrekTable.userId.eq(userId)}) {
+            it[this.startedAt] = Clock.nowToLocalDateTimeUtc()
+        } == 1
     }
 
     suspend fun completeStep(trekId: Long, userId: Long) = dbQuery {
@@ -52,11 +60,11 @@ class JourneyService: DbService() {
             it[this.stepIndex] = trek.stepIndex + 1
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
             it[this.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
-        }
+        } == 1
     }
 
     suspend fun stepIntoCurrentPath(trekId: Long, userId: Long) = dbQuery {
-        var trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
+        val trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
             ?: error("Trek not found")
 
         if (!isPath(trek.stepId)) error("Step is not a path: ${trek.stepId}")
@@ -68,7 +76,7 @@ class JourneyService: DbService() {
             it[this.breadCrumbs] = breadCrumbs
             it[this.stepId] = stepId
             it[this.pathIds] = pathIds
-        }
+        } == 1
     }
 }
 

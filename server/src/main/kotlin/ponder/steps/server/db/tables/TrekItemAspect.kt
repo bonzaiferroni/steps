@@ -8,7 +8,7 @@ import ponder.steps.model.data.TrekItem
 
 internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     TrekTable.join(StepTable, JoinType.LEFT, TrekTable.stepId, StepTable.id)
-        .leftJoin(IntentTable),
+        .join(IntentTable, JoinType.LEFT, TrekTable.intentId, IntentTable.id),
     ResultRow::toTrekItem
 ) {
     val trekId = add(TrekTable.id)
@@ -19,6 +19,7 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val expectedMinutes = add(IntentTable.expectedMins)
     val availableAt = add(TrekTable.availableAt)
     val startedAt = add(TrekTable.startedAt)
+    val finishedAt = add(TrekTable.finishedAt)
 }
 
 internal fun ResultRow.toTrekItem() = TrekItem(
@@ -29,7 +30,8 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     intentLabel = this[TrekItemAspect.intentLabel],
     expectedMinutes = this[TrekItemAspect.expectedMinutes],
     availableAt = this[TrekItemAspect.availableAt].toInstantUtc(),
-    startedAt = this[TrekItemAspect.startedAt]?.toInstantUtc()
+    startedAt = this[TrekItemAspect.startedAt]?.toInstantUtc(),
+    finishedAt = this[TrekItemAspect.finishedAt]?.toInstantUtc()
 )
 
 // @Serializable

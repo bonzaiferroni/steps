@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kabinet.utils.formatSpanLong
 import kotlinx.datetime.Clock
 import pondui.ui.controls.Button
 import pondui.ui.controls.FlowRow
@@ -23,13 +24,18 @@ fun JourneyScreen() {
             items(state.trekItems, key = { it.trekId} ) { item ->
                 FlowRow(1, 2) {
                     val now = Clock.System.now()
-                    val minutesToAvailable = (now - item.availableAt).inWholeMinutes
+                    val availableIn = item.availableAt - now
 
                     // row 1
                     val progress = item.stepIndex / item.stepCount.toFloat()
                     H2(item.intentLabel, modifier = Modifier.weight(1f))
-                    if (minutesToAvailable > 0) {
-                        Text("Available in $minutesToAvailable minutes", modifier = Modifier.weight(1f))
+                    val finishedAt = item.finishedAt
+                    if (finishedAt != null) {
+                        Text("Finished ${(now - finishedAt).formatSpanLong()}", modifier = Modifier.weight(1f))
+                        return@FlowRow
+                    }
+                    if (availableIn.isPositive()) {
+                        Text("Available ${availableIn.formatSpanLong()}", modifier = Modifier.weight(1f))
                         return@FlowRow
                     }
                     val startedAt = item.startedAt

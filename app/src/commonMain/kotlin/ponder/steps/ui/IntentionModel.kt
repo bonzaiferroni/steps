@@ -49,7 +49,8 @@ class IntentionModel: StateModel<IntentionState>(IntentionState()) {
             val newIntent = NewIntent(
                 rootId = step.id,
                 label = step.label,
-                expectedMins = step.expectedMins
+                expectedMins = step.expectedMins,
+                repeatMins = 60
             )
             val intentId = intentionStore.createIntent(newIntent)
             if (intentId != null) {

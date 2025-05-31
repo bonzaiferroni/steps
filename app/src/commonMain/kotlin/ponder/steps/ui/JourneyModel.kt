@@ -15,7 +15,7 @@ class JourneyModel: StateModel<JourneyState>(JourneyState()) {
 
     fun refreshItems() {
         viewModelScope.launch {
-            val trekItems = journeyStore.readUserTreks()
+            val trekItems = journeyStore.readUserTreks().sortedBy { it.availableAt }
             setState { it.copy(trekItems = trekItems) }
         }
     }
