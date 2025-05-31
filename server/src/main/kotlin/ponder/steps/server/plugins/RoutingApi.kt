@@ -25,5 +25,6 @@ fun Application.configureApiRoutes() {
         serveSteps()
         serveGemini()
         serveIntents()
+        serveJourney()
     }
 }

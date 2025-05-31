@@ -8,6 +8,7 @@ import ponder.steps.model.data.NewExample
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
+import ponder.steps.model.data.TrekItem
 
 object Api: ParentEndpoint(null, apiPrefix) {
     object Gemini : ParentEndpoint(this, "/gemini") {
@@ -49,6 +50,12 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Create: PostEndpoint<NewIntent, Long>(this)
         object Delete: DeleteEndpoint<Long>(this)
         object Update: UpdateEndpoint<Intent>(this)
+    }
+
+    object Journey: ParentEndpoint(this, "/journey") {
+        object UserTreks : GetEndpoint<List<TrekItem>>(this, "/active")
+        object CompleteStep : PostEndpoint<Long, Boolean>(this, "/complete")
+        object StartTrek : PostEndpoint<Long, Boolean>(this, "/start")
     }
 }
 

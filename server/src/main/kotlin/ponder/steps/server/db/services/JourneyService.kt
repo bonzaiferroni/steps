@@ -1,7 +1,6 @@
 package ponder.steps.server.db.services
 
 import klutch.db.DbService
-import klutch.db.read
 import klutch.db.readCount
 import klutch.db.readSingle
 import klutch.db.readSingleOrNull
@@ -10,19 +9,17 @@ import klutch.utils.nowToLocalDateTimeUtc
 import klutch.utils.toLocalDateTimeUtc
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.TrekItemAspect
 import ponder.steps.server.db.tables.TrekPathTable
 import ponder.steps.server.db.tables.TrekTable
 import ponder.steps.server.db.tables.toPathStep
 import ponder.steps.server.db.tables.toTrek
-import ponder.steps.server.models.Trek
 
 class JourneyService: DbService() {
 
-    suspend fun readActiveTreks(userId: Long) = dbQuery {
-        TrekItemAspect.read { TrekTable.userId.eq(userId) and TrekTable.finishedAt.isNull() }
+    suspend fun readUserTreks(userId: Long) = dbQuery {
+        TrekItemAspect.read { TrekTable.userId.eq(userId) }
     }
 
     suspend fun completeStep(trekId: Long, userId: Long) = dbQuery {

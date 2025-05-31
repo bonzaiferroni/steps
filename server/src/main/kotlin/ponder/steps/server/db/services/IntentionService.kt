@@ -42,7 +42,7 @@ class IntentionService: DbService() {
         val step = StepTable.readById(newIntent.rootId).toStep()
         if (step.userId != userId) error("rootId: ${newIntent.rootId} does not belong to user: $userId")
 
-        IntentTable.insertAndGetId {
+        val intentId = IntentTable.insertAndGetId {
             it[this.userId] = userId
             it[this.rootId] = newIntent.rootId
             it[this.label] = newIntent.label
@@ -50,6 +50,9 @@ class IntentionService: DbService() {
             it[this.repeatMins] = newIntent.repeatMins
             it[this.scheduledAt] = newIntent.scheduledAt?.toLocalDateTimeUtc()
         }.value
+
+        syncIntentsWithTreks(userId)
+        intentId
     }
 
     suspend fun updateIntent(intent: Intent, userId: Long) = dbQuery {
