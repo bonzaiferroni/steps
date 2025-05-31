@@ -48,7 +48,7 @@ class JourneyService: DbService() {
             trek = trek.copy(finishedAt = Clock.System.now())
         } else {
             val pathStep = PathStepTable.readSingle { it.pathId.eq(pathId) and it.stepId.eq(trek.stepId) }.toPathStep()
-            var nextStep = PathStepTable.readSingleOrNull { it.pathId.eq(pathId) and it.position.eq(pathStep.position + 1) }?.toPathStep()
+            val nextStep = PathStepTable.readSingleOrNull { it.pathId.eq(pathId) and it.position.eq(pathStep.position + 1) }?.toPathStep()
             if (nextStep == null) {
                 // stepping out of the path
                 val (nextStepId, breadCrumbs) = stepOut(trek.breadCrumbs)
