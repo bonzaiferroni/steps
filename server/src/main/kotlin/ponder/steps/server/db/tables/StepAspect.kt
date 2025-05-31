@@ -18,6 +18,7 @@ object StepAspect: Aspect<StepAspect, Step>(
     val audioUrl = add(StepTable.audioUrl)
     val isPublic = add(StepTable.isPublic)
     val expectedMins = add(StepTable.expectedMins)
+    val pathSize = add(StepTable.pathSize)
     val createdAt = add(StepTable.createdAt)
     val editedAt = add(StepTable.editedAt)
 
@@ -37,5 +38,6 @@ fun ResultRow.toStep() = Step(
     expectedMins = this[StepAspect.expectedMins],
     position = this.getOrNull(StepAspect.position),
     imgUrl = this[StepAspect.imgUrl],
+    pathSize = this[StepAspect.pathSize],
     children = null
 )

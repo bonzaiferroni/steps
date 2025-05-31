@@ -61,6 +61,10 @@ class JourneyModel: StateModel<JourneyState>(JourneyState()) {
             }
         }
     }
+
+    fun stepIntoPath(item: TrekItem) {
+
+    }
 }
 
 data class JourneyState(

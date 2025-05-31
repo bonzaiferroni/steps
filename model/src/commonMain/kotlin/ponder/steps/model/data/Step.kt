@@ -15,5 +15,6 @@ data class Step(
     val thumbUrl: String?,
     val audioUrl: String?,
     val isPublic: Boolean,
+    val pathSize: Int,
     val children: List<Step>?,
 )

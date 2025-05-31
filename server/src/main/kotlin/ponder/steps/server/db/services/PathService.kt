@@ -2,6 +2,7 @@ package ponder.steps.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
+import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.utils.nowToLocalDateTimeUtc
 import kotlinx.datetime.Clock
@@ -74,10 +75,7 @@ class PathService : DbService() {
                 it[this.position] = newStep.position!!
             }
 
-            val pathSize = PathStepTable.readCount { it.pathId.eq(pathId) }
-            StepTable.update(where = { StepTable.id.eq(pathId) }) {
-                it[this.pathSize] = pathSize
-            }
+            updatePathSize(pathId)
         }
 
         stepId
@@ -108,7 +106,14 @@ class PathService : DbService() {
     }
 
     suspend fun deleteStep(stepId: Long) = dbQuery {
-        StepTable.deleteWhere { this.id.eq(stepId) } == 1
+        val pathIds = PathStepTable.readColumn(PathStepTable.pathId) { it.stepId.eq(stepId) }.map { it.value }
+        val isSuccess = StepTable.deleteWhere { this.id.eq(stepId) } == 1
+        if (isSuccess) {
+            for (pathId in pathIds) {
+                updatePathSize(pathId)
+            }
+        }
+        isSuccess
     }
 
     suspend fun searchSteps(query: String, includeChildren: Boolean) = dbQuery {
@@ -117,5 +122,12 @@ class PathService : DbService() {
         }.map { it.toStep() }
 
         if (includeChildren) steps.addChildren() else steps
+    }
+}
+
+fun updatePathSize(pathId: Long) {
+    val pathSize = PathStepTable.readCount { it.pathId.eq(pathId) }
+    StepTable.update(where = { StepTable.id.eq(pathId) }) {
+        it[this.pathSize] = pathSize
     }
 }

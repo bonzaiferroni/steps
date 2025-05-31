@@ -69,7 +69,7 @@ class JourneyService: DbService() {
         } == 1
     }
 
-    suspend fun stepIntoCurrentPath(trekId: Long, userId: Long) = dbQuery {
+    suspend fun stepIntoPath(trekId: Long, userId: Long) = dbQuery {
         val trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
             ?: error("Trek not found")
 

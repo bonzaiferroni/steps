@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class TrekItem(
     val trekId: Long,
     val stepLabel: String,
+    val stepPathSize: Int,
     val stepIndex: Int,
     val stepCount: Int,
     val intentLabel: String,
