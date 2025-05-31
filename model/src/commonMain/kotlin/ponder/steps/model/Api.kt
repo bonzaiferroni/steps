@@ -56,6 +56,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object UserTreks : GetEndpoint<List<TrekItem>>(this, "/active")
         object CompleteStep : PostEndpoint<Long, Boolean>(this, "/complete")
         object StartTrek : PostEndpoint<Long, Boolean>(this, "/start")
+        object PauseTrek : PostEndpoint<Long, Boolean>(this, "/pause")
     }
 }
 

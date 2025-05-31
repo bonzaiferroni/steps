@@ -13,6 +13,7 @@ import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Text
 import pondui.ui.controls.Scaffold
+import pondui.ui.theme.Pond
 
 @Composable
 fun JourneyScreen() {
@@ -21,7 +22,7 @@ fun JourneyScreen() {
 
     Scaffold {
         LazyColumn(1) {
-            items(state.trekItems, key = { it.trekId} ) { item ->
+            items(state.trekItems, key = { it.trekId }) { item ->
                 FlowRow(1, 2) {
                     val now = Clock.System.now()
                     val availableIn = item.availableAt - now
@@ -57,7 +58,14 @@ fun JourneyScreen() {
                     }
 
                     // row 3
-                    Button("Complete Step", modifier = Modifier.weight(1f)) { viewModel.completeStep(item) }
+                    Button(
+                        text = "Complete Step",
+                        modifier = Modifier.weight(1f)
+                    ) { viewModel.completeStep(item) }
+                    Button(
+                        text = "Pause", background = Pond.colors.secondary,
+                        modifier = Modifier.weight(1f)
+                    ) { viewModel.pauseTrek(item) }
                 }
             }
         }

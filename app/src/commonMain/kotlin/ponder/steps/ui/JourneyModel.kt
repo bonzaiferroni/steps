@@ -37,6 +37,15 @@ class JourneyModel: StateModel<JourneyState>(JourneyState()) {
             }
         }
     }
+
+    fun pauseTrek(item: TrekItem) {
+        viewModelScope.launch {
+            val success = journeyStore.pauseTrek(item.trekId)
+            if (success == true) {
+                refreshItems()
+            }
+        }
+    }
 }
 
 data class JourneyState(
