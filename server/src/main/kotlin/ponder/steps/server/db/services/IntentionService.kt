@@ -31,7 +31,7 @@ import kotlin.time.Duration.Companion.minutes
 class IntentionService: DbService() {
 
     suspend fun readIntent(intentId: Long) = dbQuery {
-        IntentTable.readById(intentId)?.toIntent()
+        IntentTable.readById(intentId).toIntent()
     }
 
     suspend fun readUserIntents(userId: Long) = dbQuery {
@@ -47,7 +47,7 @@ class IntentionService: DbService() {
             it[this.rootId] = newIntent.rootId
             it[this.label] = newIntent.label
             it[this.expectedMins] = newIntent.expectedMins
-            it[this.repeatMins] = newIntent.repeatMins ?: 60 * 24
+            it[this.repeatMins] = newIntent.repeatMins
             it[this.scheduledAt] = newIntent.scheduledAt?.toLocalDateTimeUtc()
         }.value
     }

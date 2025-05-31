@@ -34,6 +34,10 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Root : GetEndpoint<List<Step>>(this, "/root") {
             val includeChildren = EndpointParam("includeChildren", { it.toBoolean() }, { it.toString()})
         }
+        object Search : GetEndpoint<List<Step>>(this, "/search") {
+            val query = EndpointParam("query", { it }, { it })
+            val includeChildren = EndpointParam("includeChildren", { it.toBoolean() }, { it.toString()})
+        }
         object GenerateImage : GetByIdEndpoint<String>(this, "/generate-image")
         object Create: PostEndpoint<NewStep, Long>(this)
         object Delete: DeleteEndpoint<Long>(this)

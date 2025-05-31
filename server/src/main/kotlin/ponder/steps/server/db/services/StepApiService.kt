@@ -2,12 +2,15 @@ package ponder.steps.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
+import klutch.utils.nowToLocalDateTimeUtc
+import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.update
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
@@ -52,11 +55,15 @@ class StepApiService : DbService() {
         }
     }
 
-    suspend fun createStep(newStep: NewStep) = dbQuery {
+    suspend fun createStep(newStep: NewStep, userId: Long) = dbQuery {
         if (newStep.parentId != null && newStep.position == null) return@dbQuery null
 
         val stepId = StepTable.insertAndGetId {
             it[this.label] = newStep.label
+            it[this.userId] = userId
+            it[this.createdAt] = Clock.nowToLocalDateTimeUtc()
+            it[this.editedAt] = Clock.nowToLocalDateTimeUtc()
+            it[this.isPublic] = false
         }.value
 
         newStep.parentId?.let { parentId ->
@@ -67,7 +74,7 @@ class StepApiService : DbService() {
             }
         }
 
-        stepId.toString()
+        stepId
     }
 
     suspend fun updateStep(step: Step) = dbQuery {
@@ -96,5 +103,13 @@ class StepApiService : DbService() {
 
     suspend fun deleteStep(stepId: Long) = dbQuery {
         StepTable.deleteWhere { this.id.eq(stepId) } == 1
+    }
+
+    suspend fun searchSteps(query: String, includeChildren: Boolean) = dbQuery {
+        val steps = StepTable.read { 
+            StepTable.label.lowerCase().like("%${query.lowercase()}%") 
+        }.map { it.toStep() }
+
+        if (includeChildren) steps.addChildren() else steps
     }
 }

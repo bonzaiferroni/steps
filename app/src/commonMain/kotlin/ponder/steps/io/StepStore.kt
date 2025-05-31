@@ -26,4 +26,7 @@ class StepStore: ApiStore() {
     suspend fun updateStep(step: Step) = client.update(Api.Steps.Update, step)
 
     suspend fun deleteStep(stepId: Long) = client.delete(Api.Steps.Delete, stepId)
+
+    suspend fun searchSteps(query: String, includeChildren: Boolean) =
+        client.get(Api.Steps.Search, Api.Steps.Search.query.write(query), Api.Steps.Search.includeChildren.write(includeChildren))
 }

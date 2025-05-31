@@ -16,7 +16,7 @@ fun IntentionScreen() {
         TextField(state.searchPathText, onTextChange = viewModel::setSearchPathText)
         LazyColumn(1) {
             items(state.searchPaths) { step ->
-                Button(step.label) { viewModel.createIntent(step.id) }
+                Button(step.label) { viewModel.createIntent(step) }
             }
         }
     }

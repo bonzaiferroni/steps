@@ -12,7 +12,6 @@ internal object TrekTable : LongIdTable("trek") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
     val intentId = reference("quest_id", IntentTable.id, ReferenceOption.CASCADE)
     val rootId = reference("root_id", StepTable.id, ReferenceOption.CASCADE)
-    val pathId = reference("path_id", StepTable.id, ReferenceOption.CASCADE).nullable()
     val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
     val stepIndex = integer("step_index")
     val stepCount = integer("step_count")
@@ -30,7 +29,6 @@ fun ResultRow.toTrek() = Trek(
     userId = this[TrekTable.userId].value,
     rootId = this[TrekTable.rootId].value,
     intentId = this[TrekTable.intentId].value,
-    pathId = this[TrekTable.pathId]?.value,
     stepId = this[TrekTable.stepId].value,
     stepIndex = this[TrekTable.stepIndex],
     stepCount = this[TrekTable.stepCount],

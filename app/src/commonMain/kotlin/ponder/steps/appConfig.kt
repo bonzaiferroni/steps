@@ -3,9 +3,12 @@ package ponder.steps
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Heart
 import compose.icons.tablericons.Home
+import compose.icons.tablericons.Leaf
 import compose.icons.tablericons.List
+import compose.icons.tablericons.Planet
 import compose.icons.tablericons.Rocket
 import compose.icons.tablericons.Star
+import compose.icons.tablericons.Walk
 import compose.icons.tablericons.YinYang
 import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.ui.*
@@ -31,8 +34,9 @@ val appConfig = PondConfig(
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),
         PortalDoor(TablerIcons.YinYang, HelloRoute),
-        PortalDoor(TablerIcons.Rocket, ExampleListRoute),
         PortalDoor(TablerIcons.List, PathRoute(), "Roots"),
-        PortalDoor(TablerIcons.Star, GeminiRoute),
+        PortalDoor(TablerIcons.Planet, GeminiRoute),
+        PortalDoor(TablerIcons.Walk, JourneyRoute),
+        PortalDoor(TablerIcons.Leaf, IntentionRoute)
     ),
 )
