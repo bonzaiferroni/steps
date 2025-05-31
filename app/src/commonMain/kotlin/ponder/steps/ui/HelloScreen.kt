@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import ponder.steps.StartRoute
 import pondui.ui.controls.RouteButton
 import pondui.ui.controls.Text
-import pondui.ui.nav.Scaffold
+import pondui.ui.controls.Scaffold
 
 @Composable
 fun HelloScreen() {

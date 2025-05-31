@@ -8,7 +8,7 @@ import pondui.ui.controls.ControlSet
 import pondui.ui.controls.Expando
 import pondui.ui.controls.Text
 import pondui.ui.controls.TextField
-import pondui.ui.nav.Scaffold
+import pondui.ui.controls.Scaffold
 import pondui.ui.theme.Pond
 
 @Composable

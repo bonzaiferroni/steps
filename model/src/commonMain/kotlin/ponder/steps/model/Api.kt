@@ -12,6 +12,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
         object Image : PostEndpoint<String, String>(this, "/image")
     }
+
     object Examples : GetByIdEndpoint<Example>(this, "/example") {
         object User : GetEndpoint<List<Example>>(this, "/user")
         object Create: PostEndpoint<NewExample, Long>(this)
@@ -35,6 +36,10 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Create: PostEndpoint<NewStep, Long>(this)
         object Delete: DeleteEndpoint<Long>(this)
         object Update: UpdateEndpoint<Step>(this)
+    }
+
+    object Intent: GetByIdEndpoint<Intent>(this, "/intent") {
+
     }
 }
 

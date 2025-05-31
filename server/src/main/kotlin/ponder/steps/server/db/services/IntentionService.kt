@@ -16,12 +16,26 @@ import ponder.steps.model.data.Intent
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.IntentPathTable
 import ponder.steps.server.db.tables.IntentTable
+import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekTable
 import ponder.steps.server.db.tables.toIntent
-import ponder.steps.server.models.Trek
+import ponder.steps.server.db.tables.toStep
 import kotlin.time.Duration.Companion.minutes
 
-class IntentApiService: DbService() {
+class IntentionService: DbService() {
+
+    suspend fun createIntent(rootId: Long, userId: Long) = dbQuery {
+        val step = StepTable.readById(rootId).toStep()
+        if (step.userId != userId) error("rootId: $rootId does not belong to user: $userId")
+
+        IntentTable.insert {
+            it[this.userId] = userId
+            it[this.rootId] = rootId
+            it[this.label] = step.label
+            it[this.expectedMins] = step.expectedMins
+            it[this.repeatMins] = 60 * 24
+        }
+    }
 
 
 }

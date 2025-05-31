@@ -63,6 +63,9 @@ kotlin {
 
             implementation(project(":pondui"))
             implementation(project(":model"))
+
+            implementation("io.github.darkokoa:datetime-wheel-picker:1.0.3")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.2")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

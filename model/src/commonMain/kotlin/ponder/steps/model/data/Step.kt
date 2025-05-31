@@ -9,6 +9,7 @@ data class Step(
     val pathId: Long?,
     val label: String,
     val description: String?,
+    val expectedMins: Int?,
     val position: Int?,
     val imgUrl: String?,
     val thumbUrl: String?,

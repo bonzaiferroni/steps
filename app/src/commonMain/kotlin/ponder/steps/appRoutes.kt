@@ -27,6 +27,12 @@ data class PathRoute(val pathId: Long? = null) : IdRoute<Long>(TITLE, pathId) {
 object GeminiRoute : AppRoute("Gemini")
 
 @Serializable
+object IntentionRoute : AppRoute("Intention")
+
+@Serializable
+object JourneyRoute : AppRoute("Journey")
+
+@Serializable
 data class ExampleProfileRoute(val exampleId: Long) : IdRoute<Long>(TITLE, exampleId) {
     companion object {
         const val TITLE = "Example"

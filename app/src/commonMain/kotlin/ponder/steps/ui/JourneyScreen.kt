@@ -6,15 +6,12 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.datetime.Clock
 import pondui.ui.controls.Button
-import pondui.ui.controls.Column
-import pondui.ui.controls.Expando
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.H2
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
-import pondui.ui.controls.Row
 import pondui.ui.controls.Text
-import pondui.ui.nav.Scaffold
+import pondui.ui.controls.Scaffold
 
 @Composable
 fun JourneyScreen() {

@@ -19,7 +19,7 @@ internal object StepTable : LongIdTable("step") {
     val thumbUrl = text("thumb_url").nullable()
     val audioUrl = text("audio_url").nullable()
     val isPublic = bool("is_public").default(false)
-    val expectedMins = integer("expected_mins")
+    val expectedMins = integer("expected_mins").nullable()
     val createdAt = datetime("created_at")
-    val editAt = datetime("edit_at").nullable()
+    val editedAt = datetime("edited_at")
 }

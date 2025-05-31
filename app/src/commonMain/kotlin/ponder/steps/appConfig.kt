@@ -8,12 +8,7 @@ import compose.icons.tablericons.Rocket
 import compose.icons.tablericons.Star
 import compose.icons.tablericons.YinYang
 import kotlinx.collections.immutable.persistentListOf
-import ponder.steps.ui.ExampleListScreen
-import ponder.steps.ui.ExampleProfileScreen
-import ponder.steps.ui.GeminiScreen
-import ponder.steps.ui.HelloScreen
-import ponder.steps.ui.PathScreen
-import ponder.steps.ui.StartScreen
+import ponder.steps.ui.*
 import pondui.ui.core.PondConfig
 import pondui.ui.core.RouteConfig
 import pondui.ui.nav.PortalDoor
@@ -29,7 +24,9 @@ val appConfig = PondConfig(
         RouteConfig(ExampleListRoute::matchRoute) { defaultScreen<ExampleListRoute> { ExampleListScreen() } },
         RouteConfig(ExampleProfileRoute::matchRoute) { defaultScreen<ExampleProfileRoute> { ExampleProfileScreen(it) } },
         RouteConfig(PathRoute::matchRoute) { defaultScreen<PathRoute> { PathScreen() } },
-        RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } }
+        RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } },
+        RouteConfig(IntentionRoute::matchRoute) { defaultScreen<IntentionRoute> { IntentionScreen() }},
+        RouteConfig(JourneyRoute::matchRoute) { defaultScreen<JourneyRoute> { JourneyScreen() }}
     ),
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),

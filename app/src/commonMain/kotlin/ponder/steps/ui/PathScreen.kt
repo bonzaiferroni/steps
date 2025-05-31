@@ -30,7 +30,7 @@ import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
-import pondui.ui.nav.Scaffold
+import pondui.ui.controls.Scaffold
 import pondui.ui.theme.Pond
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!

@@ -1,16 +1,13 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ponder.steps.ExampleProfileRoute
 import pondui.ui.controls.*
-import pondui.ui.nav.Scaffold
+import pondui.ui.controls.Scaffold
 import pondui.ui.theme.Pond
-import pondui.ui.theme.Spacing
 
 @Composable
 fun ExampleListScreen() {

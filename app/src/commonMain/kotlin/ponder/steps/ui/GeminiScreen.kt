@@ -1,25 +1,15 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isShiftPressed
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kabinet.clients.GeminiMessage
 import kabinet.clients.GeminiRole
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.controls.*
-import pondui.ui.nav.Scaffold
+import pondui.ui.controls.Scaffold
 import pondui.ui.theme.Pond
-import pondui.ui.theme.Spacing
 
 /**
  * Ahoy! This be the Gemini screen, where the magic of AI be happenin'!
