@@ -29,7 +29,8 @@ val appConfig = PondConfig(
         RouteConfig(PathRoute::matchRoute) { defaultScreen<PathRoute> { PathScreen() } },
         RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } },
         RouteConfig(IntentionRoute::matchRoute) { defaultScreen<IntentionRoute> { IntentionScreen() }},
-        RouteConfig(JourneyRoute::matchRoute) { defaultScreen<JourneyRoute> { JourneyScreen() }}
+        RouteConfig(JourneyRoute::matchRoute) { defaultScreen<JourneyRoute> { JourneyScreen() }},
+        RouteConfig(FocusRoute::matchRoute) { defaultScreen<FocusRoute> { FocusScreen() }}
     ),
     doors = persistentListOf(
         PortalDoor(TablerIcons.Home, StartRoute),
@@ -37,6 +38,7 @@ val appConfig = PondConfig(
         PortalDoor(TablerIcons.List, PathRoute()),
         PortalDoor(TablerIcons.Planet, GeminiRoute),
         PortalDoor(TablerIcons.Walk, JourneyRoute),
-        PortalDoor(TablerIcons.Leaf, IntentionRoute)
+        PortalDoor(TablerIcons.Leaf, IntentionRoute),
+        PortalDoor(TablerIcons.YinYang, FocusRoute),
     ),
 )

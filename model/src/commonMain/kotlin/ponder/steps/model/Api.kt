@@ -3,6 +3,7 @@ package ponder.steps.model
 import kabinet.api.*
 import kabinet.clients.GeminiMessage
 import ponder.steps.model.data.Example
+import ponder.steps.model.data.Focus
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewExample
 import ponder.steps.model.data.NewIntent
@@ -58,6 +59,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object StartTrek : PostEndpoint<Long, Boolean>(this, "/start")
         object PauseTrek : PostEndpoint<Long, Boolean>(this, "/pause")
         object StepIntoPath : PostEndpoint<Long, Boolean>(this, "/step-into-path")
+        object FocusTrek : GetEndpoint<Focus?>(this, "/focus")
     }
 }
 

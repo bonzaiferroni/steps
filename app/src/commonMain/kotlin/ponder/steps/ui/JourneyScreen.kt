@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kabinet.utils.formatSpanLong
 import kotlinx.datetime.Clock
 import pondui.ui.behavior.FadeIn
+import pondui.ui.behavior.fadeIn
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
 
@@ -72,12 +73,10 @@ fun JourneyScreen() {
                                 text = completeButtonText,
                                 modifier = Modifier.weight(1f)
                             ) { viewModel.completeStep(item) }
-                            if (item.stepPathSize > 0) {
-                                Button(
-                                    "Step into", background = Pond.colors.secondary,
-                                    modifier = Modifier.weight(1f)
-                                ) { viewModel.stepIntoPath(item) }
-                            }
+                            Button(
+                                "Step into", background = Pond.colors.secondary,
+                                modifier = Modifier.weight(1f).fadeIn(item.stepPathSize > 0, rotationX = 90)
+                            ) { viewModel.stepIntoPath(item) }
                             Button(
                                 text = "Pause", background = Pond.colors.secondary,
                                 modifier = Modifier.weight(1f)

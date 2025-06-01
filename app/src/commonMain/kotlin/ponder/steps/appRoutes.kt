@@ -33,6 +33,9 @@ object IntentionRoute : AppRoute("Intention")
 object JourneyRoute : AppRoute("Journey")
 
 @Serializable
+object FocusRoute : AppRoute("Focus")
+
+@Serializable
 data class ExampleProfileRoute(val exampleId: Long) : IdRoute<Long>(TITLE, exampleId) {
     companion object {
         const val TITLE = "Example"

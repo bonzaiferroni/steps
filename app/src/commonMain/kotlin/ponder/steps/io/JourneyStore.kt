@@ -9,4 +9,5 @@ class JourneyStore: ApiStore() {
     suspend fun startTrek(trekId: Long) = client.post(Api.Journey.StartTrek, trekId)
     suspend fun pauseTrek(trekId: Long) = client.post(Api.Journey.PauseTrek, trekId)
     suspend fun stepIntoPath(trekId: Long) = client.post(Api.Journey.StepIntoPath, trekId)
+    suspend fun readFocus() = client.getOrNull(Api.Journey.FocusTrek)
 }

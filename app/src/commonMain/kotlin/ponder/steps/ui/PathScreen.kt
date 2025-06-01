@@ -26,6 +26,7 @@ import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.PathRoute
 import pondui.ui.behavior.FadeIn
 import pondui.ui.behavior.HotKey
+import pondui.ui.behavior.fadeIn
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
@@ -83,15 +84,14 @@ fun PathScreen() {
                 Row(1, modifier = Modifier.height(Pond.ruler.unitSpacing * 7)
                     .animateItem()) {
 
-                    FadeIn(rotationZ = 180, scale = true, durationMillis = 500) {
-                        AsyncImage(
-                            model = "http://localhost:8080/${step.imgUrl ?: "img/horse.png"}",
-                            contentDescription = null,
-                            modifier = Modifier.clip(Pond.ruler.round)
-                                .fillMaxHeight()
-                                .aspectRatio(1f)
-                        )
-                    }
+                    AsyncImage(
+                        model = "http://localhost:8080/${step.imgUrl ?: "img/horse.png"}",
+                        contentDescription = null,
+                        modifier = Modifier.clip(Pond.ruler.round)
+                            .fillMaxHeight()
+                            .aspectRatio(1f)
+                            .fadeIn(rotationZ = 180, scale = true, durationMillis = 500)
+                    )
 
                     val stepLabelEdit = state.stepLabelEdits.firstOrNull() { it.id == step.id }
                     Box(
@@ -114,10 +114,8 @@ fun PathScreen() {
                             Text(step.label)
                         }
                     }
-                    if (step.children?.isNotEmpty() == true) {
-                        FadeIn(offsetX = 20) {
-                            Button(TablerIcons.ArrowRight) { viewModel.navigateForward(step) }
-                        }
+                    if (step.pathSize > 0) {
+                        Button(imageVector = TablerIcons.ArrowRight, modifier = Modifier.fadeIn(offsetX = 20)) { viewModel.navigateForward(step) }
                     }
 
                     Expando()
