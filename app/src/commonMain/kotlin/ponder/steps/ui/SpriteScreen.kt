@@ -1,0 +1,60 @@
+package ponder.steps.ui
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import ponder.steps.db
+import ponder.steps.db.Sprite
+import pondui.ui.behavior.fadeIn
+import pondui.ui.controls.Button
+import pondui.ui.controls.Column
+import pondui.ui.controls.Scaffold
+import pondui.ui.controls.Text
+import pondui.ui.controls.TextField
+import pondui.ui.nav.AppRoute
+
+@Composable
+fun SpriteScreen() {
+
+    val dao = remember { db!!.getSpriteDao() }
+    val spriteFlow = remember { dao.getAllAsFlow() }
+
+    val scope = rememberCoroutineScope()
+    val sprites by remember(spriteFlow) {
+        spriteFlow.stateIn(
+            scope = scope,
+            started = SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
+    }.collectAsState()
+
+    var name by remember { mutableStateOf("") }
+
+    Scaffold {
+        TextField(name, onTextChange = { name = it })
+        Button("Add") {
+            scope.launch {
+                dao.insert(Sprite(name = name, speed = (0..10).random()))
+                println("inserted sprite")
+            }
+        }
+
+        Column(1) {
+            for (sprite in sprites) {
+                Text("${sprite.name} (${sprite.speed})", modifier = Modifier.fadeIn(offsetX = 20))
+            }
+        }
+    }
+}
+
+@Serializable
+object SpriteRoute: AppRoute("Sprites")

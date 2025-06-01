@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.2"
+agp = "8.9.3"
 android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
@@ -18,7 +18,7 @@ compose-navigation = "2.8.0-alpha10"
 exposedVersion = "0.57.0"
 junit = "4.13.2"
 kodeinVersion = "7.21.2"
-kotlin = "2.1.20"
+kotlin = "2.1.21"
 kotlinxDatetime = "0.6.0"
 kotlinx-coroutines = "1.9.0"
 kotlinxSerializationCbor = "1.8.0"
@@ -38,6 +38,10 @@ logbackClassic = "1.4.14"
 voyagerVersion = "1.0.0"
 material3Android = "1.2.1"
 composeIcons = "1.1.1"
+
+room = "2.7.1"
+ksp = "2.1.21-2.0.1"
+sqlite = "2.5.1"
 
 [libraries]
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
@@ -98,6 +102,11 @@ ktor-server-websockets = { module = "io.ktor:ktor-server-websockets", version.re
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
 ktor_client_js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -107,3 +116,6 @@ composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "k
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+room = { id = "androidx.room", version.ref = "room" }

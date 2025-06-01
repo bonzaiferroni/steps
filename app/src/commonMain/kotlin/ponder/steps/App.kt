@@ -2,6 +2,7 @@ package ponder.steps
 
 import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import ponder.steps.db.AppDatabase
 
 import pondui.io.ProvideUserContext
 import pondui.ui.core.PondApp
@@ -24,3 +25,5 @@ fun App(
         }
     }
 }
+
+var db: AppDatabase? = null
