@@ -1,15 +1,15 @@
-package ponder.steps.model.data
+package ponder.steps.db
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
-@Entity("path_step")
+@Entity
+@Serializable
 data class PathStepEntity(
     @PrimaryKey
     val id: String,
-    val pathId: String,
     val stepId: String,
+    val pathId: String,
     val position: Int,
 )

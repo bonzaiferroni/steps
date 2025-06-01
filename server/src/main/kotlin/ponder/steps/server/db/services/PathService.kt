@@ -4,7 +4,9 @@ import klutch.db.DbService
 import klutch.db.read
 import klutch.db.readColumn
 import klutch.db.readCount
+import klutch.utils.eq
 import klutch.utils.nowToLocalDateTimeUtc
+import klutch.utils.toUUID
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -24,17 +26,18 @@ import ponder.steps.server.db.tables.toStep
 
 class PathService : DbService(1) {
 
-    suspend fun readStep(stepId: Long, includeChildren: Boolean) = dbQuery {
+    suspend fun readStep(stepId: String, includeChildren: Boolean) = dbQuery {
         val step = StepTable.read { it.id.eq(stepId) }.firstOrNull()?.toStep()
         if (includeChildren) step?.addChildren()?.first() else step
     }
 
-    suspend fun readParent(parentId: Long, includeChildren: Boolean) = dbQuery {
+    suspend fun readParent(parentId: String, includeChildren: Boolean) = dbQuery {
         val step = readStep(parentId, true)
         if (includeChildren) step?.copy(children = step.children?.addChildren()) else step
+        step
     }
 
-    suspend fun readChildren(parentId: Long, includeChildren: Boolean) = dbQuery {
+    suspend fun readChildren(parentId: String, includeChildren: Boolean) = dbQuery {
         val steps = PathAspect.read { it.pathId.eq(parentId) }
         if (includeChildren) steps.addChildren() else steps
     }
@@ -48,12 +51,8 @@ class PathService : DbService(1) {
     private fun Step.addChildren() = listOf(this).addChildren()
 
     private fun List<Step>.addChildren(): List<Step> {
-        val parentIds = this.map { it.id }
+        val parentIds = this.map { it.id.toUUID() }
         val children = StepAspect.read { PathStepTable.pathId.inList(parentIds) }
-//        val children = PathStepTable.join(StepTable, JoinType.LEFT, PathStepTable.stepId, StepTable.id)
-//            .select(PathStepTable.position, PathStepTable.pathId, StepTable.id, StepTable.label)
-//            .where { PathStepTable.pathId.inList(parentIds) }
-//            .map { it.toStep() }
         return this.map { parent ->
             parent.copy(children = children.filter { it.pathId == parent.id }.sortedBy { it.position })
         }
@@ -73,7 +72,7 @@ class PathService : DbService(1) {
 
         newStep.pathId?.let { pathId ->
             PathStepTable.insert {
-                it[this.pathId] = pathId
+                it[this.pathId] = pathId.toUUID()
                 it[this.stepId] = stepId
                 it[this.position] = newStep.position!!
             }
@@ -108,8 +107,9 @@ class PathService : DbService(1) {
         true
     }
 
-    suspend fun deleteStep(stepId: Long) = dbQuery {
-        val pathIds = PathStepTable.readColumn(PathStepTable.pathId) { it.stepId.eq(stepId) }.map { it.value }
+    suspend fun deleteStep(stepId: String) = dbQuery {
+        val pathIds =
+            PathStepTable.readColumn(PathStepTable.pathId) { it.stepId.eq(stepId) }.map { it.value.toString() }
         val isSuccess = StepTable.deleteWhere { this.id.eq(stepId) } == 1
         if (isSuccess) {
             for (pathId in pathIds) {
@@ -120,15 +120,15 @@ class PathService : DbService(1) {
     }
 
     suspend fun searchSteps(query: String, includeChildren: Boolean) = dbQuery {
-        val steps = StepTable.read { 
-            StepTable.label.lowerCase().like("%${query.lowercase()}%") 
+        val steps = StepTable.read {
+            StepTable.label.lowerCase().like("%${query.lowercase()}%")
         }.map { it.toStep() }
 
         if (includeChildren) steps.addChildren() else steps
     }
 }
 
-fun updatePathSize(pathId: Long) {
+fun updatePathSize(pathId: String) {
     val pathSize = PathStepTable.readCount { it.pathId.eq(pathId) }
     StepTable.update(where = { StepTable.id.eq(pathId) }) {
         it[this.pathSize] = pathSize

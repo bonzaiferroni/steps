@@ -2,23 +2,23 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.StepApiStore
-import ponder.steps.model.data.Step
+import ponder.steps.io.StepStore
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
 class PathModel(
-    initialPathId: Long? = null,
-    private val store: StepApiStore = StepApiStore(),
+    initialPathId: String? = null,
+    private val store: StepStore = StepStore(),
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
         refreshItems(initialPathId)
     }
 
-    fun refreshItems(pathId: Long? = stateNow.path?.id) {
+    fun refreshItems(pathId: String? = stateNow.path?.id) {
         viewModelScope.launch {
-            val path = pathId?.let { store.readPath(pathId, true) }
-            val steps = path?.children ?: store.readRootSteps(true)
+            val path = pathId?.let { store.readPath(pathId) }
+            val steps = path?.children ?: store.readRootSteps()
             val ancestors = if (pathId != null) stateNow.ancestors else emptyList()
             setState { it.copy(path = path, steps = steps, ancestors = ancestors) }
         }
@@ -30,15 +30,13 @@ class PathModel(
             val parentId = stateNow.path?.id
             val label = stateNow.newStepLabel
             val position = stateNow.steps.size
-            val stepId = store.createStep(NewStep(
+            store.createStep(NewStep(
                 pathId = parentId,
                 label = label,
                 position = position
             ))
-            if (stepId != null) {
-                setState { it.copy(isAddingStep = false, newStepLabel = "") }
-                refreshItems()
-            }
+            setState { it.copy(isAddingStep = false, newStepLabel = "") }
+            refreshItems()
         }
     }
 
@@ -50,12 +48,10 @@ class PathModel(
         setState { it.copy(isAddingStep = !it.isAddingStep) }
     }
 
-    fun removeStep(stepId: Long) {
+    fun removeStep(step: Step) {
         viewModelScope.launch {
-            val isSuccess = store.deleteStep(stepId)
-            if (isSuccess) {
-                setState { it.copy(steps = it.steps.filter { step -> step.id != stepId }) }
-            }
+            store.deleteStep(step)
+            refreshItems()
         }
     }
 
@@ -78,7 +74,7 @@ class PathModel(
         setState { it.copy(stepLabelEdits = it.stepLabelEdits - stepLabelEdit) }
     }
 
-    fun modifyLabelEdit(label: String, stepId: Long) {
+    fun modifyLabelEdit(label: String, stepId: String) {
         setState { state ->
             val updatedEdits = state.stepLabelEdits.map {
                 if (it.id == stepId) it.copy(label = label) else it
@@ -103,11 +99,11 @@ class PathModel(
     }
 
     fun generateImage(step: Step) {
-        viewModelScope.launch {
-            val url = store.generateImage(step.id)
-            val steps = stateNow.steps.map { it -> if (it.id == step.id) it.copy(imgUrl = url) else it }
-            setState { it.copy(steps =  steps) }
-        }
+//        viewModelScope.launch {
+//            val url = store.generateImage(step.id)
+//            val steps = stateNow.steps.map { it -> if (it.id == step.id) it.copy(imgUrl = url) else it }
+//            setState { it.copy(steps =  steps) }
+//        }
     }
 }
 
@@ -124,6 +120,6 @@ data class RootStepsState(
 }
 
 data class StepLabelEdit(
-    val id: Long,
+    val id: String,
     val label: String,
 )

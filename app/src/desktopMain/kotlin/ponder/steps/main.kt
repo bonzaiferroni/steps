@@ -12,6 +12,7 @@ import pondui.ui.nav.KeyCaster
 import pondui.ui.nav.LocalKeyCaster
 
 fun main() {
+    _db = getRoomDatabase(getDatabaseBuilder())
     application {
         val cacheFlow = CacheFile("appcache.json") { AppCache() }
         val cache by cacheFlow.collectAsState()
@@ -20,8 +21,6 @@ fun main() {
         val windowState = WatchWindow(cache.windowSize) {
             cacheFlow.value = cacheFlow.value.copy(windowSize = it)
         }
-
-        db = getRoomDatabase(getDatabaseBuilder())
 
         ProvideAddressContext(
             initialAddress = cache.address,

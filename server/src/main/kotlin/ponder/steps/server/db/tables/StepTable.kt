@@ -11,7 +11,7 @@ import ponder.steps.model.data.Step
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-internal object StepTable : LongIdTable("step") {
+internal object StepTable : UUIDTable("step") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
     val label = text("label")
     val description = text("description").nullable()

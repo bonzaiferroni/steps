@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "628500131b1118d5106e07a4fff78947",
+    "version": 3,
+    "identityHash": "40c0f0718d521261e6309224a9bc0bd6",
     "entities": [
       {
         "tableName": "Sprite",
@@ -35,8 +35,8 @@
         }
       },
       {
-        "tableName": "Step",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT, `label` TEXT NOT NULL, `description` TEXT, `expectedMins` INTEGER, `imgUrl` TEXT, `thumbUrl` TEXT, `audioUrl` TEXT, `public` INTEGER NOT NULL, `pathSize` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "tableName": "StepEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT, `label` TEXT NOT NULL, `description` TEXT, `expectedMins` INTEGER, `imgUrl` TEXT, `thumbUrl` TEXT, `audioUrl` TEXT, `isPublic` INTEGER NOT NULL, `pathSize` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -81,8 +81,8 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "public",
-            "columnName": "public",
+            "fieldPath": "isPublic",
+            "columnName": "isPublic",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -101,7 +101,7 @@
         }
       },
       {
-        "tableName": "PathStep",
+        "tableName": "PathStepEntity",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `stepId` TEXT NOT NULL, `pathId` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -139,7 +139,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '628500131b1118d5106e07a4fff78947')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '40c0f0718d521261e6309224a9bc0bd6')"
     ]
   }
 }

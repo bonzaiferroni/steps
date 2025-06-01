@@ -26,4 +26,5 @@ fun App(
     }
 }
 
-var db: AppDatabase? = null
+var _db: AppDatabase? = null
+val db: AppDatabase get() = _db ?: error("You must initialize the database")

@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Intent(
-    val id: Long,
-    val userId: Long,
-    val rootId: Long,
+    val id: String,
+    val userId: String,
+    val rootId: String,
     val label: String,
     val repeatMins: Int?,
     val expectedMins: Int?,
@@ -18,7 +18,7 @@ data class Intent(
 
 @Serializable
 data class NewIntent(
-    val rootId: Long,
+    val rootId: String,
     val label: String,
     val repeatMins: Int? = null,
     val expectedMins: Int? = null,

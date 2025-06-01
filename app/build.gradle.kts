@@ -113,8 +113,9 @@ room {
 }
 
 dependencies {
+    add("kspCommonMainMetadata", libs.room.compiler)
+    add("kspDesktop", libs.room.compiler)
     debugImplementation(compose.uiTooling)
-    ksp(libs.room.compiler)
 }
 
 compose.desktop {

@@ -122,7 +122,7 @@ fun PathScreen() {
 
                     RowMenu(
                         items = persistentListOf(
-                            RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step.id) },
+                            RowMenuItem(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeStep(step) },
                             if (stepLabelEdit != null) {
                                 RowMenuItem(TablerIcons.X) { viewModel.cancelLabelEdit(stepLabelEdit) }
                             } else {
