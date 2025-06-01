@@ -3,7 +3,7 @@ package ponder.steps.db
 import ponder.steps.model.data.Step
 
 data class StepJoin(
-    val id: String,
+    val stepId: String,
     val userId: String?,
     val label: String,
     val description: String?,
@@ -18,7 +18,7 @@ data class StepJoin(
 )
 
 fun StepJoin.toStep() = Step(
-    id = id,
+    id = stepId,
     userId = userId,
     label = label,
     description = description,

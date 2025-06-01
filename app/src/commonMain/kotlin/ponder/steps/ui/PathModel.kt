@@ -21,6 +21,7 @@ class PathModel(
             val steps = path?.children ?: store.readRootSteps()
             val ancestors = if (pathId != null) stateNow.ancestors else emptyList()
             setState { it.copy(path = path, steps = steps, ancestors = ancestors) }
+            println(stateNow.ancestors.size)
         }
     }
 
@@ -84,17 +85,16 @@ class PathModel(
     }
 
     fun navigateForward(step: Step) {
-        val steps = step.children ?: return
-        val ancestors = stateNow.path?.let { listOf(it) } ?: emptyList()
-        setState { it.copy(path = step, steps = steps, ancestors = ancestors) }
+        val ancestors = stateNow.path?.let { stateNow.ancestors + it } ?: emptyList()
+        setState { it.copy(path = step, ancestors = ancestors) }
+        println(stateNow.ancestors.size)
         refreshItems(step.id)
     }
 
     fun navigateBack(step: Step) {
-        val steps = step.children ?: return
         val ancestors = stateNow.ancestors.indexOfFirst { it.id == step.id }
             .let { stateNow.ancestors.subList(0, it) }
-        setState { it.copy(path = step, steps = steps, ancestors = ancestors) }
+        setState { it.copy(path = step, ancestors = ancestors) }
         refreshItems(step.id)
     }
 
