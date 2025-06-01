@@ -3,7 +3,7 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ponder.steps.io.IntentionStore
-import ponder.steps.io.StepStore
+import ponder.steps.io.StepApiStore
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
@@ -11,7 +11,7 @@ import pondui.ui.core.StateModel
 
 class IntentionModel: StateModel<IntentionState>(IntentionState()) {
     private val intentionStore = IntentionStore()
-    private val stepStore = StepStore()
+    private val stepStore = StepApiStore()
 
     init {
         refreshItems()

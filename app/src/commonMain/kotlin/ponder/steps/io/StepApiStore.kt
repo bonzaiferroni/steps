@@ -1,11 +1,12 @@
 package ponder.steps.io
 
+import ponder.steps.db.StepDao
 import ponder.steps.model.Api
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
 import pondui.io.ApiStore
 
-class StepStore: ApiStore() {
+class StepApiStore: ApiStore() {
     suspend fun readStep(stepId: Long, includeChildren: Boolean) =
         client.get(Api.Steps, stepId, Api.Steps.includeChildren.write(includeChildren))
 
@@ -29,4 +30,12 @@ class StepStore: ApiStore() {
 
     suspend fun searchSteps(query: String, includeChildren: Boolean) =
         client.get(Api.Steps.Search, Api.Steps.Search.query.write(query), Api.Steps.Search.includeChildren.write(includeChildren))
+}
+
+class StepStore(private val dao: StepDao) {
+    suspend fun readStep(stepId: String) = dao.readStep(stepId)
+
+    suspend fun readPath(pathId: String) = dao.readPath(pathId).entries.firstOrNull()
+
+    suspend fun readRootSteps()
 }

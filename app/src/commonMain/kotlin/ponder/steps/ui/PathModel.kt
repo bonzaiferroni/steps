@@ -2,14 +2,14 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.StepStore
+import ponder.steps.io.StepApiStore
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
 import pondui.ui.core.StateModel
 
 class PathModel(
     initialPathId: Long? = null,
-    private val store: StepStore = StepStore(),
+    private val store: StepApiStore = StepApiStore(),
 ): StateModel<RootStepsState>(RootStepsState()) {
     init {
         refreshItems(initialPathId)

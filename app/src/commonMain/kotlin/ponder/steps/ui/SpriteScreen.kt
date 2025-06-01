@@ -44,7 +44,6 @@ fun SpriteScreen() {
         Button("Add") {
             scope.launch {
                 dao.insert(Sprite(name = name, speed = (0..10).random()))
-                println("inserted sprite")
             }
         }
 

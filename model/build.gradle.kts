@@ -31,6 +31,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
                 api(project(":kabinet"))
+                implementation(libs.room.runtime)
             }
         }
     }
