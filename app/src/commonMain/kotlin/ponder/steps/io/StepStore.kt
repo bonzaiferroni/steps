@@ -15,9 +15,9 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class StepStore(private val dao: StepDao = db.getStepDao()) {
-    suspend fun readStep(stepId: String) = dao.readStep(stepId)?.toStep()
+    suspend fun readStep(stepId: String) = dao.readStepOrNull(stepId)?.toStep()
 
-    suspend fun readPath(pathId: String) = dao.readStep(pathId)?.toStep(
+    suspend fun readPath(pathId: String) = dao.readStepOrNull(pathId)?.toStep(
         children = dao.readPathSteps(pathId).map { it.toStep() }
     )
 
@@ -45,10 +45,25 @@ class StepStore(private val dao: StepDao = db.getStepDao()) {
             )
         )
 
+        updatePathSize(pathId)
+
         return id
     }
 
-    suspend fun deleteStep(step: Step) = dao.deleteStep(step.toStepEntity()) == 1
+    suspend fun deleteStep(step: Step): Boolean {
+        val pathIds = dao.readPathIdsWithStepId(step.id)
+        val isSuccess = dao.deleteStep(step.toStepEntity()) == 1
+        if (isSuccess) {
+            pathIds.forEach { updatePathSize(it) }
+        }
+        return isSuccess
+    }
 
     suspend fun updateStep(step: Step) = dao.updateSteps(step.toStepEntity()) == 1
+
+    private suspend fun updatePathSize(pathId: String) {
+        val pathSize = dao.readPathStepCount(pathId)
+        val path = dao.readStep(pathId).copy(pathSize = pathSize)
+        dao.updateSteps(path)
+    }
 }
