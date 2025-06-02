@@ -1,5 +1,6 @@
 package ponder.steps.server.db.services
 
+import kabinet.utils.nowToLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.readColumn
 import klutch.db.readCount
@@ -22,24 +23,24 @@ import ponder.steps.server.db.tables.toTrek
 
 class JourneyService: DbService() {
 
-    suspend fun readUserTreks(userId: Long) = dbQuery {
+    suspend fun readUserTreks(userId: String) = dbQuery {
         syncIntentsWithTreks(userId) // temporary
         TrekItemAspect.read { TrekTable.userId.eq(userId) }
     }
 
-    suspend fun startTrek(trekId: Long, userId: Long) = dbQuery {
+    suspend fun startTrek(trekId: String, userId: String) = dbQuery {
         TrekTable.update(where = { TrekTable.id.eq(trekId) and TrekTable.userId.eq(userId)}) {
             it[this.startedAt] = Clock.nowToLocalDateTimeUtc()
         } == 1
     }
 
-    suspend fun pauseTrek(trekId: Long, userId: Long) = dbQuery {
+    suspend fun pauseTrek(trekId: String, userId: String) = dbQuery {
         TrekTable.update(where = { TrekTable.id.eq(trekId) and TrekTable.userId.eq(userId)}) {
             it[this.startedAt] = null
         } == 1
     }
 
-    suspend fun completeStep(trekId: Long, userId: Long) = dbQuery {
+    suspend fun completeStep(trekId: String, userId: String) = dbQuery {
         var trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
             ?: error("Trek not found")
 
@@ -91,7 +92,7 @@ class JourneyService: DbService() {
 }
 
 // returns the next step in the trek that is not consumed as a path and the associated breadcrumbs
-fun stepIn(stepId: Long, providedBreadCrumbs: List<Long>, pathIds: List<Long>): Pair<Long, List<Long>> {
+fun stepIn(stepId: Long, providedBreadCrumbs: List<String>, pathIds: List<String>): Pair<String, List<String>> {
     var nextStepId = stepId
     var breadCrumbs = providedBreadCrumbs
     while (pathIds.contains(nextStepId)) {

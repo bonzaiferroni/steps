@@ -27,4 +27,6 @@ fun App(
 }
 
 var _db: AppDatabase? = null
-val db: AppDatabase get() = _db ?: error("You must initialize the database")
+val appDb: AppDatabase get() = _db ?: error("You must initialize the database")
+
+val appUserId = "wombat7"

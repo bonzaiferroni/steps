@@ -1,8 +1,6 @@
 package ponder.steps.ui
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.lazy.items
@@ -25,7 +23,7 @@ fun JourneyScreen() {
 
     Scaffold {
         LazyColumn(1, modifier = Modifier.weight(1f)) {
-            items(state.trekItems, key = { it.trekId }) { item ->
+            items(state.treks, key = { it.trekId }) { item ->
                 val startedAt = item.startedAt
                 val finishedAt = item.finishedAt
                 val now = Clock.System.now()

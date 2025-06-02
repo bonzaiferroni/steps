@@ -2,25 +2,23 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.IntentionStore
-import ponder.steps.io.StepApiStore
+import ponder.steps.io.IntentStore
+import ponder.steps.io.StepStore
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
-class IntentionModel: StateModel<IntentionState>(IntentionState()) {
-    private val intentionStore = IntentionStore()
-    private val stepStore = StepApiStore()
+class IntentionModel(
+    private val intentStore: IntentStore = IntentStore(),
+    private val stepStore: StepStore = StepStore()
+) : StateModel<IntentionState>(IntentionState()) {
 
     init {
-        refreshItems()
-    }
-
-    fun refreshItems() {
         viewModelScope.launch {
-            val intents = intentionStore.readUserIntents()
-            setState { it.copy(intents = intents) }
+            intentStore.readActiveIntentsFlow().collect { intents ->
+                setState { it.copy(intents = intents) }
+            }
         }
     }
 
@@ -39,24 +37,20 @@ class IntentionModel: StateModel<IntentionState>(IntentionState()) {
 
     private fun searchPaths(query: String) {
         viewModelScope.launch {
-            val steps = stepStore.searchSteps(query, includeChildren = false)
+            val steps = stepStore.searchSteps(query)
             setState { it.copy(searchPaths = steps) }
         }
     }
 
     fun createIntent(step: Step) {
         viewModelScope.launch {
-            val newIntent = NewIntent(
+            intentStore.createIntent(NewIntent(
                 rootId = step.id,
                 label = step.label,
                 expectedMins = step.expectedMins,
                 repeatMins = 60
-            )
-            val intentId = intentionStore.createIntent(newIntent)
-            if (intentId != null) {
-                refreshItems() // Reload intents after creating a new one
-                setState { it.copy(isAddingItem = false) } // Close the add item panel
-            }
+            ))
+            setState { it.copy(isAddingItem = false) }
         }
     }
 }

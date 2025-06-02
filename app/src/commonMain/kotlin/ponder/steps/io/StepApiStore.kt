@@ -1,7 +1,5 @@
 package ponder.steps.io
 
-import ponder.steps.db
-import ponder.steps.db.StepDao
 import ponder.steps.model.Api
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep

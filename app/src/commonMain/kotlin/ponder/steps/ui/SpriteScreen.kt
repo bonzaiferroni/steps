@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import ponder.steps.db
+import ponder.steps.appDb
 import ponder.steps.db.Sprite
 import pondui.ui.behavior.fadeIn
 import pondui.ui.controls.Button
@@ -25,7 +25,7 @@ import pondui.ui.nav.AppRoute
 @Composable
 fun SpriteScreen() {
 
-    val dao = remember { db!!.getSpriteDao() }
+    val dao = remember { appDb!!.getSpriteDao() }
     val spriteFlow = remember { dao.getAllAsFlow() }
 
     val scope = rememberCoroutineScope()

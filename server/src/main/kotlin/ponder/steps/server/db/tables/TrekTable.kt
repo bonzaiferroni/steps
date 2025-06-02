@@ -6,7 +6,7 @@ import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import ponder.steps.server.models.Trek
+import ponder.steps.model.data.Trek
 
 internal object TrekTable : LongIdTable("trek") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
@@ -15,8 +15,8 @@ internal object TrekTable : LongIdTable("trek") {
     val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
     val stepIndex = integer("step_index")
     val stepCount = integer("step_count")
-    val pathIds = array<Long>("path_ids")
-    val breadCrumbs = array<Long>("bread_crumbs")
+    val pathIds = array<String>("path_ids")
+    val breadCrumbs = array<String>("bread_crumbs")
     val availableAt = datetime("available_at")
     val startedAt = datetime("started_at").nullable()
     val progressAt = datetime("progress_at").nullable()
@@ -25,11 +25,11 @@ internal object TrekTable : LongIdTable("trek") {
 }
 
 fun ResultRow.toTrek() = Trek(
-    id = this[TrekTable.id].value,
-    userId = this[TrekTable.userId].value,
-    rootId = this[TrekTable.rootId].value,
-    intentId = this[TrekTable.intentId].value,
-    stepId = this[TrekTable.stepId].value,
+    id = this[TrekTable.id].value.toString(),
+    userId = this[TrekTable.userId].value.toString(),
+    rootId = this[TrekTable.rootId].value.toString(),
+    intentId = this[TrekTable.intentId].value.toString(),
+    stepId = this[TrekTable.stepId].value.toString(),
     stepIndex = this[TrekTable.stepIndex],
     stepCount = this[TrekTable.stepCount],
     pathIds = this[TrekTable.pathIds].toList(),

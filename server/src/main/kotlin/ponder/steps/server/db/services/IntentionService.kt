@@ -1,13 +1,17 @@
 package ponder.steps.server.db.services
 
+import kabinet.utils.nowToLocalDateTimeUtc
+import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.readById
 import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.db.read
+import klutch.utils.eq
 import klutch.utils.nowToLocalDateTimeUtc
 import klutch.utils.toInstantUtc
 import klutch.utils.toLocalDateTimeUtc
+import klutch.utils.toUUID
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.SortOrder
@@ -30,21 +34,21 @@ import kotlin.time.Duration.Companion.minutes
 
 class IntentionService: DbService() {
 
-    suspend fun readIntent(intentId: Long) = dbQuery {
-        IntentTable.readById(intentId).toIntent()
+    suspend fun readIntent(intentId: String) = dbQuery {
+        IntentTable.readById(intentId.toUUID()).toIntent()
     }
 
-    suspend fun readUserIntents(userId: Long) = dbQuery {
+    suspend fun readUserIntents(userId: String) = dbQuery {
         IntentTable.read { it.userId.eq(userId) }.map { it.toIntent() }
     }
 
-    suspend fun createIntent(newIntent: NewIntent, userId: Long) = dbQuery {
-        val step = StepTable.readById(newIntent.rootId).toStep()
+    suspend fun createIntent(newIntent: NewIntent, userId: String) = dbQuery {
+        val step = StepTable.readById(newIntent.rootId.toUUID()).toStep()
         if (step.userId != userId) error("rootId: ${newIntent.rootId} does not belong to user: $userId")
 
         val intentId = IntentTable.insertAndGetId {
-            it[this.userId] = userId
-            it[this.rootId] = newIntent.rootId
+            it[this.userId] = userId.toUUID()
+            it[this.rootId] = newIntent.rootId.toUUID()
             it[this.label] = newIntent.label
             it[this.expectedMins] = newIntent.expectedMins
             it[this.repeatMins] = newIntent.repeatMins
@@ -55,7 +59,7 @@ class IntentionService: DbService() {
         intentId
     }
 
-    suspend fun updateIntent(intent: Intent, userId: Long) = dbQuery {
+    suspend fun updateIntent(intent: Intent, userId: String) = dbQuery {
         IntentTable.update(
             where = { IntentTable.id.eq(intent.id) and IntentTable.userId.eq(userId) }
         ) {
@@ -67,38 +71,37 @@ class IntentionService: DbService() {
         } == 1
     }
 
-    suspend fun deleteIntent(intentId: Long, userId: Long) = dbQuery {
+    suspend fun deleteIntent(intentId: String, userId: String) = dbQuery {
         IntentTable.deleteWhere { this.id.eq(intentId) and this.userId.eq(userId) } == 1
     }
 }
 
-fun syncIntentsWithTreks(userId: Long) {
+fun syncIntentsWithTreks(userId: String) {
     // read active intents
     val activeIntentIds = IntentTable.readColumn(IntentTable.id) {
         IntentTable.userId.eq(userId) and IntentTable.completedAt.isNull()
-    }.map { it.value }
+    }.map { it.value.toString() }
 
     // read active treks
     val trekIntentIds = TrekTable.readColumn(TrekTable.intentId) {
         TrekTable.userId.eq(userId) and TrekTable.finishedAt.isNull()
-    }.map { it.value }
+    }.map { it.value.toString() }
 
     for (intentId in activeIntentIds - trekIntentIds) {
         val intent = IntentTable.readById(intentId).toIntent()
         val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
 
-        val pathIds = readPathIds(intentId)
-        val (stepId, breadCrumbs) = stepIn(intent.rootId, emptyList(), pathIds)
+        val (stepId, breadCrumbs) = stepIn(intent.rootId, emptyList(), intent.pathIds)
 
         TrekTable.insert {
-            it[this.userId] = userId
-            it[this.intentId] = intent.id
-            it[this.rootId] = intent.rootId
-            it[this.stepId] = stepId
+            it[this.userId] = userId.toUUID()
+            it[this.intentId] = intent.id.toUUID()
+            it[this.rootId] = intent.rootId.toUUID()
+            it[this.stepId] = stepId.toUUID()
             it[this.breadCrumbs] = breadCrumbs
-            it[this.pathIds] = pathIds
+            it[this.pathIds] = intent.pathIds
             it[this.stepIndex] = 0
-            it[this.stepCount] = readStepCount(pathIds)
+            it[this.stepCount] = readStepCount(intent.pathIds)
             it[this.availableAt] = availableAt.toLocalDateTimeUtc()
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
             it[this.startedAt] = null
@@ -108,13 +111,13 @@ fun syncIntentsWithTreks(userId: Long) {
     }
 }
 
-fun readStepCount(pathIds: List<Long>): Int {
+fun readStepCount(pathIds: List<String>): Int {
     if (pathIds.isEmpty()) return 1
     val stepCount = PathStepTable.readCount { PathStepTable.pathId.inList(pathIds) }
     return stepCount
 }
 
-fun readPathIds(intentId: Long) = IntentPathTable.readColumn(IntentPathTable.pathId) {
+fun readPathIds(intentId: String) = IntentPathTable.readColumn(IntentPathTable.pathId) {
     IntentPathTable.intentId.eq(intentId)
 }.map { it.value }
 

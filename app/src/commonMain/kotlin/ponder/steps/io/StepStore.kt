@@ -2,8 +2,8 @@
 
 package ponder.steps.io
 
-import ponder.steps.db
-import ponder.steps.db.Default
+import ponder.steps.appDb
+import ponder.steps.db.Empty
 import ponder.steps.db.PathStepEntity
 import ponder.steps.db.StepEntity
 import ponder.steps.db.StepDao
@@ -14,7 +14,7 @@ import ponder.steps.model.data.Step
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class StepStore(private val dao: StepDao = db.getStepDao()) {
+class StepStore(private val dao: StepDao = appDb.getStepDao()) {
     suspend fun readStep(stepId: String) = dao.readStepOrNull(stepId)?.toStep()
 
     suspend fun readPath(pathId: String) = dao.readStepOrNull(pathId)?.toStep(
@@ -27,7 +27,7 @@ class StepStore(private val dao: StepDao = db.getStepDao()) {
         val (pathId, label, position) = newStep
         val id = Uuid.random().toString()
         dao.insert(
-            StepEntity.Default.copy(
+            StepEntity.Empty.copy(
                 id = id,
                 label = label
             )
@@ -60,6 +60,8 @@ class StepStore(private val dao: StepDao = db.getStepDao()) {
     }
 
     suspend fun updateStep(step: Step) = dao.updateSteps(step.toStepEntity()) == 1
+
+    suspend fun searchSteps(text: String) = dao.searchSteps(text).map { it.toStep() }
 
     private suspend fun updatePathSize(pathId: String) {
         val pathSize = dao.readPathStepCount(pathId)

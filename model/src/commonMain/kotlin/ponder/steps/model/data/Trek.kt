@@ -1,19 +1,19 @@
-package ponder.steps.server.models
+package ponder.steps.model.data
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Trek(
-    val id: Long,
-    val userId: Long,
-    val intentId: Long,
-    val rootId: Long,
-    val stepId: Long,
+    val id: String,
+    val userId: String,
+    val intentId: String,
+    val rootId: String,
+    val stepId: String,
     val stepIndex: Int,
     val stepCount: Int,
-    val pathIds: List<Long>,
-    val breadCrumbs: List<Long>,
+    val pathIds: List<String>,
+    val breadCrumbs: List<String>,
     val availableAt: Instant,
     val startedAt: Instant?,
     val progressAt: Instant?,

@@ -48,8 +48,8 @@ object Api: ParentEndpoint(null, apiPrefix) {
 
     object Intents: GetByIdEndpoint<Intent>(this, "/intent") {
         object User : GetEndpoint<List<Intent>>(this, "/user")
-        object Create: PostEndpoint<NewIntent, Long>(this)
-        object Delete: DeleteEndpoint<Long>(this)
+        object Create: PostEndpoint<NewIntent, String>(this)
+        object Delete: DeleteEndpoint<String>(this)
         object Update: UpdateEndpoint<Intent>(this)
     }
 

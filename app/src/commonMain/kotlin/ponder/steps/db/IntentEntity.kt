@@ -1,10 +1,13 @@
-package ponder.steps.model.data
+package ponder.steps.db
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class Intent(
+@Entity
+data class IntentEntity(
+    @PrimaryKey
     val id: String,
     val userId: String,
     val rootId: String,
@@ -15,13 +18,4 @@ data class Intent(
     val pathIds: List<String>,
     val completedAt: Instant?,
     val scheduledAt: Instant?,
-)
-
-@Serializable
-data class NewIntent(
-    val rootId: String,
-    val label: String,
-    val repeatMins: Int? = null,
-    val expectedMins: Int? = null,
-    val scheduledAt: Instant? = null,
 )

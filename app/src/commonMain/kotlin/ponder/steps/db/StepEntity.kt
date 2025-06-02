@@ -1,13 +1,11 @@
 package ponder.steps.db
 
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.internal.NamedCompanion
 import ponder.steps.model.data.Step
 
 @Entity
-@Serializable
 data class StepEntity(
     @PrimaryKey
     val id: String,
@@ -20,20 +18,9 @@ data class StepEntity(
     val audioUrl: String?,
     val isPublic: Boolean,
     val pathSize: Int,
-)
-
-val StepEntity.Companion.Default get () = StepEntity(
-    id = "",
-    userId = null,
-    label = "",
-    description = null,
-    expectedMins = null,
-    imgUrl = null,
-    thumbUrl = null,
-    audioUrl = null,
-    isPublic = false,
-    pathSize = 0,
-)
+) {
+    companion object
+}
 
 fun StepEntity.toStep(
     children: List<Step> = emptyList()
@@ -64,4 +51,17 @@ fun Step.toStepEntity() = StepEntity(
     audioUrl = audioUrl,
     isPublic = isPublic,
     pathSize = pathSize
+)
+
+val StepEntity.Companion.Empty: StepEntity get() = StepEntity(
+    id = "",
+    userId = null,
+    label = "",
+    description = null,
+    expectedMins = null,
+    imgUrl = null,
+    thumbUrl = null,
+    audioUrl = null,
+    isPublic = false,
+    pathSize = 0,
 )

@@ -6,6 +6,8 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.StepPosition
 
 @Dao
 interface StepDao {
@@ -50,6 +52,21 @@ interface StepDao {
                 "WHERE stepId = :stepId"
     )
     suspend fun readPathIdsWithStepId(stepId: String): List<String>
+
+    @Query("SELECT * FROM StepEntity WHERE label LIKE '%' || :text || '%' ")
+    suspend fun searchSteps(text: String): List<StepEntity>
+
+    @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
+    suspend fun readPathStep(pathId: String, stepId: String): PathStep
+
+    @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND position = :position")
+    suspend fun readPathStepByPosition(pathId: String, position: Int): PathStep?
+
+    @Query("SELECT pathSize FROM StepEntity WHERE id = :pathId")
+    suspend fun readPathSize(pathId: String): Int
+
+    @Query("SELECT COUNT(*) FROM PathStepEntity WHERE pathId IN (:pathIds)")
+    suspend fun readTotalStepCount(pathIds: List<String>): Int
 
     @Insert
     suspend fun insert(step: StepEntity)

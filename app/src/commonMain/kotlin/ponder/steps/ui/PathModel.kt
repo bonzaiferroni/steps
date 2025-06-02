@@ -21,7 +21,6 @@ class PathModel(
             val steps = path?.children ?: store.readRootSteps()
             val ancestors = if (pathId != null) stateNow.ancestors else emptyList()
             setState { it.copy(path = path, steps = steps, ancestors = ancestors) }
-            println(stateNow.ancestors.size)
         }
     }
 
