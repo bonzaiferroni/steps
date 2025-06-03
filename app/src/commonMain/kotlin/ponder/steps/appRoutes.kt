@@ -5,6 +5,7 @@ import pondui.ui.nav.AppRoute
 import pondui.ui.nav.IdRoute
 import pondui.ui.nav.matchLongIdRoute
 import pondui.ui.nav.matchStringIdRoute
+import pondui.ui.nav.matchStringOrNullIdRoute
 
 @Serializable
 object StartRoute : AppRoute("Start")
@@ -16,10 +17,10 @@ object HelloRoute : AppRoute("Hello")
 object ExampleListRoute : AppRoute("Examples")
 
 @Serializable
-data class PathRoute(val pathId: String? = null) : IdRoute<String>(TITLE, pathId) {
+data class PathsRoute(val pathId: String? = null) : IdRoute<String>(TITLE, pathId) {
     companion object {
         const val TITLE = "Paths"
-        fun matchRoute(path: String) = matchStringIdRoute(path, TITLE) { PathRoute(it) }
+        fun matchRoute(path: String) = matchStringOrNullIdRoute(path, TITLE) { PathsRoute(it) }
     }
 }
 

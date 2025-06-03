@@ -1,13 +1,11 @@
 package ponder.steps.model.data
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 
+@Stable
 @Serializable
 data class Step(
-    @PrimaryKey
     val id: String,
     val userId: String?,
     val label: String,

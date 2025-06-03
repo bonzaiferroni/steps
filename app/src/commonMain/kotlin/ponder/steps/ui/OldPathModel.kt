@@ -7,7 +7,7 @@ import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
-class PathModel(
+class OldPathModel(
     initialPathId: String? = null,
     private val store: StepStore = StepStore(),
 ): StateModel<RootStepsState>(RootStepsState()) {
@@ -27,13 +27,10 @@ class PathModel(
     fun createNewStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            val parentId = stateNow.path?.id
-            val label = stateNow.newStepLabel
-            val position = stateNow.steps.size
             store.createStep(NewStep(
-                pathId = parentId,
-                label = label,
-                position = position
+                pathId = stateNow.path?.id,
+                label = stateNow.newStepLabel,
+                position = stateNow.steps.size
             ))
             setState { it.copy(isAddingStep = false, newStepLabel = "") }
             refreshItems()

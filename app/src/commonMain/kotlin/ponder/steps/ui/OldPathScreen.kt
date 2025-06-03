@@ -23,7 +23,7 @@ import compose.icons.tablericons.Olympics
 import compose.icons.tablericons.Trash
 import compose.icons.tablericons.X
 import kotlinx.collections.immutable.persistentListOf
-import ponder.steps.PathRoute
+import ponder.steps.PathsRoute
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.magic
@@ -37,14 +37,14 @@ import steps.app.generated.resources.Res
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!
 @Composable
-fun PathScreen() {
-    val viewModel: PathModel = viewModel { PathModel() }
+fun OldPathScreen() {
+    val viewModel: OldPathModel = viewModel { OldPathModel() }
     val state by viewModel.state.collectAsState()
     val nav = LocalNav.current
 
     LaunchedEffect(state.path) {
         state.path?.id?.let {
-            nav.setRoute(PathRoute(it), true)
+            nav.setRoute(PathsRoute(it), true)
         }
     }
 
