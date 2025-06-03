@@ -13,6 +13,6 @@ internal object ExampleTable : LongIdTable("example") {
 
 internal fun ResultRow.toExample() = Example(
     id = this[ExampleTable.id].value,
-    userId = this[ExampleTable.userId].value,
+    userId = this[ExampleTable.userId].value.toString(),
     label = this[ExampleTable.label],
 )

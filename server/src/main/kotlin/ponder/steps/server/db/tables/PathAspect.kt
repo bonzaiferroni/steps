@@ -27,9 +27,9 @@ object PathAspect: Aspect<PathAspect, Step>(
 }
 
 fun ResultRow.toStep() = Step(
-    id = this[PathAspect.stepId].value,
-    userId = this[PathAspect.userId].value,
-    pathId = this.getOrNull(PathAspect.pathId)?.value,
+    id = this[PathAspect.stepId].value.toString(),
+    userId = this[PathAspect.userId].value.toString(),
+    pathId = this.getOrNull(PathAspect.pathId)?.value.toString(),
     label = this[PathAspect.label],
     description = this[PathAspect.description],
     thumbUrl = this[PathAspect.thumbUrl],

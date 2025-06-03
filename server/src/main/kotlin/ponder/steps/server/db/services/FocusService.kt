@@ -1,6 +1,7 @@
 package ponder.steps.server.db.services
 
 import klutch.db.DbService
+import klutch.utils.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import ponder.steps.model.data.Focus
@@ -9,7 +10,7 @@ import ponder.steps.server.db.tables.TrekTable
 
 class FocusService: DbService() {
 
-    suspend fun readFocus(userId: Long) = dbQuery {
+    suspend fun readFocus(userId: String) = dbQuery {
         // Get the active trek for the user
         val activeTrek = TrekTable.select(TrekTable.id)
             .where { TrekTable.userId.eq(userId) and TrekTable.finishedAt.isNull() }

@@ -7,7 +7,6 @@ import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
 import ponder.steps.server.db.tables.ExampleTable
 import ponder.steps.server.db.tables.IntentTable
-import ponder.steps.server.db.tables.IntentPathTable
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekTable
@@ -25,7 +24,6 @@ val dbTables = listOf(
     StepTable,
     PathStepTable,
     IntentTable,
-    IntentPathTable,
     TrekTable,
 )
 

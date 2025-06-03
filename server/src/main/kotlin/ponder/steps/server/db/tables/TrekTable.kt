@@ -1,14 +1,14 @@
 package ponder.steps.server.db.tables
 
+import kabinet.utils.toInstantUtc
 import klutch.db.tables.UserTable
-import klutch.utils.toInstantUtc
-import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import ponder.steps.model.data.Trek
 
-internal object TrekTable : LongIdTable("trek") {
+internal object TrekTable : UUIDTable("trek") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
     val intentId = reference("quest_id", IntentTable.id, ReferenceOption.CASCADE)
     val rootId = reference("root_id", StepTable.id, ReferenceOption.CASCADE)

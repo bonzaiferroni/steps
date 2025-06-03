@@ -1,11 +1,11 @@
 package ponder.steps.server.db.services
 
+import kabinet.utils.nowToLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.read
 import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.utils.eq
-import klutch.utils.nowToLocalDateTimeUtc
 import klutch.utils.toUUID
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.JoinType
@@ -58,12 +58,12 @@ class PathService : DbService(1) {
         }
     }
 
-    suspend fun createStep(newStep: NewStep, userId: Long) = dbQuery {
+    suspend fun createStep(newStep: NewStep, userId: String) = dbQuery {
         if (newStep.pathId != null && newStep.position == null) return@dbQuery null
 
         val stepId = StepTable.insertAndGetId {
             it[this.label] = newStep.label
-            it[this.userId] = userId
+            it[this.userId] = userId.toUUID()
             it[this.createdAt] = Clock.nowToLocalDateTimeUtc()
             it[this.editedAt] = Clock.nowToLocalDateTimeUtc()
             it[this.isPublic] = false
@@ -80,7 +80,7 @@ class PathService : DbService(1) {
             updatePathSize(pathId)
         }
 
-        stepId
+        stepId.toString()
     }
 
     suspend fun updateStep(step: Step) = dbQuery {

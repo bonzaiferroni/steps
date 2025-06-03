@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Focus(
-    val trekId: Long,
+    val trekId: String,
     val intentLabel: String,
     val stepId: String,
     val stepLabel: String,

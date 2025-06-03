@@ -1,6 +1,7 @@
 package ponder.steps.server.db.services
 
 import kabinet.utils.nowToLocalDateTimeUtc
+import kabinet.utils.toInstantUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.readById
@@ -8,9 +9,6 @@ import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.db.read
 import klutch.utils.eq
-import klutch.utils.nowToLocalDateTimeUtc
-import klutch.utils.toInstantUtc
-import klutch.utils.toLocalDateTimeUtc
 import klutch.utils.toUUID
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -24,7 +22,6 @@ import org.jetbrains.exposed.sql.deleteWhere
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewIntent
 import ponder.steps.server.db.tables.PathStepTable
-import ponder.steps.server.db.tables.IntentPathTable
 import ponder.steps.server.db.tables.IntentTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekTable
@@ -56,7 +53,7 @@ class IntentionService: DbService() {
         }.value
 
         syncIntentsWithTreks(userId)
-        intentId
+        intentId.toString()
     }
 
     suspend fun updateIntent(intent: Intent, userId: String) = dbQuery {
@@ -88,7 +85,7 @@ fun syncIntentsWithTreks(userId: String) {
     }.map { it.value.toString() }
 
     for (intentId in activeIntentIds - trekIntentIds) {
-        val intent = IntentTable.readById(intentId).toIntent()
+        val intent = IntentTable.readById(intentId.toUUID()).toIntent()
         val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
 
         val (stepId, breadCrumbs) = stepIn(intent.rootId, emptyList(), intent.pathIds)
@@ -113,13 +110,9 @@ fun syncIntentsWithTreks(userId: String) {
 
 fun readStepCount(pathIds: List<String>): Int {
     if (pathIds.isEmpty()) return 1
-    val stepCount = PathStepTable.readCount { PathStepTable.pathId.inList(pathIds) }
+    val stepCount = PathStepTable.readCount { PathStepTable.pathId.inList(pathIds.map { it.toUUID() }) }
     return stepCount
 }
-
-fun readPathIds(intentId: String) = IntentPathTable.readColumn(IntentPathTable.pathId) {
-    IntentPathTable.intentId.eq(intentId)
-}.map { it.value }
 
 fun resolveAvailableAtFromLastTrek(intent: Intent): Instant? {
     val repeatMins = intent.repeatMins ?: return null

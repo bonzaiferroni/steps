@@ -1,7 +1,7 @@
 package ponder.steps.server.db.tables
 
+import kabinet.utils.toInstantUtc
 import klutch.db.tables.UserTable
-import klutch.utils.toInstantUtc
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -16,16 +16,9 @@ internal object IntentTable: UUIDTable("intent") {
     val label = text("label")
     val repeatMins = integer("repeat_mins").nullable()
     val expectedMins = integer("expected_mins").nullable()
-    // val isRegularTime = bool("is_regular_time").default(true)
+    val pathIds = array<String>("path_ids")
     val completedAt = datetime("completed_at").nullable()
     val scheduledAt = datetime("scheduled_At").nullable()
-}
-
-internal object IntentPathTable: Table("intent_step") {
-    val intentId = reference("intent_id", IntentTable.id, onDelete = ReferenceOption.CASCADE)
-    val pathId = reference("path_id", StepTable.id, onDelete = ReferenceOption.CASCADE)
-
-    override val primaryKey = PrimaryKey(intentId, pathId, name = "PK_intent_step")
 }
 
 fun ResultRow.toIntent() = Intent(
@@ -35,7 +28,7 @@ fun ResultRow.toIntent() = Intent(
     label = this[IntentTable.label],
     repeatMins = this[IntentTable.repeatMins],
     expectedMins = this[IntentTable.expectedMins],
-    // isRegularTime = this[IntentTable.isRegularTime],
+    pathIds = this[IntentTable.pathIds],
     completedAt = this[IntentTable.completedAt]?.toInstantUtc(),
     scheduledAt = this[IntentTable.scheduledAt]?.toInstantUtc(),
 )

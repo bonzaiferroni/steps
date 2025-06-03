@@ -9,7 +9,7 @@ import ponder.steps.model.Api
 import ponder.steps.server.db.services.IntentionService
 
 fun Routing.serveIntents(service: IntentionService = IntentionService()) {
-    get(Api.Intents, { it.toLong()} ) { intentId, endpoint ->
+    get(Api.Intents, { it } ) { intentId, endpoint ->
         service.readIntent(intentId)
     }
 

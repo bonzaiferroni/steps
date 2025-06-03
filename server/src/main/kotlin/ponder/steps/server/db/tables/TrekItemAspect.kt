@@ -1,7 +1,7 @@
 package ponder.steps.server.db.tables
 
+import kabinet.utils.toInstantUtc
 import klutch.db.Aspect
-import klutch.utils.toInstantUtc
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.TrekItem
@@ -24,7 +24,7 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
 }
 
 internal fun ResultRow.toTrekItem() = TrekItem(
-    trekId = this[TrekItemAspect.trekId].value,
+    trekId = this[TrekItemAspect.trekId].value.toString(),
     stepLabel = this[TrekItemAspect.stepLabel],
     stepPathSize = this[TrekItemAspect.stepPathSize],
     stepIndex = this[TrekItemAspect.stepIndex],

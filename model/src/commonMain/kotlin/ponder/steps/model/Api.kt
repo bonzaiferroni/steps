@@ -55,10 +55,10 @@ object Api: ParentEndpoint(null, apiPrefix) {
 
     object Journey: ParentEndpoint(this, "/journey") {
         object UserTreks : GetEndpoint<List<TrekItem>>(this, "/active")
-        object CompleteStep : PostEndpoint<Long, Boolean>(this, "/complete")
-        object StartTrek : PostEndpoint<Long, Boolean>(this, "/start")
-        object PauseTrek : PostEndpoint<Long, Boolean>(this, "/pause")
-        object StepIntoPath : PostEndpoint<Long, Boolean>(this, "/step-into-path")
+        object CompleteStep : PostEndpoint<String, Boolean>(this, "/complete")
+        object StartTrek : PostEndpoint<String, Boolean>(this, "/start")
+        object PauseTrek : PostEndpoint<String, Boolean>(this, "/pause")
+        object StepIntoPath : PostEndpoint<String, Boolean>(this, "/step-into-path")
         object FocusTrek : GetEndpoint<Focus?>(this, "/focus")
     }
 }

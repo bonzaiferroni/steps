@@ -1,6 +1,7 @@
 package ponder.steps.server.db.services
 
 import kabinet.utils.nowToLocalDateTimeUtc
+import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.readColumn
 import klutch.db.readCount
@@ -8,8 +9,8 @@ import klutch.db.readSingle
 import klutch.db.readSingleOrNull
 import klutch.db.readValue
 import klutch.db.updateById
-import klutch.utils.nowToLocalDateTimeUtc
-import klutch.utils.toLocalDateTimeUtc
+import klutch.utils.eq
+import klutch.utils.toUUID
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -64,16 +65,16 @@ class JourneyService: DbService() {
             }
         }
 
-        TrekTable.updateById(trekId) {
+        TrekTable.updateById(trekId.toUUID()) {
             it[this.breadCrumbs] = trek.breadCrumbs
-            it[this.stepId] = trek.stepId
+            it[this.stepId] = trek.stepId.toUUID()
             it[this.stepIndex] = trek.stepIndex + 1
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
             it[this.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
         } == 1
     }
 
-    suspend fun stepIntoPath(trekId: Long, userId: Long) = dbQuery {
+    suspend fun stepIntoPath(trekId: String, userId: String) = dbQuery {
         val trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
             ?: error("Trek not found")
 
@@ -82,9 +83,9 @@ class JourneyService: DbService() {
         val pathIds = trek.pathIds + trek.stepId
         val (stepId, breadCrumbs) = stepIn(trek.stepId, trek.breadCrumbs, pathIds)
 
-        TrekTable.updateById(trekId) {
+        TrekTable.updateById(trekId.toUUID()) {
             it[this.breadCrumbs] = breadCrumbs
-            it[this.stepId] = stepId
+            it[this.stepId] = stepId.toUUID()
             it[this.pathIds] = pathIds
             it[this.stepCount] = readStepCount(pathIds)
         } == 1
@@ -92,29 +93,29 @@ class JourneyService: DbService() {
 }
 
 // returns the next step in the trek that is not consumed as a path and the associated breadcrumbs
-fun stepIn(stepId: Long, providedBreadCrumbs: List<String>, pathIds: List<String>): Pair<String, List<String>> {
+fun stepIn(stepId: String, providedBreadCrumbs: List<String>, pathIds: List<String>): Pair<String, List<String>> {
     var nextStepId = stepId
     var breadCrumbs = providedBreadCrumbs
     while (pathIds.contains(nextStepId)) {
         breadCrumbs = breadCrumbs + nextStepId
         nextStepId = PathStepTable.select(PathStepTable.stepId)
             .where { PathStepTable.pathId.eq(nextStepId) and PathStepTable.position.eq(0) }
-            .firstOrNull()?.let { it[PathStepTable.stepId].value }
+            .firstOrNull()?.let { it[PathStepTable.stepId].value.toString() }
             ?: error("pathId has no initial step: $nextStepId")
     }
     return nextStepId to breadCrumbs
 }
 
 // returns the next step above the current path, the null if the trek is finished
-fun stepOut(providedBreadCrumbs: List<Long>): Pair<Long?, List<Long>> {
+fun stepOut(providedBreadCrumbs: List<String>): Pair<String?, List<String>> {
     if (providedBreadCrumbs.isEmpty()) error("Stepped out of empty breadCrumbs")
     var stepId = providedBreadCrumbs.last()
     var breadCrumbs = providedBreadCrumbs - stepId
-    var nextStepId: Long? = null
+    var nextStepId: String? = null
     while (breadCrumbs.isNotEmpty()) {
         val position = PathStepTable.readSingle { it.pathId.eq(breadCrumbs.last()) and it.stepId.eq(stepId) }[PathStepTable.position]
         nextStepId = PathStepTable.readSingleOrNull { it.pathId.eq(breadCrumbs.last()) and it.position.eq(position + 1) }
-            ?.let { it[PathStepTable.stepId].value }
+            ?.let { it[PathStepTable.stepId].value.toString() }
         if (nextStepId != null) break
         stepId = breadCrumbs.last()
         breadCrumbs = breadCrumbs - stepId
@@ -122,4 +123,4 @@ fun stepOut(providedBreadCrumbs: List<Long>): Pair<Long?, List<Long>> {
     return nextStepId to breadCrumbs
 }
 
-fun pathSize(stepId: Long) = StepTable.readValue(StepTable.pathSize) { it.id.eq(stepId) }
+fun pathSize(stepId: String) = StepTable.readValue(StepTable.pathSize) { it.id.eq(stepId) }

@@ -2,6 +2,8 @@ package ponder.steps.server.db.services
 
 import klutch.db.DbService
 import klutch.db.read
+import klutch.utils.eq
+import klutch.utils.toUUID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
@@ -18,13 +20,13 @@ class ExampleApiService : DbService() {
         ExampleTable.read { it.id.eq(exampleId) }.firstOrNull()?.toExample()
     }
 
-    suspend fun readUserExamples(userId: Long) = dbQuery {
+    suspend fun readUserExamples(userId: String) = dbQuery {
         ExampleTable.read { it.userId.eq(userId) }.map { it.toExample() }
     }
 
-    suspend fun createExample(userId: Long, newExample: NewExample) = dbQuery {
+    suspend fun createExample(userId: String, newExample: NewExample) = dbQuery {
         ExampleTable.insertAndGetId {
-            it[this.userId] = userId
+            it[this.userId] = userId.toUUID()
             it[this.label] = newExample.label
         }.value
     }
@@ -37,7 +39,7 @@ class ExampleApiService : DbService() {
         } == 1
     }
 
-    suspend fun deleteExample(exampleId: Long, userId: Long) = dbQuery {
+    suspend fun deleteExample(exampleId: Long, userId: String) = dbQuery {
         ExampleTable.deleteWhere { this.id.eq(exampleId) and this.userId.eq(userId) } == 1
     }
 }
