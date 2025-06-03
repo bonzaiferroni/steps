@@ -35,6 +35,13 @@ interface StepDao {
     suspend fun readPathSteps(pathId: String): List<StepJoin>
 
     @Query(
+        "SELECT * FROM PathStepEntity " +
+                "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
+                "WHERE PathStepEntity.pathId = :pathId"
+    )
+    fun readPathStepsFlow(pathId: String): Flow<List<StepJoin>>
+
+    @Query(
         "SELECT * FROM StepEntity " +
                 "WHERE StepEntity.id NOT IN (SELECT stepId FROM PathStepEntity)"
     )
@@ -67,6 +74,9 @@ interface StepDao {
 
     @Query("SELECT COUNT(*) FROM PathStepEntity WHERE pathId IN (:pathIds)")
     suspend fun readTotalStepCount(pathIds: List<String>): Int
+
+    @Query("SELECT MAX(position) FROM PathStepEntity WHERE pathId = :pathId")
+    suspend fun readFinalPosition(pathId: String): Int
 
     @Insert
     suspend fun insert(step: StepEntity)

@@ -56,7 +56,7 @@ class PathsModel(
         setState { it.copy(showProfile = false) }
     }
 
-    fun createRootStep() {
+    fun createStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
             val id = stepStore.createStep(NewStep(

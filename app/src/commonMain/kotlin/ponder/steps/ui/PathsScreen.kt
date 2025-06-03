@@ -2,7 +2,7 @@ package ponder.steps.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,6 +18,7 @@ import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
+import pondui.ui.theme.Pond
 
 @Composable
 fun PathsScreen(
@@ -35,18 +36,16 @@ fun PathsScreen(
                 onTextChange = viewModel::setNewStepLabel,
                 placeholder = "Enter step name",
                 modifier = Modifier.takeInitialFocus()
-                    .onEnterPressed(viewModel::createRootStep)
+                    .onEnterPressed(viewModel::createStep)
             )
-            ControlSetButton("Add", onClick = viewModel::createRootStep)
+            ControlSetButton("Add", onClick = viewModel::createStep)
         }
     }
 
     Scaffold {
         Column(1) {
             Row(1) {
-                Row(
-
-                ) {
+                Row() {
                     if (state.step != null) {
                         Button(TablerIcons.ArrowUp) { viewModel.navigateTop() }
                     }
@@ -60,17 +59,19 @@ fun PathsScreen(
                 Magic(!isProfileVisible) {
                     LazyColumn(1) {
                         itemsIndexed(state.steps, key = { index, step -> step.id}) { index, step ->
-                            TextButton(
-                                text = step.label,
-                                modifier = Modifier.animateItem()
-                                    .magic(offsetX = index * 10, durationMillis = 500)
-                            ) { viewModel.navigateStep(step) }
+                            StepItem(
+                                step = step,
+                                modifier = Modifier.actionable { viewModel.navigateStep(step) }
+                                    .padding(Pond.ruler.unitPadding)
+                                    .animateItem()
+                                    .magic(offsetX = index * 10, durationMillis = 500),
+                            )
                         }
                     }
                 }
                 val step = state.step ?: return@Box
                 Magic(isProfileVisible) {
-                    StepProfileView(step)
+                    StepProfileView(step, viewModel::navigateStep)
                 }
             }
         }

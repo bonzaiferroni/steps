@@ -21,6 +21,10 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
         children = dao.readPathSteps(pathId).map { it.toStep() }
     )
 
+    suspend fun readPathSteps(pathId: String) = dao.readPathSteps(pathId = pathId).map { it.toStep() }
+
+    fun readPathStepsFlow(pathId: String) = dao.readPathStepsFlow(pathId = pathId)
+
     suspend fun readRootSteps() = dao.readRootSteps().map { it.toStep() }
 
     suspend fun createStep(newStep: NewStep): String {
@@ -33,7 +37,9 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
             )
         )
 
-        if (pathId == null || position == null) return id
+        if (pathId == null) return id
+
+        val pathPosition = position ?: (dao.readFinalPosition(pathId) + 1)
 
         val pathStepId = Uuid.random().toString()
         dao.insert(
@@ -41,7 +47,7 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
                 id = pathStepId,
                 stepId = id,
                 pathId = pathId,
-                position = position
+                position = pathPosition
             )
         )
 
