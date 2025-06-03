@@ -1,88 +1,20 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kabinet.utils.formatSpanLong
-import kotlinx.datetime.Clock
-import pondui.ui.behavior.FadeIn
-import pondui.ui.behavior.fadeIn
-import pondui.ui.controls.*
-import pondui.ui.theme.Pond
+import androidx.compose.runtime.Composable
+import kotlinx.collections.immutable.persistentListOf
+import pondui.ui.controls.Scaffold
+import pondui.ui.controls.Tab
+import pondui.ui.controls.Tabs
 
 @Composable
 fun JourneyScreen() {
-    val viewModel = viewModel { JourneyModel() }
-    val state by viewModel.state.collectAsState()
-
     Scaffold {
-        LazyColumn(1, modifier = Modifier.weight(1f)) {
-            items(state.treks, key = { it.trekId }) { item ->
-                val startedAt = item.startedAt
-                val finishedAt = item.finishedAt
-                val now = Clock.System.now()
-                Column(1, modifier = Modifier.animateItem().heightIn(min = 50.dp)) {
-                    FlowRow(1, 2, Alignment.CenterVertically, modifier = Modifier) {
-                        val availableIn = item.availableAt - now
-
-                        // row 1
-                        val progress = item.stepIndex / item.stepCount.toFloat()
-                        H2(item.intentLabel, modifier = Modifier.weight(1f))
-                        Box(modifier = Modifier.weight(1f)) {
-                            if (finishedAt != null) {
-                                Text("Finished ${(now - finishedAt).formatSpanLong()}")
-                                return@Box
-                            }
-                            if (availableIn.isPositive()) {
-                                Text("Available ${(-availableIn).formatSpanLong()}")
-                                return@Box
-                            }
-                            if (startedAt == null) {
-                                Button("Start") { viewModel.startTrek(item) }
-                                return@Box
-                            }
-                            ProgressBar(progress, modifier = Modifier.fillMaxWidth()) {
-                                Text("${item.stepIndex} of ${item.stepCount} steps completed")
-                            }
-                        }
-                    }
-
-                    FadeIn(startedAt != null && finishedAt == null, rotationX = 90) {
-                        FlowRow(1, 2) {
-                            // row 2
-                            val minutesSinceStart = (now - (startedAt ?: now)).inWholeMinutes
-                            val expectedMinutes = item.expectedMinutes ?: 60
-                            val minutesRatio = minutesSinceStart / expectedMinutes.toFloat()
-                            Text("Current step: ${item.stepLabel}", modifier = Modifier.weight(1f))
-                            ProgressBar(minutesRatio, modifier = Modifier.weight(1f)) {
-                                Text("$minutesSinceStart of $expectedMinutes minutes")
-                            }
-
-                            // row 3
-                            val completeButtonText = if (item.stepIndex + 1 == item.stepCount) "Complete Trek"
-                            else "Complete Step"
-                            Button(
-                                text = completeButtonText,
-                                modifier = Modifier.weight(1f)
-                            ) { viewModel.completeStep(item) }
-                            Button(
-                                "Step into", background = Pond.colors.secondary,
-                                modifier = Modifier.weight(1f).fadeIn(item.stepPathSize > 0, rotationX = 90)
-                            ) { viewModel.stepIntoPath(item) }
-                            Button(
-                                text = "Pause", background = Pond.colors.secondary,
-                                modifier = Modifier.weight(1f)
-                            ) { viewModel.pauseTrek(item) }
-                        }
-                    }
-                }
-            }
-        }
+        Tabs(
+            tabs = persistentListOf(
+                Tab("Focus") { FocusView() },
+                Tab("Treks", scrollable = false) { TrekListView() },
+                Tab("Plans", scrollable = false) { IntentListView() },
+            )
+        )
     }
 }

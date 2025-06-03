@@ -9,7 +9,7 @@ import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
-class IntentionModel(
+class IntentListModel(
     private val intentStore: IntentStore = IntentStore(),
     private val stepStore: StepStore = StepStore()
 ) : StateModel<IntentionState>(IntentionState()) {

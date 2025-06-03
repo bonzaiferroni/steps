@@ -35,6 +35,7 @@ import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
 import pondui.ui.controls.Scaffold
 import pondui.ui.theme.Pond
+import steps.app.generated.resources.Res
 
 // Arr! This be the screen that shows all the root steps - the captains of our plan!
 @Composable
@@ -87,7 +88,7 @@ fun PathScreen() {
                     .animateItem()) {
 
                     AsyncImage(
-                        model = "http://localhost:8080/${step.imgUrl ?: "img/horse.png"}",
+                        model = step.imgUrl?.let { "http://localhost:8080/${it}" } ?: Res.getUri("drawable/horse.png"),
                         contentDescription = null,
                         modifier = Modifier.clip(Pond.ruler.round)
                             .fillMaxHeight()

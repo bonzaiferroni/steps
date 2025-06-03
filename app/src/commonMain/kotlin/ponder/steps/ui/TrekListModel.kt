@@ -12,7 +12,7 @@ import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class JourneyModel(
+class TrekListModel(
     private val trekStore: TrekStore = TrekStore()
 ): StateModel<JourneyState>(JourneyState()) {
 

@@ -6,8 +6,6 @@ import compose.icons.tablericons.Home
 import compose.icons.tablericons.Leaf
 import compose.icons.tablericons.List
 import compose.icons.tablericons.Planet
-import compose.icons.tablericons.Rocket
-import compose.icons.tablericons.Star
 import compose.icons.tablericons.Walk
 import compose.icons.tablericons.Wind
 import compose.icons.tablericons.YinYang
@@ -29,9 +27,7 @@ val appConfig = PondConfig(
         RouteConfig(ExampleProfileRoute::matchRoute) { defaultScreen<ExampleProfileRoute> { ExampleProfileScreen(it) } },
         RouteConfig(PathRoute::matchRoute) { defaultScreen<PathRoute> { PathScreen() } },
         RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } },
-        RouteConfig(IntentionRoute::matchRoute) { defaultScreen<IntentionRoute> { IntentionScreen() }},
         RouteConfig(JourneyRoute::matchRoute) { defaultScreen<JourneyRoute> { JourneyScreen() }},
-        RouteConfig(FocusRoute::matchRoute) { defaultScreen<FocusRoute> { FocusScreen() }},
         RouteConfig(SpriteRoute::matchRoute) { defaultScreen<SpriteRoute> { SpriteScreen() }},
     ),
     doors = persistentListOf(
@@ -40,8 +36,6 @@ val appConfig = PondConfig(
         PortalDoor(TablerIcons.List, PathRoute()),
         PortalDoor(TablerIcons.Planet, GeminiRoute),
         PortalDoor(TablerIcons.Walk, JourneyRoute),
-        PortalDoor(TablerIcons.Leaf, IntentionRoute),
-        PortalDoor(TablerIcons.YinYang, FocusRoute),
         PortalDoor(TablerIcons.Wind, SpriteRoute)
     ),
 )

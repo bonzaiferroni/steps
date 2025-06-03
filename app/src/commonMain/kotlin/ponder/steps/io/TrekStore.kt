@@ -50,63 +50,6 @@ class TrekStore(
         return trekDao.update(trek.toEntity()) == 1
     }
 
-    suspend fun completeStep(trekId: String): Boolean {
-        var trek = trekDao.readTrekById(trekId) ?: return false
-
-        val pathId = trek.breadCrumbs.lastOrNull()
-        if (pathId == null) {
-            trek = trek.copy(finishedAt = Clock.System.now())
-        } else {
-            val pathStep = stepDao.readPathStep(pathId, trek.stepId)
-            val nextStep = stepDao.readPathStepByPosition(pathId, pathStep.position + 1)
-            if (nextStep == null) {
-                // stepping out of the path
-                val (nextStepId, breadCrumbs) = stepOut(trek.breadCrumbs)
-                if (nextStepId == null) {
-                    trek = trek.copy(finishedAt = Clock.System.now(), breadCrumbs = breadCrumbs, stepId = trek.rootId)
-                } else {
-                    trek = trek.copy(breadCrumbs = breadCrumbs, stepId = nextStepId)
-                }
-            } else {
-                val (stepId, breadCrumbs) = stepIn(nextStep.stepId, trek.breadCrumbs, trek.pathIds)
-                trek = trek.copy(stepId = stepId, breadCrumbs = breadCrumbs)
-            }
-        }
-
-        return trekDao.update(trek.copy(
-            stepIndex = trek.stepIndex + 1
-        ).toEntity()) == 1
-    }
-
-    // returns the next step in the trek that is not consumed as a path and the associated breadcrumbs
-    suspend fun stepIn(stepId: String, providedBreadCrumbs: List<String>, pathIds: List<String>): Pair<String, List<String>> {
-        var nextStepId = stepId
-        var breadCrumbs = providedBreadCrumbs
-        while (pathIds.contains(nextStepId)) {
-            val pathId = nextStepId
-            nextStepId = stepDao.readPathStepByPosition(nextStepId, 0)?.stepId ?: break
-            breadCrumbs = breadCrumbs + pathId
-        }
-        return nextStepId to breadCrumbs
-    }
-
-    // returns the next step above the current path, null if the trek is finished
-    suspend fun stepOut(providedBreadCrumbs: List<String>): Pair<String?, List<String>> {
-        if (providedBreadCrumbs.isEmpty()) error("Stepped out of empty breadCrumbs")
-        var stepId = providedBreadCrumbs.last()
-        var breadCrumbs = providedBreadCrumbs - stepId
-        var nextStepId: String? = null
-        while (breadCrumbs.isNotEmpty()) {
-            val pathId = breadCrumbs.last()
-            val position = stepDao.readPathStep(pathId, stepId).position
-            nextStepId = stepDao.readPathStepByPosition(pathId, position + 1)?.stepId
-            if (nextStepId != null) break
-            stepId = breadCrumbs.last()
-            breadCrumbs = breadCrumbs - stepId
-        }
-        return nextStepId to breadCrumbs
-    }
-
     suspend fun syncTreksWithIntents() {
         val activeIntentIds = intentDao.readActiveItentIds()
         val trekIntentIds = trekDao.readActiveTrekIntentIds()
@@ -136,6 +79,63 @@ class TrekStore(
                 expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes }
             ))
         }
+    }
+
+    suspend fun completeStep(trekId: String): Boolean {
+        var trek = trekDao.readTrekById(trekId) ?: return false
+
+        val pathId = trek.breadCrumbs.lastOrNull()
+        if (pathId == null) {
+            trek = trek.copy(finishedAt = Clock.System.now())
+        } else {
+            val pathStep = stepDao.readPathStep(pathId, trek.stepId)
+            val nextStep = stepDao.readPathStepByPosition(pathId, pathStep.position + 1)
+            if (nextStep == null) {
+                // stepping out of the path
+                val (nextStepId, breadCrumbs) = stepOut(trek.breadCrumbs)
+                if (nextStepId == null) {
+                    trek = trek.copy(finishedAt = Clock.System.now(), breadCrumbs = breadCrumbs, stepId = trek.rootId)
+                } else {
+                    trek = trek.copy(breadCrumbs = breadCrumbs, stepId = nextStepId)
+                }
+            } else {
+                val (stepId, breadCrumbs) = stepIn(nextStep.stepId, trek.breadCrumbs, trek.pathIds)
+                trek = trek.copy(stepId = stepId, breadCrumbs = breadCrumbs)
+            }
+        }
+
+        return trekDao.update(trek.copy(
+            stepIndex = trek.stepIndex + 1
+        ).toEntity()) == 1
+    }
+
+    // returns the next step in the trek that is not consumed as a path and the associated breadcrumbs
+    private suspend fun stepIn(stepId: String, providedBreadCrumbs: List<String>, pathIds: List<String>): Pair<String, List<String>> {
+        var nextStepId = stepId
+        var breadCrumbs = providedBreadCrumbs
+        while (pathIds.contains(nextStepId)) {
+            val pathId = nextStepId
+            nextStepId = stepDao.readPathStepByPosition(nextStepId, 0)?.stepId ?: break
+            breadCrumbs = breadCrumbs + pathId
+        }
+        return nextStepId to breadCrumbs
+    }
+
+    // returns the next step above the current path, null if the trek is finished
+    private suspend fun stepOut(providedBreadCrumbs: List<String>): Pair<String?, List<String>> {
+        if (providedBreadCrumbs.isEmpty()) error("Stepped out of empty breadCrumbs")
+        var stepId = providedBreadCrumbs.last()
+        var breadCrumbs = providedBreadCrumbs - stepId
+        var nextStepId: String? = null
+        while (breadCrumbs.isNotEmpty()) {
+            val pathId = breadCrumbs.last()
+            val position = stepDao.readPathStep(pathId, stepId).position
+            nextStepId = stepDao.readPathStepByPosition(pathId, position + 1)?.stepId
+            if (nextStepId != null) break
+            stepId = breadCrumbs.last()
+            breadCrumbs = breadCrumbs - stepId
+        }
+        return nextStepId to breadCrumbs
     }
 
     private suspend fun resolveAvailableAtFromLastTrek(intent: Intent): Instant? {
