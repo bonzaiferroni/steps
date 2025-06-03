@@ -9,12 +9,10 @@ import pondui.ui.controls.Tabs
 @Composable
 fun JourneyScreen() {
     Scaffold {
-        Tabs(
-            tabs = persistentListOf(
-                Tab("Focus") { FocusView() },
-                Tab("Treks", scrollable = false) { TrekListView() },
-                Tab("Plans", scrollable = false) { IntentListView() },
-            )
-        )
+        Tabs {
+            tab("Focus") { FocusView() }
+            tab("Treks") { TrekListView() }
+            tab("Plans") { IntentListView() }
+        }
     }
 }

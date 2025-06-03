@@ -3,6 +3,7 @@ package ponder.steps.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -13,6 +14,7 @@ import compose.icons.tablericons.Plus
 import ponder.steps.PathsRoute
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.Magic
+import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
@@ -46,7 +48,7 @@ fun PathsScreen(
 
                 ) {
                     if (state.step != null) {
-                        Button(TablerIcons.ArrowUp) { viewModel.navigateCrumb(null) }
+                        Button(TablerIcons.ArrowUp) { viewModel.navigateTop() }
                     }
                 }
                 Expando()
@@ -54,11 +56,15 @@ fun PathsScreen(
                 Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
             }
             Box {
-                val isProfileVisible = !state.isSearching && state.step != null
+                val isProfileVisible = state.showProfile && state.step != null
                 Magic(!isProfileVisible) {
                     LazyColumn(1) {
-                        items(state.steps) { step ->
-                            TextButton(step.label) { viewModel.setStep(step) }
+                        itemsIndexed(state.steps, key = { index, step -> step.id}) { index, step ->
+                            TextButton(
+                                text = step.label,
+                                modifier = Modifier.animateItem()
+                                    .magic(offsetX = index * 10, durationMillis = 500)
+                            ) { viewModel.navigateStep(step) }
                         }
                     }
                 }
