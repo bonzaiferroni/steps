@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
+import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Plus
 import ponder.steps.PathsRoute
 import pondui.ui.behavior.HotKey
@@ -41,6 +42,13 @@ fun PathsScreen(
     Scaffold {
         Column(1) {
             Row(1) {
+                Row(
+
+                ) {
+                    if (state.step != null) {
+                        Button(TablerIcons.ArrowUp) { viewModel.navigateCrumb(null) }
+                    }
+                }
                 Expando()
                 TextField(state.searchText, viewModel::setSearchText)
                 Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)

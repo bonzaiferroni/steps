@@ -42,7 +42,14 @@ class PathsModel(
     }
 
     fun setStep(step: Step) {
-        setState { it.copy(step = step)}
+        val breadCrumbs = stateNow.step?.let { stateNow.breadCrumbs + it } ?: emptyList()
+        setState { it.copy(step = step, breadCrumbs = breadCrumbs)}
+    }
+
+    fun navigateCrumb(step: Step?) {
+        val breadCrumbsNow = stateNow.breadCrumbs
+        val breadCrumbs = step?.let { breadCrumbsNow.subList(0, breadCrumbsNow.indexOf(step))  } ?: emptyList()
+        setState { it.copy(step = step, breadCrumbs = breadCrumbs) }
     }
 
     fun createRootStep() {
@@ -66,6 +73,7 @@ data class StepListState(
     val isSearching: Boolean = false,
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
+    val breadCrumbs: List<Step> = emptyList()
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
 }
