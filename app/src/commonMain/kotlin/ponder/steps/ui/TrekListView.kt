@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kabinet.utils.formatSpanLong
 import kotlinx.datetime.Clock
-import pondui.ui.behavior.FadeIn
-import pondui.ui.behavior.fadeIn
+import pondui.ui.behavior.Magic
+import pondui.ui.behavior.magic
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
 
@@ -57,7 +57,7 @@ fun TrekListView() {
                     }
                 }
 
-                FadeIn(startedAt != null && finishedAt == null, rotationX = 90) {
+                Magic(startedAt != null && finishedAt == null, rotationX = 90) {
                     FlowRow(1, 2) {
                         // row 2
                         val minutesSinceStart = (now - (startedAt ?: now)).inWholeMinutes
@@ -77,7 +77,7 @@ fun TrekListView() {
                         ) { viewModel.completeStep(item) }
                         Button(
                             "Step into", background = Pond.colors.secondary,
-                            modifier = Modifier.weight(1f).fadeIn(item.stepPathSize > 0, rotationX = 90)
+                            modifier = Modifier.weight(1f).magic(item.stepPathSize > 0, rotationX = 90)
                         ) { viewModel.stepIntoPath(item) }
                         Button(
                             text = "Pause", background = Pond.colors.secondary,

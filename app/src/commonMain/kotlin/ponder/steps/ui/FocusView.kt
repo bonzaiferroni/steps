@@ -11,7 +11,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
-import pondui.ui.behavior.fadeIn
+import pondui.ui.behavior.magic
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.FlowRow
@@ -27,13 +27,13 @@ fun FocusView() {
     Column(1, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         val focus = state.focus
         Box() {
-            H2("All done!", modifier = Modifier.fadeIn(focus == null, offsetX = -100))
+            H2("All done!", modifier = Modifier.magic(focus == null, offsetX = -100))
             val intentLabel = focus?.intentLabel
             val cachedValue by produceState(initialValue = intentLabel ?: "") {
                 if (intentLabel != null) value = intentLabel
             }
 
-            H2(cachedValue, modifier = Modifier.fadeIn(focus != null, offsetX = 100))
+            H2(cachedValue, modifier = Modifier.magic(focus != null, offsetX = 100))
         }
 
         if (focus == null) return@Column
@@ -44,7 +44,7 @@ fun FocusView() {
             modifier = Modifier.clip(Pond.ruler.round)
                 .height(400.dp)
                 .aspectRatio(1f)
-                .fadeIn(rotationZ = 180, scale = true, durationMillis = 500)
+                .magic(rotationZ = 180, scale = true, durationMillis = 500)
         )
 
         H1(focus.stepLabel)
@@ -52,14 +52,14 @@ fun FocusView() {
             Button(
                 text = "Start",
                 onClick = viewModel::startTrek,
-                modifier = Modifier.fadeIn(focus.startedAt == null, offsetY = 30)
+                modifier = Modifier.magic(focus.startedAt == null, offsetY = 30)
             )
             val completeButtonText = if (focus.stepIndex + 1 == focus.stepCount) "Complete Trek"
             else "Complete Step"
             Button(
                 text = completeButtonText,
                 onClick = viewModel::completeStep,
-                modifier = Modifier.fadeIn(focus.startedAt != null, offsetY = -30)
+                modifier = Modifier.magic(focus.startedAt != null, offsetY = -30)
             )
         }
         if (focus.startedAt == null) return@Column
@@ -67,7 +67,7 @@ fun FocusView() {
 
             Button(
                 "Step into", background = Pond.colors.secondary, onClick = viewModel::stepIntoPath,
-                modifier = Modifier.weight(1f).fadeIn(focus.stepPathSize > 0, rotationX = 90)
+                modifier = Modifier.weight(1f).magic(focus.stepPathSize > 0, rotationX = 90)
             )
             Button(
                 text = "Pause", background = Pond.colors.secondary,

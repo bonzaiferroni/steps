@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,7 +12,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -26,9 +24,9 @@ import compose.icons.tablericons.Trash
 import compose.icons.tablericons.X
 import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.PathRoute
-import pondui.ui.behavior.FadeIn
+import pondui.ui.behavior.Magic
 import pondui.ui.behavior.HotKey
-import pondui.ui.behavior.fadeIn
+import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
@@ -93,7 +91,7 @@ fun PathScreen() {
                         modifier = Modifier.clip(Pond.ruler.round)
                             .fillMaxHeight()
                             .aspectRatio(1f)
-                            .fadeIn(rotationZ = 180, scale = true, durationMillis = 500)
+                            .magic(rotationZ = 180, scale = true, durationMillis = 500)
                     )
 
                     val stepLabelEdit = state.stepLabelEdits.firstOrNull() { it.id == step.id }
@@ -101,7 +99,7 @@ fun PathScreen() {
                         contentAlignment = Alignment.CenterStart,
                         modifier = Modifier.fillMaxHeight()
                     ) {
-                        FadeIn(stepLabelEdit != null, offsetX = 20) {
+                        Magic(stepLabelEdit != null, offsetX = 20) {
                             ControlSet {
                                 TextField(
                                     text = stepLabelEdit?.label ?: "",
@@ -113,12 +111,12 @@ fun PathScreen() {
                                 ControlSetButton(TablerIcons.CircleCheck) { viewModel.acceptLabelEdit(stepLabelEdit!!) }
                             }
                         }
-                        FadeIn(stepLabelEdit == null, offsetX = 20) {
+                        Magic(stepLabelEdit == null, offsetX = 20) {
                             Text(step.label)
                         }
                     }
                     if (step.pathSize > 0) {
-                        Button(imageVector = TablerIcons.ArrowRight, modifier = Modifier.fadeIn(offsetX = 20)) { viewModel.navigateForward(step) }
+                        Button(imageVector = TablerIcons.ArrowRight, modifier = Modifier.magic(offsetX = 20)) { viewModel.navigateForward(step) }
                     }
 
                     Expando()

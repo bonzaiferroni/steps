@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import ponder.steps.appDb
 import ponder.steps.db.Sprite
-import pondui.ui.behavior.fadeIn
+import pondui.ui.behavior.magic
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.Scaffold
@@ -49,7 +49,7 @@ fun SpriteScreen() {
 
         Column(1) {
             for (sprite in sprites) {
-                Text("${sprite.name} (${sprite.speed})", modifier = Modifier.fadeIn(offsetX = 20))
+                Text("${sprite.name} (${sprite.speed})", modifier = Modifier.magic(offsetX = 20))
             }
         }
     }
