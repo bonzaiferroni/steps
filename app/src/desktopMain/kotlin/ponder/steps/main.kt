@@ -1,12 +1,15 @@
 package ponder.steps
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.serialization.Serializable
 import pondui.CacheFile
 import pondui.WatchWindow
 import pondui.WindowSize
+import pondui.ui.controls.Text
 import pondui.ui.core.ProvideAddressContext
 import pondui.ui.nav.KeyCaster
 import pondui.ui.nav.LocalKeyCaster
@@ -33,10 +36,15 @@ fun main() {
                     undecorated = true,
                     onPreviewKeyEvent = keyCaster::keyEvent
                 ) {
-                    App(
-                        changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
-                        exitApp = ::exitApplication
-                    )
+                    val baseDensity = LocalDensity.current
+                    CompositionLocalProvider(
+                        LocalDensity provides Density(baseDensity.density * 1.0f, baseDensity.fontScale)
+                    ) {
+                        App(
+                            changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
+                            exitApp = ::exitApplication
+                        )
+                    }
                 }
             }
         }

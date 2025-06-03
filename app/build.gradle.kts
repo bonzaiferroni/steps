@@ -19,7 +19,7 @@ kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
     
@@ -100,6 +100,10 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "app/proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -115,6 +119,7 @@ room {
 dependencies {
     add("kspCommonMainMetadata", libs.room.compiler)
     add("kspDesktop", libs.room.compiler)
+    add("kspAndroid", libs.room.compiler)
     debugImplementation(compose.uiTooling)
 }
 
