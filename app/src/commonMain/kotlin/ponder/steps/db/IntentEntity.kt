@@ -1,11 +1,21 @@
 package ponder.steps.db
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = StepEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["rootId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+    ]
+)
 data class IntentEntity(
     @PrimaryKey
     val id: String,

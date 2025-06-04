@@ -1,12 +1,28 @@
 package ponder.steps.db
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import ponder.steps.model.data.Trek
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = IntentEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["intentId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = StepEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["rootId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+    ]
+)
 data class TrekEntity(
     @PrimaryKey
     val id: String,

@@ -41,8 +41,7 @@ class StepProfileModel(
     fun moveStep(step: Step, delta: Int) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            val outcome = stepStore.moveStepPosition(path.id, step.id, delta)
-            println(outcome)
+            stepStore.moveStepPosition(path.id, step.id, delta)
             refreshSteps()
         }
     }

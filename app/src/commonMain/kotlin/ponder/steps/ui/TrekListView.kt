@@ -15,11 +15,20 @@ import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun TrekListView() {
     val viewModel = viewModel { TrekListModel() }
     val state by viewModel.state.collectAsState()
+
+    DisposableEffect(Unit) {
+        onDispose(viewModel::onDispose)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onLoad()
+    }
 
     LazyColumn(1) {
         if (state.treks.isEmpty()) {
@@ -39,7 +48,7 @@ fun TrekListView() {
                     val progress = item.stepIndex / item.stepCount.toFloat()
                     H2(item.intentLabel, modifier = Modifier.weight(1f))
                     Box(modifier = Modifier.weight(1f)) {
-                        if (finishedAt != null) {
+                        if (finishedAt != null && now > finishedAt + 10.seconds) {
                             Text("Finished ${(now - finishedAt).formatSpanLong()}")
                             return@Box
                         }

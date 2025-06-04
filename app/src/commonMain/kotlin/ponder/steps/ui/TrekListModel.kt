@@ -2,6 +2,8 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -16,16 +18,10 @@ class TrekListModel(
     private val trekStore: TrekStore = TrekStore()
 ): StateModel<JourneyState>(JourneyState()) {
 
-    init {
+    fun onLoad() {
         viewModelScope.launch {
             trekStore.readTreksSince(Clock.startOfDay()).collect { treks ->
                 setState { it.copy(treks = treks) }
-            }
-        }
-        viewModelScope.launch {
-            while (true) {
-                delay(1.seconds)
-                setState { it.copy(refreshedUiAt = Clock.System.now()) }
             }
         }
         viewModelScope.launch {
@@ -34,7 +30,15 @@ class TrekListModel(
                 delay(1.minutes)
             }
         }
+        viewModelScope.launch {
+            while (true) {
+                setState { it.copy(refreshedUiAt = Clock.System.now()) }
+                delay(1.seconds)
+            }
+        }
     }
+
+    fun onDispose() = cancelJobs()
 
     fun completeStep(item: TrekItem) {
         viewModelScope.launch {

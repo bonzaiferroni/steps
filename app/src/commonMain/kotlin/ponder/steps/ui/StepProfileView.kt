@@ -32,6 +32,7 @@ import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.model.data.Step
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
+import pondui.ui.behavior.modifyIfTrue
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.selected
 import pondui.ui.behavior.takeInitialFocus
@@ -94,7 +95,7 @@ fun StepProfileView(
                         Row(
                             spacingUnits = 1,
                             modifier = Modifier.fillMaxWidth()
-                                .actionable { viewModel.selectStep(step.id) }
+                                .actionable(isEnabled = !isSelected) { viewModel.selectStep(step.id) }
                                 .selected(isSelected)
                                 .padding(Pond.ruler.unitPadding)
                                 .animateItem()

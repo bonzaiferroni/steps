@@ -39,7 +39,7 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
 
         if (pathId == null) return id
 
-        val pathPosition = position ?: (dao.readFinalPosition(pathId) + 1)
+        val pathPosition = position ?: dao.readFinalPosition(pathId)?.let { it + 1 } ?: 0
 
         val pathStepId = Uuid.random().toString()
         dao.insert(

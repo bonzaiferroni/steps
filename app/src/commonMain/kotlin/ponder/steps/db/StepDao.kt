@@ -75,7 +75,7 @@ interface StepDao {
     suspend fun readTotalStepCount(pathIds: List<String>): Int
 
     @Query("SELECT MAX(position) FROM PathStepEntity WHERE pathId = :pathId")
-    suspend fun readFinalPosition(pathId: String): Int
+    suspend fun readFinalPosition(pathId: String): Int?
 
     @Query("SELECT position FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
     suspend fun readStepPosition(pathId: String, stepId: String): Int
