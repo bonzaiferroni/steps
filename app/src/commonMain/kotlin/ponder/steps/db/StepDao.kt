@@ -11,6 +11,24 @@ import ponder.steps.model.data.PathStep
 @Dao
 interface StepDao {
 
+    @Insert
+    suspend fun insert(step: StepEntity)
+
+    @Insert
+    suspend fun insert(pathStep: PathStepEntity)
+
+    @Update
+    suspend fun update(vararg steps: StepEntity): Int
+
+    @Update
+    suspend fun update(vararg pathSteps: PathStepEntity): Int
+
+    @Delete
+    suspend fun deleteStep(step: StepEntity): Int
+
+    @Delete
+    suspend fun deletePathStep(pathStep: PathStepEntity): Int
+
     @Query("SELECT * FROM StepEntity")
     fun getAllStepsAsFlow(): Flow<List<StepEntity>>
 
@@ -80,18 +98,6 @@ interface StepDao {
     @Query("SELECT position FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
     suspend fun readStepPosition(pathId: String, stepId: String): Int
 
-    @Insert
-    suspend fun insert(step: StepEntity)
-
-    @Insert
-    suspend fun insert(pathStep: PathStepEntity)
-
-    @Update
-    suspend fun update(vararg steps: StepEntity): Int
-
-    @Update
-    suspend fun update(vararg pathSteps: PathStepEntity): Int
-
-    @Delete
-    suspend fun deleteStep(step: StepEntity): Int
+    @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId AND position = :position")
+    suspend fun readPathStepAtPosition(pathId: String, stepId: String, position: Int): PathStep?
 }

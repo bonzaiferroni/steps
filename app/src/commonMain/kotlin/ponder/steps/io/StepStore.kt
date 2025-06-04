@@ -7,10 +7,12 @@ import ponder.steps.db.Empty
 import ponder.steps.db.PathStepEntity
 import ponder.steps.db.StepEntity
 import ponder.steps.db.StepDao
+import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
 import ponder.steps.db.toStepEntity
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
+import ponder.steps.model.data.StepPosition
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -97,5 +99,10 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
         val pathSize = dao.readPathStepCount(pathId)
         val path = dao.readStep(pathId).copy(pathSize = pathSize)
         dao.update(path)
+    }
+
+    suspend fun removeStepFromPath(pathId: String, stepId: String, position: Int): Boolean {
+        val pathStep = dao.readPathStepAtPosition(pathId, stepId, position) ?: return false
+        return dao.deletePathStep(pathStep.toEntity()) == 1
     }
 }

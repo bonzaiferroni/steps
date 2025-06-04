@@ -12,13 +12,15 @@ import pondui.ui.theme.Pond
 @Composable
 fun StepItem(
     step: Step,
+    isEditable: Boolean = false,
     modifier: Modifier = Modifier,
+    updateLabel: (String) -> Unit = { },
 ) {
     Row(1, modifier = modifier.height(40.dp)) {
         StepImage(step, modifier = Modifier.clip(Pond.ruler.pill))
         step.position?.let {
             Label("${it + 1}.")
         }
-        Text(step.label)
+        EditText(step.label, isEditable = isEditable, onAcceptEdit = updateLabel)
     }
 }

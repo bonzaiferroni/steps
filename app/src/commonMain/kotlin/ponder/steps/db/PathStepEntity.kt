@@ -3,6 +3,7 @@ package ponder.steps.db
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import ponder.steps.model.data.PathStep
 
 @Entity(
     foreignKeys = [
@@ -26,4 +27,11 @@ data class PathStepEntity(
     val stepId: String,
     val pathId: String,
     val position: Int,
+)
+
+fun PathStep.toEntity() = PathStepEntity(
+    id = id,
+    stepId = stepId,
+    pathId = pathId,
+    position = position,
 )

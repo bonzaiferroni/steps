@@ -19,7 +19,9 @@ import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Plus
+import compose.icons.tablericons.Trash
 import ponder.steps.model.data.Step
+import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.selected
@@ -89,9 +91,16 @@ fun StepProfileView(
                         ) {
                             StepItem(
                                 step = step,
+                                isEditable = isSelected,
                                 modifier = Modifier.magic(offsetX = index * 10, durationMillis = 500)
-                            )
+                            ) { viewModel.editStep(step.copy(label = it)) }
                             Expando()
+                            Button(
+                                imageVector = TablerIcons.Trash,
+                                isEnabled = isSelected,
+                                background = Pond.colors.tertiary,
+                                modifier = Modifier.magic(isSelected, rotationZ = 360)
+                            ) { viewModel.remoteStepFromPath(step) }
                             ControlSet(modifier = Modifier.magic(isSelected, scale = true)) {
                                 ControlSetButton(
                                     imageVector = TablerIcons.ArrowUp,
@@ -104,9 +113,11 @@ fun StepProfileView(
                                     background = Pond.colors.secondary
                                 ) { viewModel.moveStep(step, 1) }
                             }
+                            val canStepInto = step.pathSize > 0 || isSelected
                             Button(
-                                TablerIcons.ArrowRight,
-                                modifier = Modifier.magic(step.pathSize > 0 || isSelected, rotationZ = -90)
+                                imageVector = TablerIcons.ArrowRight,
+                                isEnabled = canStepInto,
+                                modifier = Modifier.magic(canStepInto, offsetX = -32)
                             ) { navigateStep(step) }
                         }
                     }
