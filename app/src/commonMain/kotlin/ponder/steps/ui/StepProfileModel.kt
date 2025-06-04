@@ -33,6 +33,10 @@ class StepProfileModel(
 
     fun setNewStepLabel(label: String) {
         setState { it.copy(newStepLabel = label) }
+        viewModelScope.launch {
+            val similarSteps = stepStore.searchSteps(label)
+            setState { it.copy(similarSteps = similarSteps) }
+        }
     }
 
     fun toggleAddingStep() {
@@ -69,7 +73,26 @@ class StepProfileModel(
                 label = stateNow.newStepLabel,
                 position = null
             ))
-            setState { it.copy(isAddingStep = false, newStepLabel = "", step = step.copy(pathSize = step.pathSize + 1)) }
+            setState { it.copy(
+                isAddingStep = false,
+                newStepLabel = "",
+                step = step.copy(pathSize = step.pathSize + 1),
+                similarSteps = emptyList()
+            ) }
+            refreshSteps()
+        }
+    }
+
+    fun addSimilarStep(step: Step) {
+        val path = stateNow.step ?: return
+        viewModelScope.launch {
+            stepStore.addStepToPath(path.id, step.id, null)
+            setState { it.copy(
+                isAddingStep = false,
+                newStepLabel = "",
+                step = path.copy(pathSize = step.pathSize + 1),
+                similarSteps = emptyList()
+            ) }
             refreshSteps()
         }
     }
@@ -81,6 +104,7 @@ data class StepProfileState(
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,
+    val similarSteps: List<Step> = emptyList()
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
 }

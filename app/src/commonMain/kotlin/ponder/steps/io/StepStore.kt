@@ -12,7 +12,6 @@ import ponder.steps.db.toStep
 import ponder.steps.db.toStepEntity
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepPosition
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -31,31 +30,19 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
 
     suspend fun createStep(newStep: NewStep): String {
         val (pathId, label, position) = newStep
-        val id = Uuid.random().toString()
+        val stepId = Uuid.random().toString()
         dao.insert(
             StepEntity.Empty.copy(
-                id = id,
+                id = stepId,
                 label = label
             )
         )
 
-        if (pathId == null) return id
+        if (pathId == null) return stepId
 
-        val pathPosition = position ?: dao.readFinalPosition(pathId)?.let { it + 1 } ?: 0
+        addStepToPath(pathId, stepId, position)
 
-        val pathStepId = Uuid.random().toString()
-        dao.insert(
-            PathStepEntity(
-                id = pathStepId,
-                stepId = id,
-                pathId = pathId,
-                position = pathPosition
-            )
-        )
-
-        updatePathSize(pathId)
-
-        return id
+        return stepId
     }
 
     suspend fun deleteStep(step: Step): Boolean {
@@ -104,5 +91,21 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
     suspend fun removeStepFromPath(pathId: String, stepId: String, position: Int): Boolean {
         val pathStep = dao.readPathStepAtPosition(pathId, stepId, position) ?: return false
         return dao.deletePathStep(pathStep.toEntity()) == 1
+    }
+
+    suspend fun addStepToPath(pathId: String, stepId: String, position: Int?) {
+        val pathPosition = position ?: dao.readFinalPosition(pathId)?.let { it + 1 } ?: 0
+
+        val pathStepId = Uuid.random().toString()
+        dao.insert(
+            PathStepEntity(
+                id = pathStepId,
+                stepId = stepId,
+                pathId = pathId,
+                position = pathPosition
+            )
+        )
+
+        updatePathSize(pathId)
     }
 }

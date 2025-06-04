@@ -3,7 +3,10 @@ package ponder.steps.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,7 +24,6 @@ import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Plus
 import compose.icons.tablericons.Trash
 import ponder.steps.model.data.Step
-import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.selected
@@ -41,16 +43,24 @@ fun StepProfileView(
         viewModel.setStep(step)
     }
 
-    TitleCloud("Add a step", state.isAddingStep, viewModel::toggleAddingStep) {
-        ControlSet {
-            TextField(
-                text = state.newStepLabel,
-                onTextChange = viewModel::setNewStepLabel,
-                placeholder = "Enter step name",
-                modifier = Modifier.takeInitialFocus()
-                    .onEnterPressed(viewModel::createStep)
-            )
-            ControlSetButton("Add", onClick = viewModel::createStep)
+    TitleCloud("Add a step to ${state.step?.label ?: "path"}", state.isAddingStep, viewModel::toggleAddingStep) {
+        Column(1, modifier = Modifier.height(400.dp)) {
+            ControlSet {
+                TextField(
+                    text = state.newStepLabel,
+                    onTextChange = viewModel::setNewStepLabel,
+                    placeholder = "Enter step name",
+                    modifier = Modifier.takeInitialFocus()
+                        .onEnterPressed(viewModel::createStep)
+                )
+                ControlSetButton("Add", onClick = viewModel::createStep)
+            }
+            Label("Similar Steps:")
+            LazyColumn {
+                items(state.similarSteps, key = {it.id}) { step ->
+                    StepItem(step, modifier = Modifier.actionable { viewModel.addSimilarStep(step) })
+                }
+            }
         }
     }
 
@@ -75,7 +85,7 @@ fun StepProfileView(
         EditText(
             text = step.description ?: "[Step Description]",
             modifier = Modifier.padding(horizontal = 32.dp)
-        ) { viewModel.editStep(step.copy(description = it))}
+        ) { viewModel.editStep(step.copy(description = it)) }
         Tabs {
             tab("Steps") {
                 LazyColumn(0) {
@@ -92,9 +102,9 @@ fun StepProfileView(
                             StepItem(
                                 step = step,
                                 isEditable = isSelected,
-                                modifier = Modifier.magic(offsetX = index * 10, durationMillis = 500)
+                                modifier = Modifier.weight(1f)
+                                    .magic(offsetX = index * 10, durationMillis = 500)
                             ) { viewModel.editStep(step.copy(label = it)) }
-                            Expando()
                             Button(
                                 imageVector = TablerIcons.Trash,
                                 isEnabled = isSelected,
@@ -122,7 +132,12 @@ fun StepProfileView(
                         }
                     }
                     item("add button") {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth().animateItem()) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(Pond.ruler.unitPadding)
+                                .animateItem()
+                        ) {
                             Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
                         }
                     }
