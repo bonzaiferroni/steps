@@ -1,16 +1,9 @@
 package ponder.steps.ui
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
@@ -19,26 +12,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.compose.AsyncImage
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Plus
-import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.model.data.Step
-import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
-import pondui.ui.behavior.modifyIfTrue
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.selected
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
-import steps.app.generated.resources.Res
 
 @Composable
 fun StepProfileView(
@@ -83,7 +70,7 @@ fun StepProfileView(
                         .padding(Pond.ruler.unitPadding)
                         .magic(offsetX = 20, durationMillis = 500)
                 ) {
-                    H1(step.label)
+                    EditText(state.stepLabel, viewModel::setStepLabel, viewModel::updateStepLabel, style = Pond.typo.h1)
                 }
             }
         }

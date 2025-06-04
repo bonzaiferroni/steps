@@ -54,6 +54,10 @@ class PathsModel(
 
     fun navigateTop() {
         setState { it.copy(showProfile = false) }
+        viewModelScope.launch {
+            val steps = stepStore.readRootSteps()
+            setState { it.copy(steps = steps) }
+        }
     }
 
     fun createStep() {

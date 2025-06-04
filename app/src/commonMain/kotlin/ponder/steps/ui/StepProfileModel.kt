@@ -1,9 +1,7 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import ponder.steps.db.toStep
 import ponder.steps.io.StepStore
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
@@ -22,8 +20,21 @@ class StepProfileModel(
     }
 
     fun setStep(step: Step) {
-        setState { it.copy(step = step) }
+        setState { it.copy(step = step, stepLabel = step.label) }
         refreshSteps()
+    }
+
+    fun setStepLabel(value: String) {
+        setState { it.copy(stepLabel = value) }
+    }
+
+    fun updateStepLabel(value: String) {
+        val step = stateNow.step?.copy(label = value) ?: return
+        viewModelScope.launch {
+            println("updating: $value")
+            val isSuccess = stepStore.updateStep(step)
+            setState { it.copy(step = step) }
+        }
     }
 
     fun setNewStepLabel(label: String) {
@@ -64,6 +75,7 @@ class StepProfileModel(
 data class StepProfileState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
+    val stepLabel: String = "",
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,
