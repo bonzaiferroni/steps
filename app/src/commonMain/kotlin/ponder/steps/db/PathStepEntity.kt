@@ -2,6 +2,7 @@ package ponder.steps.db
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import ponder.steps.model.data.PathStep
 
@@ -19,7 +20,11 @@ import ponder.steps.model.data.PathStep
             childColumns = ["stepId"],
             onDelete = ForeignKey.CASCADE,
         )
-    ]
+    ],
+    indices = [
+        Index(value = ["pathId"]),
+        Index(value = ["stepId"]),
+    ],
 )
 data class PathStepEntity(
     @PrimaryKey

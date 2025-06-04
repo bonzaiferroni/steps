@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.PathStep
@@ -49,6 +50,7 @@ interface StepDao {
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
+    @RewriteQueriesToDropUnusedColumns
     suspend fun readPathSteps(pathId: String): List<StepJoin>
 
     @Query(
@@ -56,6 +58,7 @@ interface StepDao {
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
+    @RewriteQueriesToDropUnusedColumns
     fun readPathStepsFlow(pathId: String): Flow<List<StepJoin>>
 
     @Query(

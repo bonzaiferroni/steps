@@ -13,7 +13,7 @@ import ponder.steps.AppDatabaseConstructor
         Sprite::class,
         StepEntity::class, PathStepEntity::class,
         IntentEntity::class, TrekEntity::class
-    ], version = 6
+    ], version = 7
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)

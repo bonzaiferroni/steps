@@ -2,6 +2,7 @@ package ponder.steps.db
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
@@ -21,7 +22,11 @@ import ponder.steps.model.data.Trek
             childColumns = ["rootId"],
             onDelete = ForeignKey.CASCADE
         ),
-    ]
+    ],
+    indices = [
+        Index(value = ["intentId"]),
+        Index(value = ["rootId"]),
+    ],
 )
 data class TrekEntity(
     @PrimaryKey
