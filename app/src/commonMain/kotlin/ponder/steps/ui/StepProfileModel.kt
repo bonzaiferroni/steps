@@ -24,8 +24,7 @@ class StepProfileModel(
         refreshSteps()
     }
 
-    fun updateStepLabel(value: String) {
-        val step = stateNow.step?.copy(label = value) ?: return
+    fun editStep(step: Step) {
         viewModelScope.launch {
             stepStore.updateStep(step)
             setState { it.copy(step = step) }

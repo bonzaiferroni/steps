@@ -41,7 +41,7 @@ fun FocusView() {
         AsyncImage(
             model = "http://localhost:8080/${focus.imgUrl ?: "img/horse.png"}",
             contentDescription = null,
-            modifier = Modifier.clip(Pond.ruler.round)
+            modifier = Modifier.clip(Pond.ruler.pill)
                 .height(400.dp)
                 .aspectRatio(1f)
                 .magic(rotationZ = 180, scale = true, durationMillis = 500)

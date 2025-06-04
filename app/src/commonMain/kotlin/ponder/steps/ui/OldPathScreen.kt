@@ -88,7 +88,7 @@ fun OldPathScreen() {
                     AsyncImage(
                         model = step.imgUrl?.let { "http://localhost:8080/${it}" } ?: Res.getUri("drawable/horse.png"),
                         contentDescription = null,
-                        modifier = Modifier.clip(Pond.ruler.round)
+                        modifier = Modifier.clip(Pond.ruler.pill)
                             .fillMaxHeight()
                             .aspectRatio(1f)
                             .magic(rotationZ = 180, scale = true, durationMillis = 500)
