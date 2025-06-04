@@ -70,7 +70,7 @@ fun StepProfileView(
                         .padding(Pond.ruler.unitPadding)
                         .magic(offsetX = 20, durationMillis = 500)
                 ) {
-                    EditText(state.stepLabel, viewModel::setStepLabel, viewModel::updateStepLabel, style = Pond.typo.h1)
+                    EditText(step.label, viewModel::updateStepLabel, style = Pond.typo.h1)
                 }
             }
         }

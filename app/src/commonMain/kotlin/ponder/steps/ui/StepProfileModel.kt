@@ -20,19 +20,14 @@ class StepProfileModel(
     }
 
     fun setStep(step: Step) {
-        setState { it.copy(step = step, stepLabel = step.label) }
+        setState { it.copy(step = step) }
         refreshSteps()
-    }
-
-    fun setStepLabel(value: String) {
-        setState { it.copy(stepLabel = value) }
     }
 
     fun updateStepLabel(value: String) {
         val step = stateNow.step?.copy(label = value) ?: return
         viewModelScope.launch {
-            println("updating: $value")
-            val isSuccess = stepStore.updateStep(step)
+            stepStore.updateStep(step)
             setState { it.copy(step = step) }
         }
     }
@@ -75,7 +70,6 @@ class StepProfileModel(
 data class StepProfileState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
-    val stepLabel: String = "",
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,
