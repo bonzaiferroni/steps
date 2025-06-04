@@ -65,13 +65,37 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
         return isSuccess
     }
 
-    suspend fun updateStep(step: Step) = dao.updateSteps(step.toStepEntity()) == 1
+    suspend fun moveStepPosition(pathId: String, stepId: String, delta: Int): Boolean {
+        if (delta == 0) return false
+        val pathStep = dao.readPathStep(pathId, stepId)
+        val movedPosition = pathStep.position + delta
+        if (movedPosition < 0) return false
+        val stepCount = dao.readPathStepCount(pathId)
+        if (movedPosition > stepCount - 1) return false
+        val displacedPathStep = dao.readPathStepByPosition(pathId, movedPosition) ?: return false
+        return dao.update(
+            PathStepEntity(
+                id = pathStep.id,
+                stepId = pathStep.stepId,
+                pathId = pathStep.pathId,
+                position = displacedPathStep.position
+            ),
+            PathStepEntity(
+                id = displacedPathStep.id,
+                stepId = displacedPathStep.stepId,
+                pathId = displacedPathStep.pathId,
+                position = pathStep.position
+            )
+        ) == 2
+    }
+
+    suspend fun updateStep(step: Step) = dao.update(step.toStepEntity()) == 1
 
     suspend fun searchSteps(text: String) = dao.searchSteps(text).map { it.toStep() }
 
     private suspend fun updatePathSize(pathId: String) {
         val pathSize = dao.readPathStepCount(pathId)
         val path = dao.readStep(pathId).copy(pathSize = pathSize)
-        dao.updateSteps(path)
+        dao.update(path)
     }
 }

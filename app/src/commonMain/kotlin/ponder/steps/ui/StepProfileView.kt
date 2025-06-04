@@ -1,10 +1,14 @@
 package ponder.steps.ui
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,12 +24,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import compose.icons.TablerIcons
+import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
+import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Plus
 import kotlinx.collections.immutable.persistentListOf
 import ponder.steps.model.data.Step
+import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
+import pondui.ui.behavior.selected
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
@@ -80,21 +88,41 @@ fun StepProfileView(
         }
         Tabs {
             tab("Steps") {
-                LazyColumn(1) {
-                    itemsIndexed(state.steps, key = { index, step -> step.id}) { index, step ->
-                        Row(1) {
+                LazyColumn(0) {
+                    itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
+                        val isSelected = state.selectedStepId == step.id
+                        Row(
+                            spacingUnits = 1,
+                            modifier = Modifier.fillMaxWidth()
+                                .actionable { viewModel.selectStep(step.id) }
+                                .selected(isSelected)
+                                .padding(Pond.ruler.unitPadding)
+                                .animateItem()
+                        ) {
                             StepItem(
                                 step = step,
-                                modifier = Modifier.animateItem()
-                                    .magic(offsetX = index * 10, durationMillis = 500)
+                                modifier = Modifier.magic(offsetX = index * 10, durationMillis = 500)
                             )
-
-                            if (step.pathSize > 0) {
-                                Button(TablerIcons.ArrowRight) { navigateStep(step) }
+                            Expando()
+                            ControlSet(modifier = Modifier.magic(isSelected, scale = true)) {
+                                ControlSetButton(
+                                    imageVector = TablerIcons.ArrowUp,
+                                    isEnabled = (step.position ?: 0) > 0,
+                                    background = Pond.colors.secondary
+                                ) { viewModel.moveStep(step, -1) }
+                                ControlSetButton(
+                                    imageVector = TablerIcons.ArrowDown,
+                                    isEnabled = (step.position ?: 0) < state.steps.size - 1,
+                                    background = Pond.colors.secondary
+                                ) { viewModel.moveStep(step, 1) }
                             }
+                            Button(
+                                TablerIcons.ArrowRight,
+                                modifier = Modifier.magic(step.pathSize > 0 || isSelected, rotationZ = -90)
+                            ) { navigateStep(step) }
                         }
                     }
-                    item ("add button") {
+                    item("add button") {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth().animateItem()) {
                             Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
                         }

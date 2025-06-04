@@ -20,8 +20,8 @@ fun StepItem(
     Row(1, modifier = modifier.height(40.dp)) {
         StepImage(step, modifier = Modifier.clip(Pond.ruler.round))
         step.position?.let {
-            Label("$it.")
+            Label("${it + 1}.")
         }
-        Text(step.label, modifier = Modifier.weight(1f))
+        Text(step.label)
     }
 }

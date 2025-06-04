@@ -2,6 +2,7 @@ package ponder.steps.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
@@ -57,11 +58,12 @@ fun PathsScreen(
             Box {
                 val isProfileVisible = state.showProfile && state.step != null
                 Magic(!isProfileVisible) {
-                    LazyColumn(1) {
+                    LazyColumn(0) {
                         itemsIndexed(state.steps, key = { index, step -> step.id}) { index, step ->
                             StepItem(
                                 step = step,
                                 modifier = Modifier.actionable { viewModel.navigateStep(step) }
+                                    .fillMaxWidth()
                                     .padding(Pond.ruler.unitPadding)
                                     .animateItem()
                                     .magic(offsetX = index * 10, durationMillis = 500),

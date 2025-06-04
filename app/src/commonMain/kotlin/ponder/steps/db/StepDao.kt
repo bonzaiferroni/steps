@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.PathStep
-import ponder.steps.model.data.StepPosition
 
 @Dao
 interface StepDao {
@@ -78,6 +77,9 @@ interface StepDao {
     @Query("SELECT MAX(position) FROM PathStepEntity WHERE pathId = :pathId")
     suspend fun readFinalPosition(pathId: String): Int
 
+    @Query("SELECT position FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
+    suspend fun readStepPosition(pathId: String, stepId: String): Int
+
     @Insert
     suspend fun insert(step: StepEntity)
 
@@ -85,7 +87,10 @@ interface StepDao {
     suspend fun insert(pathStep: PathStepEntity)
 
     @Update
-    suspend fun updateSteps(vararg steps: StepEntity): Int
+    suspend fun update(vararg steps: StepEntity): Int
+
+    @Update
+    suspend fun update(vararg pathSteps: PathStepEntity): Int
 
     @Delete
     suspend fun deleteStep(step: StepEntity): Int

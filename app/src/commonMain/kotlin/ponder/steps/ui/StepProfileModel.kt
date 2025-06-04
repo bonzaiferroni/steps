@@ -16,7 +16,7 @@ class StepProfileModel(
     fun refreshSteps() {
         val step = stateNow.step ?: return
         viewModelScope.launch {
-            val steps = stepStore.readPathSteps(step.id)
+            val steps = stepStore.readPathSteps(step.id).sortedBy { it.position }
             setState { it.copy(steps = steps) }
         }
     }
@@ -34,15 +34,29 @@ class StepProfileModel(
         setState { it.copy(isAddingStep = !it.isAddingStep) }
     }
 
+    fun selectStep(stepId: String) {
+        setState { it.copy(selectedStepId = stepId) }
+    }
+
+    fun moveStep(step: Step, delta: Int) {
+        val path = stateNow.step ?: return
+        viewModelScope.launch {
+            val outcome = stepStore.moveStepPosition(path.id, step.id, delta)
+            println(outcome)
+            refreshSteps()
+        }
+    }
+
     fun createStep() {
+        val step = stateNow.step ?: return
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
             stepStore.createStep(NewStep(
-                pathId = stateNow.step?.id,
+                pathId = step.id,
                 label = stateNow.newStepLabel,
                 position = null
             ))
-            setState { it.copy(isAddingStep = false, newStepLabel = "") }
+            setState { it.copy(isAddingStep = false, newStepLabel = "", step = step.copy(pathSize = step.pathSize + 1)) }
             refreshSteps()
         }
     }
@@ -53,6 +67,7 @@ data class StepProfileState(
     val steps: List<Step> = emptyList(),
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
+    val selectedStepId: String? = null,
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
 }
