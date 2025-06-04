@@ -93,6 +93,16 @@ class StepStore(private val dao: StepDao = appDb.getStepDao()) {
         return dao.deletePathStep(pathStep.toEntity()) == 1
     }
 
+    suspend fun addStepToPathIfNotDownstream(pathId: String, stepId: String, position: Int?): Boolean {
+        var upstreamIds = listOf(pathId)
+        while (upstreamIds.isNotEmpty()) {
+            if (upstreamIds.contains(stepId)) return false
+            upstreamIds = dao.readPathIds(upstreamIds)
+        }
+        addStepToPath(pathId, stepId, position)
+        return true
+    }
+
     suspend fun addStepToPath(pathId: String, stepId: String, position: Int?) {
         val pathPosition = position ?: dao.readFinalPosition(pathId)?.let { it + 1 } ?: 0
 

@@ -86,7 +86,7 @@ class StepProfileModel(
     fun addSimilarStep(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            stepStore.addStepToPath(path.id, step.id, null)
+            stepStore.addStepToPathIfNotDownstream(path.id, step.id, null)
             setState { it.copy(
                 isAddingStep = false,
                 newStepLabel = "",

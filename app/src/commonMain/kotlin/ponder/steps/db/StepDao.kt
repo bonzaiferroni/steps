@@ -100,4 +100,7 @@ interface StepDao {
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId AND position = :position")
     suspend fun readPathStepAtPosition(pathId: String, stepId: String, position: Int): PathStep?
+
+    @Query("SELECT pathId FROM pathstepentity WHERE stepId IN (:stepIds)")
+    suspend fun readPathIds(stepIds: List<String>): List<String>
 }
