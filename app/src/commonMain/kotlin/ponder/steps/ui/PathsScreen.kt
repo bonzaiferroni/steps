@@ -1,13 +1,19 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowUp
@@ -46,9 +52,20 @@ fun PathsScreen(
     Scaffold {
         Column(1) {
             Row(1) {
-                Row() {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(-Pond.ruler.unitSpacing),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     if (state.step != null) {
                         Button(TablerIcons.ArrowUp) { viewModel.navigateTop() }
+                    }
+                    for (step in state.breadCrumbs) {
+                        StepImage(
+                            step,
+                            modifier = Modifier.height(40.dp)
+                                .clip(CircleShape)
+                                .actionable { viewModel.navigateCrumb(step) }
+                        )
                     }
                 }
                 Expando()
@@ -59,7 +76,7 @@ fun PathsScreen(
                 val isProfileVisible = state.showProfile && state.step != null
                 Magic(!isProfileVisible) {
                     LazyColumn(0) {
-                        itemsIndexed(state.steps, key = { index, step -> step.id}) { index, step ->
+                        itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
                             StepItem(
                                 step = step,
                                 modifier = Modifier.actionable { viewModel.navigateStep(step) }

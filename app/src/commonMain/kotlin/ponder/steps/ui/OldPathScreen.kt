@@ -48,21 +48,21 @@ fun OldPathScreen() {
         }
     }
 
-    HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)
-
-    // Add a cloud dialog for creating new root steps, like a pirate's secret meetin' spot!
-    TitleCloud("Add a step", state.isAddingStep, viewModel::toggleAddingStep) {
-        ControlSet {
-            TextField(
-                text = state.newStepLabel,
-                onTextChange = viewModel::setNewStepLabel,
-                placeholder = "Enter step name",
-                modifier = Modifier.takeInitialFocus()
-                    .onEnterPressed(viewModel::createNewStep)
-            )
-            ControlSetButton("Add", onClick = viewModel::createNewStep)
-        }
-    }
+//    HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)
+//
+//    // Add a cloud dialog for creating new root steps, like a pirate's secret meetin' spot!
+//    TitleCloud("Add a step", state.isAddingStep, viewModel::toggleAddingStep) {
+//        ControlSet {
+//            TextField(
+//                text = state.newStepLabel,
+//                onTextChange = viewModel::setNewStepLabel,
+//                placeholder = "Enter step name",
+//                modifier = Modifier.takeInitialFocus()
+//                    .onEnterPressed(viewModel::createNewStep)
+//            )
+//            ControlSetButton("Add", onClick = viewModel::createNewStep)
+//        }
+//    }
 
     Scaffold {
         ControlSet(modifier = Modifier) {
