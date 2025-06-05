@@ -3,6 +3,7 @@ package ponder.steps.io
 import ponder.steps.model.Api
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.StepImageRequest
 import pondui.io.ApiStore
 
 class StepApiStore: ApiStore() {
@@ -19,7 +20,7 @@ class StepApiStore: ApiStore() {
         client.get(Api.Steps.Root, Api.Steps.includeChildren.write(includeChildren))
 
     suspend fun generateImage(stepId: String) =
-        client.get(Api.Steps.GenerateImage, stepId)
+        client.get(Api.Steps.GenerateImageV1, stepId)
 
     suspend fun createStep(newStep: NewStep) = client.post(Api.Steps.Create, newStep)
 
@@ -29,4 +30,6 @@ class StepApiStore: ApiStore() {
 
     suspend fun searchSteps(query: String, includeChildren: Boolean) =
         client.get(Api.Steps.Search, Api.Steps.Search.query.write(query), Api.Steps.Search.includeChildren.write(includeChildren))
+
+    suspend fun generateImage(request: StepImageRequest) = client.post(Api.Steps.GenerateImageV2, request)
 }

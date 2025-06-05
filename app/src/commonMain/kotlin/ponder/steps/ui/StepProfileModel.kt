@@ -2,13 +2,16 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ponder.steps.io.StepApiStore
 import ponder.steps.io.StepStore
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
+import ponder.steps.model.data.StepImageRequest
 import pondui.ui.core.StateModel
 
 class StepProfileModel(
-    val stepStore: StepStore = StepStore()
+    val stepStore: StepStore = StepStore(),
+    val stepApiStore: StepApiStore = StepApiStore(),
 ): StateModel<StepProfileState>(StepProfileState()) {
 
     fun refreshSteps() {
@@ -93,6 +96,19 @@ class StepProfileModel(
                 step = path.copy(pathSize = step.pathSize + 1),
                 similarSteps = emptyList()
             ) }
+            refreshSteps()
+        }
+    }
+
+    fun generateImage(step: Step) {
+        val path = stateNow.step ?: return
+        viewModelScope.launch {
+            val url = stepApiStore.generateImage(StepImageRequest(
+                step.label,
+                step.description,
+                path.theme
+            ))
+            stepStore.updateStep(step.copy(imgUrl = url))
             refreshSteps()
         }
     }

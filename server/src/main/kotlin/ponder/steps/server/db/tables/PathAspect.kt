@@ -14,6 +14,7 @@ object PathAspect: Aspect<PathAspect, Step>(
     val pathId = add(PathStepTable.pathId)
     val label = add(StepTable.label)
     val description = add(StepTable.description)
+    val theme = add(StepTable.theme)
     val thumbUrl = add(StepTable.thumbUrl)
     val audioUrl = add(StepTable.audioUrl)
     val isPublic = add(StepTable.isPublic)
@@ -32,6 +33,7 @@ fun ResultRow.toStep() = Step(
     pathId = this.getOrNull(PathAspect.pathId)?.value.toString(),
     label = this[PathAspect.label],
     description = this[PathAspect.description],
+    theme = this[PathAspect.theme],
     thumbUrl = this[PathAspect.thumbUrl],
     audioUrl = this[PathAspect.audioUrl],
     isPublic = this[PathAspect.isPublic],

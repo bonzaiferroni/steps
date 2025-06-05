@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import ponder.steps.model.data.Step
+import pondui.ui.behavior.ifNotNull
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
 
@@ -14,10 +15,15 @@ fun StepItem(
     step: Step,
     isEditable: Boolean = false,
     modifier: Modifier = Modifier,
+    onImageClick: (() -> Unit)? = null,
     updateLabel: (String) -> Unit = { },
 ) {
     Row(1, modifier = modifier.height(40.dp)) {
-        StepImage(step, modifier = Modifier.clip(Pond.ruler.pill))
+        StepImage(
+            step = step,
+            modifier = Modifier.clip(Pond.ruler.pill)
+                .ifNotNull(onImageClick) { actionable(onClick = it) }
+        )
         step.position?.let {
             Label("${it + 1}.")
         }

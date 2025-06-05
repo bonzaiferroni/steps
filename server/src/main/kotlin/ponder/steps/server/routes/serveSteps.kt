@@ -1,9 +1,12 @@
 package ponder.steps.server.routes
 
 import io.ktor.server.routing.Routing
+import klutch.clients.promptTemplate
 import klutch.server.*
 import klutch.utils.getUserId
 import ponder.steps.model.Api
+import ponder.steps.model.data.StepImageRequest
+import ponder.steps.model.data.toAiPrompt
 import ponder.steps.server.clients.GeminiService
 import ponder.steps.server.db.services.PathService
 
@@ -46,12 +49,17 @@ fun Routing.serveSteps(
             service.searchSteps(query, includeChildren)
         }
 
-        get(Api.Steps.GenerateImage, { it }) { id, endpoint ->
+        get(Api.Steps.GenerateImageV1, { it }) { id, endpoint ->
             val step = service.readStep(id, false) ?: error("step missing: $id")
             val url = gemini.generateImage(step.label)
             val isSuccess = service.updateStep(step.copy(imgUrl = url))
             if (!isSuccess) error("unable to generate image")
             url
+        }
+
+        post(Api.Steps.GenerateImageV2) { request, endpoint ->
+            val prompt = request.toAiPrompt()
+            gemini.generateImage(prompt, request.stepLabel)
         }
 
         post(Api.Steps.Create) { newStep, endpoint ->
@@ -68,3 +76,16 @@ fun Routing.serveSteps(
         }
     }
 }
+
+//val prompt = promptTemplate(
+//            "../docs/article_reader-read_article.md",
+//            "document_types" to documentTypes,
+//            "news_categories" to newsCategories,
+//            "news_type" to newsTypes,
+//            "article_content" to articleContent,
+//            "unclear_text" to PERSON_UNCLEAR
+//        )
+
+
+// Provide the document type that best fits, exactly as it appears in the list:
+//<|document_types|>

@@ -2,8 +2,10 @@ package ponder.steps.server.clients
 
 import kabinet.clients.GeminiMessage
 import kabinet.clients.GeminiRole
+import kabinet.utils.toBase62
 import klutch.clients.*
 import klutch.log.LogLevel
+import kotlinx.datetime.Clock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ponder.steps.server.plugins.env
@@ -25,10 +27,11 @@ class GeminiService(
 
     suspend fun chat(messages: List<GeminiMessage>) = client.generateTextFromMessages(messages)
 
-    suspend fun generateImage(text: String): String {
+    suspend fun generateImage(text: String, filename: String = text): String {
         val data = client.generateImage(text) ?: error("Unable to generate image")
         val bytes = Base64.getDecoder().decode(data)
-        val filename = "img/${requestToFilename(text)}.png"
+        val timestamp = Clock.System.now().toEpochMilliseconds().toBase62()
+        val filename = "img/${requestToFilename(filename)}-$timestamp.png"
         File(filename).writeBytes(bytes)
         return filename
     }
@@ -43,3 +46,4 @@ fun Logger.message(level: LogLevel, msg: String) = when(level) {
     LogLevel.WARNING  -> this.warn(msg)
     LogLevel.ERROR -> this.error(msg)
 }
+

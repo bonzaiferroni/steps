@@ -10,6 +10,7 @@ data class Step(
     val userId: String?,
     val label: String,
     val description: String?,
+    val theme: String?,
     val expectedMins: Int?,
     val imgUrl: String?,
     val thumbUrl: String?,

@@ -15,6 +15,7 @@ internal object StepTable : UUIDTable("step") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
     val label = text("label")
     val description = text("description").nullable()
+    val theme = text("theme").nullable()
     val imgUrl = text("img_url").nullable()
     val thumbUrl = text("thumb_url").nullable()
     val audioUrl = text("audio_url").nullable()
