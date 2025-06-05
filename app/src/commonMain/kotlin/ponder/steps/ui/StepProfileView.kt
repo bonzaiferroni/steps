@@ -21,6 +21,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.ArrowUp
+import compose.icons.tablericons.Drone
 import compose.icons.tablericons.Plus
 import compose.icons.tablericons.Trash
 import ponder.steps.model.data.Step
@@ -94,7 +95,7 @@ fun StepProfileView(
         ) { viewModel.editStep(step.copy(theme = it)) }
         Tabs {
             tab("Steps") {
-                LazyColumn(0) {
+                LazyColumn(0, Alignment.CenterHorizontally) {
                     itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
                         val isSelected = state.selectedStepId == step.id
                         Row(
@@ -138,14 +139,17 @@ fun StepProfileView(
                             ) { navigateStep(step) }
                         }
                     }
-                    item("add button") {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(Pond.ruler.unitPadding)
-                                .animateItem()
-                        ) {
+                    item("add steps") {
+                        Row(1, modifier = Modifier.padding(Pond.ruler.unitPadding).animateItem()) {
                             Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
+                            Button(TablerIcons.Drone, onClick = viewModel::suggestNextStep)
+                        }
+                    }
+                    items(state.suggestions, key = { it.label }) { suggestion ->
+                        Column(1) {
+                            TextButton(suggestion.label, Pond.typo.h3) { viewModel.createStepFromSuggestion(suggestion)}
+                            suggestion.description?.let { Text(it) }
+                            Expando(1)
                         }
                     }
                 }

@@ -1,14 +1,16 @@
 package ponder.steps.server.routes
 
 import io.ktor.server.routing.Routing
-import klutch.clients.promptTemplate
 import klutch.server.*
 import klutch.utils.getUserId
 import ponder.steps.model.Api
-import ponder.steps.model.data.StepImageRequest
+import ponder.steps.model.data.StepSuggestGeminiResponse
+import ponder.steps.model.data.StepSuggestResponse
+import ponder.steps.model.data.StepWithDescription
 import ponder.steps.model.data.toAiPrompt
 import ponder.steps.server.clients.GeminiService
 import ponder.steps.server.db.services.PathService
+import java.io.File
 
 fun Routing.serveSteps(
     service: PathService = PathService(),
@@ -21,6 +23,19 @@ fun Routing.serveSteps(
     }
 
     authenticateJwt {
+        post(Api.Steps.Create) { newStep, endpoint ->
+            val userId = call.getUserId()
+            service.createStep(newStep, userId)
+        }
+
+        update(Api.Steps.Update) { step, endpoint ->
+            service.updateStep(step)
+        }
+
+        delete(Api.Steps.Delete) { stepId, endpoint ->
+            service.deleteStep(stepId)
+        }
+
         get(Api.Steps.Parent, { it }) { id, endpoint ->
             val includeChildren = endpoint.includeChildren.readParam(call)
             service.readParent(id, includeChildren)
@@ -62,22 +77,20 @@ fun Routing.serveSteps(
             gemini.generateImage(prompt, request.stepLabel)
         }
 
-        post(Api.Steps.Create) { newStep, endpoint ->
-            val userId = call.getUserId()
-            service.createStep(newStep, userId)
-        }
-
-        update(Api.Steps.Update) { step, endpoint ->
-            service.updateStep(step)
-        }
-
-        delete(Api.Steps.Delete) { stepId, endpoint ->
-            service.deleteStep(stepId)
+        post(Api.Steps.Suggest) { request, endpoint ->
+            val template = File("../docs/step_suggest_request.md").readText()
+            val prompt = request.toAiPrompt(template)
+            val response: StepSuggestGeminiResponse? = gemini.requestJson(prompt)
+            val suggestions = response?.suggestions?.map {
+                val split = it.split(":")
+                StepWithDescription(split[0], split.getOrNull(1)?.trim())
+            } ?: error("suggestions is null")
+            StepSuggestResponse(suggestions)
         }
     }
 }
 
-//val prompt = promptTemplate(
+//val prompt = promptFromTemplate(
 //            "../docs/article_reader-read_article.md",
 //            "document_types" to documentTypes,
 //            "news_categories" to newsCategories,

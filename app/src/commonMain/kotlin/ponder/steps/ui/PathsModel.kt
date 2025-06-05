@@ -66,7 +66,8 @@ class PathsModel(
             val id = stepStore.createStep(NewStep(
                 pathId = null,
                 label = stateNow.newStepLabel,
-                position = null
+                position = null,
+                description = null,
             ))
             val step = stepStore.readStep(id)
             val steps = stepStore.readRootSteps()

@@ -4,6 +4,7 @@ import ponder.steps.model.Api
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.StepImageRequest
+import ponder.steps.model.data.StepSuggestRequest
 import pondui.io.ApiStore
 
 class StepApiStore: ApiStore() {
@@ -32,4 +33,6 @@ class StepApiStore: ApiStore() {
         client.get(Api.Steps.Search, Api.Steps.Search.query.write(query), Api.Steps.Search.includeChildren.write(includeChildren))
 
     suspend fun generateImage(request: StepImageRequest) = client.post(Api.Steps.GenerateImageV2, request)
+
+    suspend fun suggestStep(request: StepSuggestRequest) = client.post(Api.Steps.Suggest, request)
 }

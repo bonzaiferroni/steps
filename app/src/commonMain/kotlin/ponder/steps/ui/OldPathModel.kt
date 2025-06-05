@@ -30,7 +30,8 @@ class OldPathModel(
             store.createStep(NewStep(
                 pathId = stateNow.path?.id,
                 label = stateNow.newStepLabel,
-                position = stateNow.steps.size
+                position = stateNow.steps.size,
+                description = null
             ))
             setState { it.copy(isAddingStep = false, newStepLabel = "") }
             refreshItems()

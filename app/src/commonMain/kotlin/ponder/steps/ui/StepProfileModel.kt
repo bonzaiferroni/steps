@@ -7,6 +7,8 @@ import ponder.steps.io.StepStore
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
+import ponder.steps.model.data.StepSuggestRequest
+import ponder.steps.model.data.StepWithDescription
 import pondui.ui.core.StateModel
 
 class StepProfileModel(
@@ -23,7 +25,7 @@ class StepProfileModel(
     }
 
     fun setStep(step: Step) {
-        setState { it.copy(step = step) }
+        setState { it.copy(step = step, suggestions = emptyList(), selectedStepId = null) }
         refreshSteps()
     }
 
@@ -68,22 +70,27 @@ class StepProfileModel(
     }
 
     fun createStep() {
-        val step = stateNow.step ?: return
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            stepStore.createStep(NewStep(
-                pathId = step.id,
-                label = stateNow.newStepLabel,
-                position = null
-            ))
+            createStep(stateNow.newStepLabel)
             setState { it.copy(
                 isAddingStep = false,
                 newStepLabel = "",
-                step = step.copy(pathSize = step.pathSize + 1),
                 similarSteps = emptyList()
             ) }
-            refreshSteps()
         }
+    }
+
+    private suspend fun createStep(label: String, description: String? = null) {
+        val path = stateNow.step ?: return
+        stepStore.createStep(NewStep(
+            pathId = path.id,
+            label = label,
+            position = null,
+            description = description
+        ))
+        setState { it.copy(step = path.copy(pathSize = path.pathSize + 1),) }
+        refreshSteps()
     }
 
     fun addSimilarStep(step: Step) {
@@ -104,12 +111,35 @@ class StepProfileModel(
         val path = stateNow.step ?: return
         viewModelScope.launch {
             val url = stepApiStore.generateImage(StepImageRequest(
-                step.label,
-                step.description,
-                path.theme
+                stepLabel = step.label,
+                stepDescription = step.description,
+                pathLabel = path.label,
+                pathDescription = path.description,
+                pathTheme = path.theme
             ))
             stepStore.updateStep(step.copy(imgUrl = url))
             refreshSteps()
+        }
+    }
+
+    fun suggestNextStep() {
+        val path = stateNow.step ?: return
+        viewModelScope.launch {
+            val response = stepApiStore.suggestStep(StepSuggestRequest(
+                pathLabel = path.label,
+                pathDescription = path.description,
+                precedingSteps = stateNow.steps.map { StepWithDescription(it.label, it.description) }
+            ))
+            if (response == null) return@launch
+            setState { it.copy(suggestions = response.suggestedSteps) }
+        }
+    }
+
+    fun createStepFromSuggestion(suggestion: StepWithDescription) {
+        viewModelScope.launch {
+            createStep(suggestion.label, suggestion.description)
+            val suggestions = stateNow.suggestions.filter { it != suggestion }
+            setState { it.copy(suggestions = suggestions) }
         }
     }
 }
@@ -120,7 +150,8 @@ data class StepProfileState(
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,
-    val similarSteps: List<Step> = emptyList()
+    val similarSteps: List<Step> = emptyList(),
+    val suggestions: List<StepWithDescription> = emptyList()
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
 }

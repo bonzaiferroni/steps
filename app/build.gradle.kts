@@ -75,9 +75,9 @@ kotlin {
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.logback.classic)
         }
-        wasmJsMain.dependencies {
-            implementation(libs.ktor.client.js)
-        }
+//        wasmJsMain.dependencies {
+//            implementation(libs.ktor.client.js)
+//        }
     }
 }
 

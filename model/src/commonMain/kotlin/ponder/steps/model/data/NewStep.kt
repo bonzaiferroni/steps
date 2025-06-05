@@ -7,4 +7,5 @@ data class NewStep(
     val pathId: String?,
     val label: String,
     val position: Int?,
+    val description: String?
 )

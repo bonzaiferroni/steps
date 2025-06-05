@@ -10,6 +10,8 @@ import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
+import ponder.steps.model.data.StepSuggestRequest
+import ponder.steps.model.data.StepSuggestResponse
 import ponder.steps.model.data.TrekItem
 
 object Api: ParentEndpoint(null, apiPrefix) {
@@ -26,6 +28,9 @@ object Api: ParentEndpoint(null, apiPrefix) {
     }
 
     object Steps: GetByIdEndpoint<Step>(this, "/step") {
+        object Create: PostEndpoint<NewStep, String>(this)
+        object Update: UpdateEndpoint<Step>(this)
+        object Delete: DeleteEndpoint<String>(this)
         val includeChildren = EndpointParam("includeChildren", { it.toBoolean() }, { it.toString()})
 
         object Parent : GetByIdEndpoint<Step>(this, "/parent") {
@@ -43,9 +48,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
         }
         object GenerateImageV1 : GetByIdEndpoint<String>(this, "/generate-image-v1")
         object GenerateImageV2: PostEndpoint<StepImageRequest, String>(this, "/generate-image-v2")
-        object Create: PostEndpoint<NewStep, String>(this)
-        object Delete: DeleteEndpoint<String>(this)
-        object Update: UpdateEndpoint<Step>(this)
+        object Suggest: PostEndpoint<StepSuggestRequest, StepSuggestResponse>(this, "/suggest")
     }
 
     object Intents: GetByIdEndpoint<Intent>(this, "/intent") {
