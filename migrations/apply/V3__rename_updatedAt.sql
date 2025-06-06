@@ -1,0 +1,2 @@
+ALTER TABLE step ADD updated_at TIMESTAMP NOT NULL;
+ALTER TABLE step DROP COLUMN edited_at;
