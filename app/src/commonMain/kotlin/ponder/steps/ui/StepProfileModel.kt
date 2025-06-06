@@ -2,8 +2,9 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.StepApiStore
-import ponder.steps.io.StepStore
+import ponder.steps.io.AiClient
+import ponder.steps.io.StepServerRepository
+import ponder.steps.io.StepLocalRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
@@ -12,14 +13,15 @@ import ponder.steps.model.data.StepWithDescription
 import pondui.ui.core.StateModel
 
 class StepProfileModel(
-    val stepStore: StepStore = StepStore(),
-    val stepApiStore: StepApiStore = StepApiStore(),
+    val stepLocalRepository: StepLocalRepository = StepLocalRepository(),
+    val stepServerRepository: StepServerRepository = StepServerRepository(),
+    val aiClient: AiClient = AiClient()
 ): StateModel<StepProfileState>(StepProfileState()) {
 
     fun refreshSteps() {
         val step = stateNow.step ?: return
         viewModelScope.launch {
-            val steps = stepStore.readPathSteps(step.id).sortedBy { it.position }
+            val steps = stepLocalRepository.readPathSteps(step.id).sortedBy { it.position }
             setState { it.copy(steps = steps) }
         }
     }
@@ -31,7 +33,7 @@ class StepProfileModel(
 
     fun editStep(step: Step) {
         viewModelScope.launch {
-            stepStore.updateStep(step)
+            stepLocalRepository.updateStep(step)
             setState { it.copy(step = step) }
         }
     }
@@ -39,7 +41,7 @@ class StepProfileModel(
     fun setNewStepLabel(label: String) {
         setState { it.copy(newStepLabel = label) }
         viewModelScope.launch {
-            val similarSteps = stepStore.searchSteps(label)
+            val similarSteps = stepLocalRepository.searchSteps(label)
             setState { it.copy(similarSteps = similarSteps) }
         }
     }
@@ -56,7 +58,7 @@ class StepProfileModel(
         val path = stateNow.step ?: return
         val position = step.position ?: return
         viewModelScope.launch {
-            stepStore.removeStepFromPath(path.id, step.id, position)
+            stepLocalRepository.removeStepFromPath(path.id, step.id, position)
             refreshSteps()
         }
     }
@@ -64,7 +66,7 @@ class StepProfileModel(
     fun moveStep(step: Step, delta: Int) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            stepStore.moveStepPosition(path.id, step.id, delta)
+            stepLocalRepository.moveStepPosition(path.id, step.id, delta)
             refreshSteps()
         }
     }
@@ -83,7 +85,7 @@ class StepProfileModel(
 
     private suspend fun createStep(label: String, description: String? = null) {
         val path = stateNow.step ?: return
-        stepStore.createStep(NewStep(
+        stepLocalRepository.createStep(NewStep(
             pathId = path.id,
             label = label,
             position = null,
@@ -96,7 +98,7 @@ class StepProfileModel(
     fun addSimilarStep(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            stepStore.addStepToPathIfNotDownstream(path.id, step.id, null)
+            stepLocalRepository.addStepToPath(path.id, step.id, null)
             setState { it.copy(
                 isAddingStep = false,
                 newStepLabel = "",
@@ -110,14 +112,14 @@ class StepProfileModel(
     fun generateImage(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            val url = stepApiStore.generateImage(StepImageRequest(
+            val url = aiClient.generateImage(StepImageRequest(
                 stepLabel = step.label,
                 stepDescription = step.description,
                 pathLabel = path.label,
                 pathDescription = path.description,
                 pathTheme = path.theme
             ))
-            stepStore.updateStep(step.copy(imgUrl = url))
+            stepLocalRepository.updateStep(step.copy(imgUrl = url))
             refreshSteps()
         }
     }
@@ -125,7 +127,7 @@ class StepProfileModel(
     fun suggestNextStep() {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            val response = stepApiStore.suggestStep(StepSuggestRequest(
+            val response = aiClient.suggestStep(StepSuggestRequest(
                 pathLabel = path.label,
                 pathDescription = path.description,
                 precedingSteps = stateNow.steps.map { StepWithDescription(it.label, it.description) }

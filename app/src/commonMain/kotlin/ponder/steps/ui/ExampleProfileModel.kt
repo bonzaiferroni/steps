@@ -3,13 +3,13 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ponder.steps.ExampleProfileRoute
-import ponder.steps.io.ExampleStore
+import ponder.steps.io.ExampleRepository
 import ponder.steps.model.data.Example
 import pondui.ui.core.StateModel
 
 class ExampleProfileModel(
     route: ExampleProfileRoute,
-    private val store: ExampleStore = ExampleStore()
+    private val store: ExampleRepository = ExampleRepository()
 ): StateModel<ExampleProfileState>(ExampleProfileState()) {
     init {
         viewModelScope.launch {

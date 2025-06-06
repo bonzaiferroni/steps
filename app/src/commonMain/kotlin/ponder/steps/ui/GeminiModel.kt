@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import kabinet.clients.GeminiMessage
 import kabinet.clients.GeminiRole
 import kotlinx.coroutines.launch
-import ponder.steps.io.GeminiStore
+import ponder.steps.io.GeminiRepository
 import pondui.ui.core.StateModel
 
 /**
@@ -12,7 +12,7 @@ import pondui.ui.core.StateModel
  * It handles the state and business logic for chattin' with the AI.
  */
 class GeminiModel(
-    private val geminiStore: GeminiStore = GeminiStore()
+    private val geminiStore: GeminiRepository = GeminiRepository()
 ): StateModel<GeminiState>(GeminiState()) {
 
     /**

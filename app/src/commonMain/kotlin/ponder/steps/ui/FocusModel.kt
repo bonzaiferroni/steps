@@ -2,12 +2,12 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.TrekApiStore
+import ponder.steps.io.TrekApiRepository
 import ponder.steps.model.data.Focus
 import pondui.ui.core.StateModel
 
 class FocusModel(
-    private val journeyStore: TrekApiStore = TrekApiStore()
+    private val journeyStore: TrekApiRepository = TrekApiRepository()
 ) : StateModel<FocusState>(FocusState()) {
 
     init {

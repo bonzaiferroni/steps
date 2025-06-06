@@ -2,23 +2,23 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.StepStore
+import ponder.steps.io.StepLocalRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
 class PathsModel(
     initialStepId: String?,
-    val stepStore: StepStore = StepStore()
+    val stepLocalRepository: StepLocalRepository = StepLocalRepository()
 ): StateModel<StepListState>(StepListState()) {
 
     init {
         viewModelScope.launch {
             if (initialStepId != null) {
-                val step = stepStore.readStep(initialStepId)
+                val step = stepLocalRepository.readStep(initialStepId)
                 setState { it.copy(step = step) }
             } else {
-                val steps = stepStore.readRootSteps()
+                val steps = stepLocalRepository.readRootSteps()
                 setState { it.copy(steps = steps) }
             }
         }
@@ -27,8 +27,8 @@ class PathsModel(
     fun setSearchText(text: String) {
         setState { it.copy(searchText = text, showProfile = false, newStepLabel = text) }
         viewModelScope.launch {
-            val steps = text.takeIf { it.isNotBlank() }?.let { stepStore.searchSteps(text) }
-                ?: stepStore.readRootSteps()
+            val steps = text.takeIf { it.isNotBlank() }?.let { stepLocalRepository.searchSteps(text) }
+                ?: stepLocalRepository.readRootSteps()
             setState { it.copy(steps = steps) }
         }
     }
@@ -55,7 +55,7 @@ class PathsModel(
     fun navigateTop() {
         setState { it.copy(showProfile = false, breadCrumbs = emptyList()) }
         viewModelScope.launch {
-            val steps = stepStore.readRootSteps()
+            val steps = stepLocalRepository.readRootSteps()
             setState { it.copy(steps = steps) }
         }
     }
@@ -63,14 +63,14 @@ class PathsModel(
     fun createStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            val id = stepStore.createStep(NewStep(
+            val id = stepLocalRepository.createStep(NewStep(
                 pathId = null,
                 label = stateNow.newStepLabel,
                 position = null,
                 description = null,
             ))
-            val step = stepStore.readStep(id)
-            val steps = stepStore.readRootSteps()
+            val step = stepLocalRepository.readStep(id)
+            val steps = stepLocalRepository.readRootSteps()
             setState { it.copy(isAddingStep = false, newStepLabel = "", step = step, showProfile = true, steps = steps) }
         }
     }

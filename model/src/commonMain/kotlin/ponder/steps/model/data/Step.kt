@@ -1,6 +1,7 @@
 package ponder.steps.model.data
 
 import androidx.compose.runtime.Stable
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Stable
@@ -17,8 +18,9 @@ data class Step(
     val audioUrl: String?,
     val isPublic: Boolean,
     val pathSize: Int,
+    val updatedAt: Instant,
+    val createdAt: Instant,
 
     val pathId: String?,
     val position: Int?,
-    val children: List<Step>? = null
 )

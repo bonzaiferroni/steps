@@ -2,13 +2,13 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.ExampleStore
+import ponder.steps.io.ExampleRepository
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.NewExample
 import pondui.ui.core.StateModel
 
 class ExampleListModel(
-    private val store: ExampleStore = ExampleStore()
+    private val store: ExampleRepository = ExampleRepository()
 ): StateModel<ExampleListState>(ExampleListState()) {
     init {
         refreshItems()

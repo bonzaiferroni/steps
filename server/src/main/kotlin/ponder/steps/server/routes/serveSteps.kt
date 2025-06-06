@@ -18,8 +18,7 @@ fun Routing.serveSteps(
 ) {
     // Ahoy! This route be for fetchin' a single step by its id!
     get(Api.Steps, { it }) { stepId, endpoint ->
-        val includeChildren = endpoint.includeChildren.readParam(call)
-        service.readStep(stepId, includeChildren)
+        service.readStep(stepId)
     }
 
     authenticateJwt {
@@ -36,36 +35,22 @@ fun Routing.serveSteps(
             service.deleteStep(stepId)
         }
 
-        get(Api.Steps.Parent, { it }) { id, endpoint ->
-            val includeChildren = endpoint.includeChildren.readParam(call)
-            service.readParent(id, includeChildren)
-        }
-
         get(Api.Steps.Children, { it }) { id, endpoint ->
             val parentId = call.getIdOrThrow { it }
-            val includeChildren = endpoint.includeChildren.readParam(call)
-            service.readChildren(parentId, includeChildren)
+            service.readChildren(parentId)
         }
 
         get(Api.Steps.Root) { endpoint ->
-            val includeChildren = endpoint.includeChildren.readParam(call)
-            service.readRootSteps(includeChildren)
+            service.readRootSteps()
         }
 
         get(Api.Steps.Search) { endpoint ->
             val query = endpoint.query.readParam(call)
-            val includeChildren = endpoint.includeChildren.readParam(call)
-            service.searchSteps(query, includeChildren)
-        }
-
-        get(Api.Steps.Search) { endpoint ->
-            val query = endpoint.query.readParam(call)
-            val includeChildren = endpoint.includeChildren.readParam(call)
-            service.searchSteps(query, includeChildren)
+            service.searchSteps(query)
         }
 
         get(Api.Steps.GenerateImageV1, { it }) { id, endpoint ->
-            val step = service.readStep(id, false) ?: error("step missing: $id")
+            val step = service.readStep(id) ?: error("step missing: $id")
             val url = gemini.generateImage(step.label)
             val isSuccess = service.updateStep(step.copy(imgUrl = url))
             if (!isSuccess) error("unable to generate image")
@@ -86,6 +71,16 @@ fun Routing.serveSteps(
                 StepWithDescription(split[0], split.getOrNull(1)?.trim())
             } ?: error("suggestions is null")
             StepSuggestResponse(suggestions)
+        }
+
+        post(Api.Steps.ReadSync) { lastSyncAt, endpoint ->
+            val userId = call.getUserId()
+            service.readSync(lastSyncAt, userId)
+        }
+
+        post(Api.Steps.WriteSync) { data, endpoint ->
+            val userId = call.getUserId()
+            service.writeSync(data, userId)
         }
     }
 }

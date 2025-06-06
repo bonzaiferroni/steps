@@ -3,9 +3,10 @@ package ponder.steps.io
 import ponder.steps.model.Api
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewIntent
-import pondui.io.ApiStore
+import pondui.io.ApiClient
+import pondui.io.globalApiClient
 
-class IntentApiStore: ApiStore() {
+class IntentApiRepository(private val client: ApiClient = globalApiClient) {
     suspend fun readIntent(intentId: String) = client.get(Api.Intents, intentId)
     suspend fun readUserIntents() = client.get(Api.Intents.User)
     suspend fun createIntent(newIntent: NewIntent) = client.post(Api.Intents.Create, newIntent)

@@ -3,7 +3,7 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ponder.steps.io.IntentStore
-import ponder.steps.io.StepStore
+import ponder.steps.io.StepLocalRepository
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
@@ -11,7 +11,7 @@ import pondui.ui.core.StateModel
 
 class IntentListModel(
     private val intentStore: IntentStore = IntentStore(),
-    private val stepStore: StepStore = StepStore()
+    private val stepLocalRepository: StepLocalRepository = StepLocalRepository()
 ) : StateModel<IntentionState>(IntentionState()) {
 
     init {
@@ -37,7 +37,7 @@ class IntentListModel(
 
     private fun searchPaths(query: String) {
         viewModelScope.launch {
-            val steps = stepStore.searchSteps(query)
+            val steps = stepLocalRepository.searchSteps(query)
             setState { it.copy(searchPaths = steps) }
         }
     }

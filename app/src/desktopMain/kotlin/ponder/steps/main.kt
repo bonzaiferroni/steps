@@ -5,7 +5,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import ponder.steps.io.DataSync
+import ponder.steps.io.StepLocalRepository
+import ponder.steps.io.StepServerRepository
 import pondui.CacheFile
 import pondui.WatchWindow
 import pondui.WindowSize
@@ -54,5 +58,6 @@ fun main() {
 @Serializable
 data class AppCache(
     val windowSize: WindowSize = WindowSize(600, 800),
-    val address: String? = null
+    val address: String? = null,
+    val lastSyncAt: Instant = Instant.DISTANT_FUTURE
 )

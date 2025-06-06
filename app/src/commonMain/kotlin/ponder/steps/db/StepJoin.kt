@@ -1,5 +1,6 @@
 package ponder.steps.db
 
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.Step
 
 data class StepJoin(
@@ -16,6 +17,8 @@ data class StepJoin(
     val pathSize: Int,
     val pathId: String?,
     val position: Int?,
+    val updatedAt: Instant,
+    val createdAt: Instant,
 )
 
 fun StepJoin.toStep() = Step(
@@ -32,5 +35,6 @@ fun StepJoin.toStep() = Step(
     pathSize = pathSize,
     pathId = pathId,
     position = position,
-    children = null // Children are not included in this join
+    updatedAt = updatedAt,
+    createdAt = createdAt,
 )

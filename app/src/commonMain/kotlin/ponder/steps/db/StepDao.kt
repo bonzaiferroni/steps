@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
 
 @Dao
@@ -26,6 +27,9 @@ interface StepDao {
 
     @Delete
     suspend fun deleteStep(step: StepEntity): Int
+
+    @Query("DELETE FROM StepEntity WHERE id = :id")
+    suspend fun deleteStepById(id: String): Int
 
     @Delete
     suspend fun deletePathStep(pathStep: PathStepEntity): Int
@@ -106,4 +110,10 @@ interface StepDao {
 
     @Query("SELECT pathId FROM pathstepentity WHERE stepId IN (:stepIds)")
     suspend fun readPathIds(stepIds: List<String>): List<String>
+
+    @Query("SELECT * FROM StepEntity WHERE updatedAt > :lastSyncAt")
+    suspend fun readStepsUpdatedAfter(lastSyncAt: Instant): List<StepEntity>
+
+    @Query("SELECT * FROM PathStepEntity WHERE pathId IN (:pathIds)")
+    suspend fun readPathStepsByPathIds(pathIds: List<String>): List<PathStep>
 }

@@ -1,15 +1,9 @@
 package ponder.steps.server.db.tables
 
 import klutch.db.tables.UserTable
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import ponder.steps.model.data.Step
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 internal object StepTable : UUIDTable("step") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
@@ -23,5 +17,5 @@ internal object StepTable : UUIDTable("step") {
     val expectedMins = integer("expected_mins").nullable()
     val pathSize = integer("path_size")
     val createdAt = datetime("created_at")
-    val editedAt = datetime("edited_at")
+    val updatedAt = datetime("updated_at")
 }
