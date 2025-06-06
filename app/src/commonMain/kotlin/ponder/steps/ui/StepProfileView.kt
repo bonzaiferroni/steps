@@ -94,7 +94,7 @@ fun StepProfileView(
         }
         state.step?.description?.let { Text(it, Pond.typo.bodyLarge, modifier = Modifier.padding(Pond.ruler.unitPadding)) }
         Tabs {
-            tab("Steps") {
+            Tab("Steps") {
                 LazyColumn(0, Alignment.CenterHorizontally) {
                     itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
                         val isSelected = state.selectedStepId == step.id
@@ -153,7 +153,7 @@ fun StepProfileView(
                     }
                 }
             }
-            tab("Edit") {
+            Tab("Edit") {
                 Label("Description")
                 println(profileStep.label)
                 EditText(
@@ -168,7 +168,7 @@ fun StepProfileView(
                 Label("Image")
                 Button("Generate") { viewModel.generateImage(profileStep) }
             }
-            tab("Activity") {
+            Tab("Activity") {
                 Text("No activity")
             }
         }
