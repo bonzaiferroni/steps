@@ -8,8 +8,10 @@ import klutch.log.LogLevel
 import kotlinx.datetime.Clock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import ponder.steps.model.data.ImageUrls
 import ponder.steps.server.plugins.env
 import ponder.steps.server.routes.requestToFilename
+import ponder.steps.server.utils.writePngThumbnail
 import java.io.File
 import java.util.Base64
 
@@ -27,13 +29,17 @@ class GeminiService(
 
     suspend fun chat(messages: List<GeminiMessage>) = client.generateTextFromMessages(messages)
 
-    suspend fun generateImage(text: String, filename: String = text): String {
+    suspend fun generateImage(text: String, filename: String = text): ImageUrls {
         val data = client.generateImage(text) ?: error("Unable to generate image")
         val bytes = Base64.getDecoder().decode(data)
         val timestamp = Clock.System.now().toEpochMilliseconds().toBase62()
-        val filename = "img/${requestToFilename(filename)}-$timestamp.png"
+        val path = "img"
+        val filenameBase = requestToFilename(filename)
+        val filename = "$path/$filenameBase-$timestamp.png"
         File(filename).writeBytes(bytes)
-        return filename
+        val thumbFilename = "$path/$filenameBase-$timestamp-thumb.png"
+        writePngThumbnail(bytes, thumbFilename)
+        return ImageUrls(filename, thumbFilename)
     }
 }
 
@@ -46,4 +52,3 @@ fun Logger.message(level: LogLevel, msg: String) = when(level) {
     LogLevel.WARNING  -> this.warn(msg)
     LogLevel.ERROR -> this.error(msg)
 }
-

@@ -68,7 +68,7 @@ fun StepProfileView(
     Column(1) {
         Row(1) {
             StepImage(
-                step = step,
+                url = step.imgUrl,
                 modifier = Modifier.weight(1f)
                     .clip(Pond.ruler.defaultCorners)
                     .aspectRatio(1f)

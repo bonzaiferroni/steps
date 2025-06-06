@@ -5,6 +5,7 @@ import kabinet.clients.GeminiMessage
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.Focus
+import ponder.steps.model.data.ImageUrls
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewExample
 import ponder.steps.model.data.NewIntent
@@ -19,7 +20,7 @@ import ponder.steps.model.data.TrekItem
 object Api: ParentEndpoint(null, apiPrefix) {
     object Gemini : ParentEndpoint(this, "/gemini") {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
-        object Image : PostEndpoint<String, String>(this, "/image")
+        object Image : PostEndpoint<String, ImageUrls>(this, "/image")
     }
 
     object Examples : GetByIdEndpoint<Example>(this, "/example") {
@@ -39,8 +40,8 @@ object Api: ParentEndpoint(null, apiPrefix) {
         object Search : GetEndpoint<List<Step>>(this, "/search") {
             val query = EndpointParam("query", { it }, { it })
         }
-        object GenerateImageV1 : GetByIdEndpoint<String>(this, "/generate-image-v1")
-        object GenerateImageV2: PostEndpoint<StepImageRequest, String>(this, "/generate-image-v2")
+        object GenerateImageV1 : GetByIdEndpoint<ImageUrls>(this, "/generate-image-v1")
+        object GenerateImageV2: PostEndpoint<StepImageRequest, ImageUrls>(this, "/generate-image-v2")
         object Suggest: PostEndpoint<StepSuggestRequest, StepSuggestResponse>(this, "/suggest")
         object ReadSync: PostEndpoint<Instant, SyncData>(this, "/read-sync")
         object WriteSync: PostEndpoint<SyncData, Int>(this, "/write-sync")

@@ -11,6 +11,7 @@ import ponder.steps.server.plugins.configureLogging
 import ponder.steps.server.plugins.configureSerialization
 import ponder.steps.server.plugins.configureWebSockets
 import ponder.steps.server.plugins.dbTables
+import ponder.steps.server.utils.compressPngsInFolder
 
 fun main(args: Array<String>) {
     if ("migrate" in args) generateMigrationScript(readEnvFromPath(), dbTables)

@@ -10,11 +10,11 @@ import steps.app.generated.resources.Res
 
 @Composable
 fun StepImage(
-    step: Step,
+    url: String?,
     modifier: Modifier = Modifier
 ) {
     AsyncImage(
-        model = step.imgUrl?.let { "http://localhost:8080/${it}" } ?: Res.getUri("drawable/horse.png"),
+        model = url?.let { "http://localhost:8080/${it}" } ?: Res.getUri("drawable/horse.png"),
         contentDescription = null,
         modifier = modifier.aspectRatio(1f)
     )

@@ -119,7 +119,7 @@ class StepProfileModel(
                 pathDescription = path.description,
                 pathTheme = path.theme
             ))
-            stepLocalRepository.updateStep(step.copy(imgUrl = url))
+            stepLocalRepository.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
             refreshSteps()
         }
     }

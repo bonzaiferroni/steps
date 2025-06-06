@@ -20,7 +20,7 @@ fun StepItem(
 ) {
     Row(1, modifier = modifier.height(40.dp)) {
         StepImage(
-            step = step,
+            url = step.thumbUrl,
             modifier = Modifier.clip(Pond.ruler.pill)
                 .ifNotNull(onImageClick) { actionable(onClick = it) }
         )

@@ -61,7 +61,7 @@ fun PathsScreen(
                     }
                     for (step in state.breadCrumbs) {
                         StepImage(
-                            step,
+                            step.thumbUrl,
                             modifier = Modifier.height(40.dp)
                                 .clip(CircleShape)
                                 .actionable { viewModel.navigateCrumb(step) }

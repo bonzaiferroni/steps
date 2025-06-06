@@ -51,10 +51,10 @@ fun Routing.serveSteps(
 
         get(Api.Steps.GenerateImageV1, { it }) { id, endpoint ->
             val step = service.readStep(id) ?: error("step missing: $id")
-            val url = gemini.generateImage(step.label)
-            val isSuccess = service.updateStep(step.copy(imgUrl = url))
+            val urls = gemini.generateImage(step.label)
+            val isSuccess = service.updateStep(step.copy(imgUrl = urls.url, thumbUrl = urls.thumbUrl))
             if (!isSuccess) error("unable to generate image")
-            url
+            urls
         }
 
         post(Api.Steps.GenerateImageV2) { request, endpoint ->
