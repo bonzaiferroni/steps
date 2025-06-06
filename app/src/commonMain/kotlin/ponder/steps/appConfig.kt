@@ -29,11 +29,11 @@ val appConfig = PondConfig(
         RouteConfig(SpriteRoute::matchRoute) { defaultScreen<SpriteRoute> { SpriteScreen() }},
     ),
     doors = persistentListOf(
-        PortalDoor(TablerIcons.Home, StartRoute),
+        // PortalDoor(TablerIcons.Home, StartRoute),
         // PortalDoor(TablerIcons.YinYang, HelloRoute),
         PortalDoor(TablerIcons.List, PathsRoute()),
-        PortalDoor(TablerIcons.Planet, GeminiRoute),
         PortalDoor(TablerIcons.Walk, JourneyRoute),
-        PortalDoor(TablerIcons.Wind, SpriteRoute)
+        PortalDoor(TablerIcons.Planet, GeminiRoute),
+        // PortalDoor(TablerIcons.Wind, SpriteRoute)
     ),
 )

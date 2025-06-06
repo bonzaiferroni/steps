@@ -1,39 +1,39 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
-import ponder.steps.io.StepServerRepository
 import ponder.steps.io.StepLocalRepository
+import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepImageRequest
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
 import pondui.ui.core.StateModel
 
 class StepProfileModel(
-    val stepLocalRepository: StepLocalRepository = StepLocalRepository(),
-    val stepServerRepository: StepServerRepository = StepServerRepository(),
+    val stepRepo: StepRepository = StepLocalRepository(),
     val aiClient: AiClient = AiClient()
 ): StateModel<StepProfileState>(StepProfileState()) {
 
-    fun refreshSteps() {
+    fun refreshProfile() {
         val step = stateNow.step ?: return
         viewModelScope.launch {
-            val steps = stepLocalRepository.readPathSteps(step.id).sortedBy { it.position }
-            setState { it.copy(steps = steps) }
+            val refreshedStep = stepRepo.readStep(step.id)
+            val steps = stepRepo.readPathSteps(step.id).sortedBy { it.position }
+            setState { it.copy(steps = steps, step = refreshedStep) }
         }
     }
 
     fun setStep(step: Step) {
         setState { it.copy(step = step, suggestions = emptyList(), selectedStepId = null) }
-        refreshSteps()
+        refreshProfile()
     }
 
     fun editStep(step: Step) {
         viewModelScope.launch {
-            stepLocalRepository.updateStep(step)
+            stepRepo.updateStep(step)
             setState { it.copy(step = step) }
         }
     }
@@ -41,7 +41,7 @@ class StepProfileModel(
     fun setNewStepLabel(label: String) {
         setState { it.copy(newStepLabel = label) }
         viewModelScope.launch {
-            val similarSteps = stepLocalRepository.searchSteps(label)
+            val similarSteps = stepRepo.searchSteps(label)
             setState { it.copy(similarSteps = similarSteps) }
         }
     }
@@ -58,16 +58,16 @@ class StepProfileModel(
         val path = stateNow.step ?: return
         val position = step.position ?: return
         viewModelScope.launch {
-            stepLocalRepository.removeStepFromPath(path.id, step.id, position)
-            refreshSteps()
+            stepRepo.removeStepFromPath(path.id, step.id, position)
+            refreshProfile()
         }
     }
 
     fun moveStep(step: Step, delta: Int) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            stepLocalRepository.moveStepPosition(path.id, step.id, delta)
-            refreshSteps()
+            stepRepo.moveStepPosition(path.id, step.id, delta)
+            refreshProfile()
         }
     }
 
@@ -85,42 +85,46 @@ class StepProfileModel(
 
     private suspend fun createStep(label: String, description: String? = null) {
         val path = stateNow.step ?: return
-        stepLocalRepository.createStep(NewStep(
+        val stepId = stepRepo.createStep(NewStep(
             pathId = path.id,
             label = label,
             position = null,
             description = description
         ))
+        if (path.theme != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val step = stepRepo.readStep(stepId)
+                if (step != null) {
+                    val url = aiClient.generateImage(step, path)
+                    stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
+                    refreshProfile()
+                }
+            }
+        }
         setState { it.copy(step = path.copy(pathSize = path.pathSize + 1),) }
-        refreshSteps()
+        refreshProfile()
     }
 
     fun addSimilarStep(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            stepLocalRepository.addStepToPath(path.id, step.id, null)
+            stepRepo.addStepToPath(path.id, step.id, null)
             setState { it.copy(
                 isAddingStep = false,
                 newStepLabel = "",
                 step = path.copy(pathSize = step.pathSize + 1),
                 similarSteps = emptyList()
             ) }
-            refreshSteps()
+            refreshProfile()
         }
     }
 
     fun generateImage(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            val url = aiClient.generateImage(StepImageRequest(
-                stepLabel = step.label,
-                stepDescription = step.description,
-                pathLabel = path.label,
-                pathDescription = path.description,
-                pathTheme = path.theme
-            ))
-            stepLocalRepository.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
-            refreshSteps()
+            val url = aiClient.generateImage(step, path)
+            stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
+            refreshProfile()
         }
     }
 

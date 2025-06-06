@@ -42,6 +42,7 @@ fun StepProfileView(
 ) {
     val viewModel = viewModel { StepProfileModel() }
     val state by viewModel.state.collectAsState()
+    val profileStep = state.step ?: step
 
     LaunchedEffect(step) {
         viewModel.setStep(step)
@@ -109,7 +110,6 @@ fun StepProfileView(
                                 isEditable = isSelected,
                                 modifier = Modifier.weight(1f)
                                     .magic(offsetX = index * 10, durationMillis = 500),
-                                onImageClick = { viewModel.generateImage(step) }
                             ) { viewModel.editStep(step.copy(label = it)) }
                             Button(
                                 imageVector = TablerIcons.Trash,
@@ -155,14 +155,16 @@ fun StepProfileView(
             tab("Edit") {
                 Label("Description")
                 EditText(
-                    text = step.description ?: "[Step Description]",
+                    text = profileStep.description ?: "[Step Description]",
                     modifier = Modifier.padding(horizontal = 32.dp),
                 ) { viewModel.editStep(step.copy(description = it)) }
                 Label("Theme")
                 EditText(
-                    text = step.theme ?: "[Image Theme]",
+                    text = profileStep.theme ?: "[Image Theme]",
                     modifier = Modifier.padding(horizontal = 32.dp)
                 ) { viewModel.editStep(step.copy(theme = it)) }
+                Label("Image")
+                Button("Generate") { viewModel.generateImage(profileStep) }
             }
             tab("Activity") {
                 Text("No activity")
