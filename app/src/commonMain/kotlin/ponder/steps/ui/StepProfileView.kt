@@ -1,5 +1,6 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
@@ -31,6 +33,7 @@ import pondui.ui.behavior.selected
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
+import pondui.utils.addShadow
 
 @Composable
 fun StepProfileView(
@@ -65,34 +68,29 @@ fun StepProfileView(
         }
     }
 
-    Column(1) {
-        Row(1) {
+    Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.clip(Pond.ruler.defaultCorners)) {
             StepImage(
                 url = step.imgUrl,
-                modifier = Modifier.weight(1f)
-                    .clip(Pond.ruler.defaultCorners)
+                modifier = Modifier.fillMaxWidth()
                     .aspectRatio(1f)
-                    .magic(offsetX = -20, durationMillis = 500)
+                    // .magic(offsetX = -20, durationMillis = 500)
             )
-            Column(
-                spacingUnits = 1,
-                modifier = Modifier.weight(2f)
-                    .padding(Pond.ruler.unitPadding)
-                    .magic(offsetX = 20, durationMillis = 500)
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(.6f))
+                    // .magic(offsetY = 50, durationMillis = 500)
             ) {
-                EditText(step.label, Pond.typo.h1) { viewModel.editStep(step.copy(label = it)) }
+                EditText(
+                    text = step.label,
+                    style = Pond.typo.h1,
+                    modifier = Modifier.padding(Pond.ruler.unitPadding)
+                ) { viewModel.editStep(step.copy(label = it)) }
             }
         }
-        Label("Description")
-        EditText(
-            text = step.description ?: "[Step Description]",
-            modifier = Modifier.padding(horizontal = 32.dp)
-        ) { viewModel.editStep(step.copy(description = it)) }
-        Label("Theme")
-        EditText(
-            text = step.theme ?: "[Image Theme]",
-            modifier = Modifier.padding(horizontal = 32.dp)
-        ) { viewModel.editStep(step.copy(theme = it)) }
+        state.step?.description?.let { Text(it, Pond.typo.bodyLarge, modifier = Modifier.padding(Pond.ruler.unitPadding)) }
         Tabs {
             tab("Steps") {
                 LazyColumn(0, Alignment.CenterHorizontally) {
@@ -153,6 +151,18 @@ fun StepProfileView(
                         }
                     }
                 }
+            }
+            tab("Edit") {
+                Label("Description")
+                EditText(
+                    text = step.description ?: "[Step Description]",
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                ) { viewModel.editStep(step.copy(description = it)) }
+                Label("Theme")
+                EditText(
+                    text = step.theme ?: "[Image Theme]",
+                    modifier = Modifier.padding(horizontal = 32.dp)
+                ) { viewModel.editStep(step.copy(theme = it)) }
             }
             tab("Activity") {
                 Text("No activity")

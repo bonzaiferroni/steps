@@ -1,10 +1,8 @@
 package ponder.steps.model.data
 
-import androidx.compose.runtime.Stable
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
-@Stable
 @Serializable
 data class Step(
     val id: String,
