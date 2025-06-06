@@ -25,7 +25,7 @@ class PathsModel(
     }
 
     fun setSearchText(text: String) {
-        setState { it.copy(searchText = text, showProfile = false, newStepLabel = text) }
+        setState { it.copy(searchText = text, breadCrumbs = emptyList(), step = null, newStepLabel = text) }
         viewModelScope.launch {
             val steps = text.takeIf { it.isNotBlank() }?.let { stepLocalRepository.searchSteps(text) }
                 ?: stepLocalRepository.readRootSteps()
@@ -41,9 +41,9 @@ class PathsModel(
         setState { it.copy(newStepLabel = label) }
     }
 
-    fun navigateStep(step: Step) {
+    fun navigateForward(step: Step) {
         val breadCrumbs = stateNow.step?.let { stateNow.breadCrumbs + it } ?: emptyList()
-        setState { it.copy(step = step, breadCrumbs = breadCrumbs, showProfile = true)}
+        setState { it.copy(step = step, breadCrumbs = breadCrumbs)}
     }
 
     fun navigateCrumb(step: Step?) {
@@ -53,7 +53,7 @@ class PathsModel(
     }
 
     fun navigateTop() {
-        setState { it.copy(showProfile = false, breadCrumbs = emptyList()) }
+        setState { it.copy(breadCrumbs = emptyList(), step = null) }
         viewModelScope.launch {
             val steps = stepLocalRepository.readRootSteps()
             setState { it.copy(steps = steps) }
@@ -71,7 +71,7 @@ class PathsModel(
             ))
             val step = stepLocalRepository.readStep(id)
             val steps = stepLocalRepository.readRootSteps()
-            setState { it.copy(isAddingStep = false, newStepLabel = "", step = step, showProfile = true, steps = steps) }
+            setState { it.copy(isAddingStep = false, newStepLabel = "", step = step, steps = steps) }
         }
     }
 }
@@ -80,7 +80,6 @@ data class StepListState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
     val searchText: String = "",
-    val showProfile: Boolean = false,
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val breadCrumbs: List<Step> = emptyList()

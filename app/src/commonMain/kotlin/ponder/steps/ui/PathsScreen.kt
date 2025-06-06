@@ -73,13 +73,13 @@ fun PathsScreen(
                 Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
             }
             Box {
-                val isProfileVisible = state.showProfile && state.step != null
-                Magic(!isProfileVisible) {
+                val step = state.step
+                Magic(step == null) {
                     LazyColumn(0) {
                         itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
                             StepItem(
                                 step = step,
-                                modifier = Modifier.actionable { viewModel.navigateStep(step) }
+                                modifier = Modifier.actionable { viewModel.navigateForward(step) }
                                     .fillMaxWidth()
                                     .padding(Pond.ruler.unitPadding)
                                     .animateItem()
@@ -88,9 +88,10 @@ fun PathsScreen(
                         }
                     }
                 }
-                val step = state.step ?: return@Box
-                Magic(isProfileVisible) {
-                    StepProfileView(step, viewModel::navigateStep)
+
+                if (step == null) return@Box
+                Magic {
+                    StepProfileView(step, viewModel::navigateForward)
                 }
             }
         }

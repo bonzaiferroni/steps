@@ -42,11 +42,12 @@ fun StepProfileView(
 ) {
     val viewModel = viewModel { StepProfileModel() }
     val state by viewModel.state.collectAsState()
-    val profileStep = state.step ?: step
 
     LaunchedEffect(step) {
         viewModel.setStep(step)
     }
+
+    val profileStep = state.step ?: return
 
     TitleCloud("Add a step to ${state.step?.label ?: "path"}", state.isAddingStep, viewModel::toggleAddingStep) {
         Column(1, modifier = Modifier.height(400.dp)) {
@@ -154,6 +155,7 @@ fun StepProfileView(
             }
             tab("Edit") {
                 Label("Description")
+                println(profileStep.label)
                 EditText(
                     text = profileStep.description ?: "[Step Description]",
                     modifier = Modifier.padding(horizontal = 32.dp),
