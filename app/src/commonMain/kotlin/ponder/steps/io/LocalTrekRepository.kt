@@ -81,7 +81,7 @@ class LocalTrekRepository(
         }
     }
 
-    suspend fun completeStep(trekId: String): Boolean {
+    override suspend fun completeStep(trekId: String): Boolean {
         var trek = trekDao.readTrekById(trekId) ?: return false
 
         val pathId = trek.breadCrumbs.lastOrNull()

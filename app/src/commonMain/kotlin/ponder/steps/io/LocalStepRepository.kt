@@ -31,7 +31,8 @@ class LocalStepRepository(
             StepEntity.Empty.copy(
                 id = stepId,
                 label = label,
-                userId = userId
+                userId = userId,
+                description = newStep.description
             )
         )
 

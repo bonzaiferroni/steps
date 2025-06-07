@@ -5,6 +5,7 @@ import kabinet.utils.startOfDay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.steps.io.AiClient
 import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.IntentRepository
@@ -35,7 +36,13 @@ class TodoModel(
     fun onLoad() {
         viewModelScope.launch {
             trekRepo.flowTreksSince(Clock.startOfDay()).collect { treks ->
-                setState { it.copy(items = treks) }
+                setState {
+                    it.copy(
+                        items = treks.sortedWith(
+                            compareByDescending<TrekItem> { trek -> trek.finishedAt ?: Instant.DISTANT_FUTURE }
+                                .thenBy { trek -> trek.intentPriority.ordinal }
+                        ))
+                }
             }
         }
     }
@@ -89,6 +96,12 @@ class TodoModel(
             )
         )
         trekRepo.syncTreksWithIntents()
+    }
+
+    fun completeStep(item: TrekItem) {
+        viewModelScope.launch {
+            trekRepo.completeStep(item.trekId)
+        }
     }
 }
 

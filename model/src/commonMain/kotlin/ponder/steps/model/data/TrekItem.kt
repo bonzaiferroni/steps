@@ -15,6 +15,7 @@ data class TrekItem(
     val stepThumbUrl: String?,
     val stepDescription: String?,
     val intentLabel: String,
+    val intentPriority: IntentPriority,
     val expectedMinutes: Int?,
     val availableAt: Instant,
     val startedAt: Instant?,
