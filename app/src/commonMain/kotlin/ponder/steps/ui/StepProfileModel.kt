@@ -94,7 +94,7 @@ class StepProfileModel(
             position = null,
             description = description
         ))
-        val theme = path.theme ?: valueRepo.readString(SETTINGS_KEY_THEME)
+        val theme = path.theme ?: valueRepo.readString(SETTINGS_DEFAULT_THEME)
         if (theme.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 val step = stepRepo.readStep(stepId)

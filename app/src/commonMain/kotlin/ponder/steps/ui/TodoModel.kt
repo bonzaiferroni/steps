@@ -59,7 +59,7 @@ class TodoModel(
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
             val stepId = stepRepo.createStep(NewStep(stateNow.newStepLabel))
-            val theme = valueRepo.readString(SETTINGS_KEY_THEME)
+            val theme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
             if (theme.isNotEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
                     val step = stepRepo.readStep(stepId)

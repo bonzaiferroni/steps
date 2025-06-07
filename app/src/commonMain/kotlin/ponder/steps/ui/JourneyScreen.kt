@@ -10,7 +10,7 @@ import pondui.ui.controls.Tabs
 fun JourneyScreen() {
     Scaffold {
         Tabs {
-            Tab("Todo") { TodoView() }
+            Tab("Doing") { TodoView() }
             Tab("Focus") { FocusView() }
             Tab("Plan") { IntentListView() }
         }

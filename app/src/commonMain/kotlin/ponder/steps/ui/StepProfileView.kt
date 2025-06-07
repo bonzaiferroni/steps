@@ -121,6 +121,7 @@ fun StepProfileView(
                 ) {
                     EditText(
                         text = step.label,
+                        placeholder = "Step label",
                         style = Pond.typo.h1,
                         modifier = Modifier.padding(Pond.ruler.unitPadding)
                     ) { viewModel.editStep(step.copy(label = it)) }
@@ -145,6 +146,7 @@ fun StepProfileView(
                 Column(1, modifier = Modifier.weight(1f)) {
                     EditText(
                         text = step.label,
+                        placeholder = "Step label",
                         style = Pond.typo.h1,
                         modifier = Modifier.padding(Pond.ruler.unitPadding)
                     ) { viewModel.editStep(step.copy(label = it)) }
@@ -237,12 +239,14 @@ fun StepProfileView(
             Tab("Edit") {
                 Label("Description")
                 EditText(
-                    text = profileStep.description ?: "[Step Description]",
+                    text = profileStep.description ?: "",
+                    placeholder = "Step Description",
                     modifier = Modifier.padding(horizontal = 32.dp),
                 ) { viewModel.editStep(profileStep.copy(description = it)) }
                 Label("Theme")
                 EditText(
-                    text = profileStep.theme ?: "[Image Theme]",
+                    text = profileStep.theme ?: "",
+                    placeholder = "Image Theme",
                     modifier = Modifier.padding(horizontal = 32.dp)
                 ) { viewModel.editStep(profileStep.copy(theme = it)) }
                 Label("Image")

@@ -7,17 +7,17 @@ import pondui.ui.core.StateModel
 class SettingsModel(
     private val valueRepo: ValueRepository = LocalValueRepository()
 ): StateModel<SettingsState>(SettingsState(
-    theme = valueRepo.readString(SETTINGS_KEY_THEME)
+    defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
 )) {
 
     fun setTheme(value: String) {
-        setState { it.copy(theme = value) }
-        valueRepo.writeString(SETTINGS_KEY_THEME, value)
+        setState { it.copy(defaultTheme = value) }
+        valueRepo.writeString(SETTINGS_DEFAULT_THEME, value)
     }
 }
 
 data class SettingsState(
-    val theme: String = ""
+    val defaultTheme: String = ""
 )
 
-const val SETTINGS_KEY_THEME = "theme"
+const val SETTINGS_DEFAULT_THEME = "default_theme"

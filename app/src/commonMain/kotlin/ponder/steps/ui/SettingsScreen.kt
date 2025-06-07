@@ -15,11 +15,12 @@ fun SettingsScreen() {
     val state by viewModel.state.collectAsState()
 
     Scaffold {
-        Label("Theme")
+        Label("Default image theme")
         EditText(
-            text = state.theme,
+            text = state.defaultTheme,
+            placeholder = "Set theme",
             onAcceptEdit = viewModel::setTheme,
-            modifier = Modifier.padding(horizontal = Pond.ruler.doubleSpacing)
+            modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing * 6)
         )
     }
 }
