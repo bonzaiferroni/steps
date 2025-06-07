@@ -8,7 +8,7 @@ data class StepImageRequest(
     val stepDescription: String?,
     val pathLabel: String?,
     val pathDescription: String?,
-    val pathTheme: String?
+    val theme: String?
 )
 
 fun StepImageRequest.toAiPrompt() = buildString {
@@ -23,7 +23,7 @@ fun StepImageRequest.toAiPrompt() = buildString {
         appendLine("\nHere is more information about the guide:")
         appendLine(it)
     }
-    request.pathTheme?.let {
+    request.theme?.let {
         appendLine("\nHere is the theme or style you should use to generate the image:")
         appendLine(it)
     }

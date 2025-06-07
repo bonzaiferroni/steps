@@ -128,8 +128,8 @@ fun StepProfileView(
             }
             state.step?.description?.let {
                 Text(
-                    it,
-                    Pond.typo.bodyLarge,
+                    text = it,
+                    style = Pond.typo.bodyLarge,
                     modifier = Modifier.padding(Pond.ruler.unitPadding)
                 )
             }

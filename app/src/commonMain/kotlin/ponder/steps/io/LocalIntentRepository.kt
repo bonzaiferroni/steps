@@ -4,16 +4,15 @@ import ponder.steps.appDb
 import ponder.steps.db.IntentDao
 import ponder.steps.model.data.NewIntent
 import kabinet.utils.randomUuidString
-import kotlinx.datetime.Clock
 import ponder.steps.appUserId
 import ponder.steps.db.IntentEntity
 
-class IntentStore(
+class LocalIntentRepository(
     private val dao: IntentDao = appDb.getIntentDao(),
-) {
+): IntentRepository {
     fun readActiveIntentsFlow() = dao.readActiveIntentsFlow()
 
-    suspend fun createIntent(intent: NewIntent) {
+    override suspend fun createIntent(intent: NewIntent) {
         val id = randomUuidString()
         dao.create(
             IntentEntity(

@@ -28,13 +28,10 @@ data class PathsRoute(val pathId: String? = null) : IdRoute<String>(TITLE, pathI
 object GeminiRoute : AppRoute("Gemini")
 
 @Serializable
-object IntentionRoute : AppRoute("Intention")
-
-@Serializable
 object JourneyRoute : AppRoute("Journey")
 
 @Serializable
-object FocusRoute : AppRoute("Focus")
+object SettingsRoute : AppRoute("Settings")
 
 @Serializable
 data class ExampleProfileRoute(val exampleId: Long) : IdRoute<Long>(TITLE, exampleId) {

@@ -4,17 +4,20 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
-import ponder.steps.io.StepLocalRepository
+import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
+import pondui.LocalValueRepository
+import pondui.ValueRepository
 import pondui.ui.core.StateModel
 
 class StepProfileModel(
-    val stepRepo: StepRepository = StepLocalRepository(),
-    val aiClient: AiClient = AiClient()
+    val stepRepo: StepRepository = LocalStepRepository(),
+    val aiClient: AiClient = AiClient(),
+    val valueRepo: ValueRepository = LocalValueRepository()
 ): StateModel<StepProfileState>(StepProfileState()) {
 
     fun refreshProfile() {
@@ -91,7 +94,8 @@ class StepProfileModel(
             position = null,
             description = description
         ))
-        if (path.theme != null) {
+        val theme = path.theme ?: valueRepo.readString(SETTINGS_KEY_THEME)
+        if (theme.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 val step = stepRepo.readStep(stepId)
                 if (step != null) {

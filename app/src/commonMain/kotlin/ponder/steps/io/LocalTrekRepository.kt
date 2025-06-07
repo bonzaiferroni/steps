@@ -13,13 +13,13 @@ import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
 import kotlin.time.Duration.Companion.minutes
 
-class TrekStore(
+class LocalTrekRepository(
     private val trekDao: TrekDao = appDb.getTrekDao(),
     private val stepDao: StepDao = appDb.getStepDao(),
     private val intentDao: IntentDao = appDb.getIntentDao(),
-) {
+): TrekRepository {
 
-    fun readTreksSince(time: Instant) = trekDao.readTrekItemsSince(time)
+    override fun flowTreksSince(time: Instant) = trekDao.flowTrekItemsSince(time)
 
     suspend fun startTrek(trekId: String): Boolean {
         var trek = trekDao.readTrekById(trekId) ?: return false
@@ -50,7 +50,7 @@ class TrekStore(
         return trekDao.update(trek.toEntity()) == 1
     }
 
-    suspend fun syncTreksWithIntents() {
+    override suspend fun syncTreksWithIntents() {
         val activeIntentIds = intentDao.readActiveItentIds()
         val trekIntentIds = trekDao.readActiveTrekIntentIds()
 

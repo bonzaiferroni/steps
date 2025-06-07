@@ -2,21 +2,21 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.io.IntentStore
-import ponder.steps.io.StepLocalRepository
+import ponder.steps.io.LocalIntentRepository
+import ponder.steps.io.LocalStepRepository
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
 class IntentListModel(
-    private val intentStore: IntentStore = IntentStore(),
-    private val stepLocalRepository: StepLocalRepository = StepLocalRepository()
+    private val localIntentRepository: LocalIntentRepository = LocalIntentRepository(),
+    private val localStepRepository: LocalStepRepository = LocalStepRepository()
 ) : StateModel<IntentionState>(IntentionState()) {
 
     init {
         viewModelScope.launch {
-            intentStore.readActiveIntentsFlow().collect { intents ->
+            localIntentRepository.readActiveIntentsFlow().collect { intents ->
                 setState { it.copy(intents = intents) }
             }
         }
@@ -37,14 +37,14 @@ class IntentListModel(
 
     private fun searchPaths(query: String) {
         viewModelScope.launch {
-            val steps = stepLocalRepository.searchSteps(query)
+            val steps = localStepRepository.searchSteps(query)
             setState { it.copy(searchPaths = steps) }
         }
     }
 
     fun createIntent(step: Step) {
         viewModelScope.launch {
-            intentStore.createIntent(NewIntent(
+            localIntentRepository.createIntent(NewIntent(
                 rootId = step.id,
                 label = step.label,
                 expectedMins = step.expectedMins,

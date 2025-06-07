@@ -5,6 +5,7 @@ import compose.icons.tablericons.Heart
 import compose.icons.tablericons.Home
 import compose.icons.tablericons.List
 import compose.icons.tablericons.Planet
+import compose.icons.tablericons.Settings
 import compose.icons.tablericons.Walk
 import compose.icons.tablericons.Wind
 import kotlinx.collections.immutable.persistentListOf
@@ -27,6 +28,7 @@ val appConfig = PondConfig(
         RouteConfig(GeminiRoute::matchRoute) { defaultScreen<GeminiRoute> { GeminiScreen() } },
         RouteConfig(JourneyRoute::matchRoute) { defaultScreen<JourneyRoute> { JourneyScreen() }},
         RouteConfig(SpriteRoute::matchRoute) { defaultScreen<SpriteRoute> { SpriteScreen() }},
+        RouteConfig(SettingsRoute::matchRoute) { defaultScreen<SettingsRoute> { SettingsScreen() } }
     ),
     doors = persistentListOf(
         // PortalDoor(TablerIcons.Home, StartRoute),
@@ -34,6 +36,7 @@ val appConfig = PondConfig(
         PortalDoor(TablerIcons.List, PathsRoute()),
         PortalDoor(TablerIcons.Walk, JourneyRoute),
         PortalDoor(TablerIcons.Planet, GeminiRoute),
+        PortalDoor(TablerIcons.Settings, SettingsRoute)
         // PortalDoor(TablerIcons.Wind, SpriteRoute)
     ),
 )

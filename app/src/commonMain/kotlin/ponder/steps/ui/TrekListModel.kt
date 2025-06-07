@@ -2,31 +2,29 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import ponder.steps.io.TrekStore
+import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.TrekItem
 import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 class TrekListModel(
-    private val trekStore: TrekStore = TrekStore()
+    private val localTrekRepository: LocalTrekRepository = LocalTrekRepository()
 ): StateModel<JourneyState>(JourneyState()) {
 
     fun onLoad() {
         viewModelScope.launch {
-            trekStore.readTreksSince(Clock.startOfDay()).collect { treks ->
+            localTrekRepository.flowTreksSince(Clock.startOfDay()).collect { treks ->
                 setState { it.copy(treks = treks) }
             }
         }
         viewModelScope.launch {
             while (true) {
-                trekStore.syncTreksWithIntents()
+                localTrekRepository.syncTreksWithIntents()
                 delay(1.minutes)
             }
         }
@@ -42,25 +40,25 @@ class TrekListModel(
 
     fun completeStep(item: TrekItem) {
         viewModelScope.launch {
-            trekStore.completeStep(item.trekId)
+            localTrekRepository.completeStep(item.trekId)
         }
     }
 
     fun startTrek(item: TrekItem) {
         viewModelScope.launch {
-            trekStore.startTrek(item.trekId)
+            localTrekRepository.startTrek(item.trekId)
         }
     }
 
     fun pauseTrek(item: TrekItem) {
         viewModelScope.launch {
-            trekStore.pauseTrek(item.trekId)
+            localTrekRepository.pauseTrek(item.trekId)
         }
     }
 
     fun stepIntoPath(item: TrekItem) {
         viewModelScope.launch {
-            trekStore.stepIntoPath(item.trekId)
+            localTrekRepository.stepIntoPath(item.trekId)
         }
     }
 }

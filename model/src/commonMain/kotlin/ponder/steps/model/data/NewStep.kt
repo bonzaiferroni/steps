@@ -4,8 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NewStep(
-    val pathId: String?,
     val label: String,
-    val position: Int?,
-    val description: String?
+    val pathId: String? = null,
+    val position: Int? = null,
+    val description: String? = null,
+    val theme: String? = null,
 )

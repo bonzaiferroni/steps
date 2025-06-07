@@ -67,9 +67,11 @@ interface StepDao {
 
     @Query(
         "SELECT * FROM StepEntity " +
-                "WHERE StepEntity.id NOT IN (SELECT stepId FROM PathStepEntity)"
+                "WHERE StepEntity.id NOT IN (SELECT stepId FROM PathStepEntity) " +
+                "ORDER BY updatedAt DESC " +
+                "LIMIT :limit"
     )
-    suspend fun readRootSteps(): List<StepEntity>
+    suspend fun readRootSteps(limit: Int = 20): List<StepEntity>
 
     @Query(
         "SELECT COUNT(*) " +
@@ -84,8 +86,11 @@ interface StepDao {
     )
     suspend fun readPathIdsWithStepId(stepId: String): List<String>
 
-    @Query("SELECT * FROM StepEntity WHERE label LIKE '%' || :text || '%' ")
-    suspend fun searchSteps(text: String): List<StepEntity>
+    @Query("SELECT * FROM StepEntity " +
+            "WHERE label LIKE '%' || :text || '%' " +
+            "ORDER BY updatedAt DESC " +
+            "LIMIT :limit")
+    suspend fun searchSteps(text: String, limit: Int = 20): List<StepEntity>
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
     suspend fun readPathStep(pathId: String, stepId: String): PathStep

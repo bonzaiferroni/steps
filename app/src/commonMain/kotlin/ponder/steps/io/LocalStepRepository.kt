@@ -11,19 +11,18 @@ import ponder.steps.db.StepDao
 import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
 import ponder.steps.model.data.NewStep
-import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.SyncData
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class StepLocalRepository(
+class LocalStepRepository(
     private val dao: StepDao = appDb.getStepDao(),
     private val userId: String = appUserId
 ) : StepRepository {
 
     override suspend fun createStep(newStep: NewStep): String {
-        val (pathId, label, position) = newStep
+        val (label, pathId, position) = newStep
         val stepId = Uuid.random().toString()
         dao.insert(
             StepEntity.Empty.copy(

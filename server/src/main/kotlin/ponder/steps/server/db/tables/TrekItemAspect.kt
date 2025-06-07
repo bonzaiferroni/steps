@@ -16,6 +16,8 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val stepPathSize = add(StepTable.pathSize)
     val stepIndex = add(TrekTable.stepIndex)
     val stepCount = add(TrekTable.stepCount)
+    val stepImgUrl = add(StepTable.imgUrl)
+    val stepThumbUrl = add(StepTable.thumbUrl)
     val intentLabel = add(IntentTable.label)
     val expectedMinutes = add(IntentTable.expectedMins)
     val availableAt = add(TrekTable.availableAt)
@@ -29,6 +31,8 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     stepPathSize = this[TrekItemAspect.stepPathSize],
     stepIndex = this[TrekItemAspect.stepIndex],
     stepCount = this[TrekItemAspect.stepCount],
+    stepImgUrl = this[TrekItemAspect.stepImgUrl],
+    stepThumbUrl = this[TrekItemAspect.stepThumbUrl],
     intentLabel = this[TrekItemAspect.intentLabel],
     expectedMinutes = this[TrekItemAspect.expectedMinutes],
     availableAt = this[TrekItemAspect.availableAt].toInstantUtc(),

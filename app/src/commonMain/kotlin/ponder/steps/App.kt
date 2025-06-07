@@ -4,9 +4,9 @@ import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
 import ponder.steps.io.DataSync
-import ponder.steps.io.StepLocalRepository
+import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepServerRepository
-import pondui.KeyStore
+import pondui.LocalValueRepository
 import pondui.io.LocalUserContext
 
 import pondui.io.ProvideUserContext
@@ -24,14 +24,14 @@ fun App(
     ProvideTheme {
         ProvideUserContext {
             val keyStore = remember {
-                val keyStore = KeyStore()
-                _appUserId = keyStore.readStringOrNull("userId") ?: _appUserId
-                keyStore
+                val settingsValueRepository = LocalValueRepository()
+                _appUserId = settingsValueRepository.readStringOrNull("userId") ?: _appUserId
+                settingsValueRepository
             }
             val scope = rememberCoroutineScope()
             remember {
                 val sync = DataSync(
-                    leftRepo = StepLocalRepository(),
+                    leftRepo = LocalStepRepository(),
                     rightRepo = StepServerRepository(),
                     lastSyncAt = keyStore.readInstant("lastUpdatedAt"),
                     onSync = { keyStore.writeInstant("lastUpdatedAt", it) }
