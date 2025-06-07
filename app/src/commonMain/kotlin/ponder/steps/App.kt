@@ -23,27 +23,16 @@ fun App(
 ) {
     ProvideTheme {
         ProvideUserContext {
-            val keyStore = remember {
-                val settingsValueRepository = LocalValueRepository()
-                _appUserId = settingsValueRepository.readStringOrNull("userId") ?: _appUserId
-                settingsValueRepository
-            }
             val scope = rememberCoroutineScope()
             remember {
+                val valueRepo = LocalValueRepository()
                 val sync = DataMerger(
                     leftRepo = LocalStepRepository(),
                     rightRepo = StepServerRepository(),
-                    lastSyncAt = keyStore.readInstant("lastUpdatedAt"),
-                    onSync = { keyStore.writeInstant("lastUpdatedAt", it) }
+                    lastSyncAt = valueRepo.readInstant("lastUpdatedAt"),
+                    onSync = { valueRepo.writeInstant("lastUpdatedAt", it) }
                 )
                 sync.init(scope)
-            }
-            val userContextState by LocalUserContext.collectState()
-            LaunchedEffect(userContextState) {
-                userContextState.user?.let {
-                    _appUserId = it.id
-                    keyStore.writeString("userId", it.id)
-                }
             }
 
             PondApp(
@@ -58,5 +47,4 @@ fun App(
 var _db: AppDatabase? = null
 val appDb: AppDatabase get() = _db ?: error("You must initialize the database")
 
-var _appUserId = "wombat7"
-val appUserId get() = _appUserId
+val appUserId = "wombat7"

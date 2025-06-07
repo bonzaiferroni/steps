@@ -49,7 +49,7 @@ class TodoModel(
     fun setNewStepLabel(value: String) {
         setState { it.copy(newStepLabel = value) }
         viewModelScope.launch {
-            val searchedSteps = value.takeIf { it.isNotEmpty() }?.let { stepRepo.searchSteps(it) }
+            val searchedSteps = value.takeIf { it.isNotEmpty() }?.let { stepRepo.readSearch(it) }
                 ?: stepRepo.readRootSteps()
             setState { it.copy(searchedSteps = searchedSteps) }
         }

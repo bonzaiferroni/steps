@@ -1,8 +1,8 @@
 package ponder.steps.io
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.NewStep
-import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.SyncData
 
@@ -71,6 +71,14 @@ interface StepRepository {
     suspend fun readStep(stepId: String): Step?
 
     /**
+     * Flow a step by id
+     *
+     * @param stepId The id of the Step to flow
+     * @return A Flow that emits the Step with the given id, or null if not found
+     */
+    fun flowStep(stepId: String): Flow<Step>
+
+    /**
      * Read the child steps associated with a path. A path is also a step that has associated children.
      *
      * @param pathId The id of the parent step
@@ -79,19 +87,42 @@ interface StepRepository {
     suspend fun readPathSteps(pathId: String): List<Step>
 
     /**
+     * Flow the child steps associated with a path.
+     *
+     * @param pathId The id of the parent step
+     * @return A Flow that emits a list of child Steps associated with the given path id
+     */
+    fun flowPathSteps(pathId: String): Flow<List<Step>>
+
+    /**
      * Read the root steps, which are steps that do not have a parent path.
      *
      * @return The root Steps, empty if none are found
      */
-    suspend fun readRootSteps(): List<Step>
+    suspend fun readRootSteps(limit: Int = 20): List<Step>
+
+    /**
+     * Flow the root steps, which are steps that do not have a parent path.
+     *
+     * @return A Flow that emits a list of root Steps
+     */
+    fun flowRootSteps(limit: Int = 20): Flow<List<Step>>
 
     /**
      * Search for steps by text.
      *
-     * @param text The text to search for in step labels and descriptions
+     * @param text The text to search for in step labels
      * @return A list of Steps that match the search criteria
      */
-    suspend fun searchSteps(text: String): List<Step>
+    suspend fun readSearch(text: String, limit: Int = 20): List<Step>
+
+    /**
+     * Flow step search results by text.
+     *
+     * @param text The text to search for in step labels
+     * @return A Flow that emits a list of Steps that match the search criteria
+     */
+    fun flowSearch(text: String, limit: Int =20): Flow<List<Step>>
 
     /**
      * Synchronize steps with the server.

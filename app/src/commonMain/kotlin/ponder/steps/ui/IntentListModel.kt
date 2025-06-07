@@ -37,7 +37,7 @@ class IntentListModel(
 
     private fun searchPaths(query: String) {
         viewModelScope.launch {
-            val steps = localStepRepository.searchSteps(query)
+            val steps = localStepRepository.readSearch(query)
             setState { it.copy(searchPaths = steps) }
         }
     }

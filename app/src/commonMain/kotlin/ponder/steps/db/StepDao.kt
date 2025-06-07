@@ -9,6 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.Step
 
 @Dao
 interface StepDao {
@@ -40,6 +41,9 @@ interface StepDao {
     @Query("SELECT * FROM StepEntity WHERE id = :stepId")
     suspend fun readStepOrNull(stepId: String): StepEntity?
 
+    @Query("SELECT * FROM StepEntity WHERE id = :stepId")
+    fun flowStep(stepId: String): Flow<StepEntity>
+
     suspend fun readStep(stepId: String) = readStepOrNull(stepId) ?: error("stepId missing: $stepId")
 
 //    @Query(
@@ -49,20 +53,28 @@ interface StepDao {
 //    )
 //    suspend fun readPath(pathId: String): Map<StepEntity, List<PathStepEntity>>
 
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         "SELECT * FROM PathStepEntity " +
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
-    @RewriteQueriesToDropUnusedColumns
     suspend fun readPathSteps(pathId: String): List<StepJoin>
 
+    @RewriteQueriesToDropUnusedColumns
     @Query(
         "SELECT * FROM PathStepEntity " +
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
+    fun flowPathSteps(pathId: String): Flow<List<StepJoin>>
+
     @RewriteQueriesToDropUnusedColumns
+    @Query(
+        "SELECT * FROM PathStepEntity " +
+                "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
+                "WHERE PathStepEntity.pathId = :pathId"
+    )
     fun readPathStepsFlow(pathId: String): Flow<List<StepJoin>>
 
     @Query(
@@ -72,6 +84,14 @@ interface StepDao {
                 "LIMIT :limit"
     )
     suspend fun readRootSteps(limit: Int = 20): List<StepEntity>
+
+    @Query(
+        "SELECT * FROM StepEntity " +
+                "WHERE StepEntity.id NOT IN (SELECT stepId FROM PathStepEntity) " +
+                "ORDER BY updatedAt DESC " +
+                "LIMIT :limit"
+    )
+    fun flowRootSteps(limit: Int = 20): Flow<List<StepEntity>>
 
     @Query(
         "SELECT COUNT(*) " +
@@ -91,6 +111,12 @@ interface StepDao {
             "ORDER BY updatedAt DESC " +
             "LIMIT :limit")
     suspend fun searchSteps(text: String, limit: Int = 20): List<StepEntity>
+
+    @Query("SELECT * FROM StepEntity " +
+            "WHERE label LIKE '%' || :text || '%' " +
+            "ORDER BY updatedAt DESC " +
+            "LIMIT :limit")
+    fun flowSearch(text: String, limit: Int = 20): Flow<List<StepEntity>>
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
     suspend fun readPathStep(pathId: String, stepId: String): PathStep

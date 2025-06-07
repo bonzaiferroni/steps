@@ -25,14 +25,15 @@ class StepProfileModel(
     private val stepId: String = route.stepId
 
     init {
-        refreshProfile()
-    }
-
-    fun refreshProfile() {
         viewModelScope.launch {
-            val refreshedStep = stepRepo.readStep(stepId) ?: return@launch
-            val steps = stepRepo.readPathSteps(stepId).sortedBy { it.position }
-            setState { it.copy(steps = steps, step = refreshedStep) }
+            stepRepo.flowStep(stepId).collect { step ->
+                setState { it.copy(step = step) }
+            }
+        }
+        viewModelScope.launch {
+            stepRepo.flowPathSteps(stepId).collect { steps ->
+                setState { it.copy(steps = steps) }
+            }
         }
     }
 
@@ -46,7 +47,7 @@ class StepProfileModel(
     fun setNewStepLabel(label: String) {
         setState { it.copy(newStepLabel = label) }
         viewModelScope.launch {
-            val similarSteps = stepRepo.searchSteps(label)
+            val similarSteps = stepRepo.readSearch(label)
             setState { it.copy(similarSteps = similarSteps) }
         }
     }
@@ -64,7 +65,6 @@ class StepProfileModel(
         val position = step.position ?: return
         viewModelScope.launch {
             stepRepo.removeStepFromPath(path.id, step.id, position)
-            refreshProfile()
         }
     }
 
@@ -72,7 +72,6 @@ class StepProfileModel(
         val path = stateNow.step ?: return
         viewModelScope.launch {
             stepRepo.moveStepPosition(path.id, step.id, delta)
-            refreshProfile()
         }
     }
 
@@ -104,12 +103,10 @@ class StepProfileModel(
                     val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
                     val url = aiClient.generateImage(step, path, defaultTheme)
                     stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
-                    refreshProfile()
                 }
             }
         }
         setState { it.copy(step = path.copy(pathSize = path.pathSize + 1),) }
-        refreshProfile()
     }
 
     fun addSimilarStep(step: Step) {
@@ -122,7 +119,6 @@ class StepProfileModel(
                 step = path.copy(pathSize = step.pathSize + 1),
                 similarSteps = emptyList()
             ) }
-            refreshProfile()
         }
     }
 
@@ -133,7 +129,6 @@ class StepProfileModel(
             val url = aiClient.generateImage(step, path, defaultTheme)
             val updatedStep = step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl)
             stepRepo.updateStep(updatedStep)
-            refreshProfile()
         }
     }
 

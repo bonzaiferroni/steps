@@ -1,30 +1,42 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ponder.steps.io.LocalStepRepository
+import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
 class PathsModel(
-    val localStepRepository: LocalStepRepository = LocalStepRepository()
+    val stepRepo: StepRepository = LocalStepRepository()
 ): StateModel<StepListState>(StepListState()) {
 
+    private var flowJob: Job? = null
+
     init {
-        viewModelScope.launch {
-            val steps = localStepRepository.readRootSteps()
-            setState { it.copy(steps = steps) }
+        refreshStepFlow()
+    }
+
+    fun refreshStepFlow() {
+        flowJob?.cancel()
+        flowJob = viewModelScope.launch {
+            if (stateNow.searchText.isNotEmpty()) {
+                stepRepo.flowSearch(stateNow.searchText).collect { steps ->
+                    setState { it.copy(steps = steps) }
+                }
+            } else {
+                stepRepo.flowRootSteps().collect { steps ->
+                    setState { it.copy(steps = steps) }
+                }
+            }
         }
     }
 
     fun setSearchText(text: String) {
         setState { it.copy(searchText = text, newStepLabel = text) }
-        viewModelScope.launch {
-            val steps = text.takeIf { it.isNotBlank() }?.let { localStepRepository.searchSteps(text) }
-                ?: localStepRepository.readRootSteps()
-            setState { it.copy(steps = steps) }
-        }
+        refreshStepFlow()
     }
 
     fun toggleAddingStep() {
@@ -38,13 +50,13 @@ class PathsModel(
     fun createStep(onNewStepId: (String) -> Unit) {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            val id = localStepRepository.createStep(NewStep(
+            val id = stepRepo.createStep(NewStep(
                 pathId = null,
                 label = stateNow.newStepLabel,
                 position = null,
                 description = null,
             ))
-            val steps = localStepRepository.readRootSteps()
+            val steps = stepRepo.readRootSteps()
             setState { it.copy(isAddingStep = false, newStepLabel = "", steps = steps) }
             onNewStepId(id)
         }

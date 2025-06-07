@@ -1,5 +1,6 @@
 package ponder.steps.io
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.Api
@@ -31,12 +32,29 @@ class StepServerRepository(private val client: ApiClient = globalApiClient): Ste
     override suspend fun deleteStep(stepId: String) = client.delete(Api.Steps.Delete, stepId)
 
     override suspend fun readStep(stepId: String) = client.get(Api.Steps, stepId)
+    override fun flowStep(stepId: String): Flow<Step> {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun readPathSteps(pathId: String) = client.get(Api.Steps.Children, pathId)
+    override fun flowPathSteps(pathId: String): Flow<List<Step>> {
+        TODO("Not yet implemented")
+    }
 
-    override suspend fun readRootSteps() = client.get(Api.Steps.Root)
+    override suspend fun readRootSteps(limit: Int) = client.get(Api.Steps.Root)
 
-    override suspend fun searchSteps(query: String) = client.get(Api.Steps.Search, Api.Steps.Search.query.write(query))
+    override fun flowRootSteps(limit: Int): Flow<List<Step>> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun readSearch(text: String, limit: Int) = client.get(Api.Steps.Search, Api.Steps.Search.query.write(text))
+
+    override fun flowSearch(
+        text: String,
+        limit: Int
+    ): Flow<List<Step>> {
+        TODO("Not yet implemented")
+    }
 
     override suspend fun readSync(lastSyncAt: Instant) = client.post(Api.Steps.ReadSync, lastSyncAt)
 

@@ -3,6 +3,8 @@
 package ponder.steps.io
 
 import kabinet.utils.randomUuidStringId
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
@@ -25,7 +27,6 @@ class LocalStepRepository(
     override suspend fun createStep(newStep: NewStep): String {
         val (label, pathId, position) = newStep
         val stepId = randomUuidStringId()
-        println(stepId)
         dao.insert(
             StepEntity.Empty.copy(
                 id = stepId,
@@ -92,9 +93,15 @@ class LocalStepRepository(
 
     override suspend fun readStep(stepId: String) = dao.readStepOrNull(stepId)?.toStep()
 
+    override fun flowStep(stepId: String) = dao.flowStep(stepId).map { it.toStep() }
+
     override suspend fun readPathSteps(pathId: String) = dao.readPathSteps(pathId = pathId).map { it.toStep() }
 
-    override suspend fun readRootSteps() = dao.readRootSteps().map { it.toStep() }
+    override fun flowPathSteps(pathId: String) = dao.flowPathSteps(pathId).map { list -> list.map { it.toStep() } }
+
+    override suspend fun readRootSteps(limit: Int) = dao.readRootSteps(limit).map { it.toStep() }
+
+    override fun flowRootSteps(limit: Int) = dao.flowRootSteps(limit).map { list -> list.map { it.toStep() } }
 
     override suspend fun moveStepPosition(pathId: String, stepId: String, delta: Int): Boolean {
         if (delta == 0) return false
@@ -120,7 +127,9 @@ class LocalStepRepository(
         ) == 2
     }
 
-    override suspend fun searchSteps(text: String) = dao.searchSteps(text).map { it.toStep() }
+    override suspend fun readSearch(text: String, limit: Int) = dao.searchSteps(text, limit).map { it.toStep() }
+
+    override fun flowSearch(text: String, limit: Int) = dao.flowSearch(text, limit).map { list -> list.map { it.toStep() } }
 
     override suspend fun readSync(lastSyncAt: Instant): SyncData {
         val steps = dao.readStepsUpdatedAfter(lastSyncAt).map { it.toStep() }
