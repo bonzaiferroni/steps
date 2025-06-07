@@ -2,6 +2,7 @@
 
 package ponder.steps.io
 
+import kabinet.utils.randomUuidStringId
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
@@ -23,7 +24,8 @@ class LocalStepRepository(
 
     override suspend fun createStep(newStep: NewStep): String {
         val (label, pathId, position) = newStep
-        val stepId = Uuid.random().toString()
+        val stepId = randomUuidStringId()
+        println(stepId)
         dao.insert(
             StepEntity.Empty.copy(
                 id = stepId,
@@ -60,7 +62,7 @@ class LocalStepRepository(
     private suspend fun addVerifiedStepToPath(pathId: String, stepId: String, position: Int?) {
         val pathPosition = position ?: dao.readFinalPosition(pathId)?.let { it + 1 } ?: 0
 
-        val pathStepId = Uuid.random().toString()
+        val pathStepId = randomUuidStringId()
         dao.insert(
             PathStepEntity(
                 id = pathStepId,

@@ -18,21 +18,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Plus
-import ponder.steps.PathsRoute
+import ponder.steps.StepProfileRoute
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
+import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 
 @Composable
-fun PathsScreen(
-    route: PathsRoute
-) {
-    val viewModel: PathsModel = viewModel { PathsModel(route.pathId) }
+fun PathsScreen() {
+    val viewModel: PathsModel = viewModel { PathsModel() }
     val state by viewModel.state.collectAsState()
+    val nav = LocalNav.current
 
     HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)
 
@@ -43,55 +43,29 @@ fun PathsScreen(
                 onTextChange = viewModel::setNewStepLabel,
                 placeholder = "Enter step name",
                 modifier = Modifier.takeInitialFocus()
-                    .onEnterPressed(viewModel::createStep)
+                    .onEnterPressed { viewModel.createStep { nav.go(StepProfileRoute(it)) }}
             )
-            ControlSetButton("Add", onClick = viewModel::createStep)
+            ControlSetButton("Add") { viewModel.createStep { nav.go(StepProfileRoute(it)) }}
         }
     }
 
     Scaffold {
         Column(1) {
             Row(1) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(-Pond.ruler.unitSpacing),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (state.step != null) {
-                        Button(TablerIcons.ArrowUp) { viewModel.navigateTop() }
-                    }
-                    for (step in state.breadCrumbs) {
-                        StepImage(
-                            step.thumbUrl,
-                            modifier = Modifier.height(40.dp)
-                                .clip(CircleShape)
-                                .actionable { viewModel.navigateCrumb(step) }
-                        )
-                    }
-                }
                 Expando()
                 TextField(state.searchText, viewModel::setSearchText)
                 Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
             }
-            Box {
-                val step = state.step
-                Magic(step == null) {
-                    LazyColumn(0) {
-                        itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
-                            StepItem(
-                                step = step,
-                                modifier = Modifier.actionable { viewModel.navigateForward(step) }
-                                    .fillMaxWidth()
-                                    .padding(Pond.ruler.unitPadding)
-                                    .animateItem()
-                                    .magic(offsetX = index * 10, durationMillis = 500),
-                            )
-                        }
-                    }
-                }
-
-                if (step == null) return@Box
-                Magic {
-                    StepProfileView(step, viewModel::navigateForward)
+            LazyColumn(0) {
+                itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
+                    StepItem(
+                        step = step,
+                        modifier = Modifier.actionable { nav.go(StepProfileRoute(step.id)) }
+                            .fillMaxWidth()
+                            .padding(Pond.ruler.unitPadding)
+                            .animateItem()
+                            .magic(offsetX = index * 10, durationMillis = 500),
+                    )
                 }
             }
         }

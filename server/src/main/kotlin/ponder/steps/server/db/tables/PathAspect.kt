@@ -2,6 +2,7 @@ package ponder.steps.server.db.tables
 
 import kabinet.utils.toInstantUtc
 import klutch.db.Aspect
+import klutch.utils.toStringId
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.Step
@@ -29,9 +30,9 @@ object PathAspect: Aspect<PathAspect, Step>(
 }
 
 fun ResultRow.toStep() = Step(
-    id = this[PathAspect.stepId].value.toString(),
-    userId = this[PathAspect.userId].value.toString(),
-    pathId = this.getOrNull(PathAspect.pathId)?.value.toString(),
+    id = this[PathAspect.stepId].value.toStringId(),
+    userId = this[PathAspect.userId].value.toStringId(),
+    pathId = this.getOrNull(PathAspect.pathId)?.value?.toStringId(),
     label = this[PathAspect.label],
     description = this[PathAspect.description],
     theme = this[PathAspect.theme],

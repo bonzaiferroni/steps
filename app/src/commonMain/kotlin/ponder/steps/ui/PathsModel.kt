@@ -8,24 +8,18 @@ import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
 
 class PathsModel(
-    initialStepId: String?,
     val localStepRepository: LocalStepRepository = LocalStepRepository()
 ): StateModel<StepListState>(StepListState()) {
 
     init {
         viewModelScope.launch {
-            if (initialStepId != null) {
-                val step = localStepRepository.readStep(initialStepId)
-                setState { it.copy(step = step) }
-            } else {
-                val steps = localStepRepository.readRootSteps()
-                setState { it.copy(steps = steps) }
-            }
+            val steps = localStepRepository.readRootSteps()
+            setState { it.copy(steps = steps) }
         }
     }
 
     fun setSearchText(text: String) {
-        setState { it.copy(searchText = text, breadCrumbs = emptyList(), step = null, newStepLabel = text) }
+        setState { it.copy(searchText = text, newStepLabel = text) }
         viewModelScope.launch {
             val steps = text.takeIf { it.isNotBlank() }?.let { localStepRepository.searchSteps(text) }
                 ?: localStepRepository.readRootSteps()
@@ -41,26 +35,7 @@ class PathsModel(
         setState { it.copy(newStepLabel = label) }
     }
 
-    fun navigateForward(step: Step) {
-        val breadCrumbs = stateNow.step?.let { stateNow.breadCrumbs + it } ?: emptyList()
-        setState { it.copy(step = step, breadCrumbs = breadCrumbs)}
-    }
-
-    fun navigateCrumb(step: Step?) {
-        val breadCrumbsNow = stateNow.breadCrumbs
-        val breadCrumbs = step?.let { breadCrumbsNow.subList(0, breadCrumbsNow.indexOf(step))  } ?: emptyList()
-        setState { it.copy(step = step, breadCrumbs = breadCrumbs) }
-    }
-
-    fun navigateTop() {
-        setState { it.copy(breadCrumbs = emptyList(), step = null) }
-        viewModelScope.launch {
-            val steps = localStepRepository.readRootSteps()
-            setState { it.copy(steps = steps) }
-        }
-    }
-
-    fun createStep() {
+    fun createStep(onNewStepId: (String) -> Unit) {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
             val id = localStepRepository.createStep(NewStep(
@@ -69,20 +44,18 @@ class PathsModel(
                 position = null,
                 description = null,
             ))
-            val step = localStepRepository.readStep(id)
             val steps = localStepRepository.readRootSteps()
-            setState { it.copy(isAddingStep = false, newStepLabel = "", step = step, steps = steps) }
+            setState { it.copy(isAddingStep = false, newStepLabel = "", steps = steps) }
+            onNewStepId(id)
         }
     }
 }
 
 data class StepListState(
-    val step: Step? = null,
     val steps: List<Step> = emptyList(),
     val searchText: String = "",
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
-    val breadCrumbs: List<Step> = emptyList()
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
 }

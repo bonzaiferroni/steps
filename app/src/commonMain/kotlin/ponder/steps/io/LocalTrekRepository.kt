@@ -1,6 +1,6 @@
 package ponder.steps.io
 
-import kabinet.utils.randomUuidString
+import kabinet.utils.randomUuidStringId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
@@ -59,7 +59,7 @@ class LocalTrekRepository(
             val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
 
             val (stepId, breadCrumbs) = stepIn(intent.rootId, emptyList(), intent.pathIds)
-            val id = randomUuidString()
+            val id = randomUuidStringId()
             val stepCount = stepDao.readTotalStepCount(intent.pathIds).takeIf { it > 0 } ?: 1
 
             trekDao.create(TrekEntity(

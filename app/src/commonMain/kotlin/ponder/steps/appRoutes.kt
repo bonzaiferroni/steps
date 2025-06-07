@@ -17,10 +17,13 @@ object HelloRoute : AppRoute("Hello")
 object ExampleListRoute : AppRoute("Examples")
 
 @Serializable
-data class PathsRoute(val pathId: String? = null) : IdRoute<String>(TITLE, pathId) {
+object PathsRoute : AppRoute("Paths")
+
+@Serializable
+data class StepProfileRoute(val stepId: String) : IdRoute<String>(TITLE, stepId) {
     companion object {
-        const val TITLE = "Paths"
-        fun matchRoute(path: String) = matchStringOrNullIdRoute(path, TITLE) { PathsRoute(it) }
+        const val TITLE = "Steps"
+        fun matchRoute(path: String) = matchStringIdRoute(path, TITLE) { StepProfileRoute(it) }
     }
 }
 

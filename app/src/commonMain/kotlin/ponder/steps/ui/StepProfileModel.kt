@@ -3,6 +3,7 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepRepository
@@ -15,23 +16,24 @@ import pondui.ValueRepository
 import pondui.ui.core.StateModel
 
 class StepProfileModel(
+    route: StepProfileRoute,
     val stepRepo: StepRepository = LocalStepRepository(),
     val aiClient: AiClient = AiClient(),
-    val valueRepo: ValueRepository = LocalValueRepository()
+    val valueRepo: ValueRepository = LocalValueRepository(),
 ): StateModel<StepProfileState>(StepProfileState()) {
 
-    fun refreshProfile() {
-        val step = stateNow.step ?: return
-        viewModelScope.launch {
-            val refreshedStep = stepRepo.readStep(step.id)
-            val steps = stepRepo.readPathSteps(step.id).sortedBy { it.position }
-            setState { it.copy(steps = steps, step = refreshedStep) }
-        }
+    private val stepId: String = route.stepId
+
+    init {
+        refreshProfile()
     }
 
-    fun setStep(step: Step) {
-        setState { it.copy(step = step, suggestions = emptyList(), selectedStepId = null) }
-        refreshProfile()
+    fun refreshProfile() {
+        viewModelScope.launch {
+            val refreshedStep = stepRepo.readStep(stepId) ?: return@launch
+            val steps = stepRepo.readPathSteps(stepId).sortedBy { it.position }
+            setState { it.copy(steps = steps, step = refreshedStep) }
+        }
     }
 
     fun editStep(step: Step) {
@@ -99,7 +101,8 @@ class StepProfileModel(
             viewModelScope.launch(Dispatchers.IO) {
                 val step = stepRepo.readStep(stepId)
                 if (step != null) {
-                    val url = aiClient.generateImage(step, path)
+                    val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
+                    val url = aiClient.generateImage(step, path, defaultTheme)
                     stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
                     refreshProfile()
                 }
@@ -126,12 +129,10 @@ class StepProfileModel(
     fun generateImage(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            val url = aiClient.generateImage(step, path)
+            val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
+            val url = aiClient.generateImage(step, path, defaultTheme)
             val updatedStep = step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl)
             stepRepo.updateStep(updatedStep)
-            if (stateNow.cloudStep?.id == updatedStep.id) {
-                setState { it.copy(cloudStep = updatedStep) }
-            }
             refreshProfile()
         }
     }
@@ -156,16 +157,11 @@ class StepProfileModel(
             setState { it.copy(suggestions = suggestions) }
         }
     }
-
-    fun setCloudStep(step: Step?) {
-        setState { it.copy(cloudStep = step) }
-    }
 }
 
 data class StepProfileState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
-    val cloudStep: Step? = null,
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,

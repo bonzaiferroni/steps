@@ -1,6 +1,7 @@
 package ponder.steps.server.db.tables
 
 import klutch.db.tables.UserTable
+import klutch.utils.toStringId
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -13,6 +14,6 @@ internal object ExampleTable : LongIdTable("example") {
 
 internal fun ResultRow.toExample() = Example(
     id = this[ExampleTable.id].value,
-    userId = this[ExampleTable.userId].value.toString(),
+    userId = this[ExampleTable.userId].value.toStringId(),
     label = this[ExampleTable.label],
 )

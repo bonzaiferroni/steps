@@ -1,5 +1,6 @@
 package ponder.steps.server.db.tables
 
+import klutch.utils.toStringId
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -18,8 +19,8 @@ object PathStepTable: UUIDTable("step_position") {
 }
 
 fun ResultRow.toPathStep() = PathStep(
-    id = this[PathStepTable.id].value.toString(),
-    stepId = this[PathStepTable.stepId].value.toString(),
-    pathId = this[PathStepTable.pathId].value.toString(),
+    id = this[PathStepTable.id].value.toStringId(),
+    stepId = this[PathStepTable.stepId].value.toStringId(),
+    pathId = this[PathStepTable.pathId].value.toStringId(),
     position = this[PathStepTable.position]
 )

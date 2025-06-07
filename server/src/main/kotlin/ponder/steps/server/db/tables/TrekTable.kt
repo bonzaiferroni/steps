@@ -2,6 +2,7 @@ package ponder.steps.server.db.tables
 
 import kabinet.utils.toInstantUtc
 import klutch.db.tables.UserTable
+import klutch.utils.toStringId
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -25,11 +26,11 @@ internal object TrekTable : UUIDTable("trek") {
 }
 
 fun ResultRow.toTrek() = Trek(
-    id = this[TrekTable.id].value.toString(),
-    userId = this[TrekTable.userId].value.toString(),
-    rootId = this[TrekTable.rootId].value.toString(),
-    intentId = this[TrekTable.intentId].value.toString(),
-    stepId = this[TrekTable.stepId].value.toString(),
+    id = this[TrekTable.id].value.toStringId(),
+    userId = this[TrekTable.userId].value.toStringId(),
+    rootId = this[TrekTable.rootId].value.toStringId(),
+    intentId = this[TrekTable.intentId].value.toStringId(),
+    stepId = this[TrekTable.stepId].value.toStringId(),
     stepIndex = this[TrekTable.stepIndex],
     stepCount = this[TrekTable.stepCount],
     pathIds = this[TrekTable.pathIds].toList(),

@@ -2,6 +2,7 @@ package ponder.steps.server.db.tables
 
 import kabinet.utils.toInstantUtc
 import klutch.db.tables.UserTable
+import klutch.utils.toStringId
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -22,9 +23,9 @@ internal object IntentTable: UUIDTable("intent") {
 }
 
 fun ResultRow.toIntent() = Intent(
-    id = this[IntentTable.id].value.toString(),
-    userId = this[IntentTable.userId].value.toString(),
-    rootId = this[IntentTable.rootId].value.toString(),
+    id = this[IntentTable.id].value.toStringId(),
+    userId = this[IntentTable.userId].value.toStringId(),
+    rootId = this[IntentTable.rootId].value.toStringId(),
     label = this[IntentTable.label],
     repeatMins = this[IntentTable.repeatMins],
     expectedMins = this[IntentTable.expectedMins],

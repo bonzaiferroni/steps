@@ -10,7 +10,8 @@ import klutch.db.readSingleOrNull
 import klutch.db.readValue
 import klutch.db.updateById
 import klutch.utils.eq
-import klutch.utils.toUUID
+import klutch.utils.fromStringId
+import klutch.utils.toStringId
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -65,9 +66,9 @@ class JourneyService: DbService() {
             }
         }
 
-        TrekTable.updateById(trekId.toUUID()) {
+        TrekTable.updateById(trekId.fromStringId()) {
             it[this.breadCrumbs] = trek.breadCrumbs
-            it[this.stepId] = trek.stepId.toUUID()
+            it[this.stepId] = trek.stepId.fromStringId()
             it[this.stepIndex] = trek.stepIndex + 1
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
             it[this.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
@@ -83,9 +84,9 @@ class JourneyService: DbService() {
         val pathIds = trek.pathIds + trek.stepId
         val (stepId, breadCrumbs) = stepIn(trek.stepId, trek.breadCrumbs, pathIds)
 
-        TrekTable.updateById(trekId.toUUID()) {
+        TrekTable.updateById(trekId.fromStringId()) {
             it[this.breadCrumbs] = breadCrumbs
-            it[this.stepId] = stepId.toUUID()
+            it[this.stepId] = stepId.fromStringId()
             it[this.pathIds] = pathIds
             it[this.stepCount] = readStepCount(pathIds)
         } == 1
@@ -100,7 +101,7 @@ fun stepIn(stepId: String, providedBreadCrumbs: List<String>, pathIds: List<Stri
         breadCrumbs = breadCrumbs + nextStepId
         nextStepId = PathStepTable.select(PathStepTable.stepId)
             .where { PathStepTable.pathId.eq(nextStepId) and PathStepTable.position.eq(0) }
-            .firstOrNull()?.let { it[PathStepTable.stepId].value.toString() }
+            .firstOrNull()?.let { it[PathStepTable.stepId].value.toStringId() }
             ?: error("pathId has no initial step: $nextStepId")
     }
     return nextStepId to breadCrumbs
@@ -115,7 +116,7 @@ fun stepOut(providedBreadCrumbs: List<String>): Pair<String?, List<String>> {
     while (breadCrumbs.isNotEmpty()) {
         val position = PathStepTable.readSingle { it.pathId.eq(breadCrumbs.last()) and it.stepId.eq(stepId) }[PathStepTable.position]
         nextStepId = PathStepTable.readSingleOrNull { it.pathId.eq(breadCrumbs.last()) and it.position.eq(position + 1) }
-            ?.let { it[PathStepTable.stepId].value.toString() }
+            ?.let { it[PathStepTable.stepId].value.toStringId() }
         if (nextStepId != null) break
         stepId = breadCrumbs.last()
         breadCrumbs = breadCrumbs - stepId

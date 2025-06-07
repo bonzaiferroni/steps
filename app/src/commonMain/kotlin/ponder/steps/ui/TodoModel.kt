@@ -59,12 +59,12 @@ class TodoModel(
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
             val stepId = stepRepo.createStep(NewStep(stateNow.newStepLabel))
-            val theme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
-            if (theme.isNotEmpty()) {
+            val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
+            if (defaultTheme.isNotEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
                     val step = stepRepo.readStep(stepId)
                         ?: error("unable to read step for image creation: ${stateNow.newStepLabel}")
-                    val url = aiClient.generateImage(step, null, theme)
+                    val url = aiClient.generateImage(step, null, defaultTheme)
                     stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
                 }
             }

@@ -3,6 +3,7 @@ package ponder.steps.server.db.services
 import klutch.db.DbService
 import klutch.db.read
 import klutch.utils.eq
+import klutch.utils.fromStringId
 import klutch.utils.toUUID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
@@ -26,7 +27,7 @@ class ExampleApiService : DbService() {
 
     suspend fun createExample(userId: String, newExample: NewExample) = dbQuery {
         ExampleTable.insertAndGetId {
-            it[this.userId] = userId.toUUID()
+            it[this.userId] = userId.fromStringId()
             it[this.label] = newExample.label
         }.value
     }

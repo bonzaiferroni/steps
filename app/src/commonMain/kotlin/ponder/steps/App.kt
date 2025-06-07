@@ -3,7 +3,7 @@ package ponder.steps
 import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
-import ponder.steps.io.DataSync
+import ponder.steps.io.DataMerger
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepServerRepository
 import pondui.LocalValueRepository
@@ -30,7 +30,7 @@ fun App(
             }
             val scope = rememberCoroutineScope()
             remember {
-                val sync = DataSync(
+                val sync = DataMerger(
                     leftRepo = LocalStepRepository(),
                     rightRepo = StepServerRepository(),
                     lastSyncAt = keyStore.readInstant("lastUpdatedAt"),

@@ -9,14 +9,14 @@ import pondui.io.globalApiClient
 
 class AiClient(private val client: ApiClient = globalApiClient) {
     suspend fun generateImage(stepId: String) = client.get(Api.Steps.GenerateImageV1, stepId)
-    suspend fun generateImage(step: Step, path: Step?, theme: String? = (step.theme ?: path?.theme)) = client.post(
+    suspend fun generateImage(step: Step, path: Step?, defaultTheme: String?) = client.post(
         endpoint = Api.Steps.GenerateImageV2,
         value = StepImageRequest(
             stepLabel = step.label,
             stepDescription = step.description,
             pathLabel = path?.label,
             pathDescription = path?.description,
-            theme = theme
+            theme = step.theme ?: path?.theme ?: defaultTheme?.takeIf { it.isNotEmpty() }
         )
     )
 

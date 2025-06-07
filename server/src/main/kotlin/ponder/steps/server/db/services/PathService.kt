@@ -8,9 +8,10 @@ import klutch.db.read
 import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.utils.eq
+import klutch.utils.fromStringId
 import klutch.utils.greater
 import klutch.utils.less
-import klutch.utils.toUUID
+import klutch.utils.toStringId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.and
@@ -50,7 +51,7 @@ class PathService : DbService(1) {
 
         val stepId = StepTable.insertAndGetId {
             it[this.label] = newStep.label
-            it[this.userId] = userId.toUUID()
+            it[this.userId] = userId.fromStringId()
             it[this.createdAt] = Clock.nowToLocalDateTimeUtc()
             it[this.updatedAt] = Clock.nowToLocalDateTimeUtc()
             it[this.isPublic] = false
@@ -59,7 +60,7 @@ class PathService : DbService(1) {
 
         newStep.pathId?.let { pathId ->
             PathStepTable.insert {
-                it[this.pathId] = pathId.toUUID()
+                it[this.pathId] = pathId.fromStringId()
                 it[this.stepId] = stepId
                 it[this.position] = newStep.position!!
             }
@@ -96,7 +97,7 @@ class PathService : DbService(1) {
 
     suspend fun deleteStep(stepId: String) = dbQuery {
         val pathIds =
-            PathStepTable.readColumn(PathStepTable.pathId) { it.stepId.eq(stepId) }.map { it.value.toString() }
+            PathStepTable.readColumn(PathStepTable.pathId) { it.stepId.eq(stepId) }.map { it.value.toStringId() }
         val isSuccess = StepTable.deleteWhere { this.id.eq(stepId) } == 1
         if (isSuccess) {
             for (pathId in pathIds) {
@@ -117,14 +118,14 @@ class PathService : DbService(1) {
         for (step in data.steps) {
             val pair = StepTable.select(StepTable.userId, StepTable.updatedAt)
                 .where { StepTable.id.eq(step.id) }
-                .firstOrNull()?.let { Pair(it[StepTable.userId].value.toString(), it[StepTable.updatedAt].toInstantUtc()) }
+                .firstOrNull()?.let { Pair(it[StepTable.userId].value.toStringId(), it[StepTable.updatedAt].toInstantUtc()) }
             if (pair != null && (pair.first != userId || pair.second > step.updatedAt)) continue
 
             StepTable.upsert(
                 where = { StepTable.userId.eq(userId) and StepTable.updatedAt.less(step.updatedAt) },
             ) {
-                it[this.id] = step.id.toUUID()
-                it[this.userId] = userId.toUUID()
+                it[this.id] = step.id.fromStringId()
+                it[this.userId] = userId.fromStringId()
                 it[this.label] = step.label
                 it[this.description] = step.description
                 it[this.theme] = step.theme
@@ -141,9 +142,9 @@ class PathService : DbService(1) {
             val pathSteps = data.pathSteps.filter { it.pathId == step.id }
 
             PathStepTable.batchUpsert(pathSteps) {
-                this[PathStepTable.id] = it.id.toUUID()
-                this[PathStepTable.stepId] = it.stepId.toUUID()
-                this[PathStepTable.pathId] = it.pathId.toUUID()
+                this[PathStepTable.id] = it.id.fromStringId()
+                this[PathStepTable.stepId] = it.stepId.fromStringId()
+                this[PathStepTable.pathId] = it.pathId.fromStringId()
                 this[PathStepTable.position] = it.position
             }
             updateSteps++
@@ -153,7 +154,7 @@ class PathService : DbService(1) {
 
     suspend fun readSync(lastSyncAt: Instant, userId: String) = dbQuery {
         val steps = StepTable.read { it.userId.eq(userId) and it.updatedAt.greater(lastSyncAt) }.map { it.toStep() }
-        val stepIds = steps.map { it.id.toUUID() }
+        val stepIds = steps.map { it.id.fromStringId() }
         val pathSteps = PathStepTable.read { it.pathId.inList(stepIds) }.map { it.toPathStep() }
         SyncData(steps, pathSteps)
     }

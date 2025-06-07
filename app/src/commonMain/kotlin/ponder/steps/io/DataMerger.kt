@@ -10,7 +10,7 @@ import ponder.steps.model.data.SyncData
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class DataSync(
+class DataMerger(
     private val leftRepo: StepRepository,
     private val rightRepo: StepRepository,
     private var lastSyncAt: Instant,
@@ -20,19 +20,24 @@ class DataSync(
     fun init(scope: CoroutineScope) {
         scope.launch(Dispatchers.IO) {
             while (true) {
-                val syncAt = lastSyncAt
-                lastSyncAt = Clock.System.now()
+                try {
+                    val syncAt = lastSyncAt
+                    lastSyncAt = Clock.System.now()
 
-                val leftResponse = leftRepo.readSync(syncAt)
-                val rightResponse = rightRepo.readSync(syncAt)
+                    val leftResponse = leftRepo.readSync(syncAt)
+                    val rightResponse = rightRepo.readSync(syncAt)
 
-                val leftCount = syncSteps(leftResponse, rightResponse, rightRepo)
-                val rightCount = syncSteps(rightResponse, leftResponse, leftRepo)
+                    val leftCount = syncSteps(leftResponse, rightResponse, rightRepo)
+                    val rightCount = syncSteps(rightResponse, leftResponse, leftRepo)
 
-                if (leftCount > 0) println("sync'd $leftCount steps left to right")
-                if (rightCount > 0) println("sync'd $rightCount steps right to left")
+                    if (leftCount > 0) println("sync'd $leftCount steps left to right")
+                    if (rightCount > 0) println("sync'd $rightCount steps right to left")
+                    onSync(syncAt)
+                } catch (e: Exception) {
+                    println("Error with sync: ${e.message}")
+                    break
+                }
 
-                onSync(syncAt)
                 delay(interval)
             }
         }

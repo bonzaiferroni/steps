@@ -3,7 +3,7 @@ package ponder.steps.io
 import ponder.steps.appDb
 import ponder.steps.db.IntentDao
 import ponder.steps.model.data.NewIntent
-import kabinet.utils.randomUuidString
+import kabinet.utils.randomUuidStringId
 import ponder.steps.appUserId
 import ponder.steps.db.IntentEntity
 
@@ -13,7 +13,7 @@ class LocalIntentRepository(
     fun readActiveIntentsFlow() = dao.readActiveIntentsFlow()
 
     override suspend fun createIntent(intent: NewIntent) {
-        val id = randomUuidString()
+        val id = randomUuidStringId()
         dao.create(
             IntentEntity(
                 id = id,

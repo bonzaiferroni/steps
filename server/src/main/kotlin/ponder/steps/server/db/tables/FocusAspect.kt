@@ -2,6 +2,7 @@ package ponder.steps.server.db.tables
 
 import kabinet.utils.toInstantUtc
 import klutch.db.Aspect
+import klutch.utils.toStringId
 import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.Focus
@@ -23,8 +24,8 @@ object FocusAspect: Aspect<FocusAspect, Focus>(
 }
 
 fun ResultRow.toFocus() = Focus(
-    trekId = this[FocusAspect.trekId].value.toString(),
-    stepId = this[FocusAspect.stepId].value.toString(),
+    trekId = this[FocusAspect.trekId].value.toStringId(),
+    stepId = this[FocusAspect.stepId].value.toStringId(),
     intentLabel = this[FocusAspect.intentLabel],
     stepLabel = this[FocusAspect.stepLabel],
     stepIndex = this[FocusAspect.stepIndex],
