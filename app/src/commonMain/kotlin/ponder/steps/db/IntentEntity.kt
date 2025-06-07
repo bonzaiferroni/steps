@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import ponder.steps.model.data.IntentPriority
 
 @Entity(
     foreignKeys = [
@@ -28,7 +29,7 @@ data class IntentEntity(
     val label: String,
     val repeatMins: Int?,
     val expectedMins: Int?,
-    // val isRegularTime: Boolean,
+    val priority: IntentPriority,
     val pathIds: List<String>,
     val completedAt: Instant?,
     val scheduledAt: Instant?,

@@ -22,6 +22,7 @@ class LocalIntentRepository(
                 label = intent.label,
                 repeatMins = intent.repeatMins,
                 expectedMins = intent.expectedMins,
+                priority = intent.priority,
                 completedAt = null,
                 scheduledAt = intent.scheduledAt,
                 pathIds = emptyList()

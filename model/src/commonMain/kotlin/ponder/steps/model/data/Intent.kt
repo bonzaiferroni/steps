@@ -11,6 +11,7 @@ data class Intent(
     val label: String,
     val repeatMins: Int?,
     val expectedMins: Int?,
+    val priority: IntentPriority,
     // val isRegularTime: Boolean,
     val pathIds: List<String>,
     val completedAt: Instant?,
@@ -23,5 +24,6 @@ data class NewIntent(
     val label: String,
     val repeatMins: Int? = null,
     val expectedMins: Int? = null,
+    val priority: IntentPriority = IntentPriority.Default,
     val scheduledAt: Instant? = null,
 )

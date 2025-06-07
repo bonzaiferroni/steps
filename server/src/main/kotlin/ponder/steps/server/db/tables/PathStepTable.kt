@@ -8,8 +8,8 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import ponder.steps.model.data.PathStep
 
-object PathStepTable: UUIDTable("step_position") {
-    val pathId = reference("parent_id", StepTable.id, ReferenceOption.CASCADE)
+object PathStepTable: UUIDTable("path_step") {
+    val pathId = reference("path_id", StepTable.id, ReferenceOption.CASCADE)
     val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
     val position = integer("position")
 

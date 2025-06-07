@@ -4,7 +4,6 @@ import klutch.db.DbService
 import klutch.db.read
 import klutch.utils.eq
 import klutch.utils.fromStringId
-import klutch.utils.toUUID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere

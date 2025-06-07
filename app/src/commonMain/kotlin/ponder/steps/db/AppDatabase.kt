@@ -7,13 +7,14 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import kotlinx.datetime.Instant
 import ponder.steps.AppDatabaseConstructor
+import ponder.steps.model.data.IntentPriority
 
 @Database(
     entities = [
         Sprite::class,
         StepEntity::class, PathStepEntity::class,
         IntentEntity::class, TrekEntity::class
-    ], version = 9
+    ], version = 10
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -34,4 +35,10 @@ class Converters {
     fun fromStringList(value: List<String>): String = value.joinToString(",")
     @TypeConverter
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
+
+//    @TypeConverter
+//    fun fromIntentPriority(value: IntentPriority) = value.ordinal
+//
+//    @TypeConverter
+//    fun toIntentPriority(value: Int) = IntentPriority.entries[value]
 }

@@ -132,7 +132,7 @@ class PathService : DbService(1) {
                 it[this.expectedMins] = step.expectedMins
                 it[this.imgUrl] = step.imgUrl
                 it[this.thumbUrl] = step.thumbUrl
-                it[this.audioUrl] = step.audioUrl
+                it[this.shortAudioUrl] = step.shortAudioUrl
                 it[this.isPublic] = step.isPublic
                 it[this.pathSize] = step.pathSize
                 it[this.updatedAt] = step.updatedAt.toLocalDateTimeUtc()

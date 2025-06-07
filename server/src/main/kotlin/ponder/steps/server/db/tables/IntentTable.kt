@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import ponder.steps.model.data.Intent
+import ponder.steps.model.data.IntentPriority
 
 internal object IntentTable: UUIDTable("intent") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
@@ -17,6 +18,7 @@ internal object IntentTable: UUIDTable("intent") {
     val label = text("label")
     val repeatMins = integer("repeat_mins").nullable()
     val expectedMins = integer("expected_mins").nullable()
+    val priority = enumeration<IntentPriority>("priority").default(IntentPriority.Default)
     val pathIds = array<String>("path_ids")
     val completedAt = datetime("completed_at").nullable()
     val scheduledAt = datetime("scheduled_At").nullable()
@@ -29,6 +31,7 @@ fun ResultRow.toIntent() = Intent(
     label = this[IntentTable.label],
     repeatMins = this[IntentTable.repeatMins],
     expectedMins = this[IntentTable.expectedMins],
+    priority = this[IntentTable.priority],
     pathIds = this[IntentTable.pathIds],
     completedAt = this[IntentTable.completedAt]?.toInstantUtc(),
     scheduledAt = this[IntentTable.scheduledAt]?.toInstantUtc(),

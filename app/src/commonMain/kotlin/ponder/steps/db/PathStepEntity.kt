@@ -24,6 +24,7 @@ import ponder.steps.model.data.PathStep
     indices = [
         Index(value = ["pathId"]),
         Index(value = ["stepId"]),
+    Index(value = ["pathId", "position"], unique = true)
     ],
 )
 data class PathStepEntity(
