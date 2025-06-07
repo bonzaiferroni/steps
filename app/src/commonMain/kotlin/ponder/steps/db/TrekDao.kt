@@ -19,6 +19,7 @@ interface TrekDao {
     @Query(
         "SELECT t.id trekId, t.stepIndex, t.stepCount, t.availableAt, t.startedAt, t.finishedAt, " +
                 "s.id stepId, s.label stepLabel, s.pathSize stepPathSize, s.imgUrl stepImgUrl, s.thumbUrl stepThumbUrl, " +
+                "s.description stepDescription, " +
                 "i.label intentLabel, i.expectedMins " +
                 "FROM TrekEntity AS t " +
                 "JOIN StepEntity AS s on t.stepId = s.id " +

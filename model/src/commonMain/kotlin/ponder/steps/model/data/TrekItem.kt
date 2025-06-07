@@ -13,6 +13,7 @@ data class TrekItem(
     val stepCount: Int,
     val stepImgUrl: String?,
     val stepThumbUrl: String?,
+    val stepDescription: String?,
     val intentLabel: String,
     val expectedMinutes: Int?,
     val availableAt: Instant,

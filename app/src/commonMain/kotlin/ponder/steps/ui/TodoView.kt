@@ -62,7 +62,11 @@ fun TodoView() {
     LazyColumn(1) {
         items(state.items, key = { it.trekId }) { item ->
             FlowRow(1) {
-                StepItem(item.stepLabel, item.stepThumbUrl, onImageClick = { nav.go(StepProfileRoute(item.stepId))})
+                StepItem(
+                    label = item.stepLabel,
+                    thumbUrl = item.stepThumbUrl,
+                    description = item.stepDescription,
+                    onImageClick = { nav.go(StepProfileRoute(item.stepId))})
             }
         }
         item {
