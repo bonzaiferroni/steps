@@ -13,6 +13,7 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     ResultRow::toTrekItem
 ) {
     val trekId = add(TrekTable.id)
+    val stepId = add(StepTable.id)
     val stepLabel = add(StepTable.label)
     val stepPathSize = add(StepTable.pathSize)
     val stepIndex = add(TrekTable.stepIndex)
@@ -28,6 +29,7 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
 
 internal fun ResultRow.toTrekItem() = TrekItem(
     trekId = this[TrekItemAspect.trekId].value.toStringId(),
+    stepId = this[TrekItemAspect.stepId].value.toStringId(),
     stepLabel = this[TrekItemAspect.stepLabel],
     stepPathSize = this[TrekItemAspect.stepPathSize],
     stepIndex = this[TrekItemAspect.stepIndex],
