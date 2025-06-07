@@ -123,7 +123,11 @@ class StepProfileModel(
         val path = stateNow.step ?: return
         viewModelScope.launch {
             val url = aiClient.generateImage(step, path)
-            stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
+            val updatedStep = step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl)
+            stepRepo.updateStep(updatedStep)
+            if (stateNow.cloudStep?.id == updatedStep.id) {
+                setState { it.copy(cloudStep = updatedStep) }
+            }
             refreshProfile()
         }
     }
@@ -148,11 +152,16 @@ class StepProfileModel(
             setState { it.copy(suggestions = suggestions) }
         }
     }
+
+    fun setCloudStep(step: Step?) {
+        setState { it.copy(cloudStep = step) }
+    }
 }
 
 data class StepProfileState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
+    val cloudStep: Step? = null,
     val isAddingStep: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,

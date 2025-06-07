@@ -7,13 +7,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
-import ponder.steps.io.DataSync
-import ponder.steps.io.StepLocalRepository
-import ponder.steps.io.StepServerRepository
+import pondui.ui.controls.AppWindow
 import pondui.CacheFile
+import pondui.ui.controls.LocalAppWindow
 import pondui.WatchWindow
 import pondui.WindowSize
-import pondui.ui.controls.Text
 import pondui.ui.core.ProvideAddressContext
 import pondui.ui.nav.KeyCaster
 import pondui.ui.nav.LocalKeyCaster
@@ -41,13 +39,19 @@ fun main() {
                     onPreviewKeyEvent = keyCaster::keyEvent
                 ) {
                     val baseDensity = LocalDensity.current
+                    val density = Density(baseDensity.density * 1.0f, baseDensity.fontScale)
                     CompositionLocalProvider(
-                        LocalDensity provides Density(baseDensity.density * 1.0f, baseDensity.fontScale)
+                        LocalDensity provides density
                     ) {
-                        App(
-                            changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
-                            exitApp = ::exitApplication
-                        )
+                        val appWindow = remember(cache.windowSize) {
+                            AppWindow(cache.windowSize.width, cache.windowSize.height, density)
+                        }
+                        CompositionLocalProvider(LocalAppWindow provides appWindow) {
+                            App(
+                                changeRoute = { cacheFlow.value = cache.copy(address = it.toPath()) },
+                                exitApp = ::exitApplication
+                            )
+                        }
                     }
                 }
             }

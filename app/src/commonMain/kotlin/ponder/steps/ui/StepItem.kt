@@ -18,7 +18,7 @@ fun StepItem(
     onImageClick: (() -> Unit)? = null,
     updateLabel: (String) -> Unit = { },
 ) {
-    Row(1, modifier = modifier.height(40.dp)) {
+    Row(1, modifier = modifier.height(70.dp)) {
         StepImage(
             url = step.thumbUrl,
             modifier = Modifier.clip(Pond.ruler.pill)
@@ -27,6 +27,6 @@ fun StepItem(
         step.position?.let {
             Label("${it + 1}.")
         }
-        EditText(step.label, isEditable = isEditable, onAcceptEdit = updateLabel)
+        EditText(step.label, style = Pond.typo.bodyLarge, isEditable = isEditable, onAcceptEdit = updateLabel, maxLines = 2)
     }
 }
