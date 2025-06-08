@@ -35,10 +35,4 @@ class Converters {
     fun fromStringList(value: List<String>): String = value.joinToString(",")
     @TypeConverter
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
-
-//    @TypeConverter
-//    fun fromIntentPriority(value: IntentPriority) = value.ordinal
-//
-//    @TypeConverter
-//    fun toIntentPriority(value: Int) = IntentPriority.entries[value]
 }

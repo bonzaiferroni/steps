@@ -26,7 +26,7 @@ interface IntentDao  {
     suspend fun create(intent: IntentEntity)
 
     @Update
-    suspend fun updateSteps(vararg intents: IntentEntity): Int
+    suspend fun update(vararg intents: IntentEntity): Int
 
     @Delete
     suspend fun deleteStep(intent: IntentEntity): Int

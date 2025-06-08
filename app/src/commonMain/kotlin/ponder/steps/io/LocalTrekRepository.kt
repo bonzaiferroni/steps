@@ -17,7 +17,7 @@ class LocalTrekRepository(
     private val trekDao: TrekDao = appDb.getTrekDao(),
     private val stepDao: StepDao = appDb.getStepDao(),
     private val intentDao: IntentDao = appDb.getIntentDao(),
-): TrekRepository {
+) : TrekRepository {
 
     override fun flowTreksSince(time: Instant) = trekDao.flowTrekItemsSince(time)
 
@@ -62,7 +62,8 @@ class LocalTrekRepository(
             val id = randomUuidStringId()
             val stepCount = stepDao.readTotalStepCount(intent.pathIds).takeIf { it > 0 } ?: 1
 
-            trekDao.create(TrekEntity(
+            trekDao.create(
+                TrekEntity(
                 id = id,
                 userId = appUserId,
                 intentId = intentId,
@@ -104,13 +105,32 @@ class LocalTrekRepository(
             }
         }
 
-        return trekDao.update(trek.copy(
-            stepIndex = trek.stepIndex + 1
-        ).toEntity()) == 1
+        val isUpdated = trekDao.update(
+            trek.copy(
+                stepIndex = trek.stepIndex + 1
+            ).toEntity()
+        ) == 1
+
+        // finish intent if it is not set to repeat
+        if (isUpdated && trek.finishedAt != null) {
+            val intent = intentDao.readIntentById(trek.intentId)
+            if (intent.repeatMins == null) {
+                intentDao.update(
+                    intent.copy(
+                        completedAt = trek.finishedAt
+                    ).toEntity()
+                )
+            }
+        }
+        return isUpdated
     }
 
     // returns the next step in the trek that is not consumed as a path and the associated breadcrumbs
-    private suspend fun stepIn(stepId: String, providedBreadCrumbs: List<String>, pathIds: List<String>): Pair<String, List<String>> {
+    private suspend fun stepIn(
+        stepId: String,
+        providedBreadCrumbs: List<String>,
+        pathIds: List<String>
+    ): Pair<String, List<String>> {
         var nextStepId = stepId
         var breadCrumbs = providedBreadCrumbs
         while (pathIds.contains(nextStepId)) {
