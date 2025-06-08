@@ -2,6 +2,7 @@ package ponder.steps
 
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Heart
+import compose.icons.tablericons.Home
 import compose.icons.tablericons.List
 import compose.icons.tablericons.Planet
 import compose.icons.tablericons.Settings
@@ -30,7 +31,7 @@ val appConfig = PondConfig(
         RouteConfig(SettingsRoute::matchRoute) { defaultScreen<SettingsRoute> { SettingsScreen() } }
     ),
     doors = persistentListOf(
-        // PortalDoor(TablerIcons.Home, StartRoute),
+        PortalDoor(TablerIcons.Home, StartRoute),
         // PortalDoor(TablerIcons.YinYang, HelloRoute),
         PortalDoor(TablerIcons.Walk, JourneyRoute),
         PortalDoor(TablerIcons.List, PathsRoute),

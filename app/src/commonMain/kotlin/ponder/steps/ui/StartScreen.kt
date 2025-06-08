@@ -5,19 +5,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
+import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.painterResource
 import ponder.steps.Greeting
 import ponder.steps.HelloRoute
 import pondui.ui.controls.Button
+import pondui.ui.controls.RoloMenu
 import pondui.ui.controls.RouteButton
 import pondui.ui.controls.Text
 import pondui.ui.controls.Scaffold
@@ -44,6 +43,12 @@ fun StartScreen() {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
                     Text("Compose: $greeting")
                 }
+            }
+            val options = (0..10).toImmutableList()
+            var selectedOption by remember { mutableStateOf(options.first()) }
+            RoloMenu(selectedOption, options, "things") {
+                println("value: $it")
+                selectedOption = it
             }
         }
     }
