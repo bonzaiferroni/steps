@@ -11,7 +11,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.painterResource
 import ponder.steps.Greeting
@@ -50,12 +49,11 @@ fun StartScreen() {
             RoloMenu(
                 selectedItem = selectedOption,
                 options = options,
-                width = 24.dp,
-                label = "things"
+                label = "things",
             ) {
-                println("value: $it")
                 selectedOption = it
             }
+            Text("You picked $selectedOption")
         }
     }
 }
