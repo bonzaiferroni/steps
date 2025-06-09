@@ -24,6 +24,7 @@ import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.ControlSet
 import pondui.ui.controls.ControlSetButton
+import pondui.ui.controls.DateTimeMenu
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
@@ -73,7 +74,7 @@ fun TodoView() {
                     options = IntentTiming.entries.toImmutableList(),
                     onSelect = viewModel::setIntentTiming,
                 )
-                Box(contentAlignment = Alignment.Center) {
+                Box {
                     Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40) {
                         Row(1) {
                             Label("every")
@@ -89,6 +90,12 @@ fun TodoView() {
                                 onSelect = viewModel::setIntentRepeatUnit,
                                 itemAlignment = Alignment.Start
                             )
+                        }
+                    }
+                    Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40) {
+                        Row(1) {
+                            Label("at")
+                            DateTimeMenu(state.intentScheduleTime, onChangeInstant = viewModel::setScheduleTime)
                         }
                     }
                 }

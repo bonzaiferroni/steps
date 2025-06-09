@@ -21,6 +21,7 @@ import ponder.steps.model.data.TrekItem
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import kotlin.time.Duration.Companion.hours
 
 class TodoModel(
     private val trekRepo: TrekRepository = LocalTrekRepository(),
@@ -118,6 +119,10 @@ class TodoModel(
     fun setIntentRepeatUnit(value: TimeUnit) {
         setState { it.copy(intentRepeatUnit = value) }
     }
+
+    fun setScheduleTime(time: Instant) {
+        setState { it.copy(intentScheduleTime = time) }
+    }
 }
 
 data class TodoState(
@@ -127,7 +132,8 @@ data class TodoState(
     val searchedSteps: List<Step> = emptyList(),
     val intentTiming: IntentTiming = IntentTiming.Once,
     val intentRepeat: Int = 1,
-    val intentRepeatUnit: TimeUnit = TimeUnit.Hours
+    val intentRepeatUnit: TimeUnit = TimeUnit.Hours,
+    val intentScheduleTime: Instant = Clock.System.now() + 1.hours
 ) {
     val isValidNewStep get() = newStepLabel.isNotEmpty()
     val repeatValues
