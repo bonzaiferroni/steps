@@ -17,6 +17,7 @@ import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.StepProfileRoute
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.ifTrue
+import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.Button
@@ -24,13 +25,14 @@ import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.ControlSet
 import pondui.ui.controls.ControlSetButton
-import pondui.ui.controls.DateTimeMenu
+import pondui.ui.controls.DateTimeWheel
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
-import pondui.ui.controls.RoloMenu
+import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.Row
 import pondui.ui.controls.TextField
+import pondui.ui.controls.TimeWheel
 import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
 import pondui.ui.nav.LocalNav
@@ -69,7 +71,7 @@ fun TodoView() {
                 ControlSetButton("Create", onClick = viewModel::createStep)
             }
             Row(1) {
-                RoloMenu(
+                MenuWheel(
                     selectedItem = state.intentTiming,
                     options = IntentTiming.entries.toImmutableList(),
                     onSelect = viewModel::setIntentTiming,
@@ -78,24 +80,35 @@ fun TodoView() {
                     Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40) {
                         Row(1) {
                             Label("every")
-                            RoloMenu(
+                            MenuWheel(
                                 selectedItem = state.intentRepeat,
                                 options = state.repeatValues,
                                 onSelect = viewModel::setIntentRepeat,
-                                modifier = Modifier.width(32.dp)
+                                modifier = Modifier.width(20.dp)
                             )
-                            RoloMenu(
+                            MenuWheel(
                                 selectedItem = state.intentRepeatUnit,
                                 options = TimeUnit.entries.toImmutableList(),
                                 onSelect = viewModel::setIntentRepeatUnit,
                                 itemAlignment = Alignment.Start
                             )
+                            val canSChedule = state.intentRepeatUnit > TimeUnit.Hours
+                            Row(
+                                spacingUnits = 1,
+                                modifier = Modifier.magic(canSChedule, offsetX = 40)
+                            ) {
+                                Label("at")
+                                TimeWheel(
+                                    instant = state.intentScheduledAt,
+                                    onChangeInstant = viewModel::setScheduleTime,
+                                )
+                            }
                         }
                     }
                     Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40) {
                         Row(1) {
                             Label("at")
-                            DateTimeMenu(state.intentScheduleTime, onChangeInstant = viewModel::setScheduleTime)
+                            DateTimeWheel(state.intentScheduledAt, onChangeInstant = viewModel::setScheduleTime)
                         }
                     }
                 }

@@ -16,7 +16,7 @@ import org.jetbrains.compose.resources.painterResource
 import ponder.steps.Greeting
 import ponder.steps.HelloRoute
 import pondui.ui.controls.Button
-import pondui.ui.controls.RoloMenu
+import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.RouteButton
 import pondui.ui.controls.Text
 import pondui.ui.controls.Scaffold
@@ -46,7 +46,7 @@ fun StartScreen() {
             }
             val options = (0..10).toImmutableList()
             var selectedOption by remember { mutableStateOf(options.first()) }
-            RoloMenu(
+            MenuWheel(
                 selectedItem = selectedOption,
                 options = options,
                 label = "things",

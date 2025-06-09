@@ -121,7 +121,7 @@ class TodoModel(
     }
 
     fun setScheduleTime(time: Instant) {
-        setState { it.copy(intentScheduleTime = time) }
+        setState { it.copy(intentScheduledAt = time) }
     }
 }
 
@@ -133,7 +133,7 @@ data class TodoState(
     val intentTiming: IntentTiming = IntentTiming.Once,
     val intentRepeat: Int = 1,
     val intentRepeatUnit: TimeUnit = TimeUnit.Hours,
-    val intentScheduleTime: Instant = Clock.System.now() + 1.hours
+    val intentScheduledAt: Instant = Clock.System.now() + 1.hours
 ) {
     val isValidNewStep get() = newStepLabel.isNotEmpty()
     val repeatValues
