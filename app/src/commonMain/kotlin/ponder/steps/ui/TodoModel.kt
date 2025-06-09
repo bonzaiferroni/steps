@@ -14,6 +14,7 @@ import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.TrekRepository
+import ponder.steps.model.data.IntentPriority
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
@@ -56,7 +57,7 @@ class TodoModel(
     }
 
     fun setNewStepLabel(value: String) {
-        setState { it.copy(newStepLabel = value) }
+        setState { it.copy(intentLabel = value) }
         viewModelScope.launch {
             val searchedSteps = value.takeIf { it.isNotEmpty() }?.let { stepRepo.readSearch(it) }
                 ?: stepRepo.readRootSteps()
@@ -67,19 +68,19 @@ class TodoModel(
     fun createStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            val stepId = stepRepo.createStep(NewStep(stateNow.newStepLabel))
+            val stepId = stepRepo.createStep(NewStep(stateNow.intentLabel))
             val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
             if (defaultTheme.isNotEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
                     val step = stepRepo.readStep(stepId)
-                        ?: error("unable to read step for image creation: ${stateNow.newStepLabel}")
+                        ?: error("unable to read step for image creation: ${stateNow.intentLabel}")
                     val url = aiClient.generateImage(step, null, defaultTheme)
                     stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
                 }
             }
 
-            addIntent(stepId, stateNow.newStepLabel)
-            setState { it.copy(newStepLabel = "", isAddingItem = false) }
+            addIntent(stepId, stateNow.intentLabel)
+            setState { it.copy(intentLabel = "", isAddingItem = false) }
         }
     }
 
@@ -123,19 +124,24 @@ class TodoModel(
     fun setScheduleTime(time: Instant) {
         setState { it.copy(intentScheduledAt = time) }
     }
+
+    fun setIntentPriority(priority: IntentPriority) {
+        setState { it.copy(intentPriority = priority) }
+    }
 }
 
 data class TodoState(
     val items: List<TrekItem> = emptyList(),
     val isAddingItem: Boolean = false,
-    val newStepLabel: String = "",
     val searchedSteps: List<Step> = emptyList(),
+    val intentLabel: String = "",
     val intentTiming: IntentTiming = IntentTiming.Once,
     val intentRepeat: Int = 1,
     val intentRepeatUnit: TimeUnit = TimeUnit.Hours,
-    val intentScheduledAt: Instant = Clock.System.now() + 1.hours
+    val intentScheduledAt: Instant = Clock.System.now() + 1.hours,
+    val intentPriority: IntentPriority = IntentPriority.Default
 ) {
-    val isValidNewStep get() = newStepLabel.isNotEmpty()
+    val isValidNewStep get() = intentLabel.isNotEmpty()
     val repeatValues
         get() = when (intentRepeatUnit) {
             TimeUnit.Minutes -> repeatMinuteValues
