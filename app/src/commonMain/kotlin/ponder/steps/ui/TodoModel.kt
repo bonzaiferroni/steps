@@ -3,7 +3,6 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
 import kabinet.utils.toRelativeTimeFormat
-import kabinet.utils.toTimeFormat
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,10 +85,11 @@ class TodoModel(
         }
     }
 
-    fun addSearchedStep(step: Step) {
+    fun addExistingStep() {
+        val step = stateNow.intentStep ?: return
         viewModelScope.launch {
             addIntent(step.id, step.label)
-            setState { it.copy(isAddingItem = false) }
+            setState { it.copy(isAddingItem = false, intentLabel = "", intentStep = null) }
         }
     }
 
@@ -130,6 +130,10 @@ class TodoModel(
     fun setIntentPriority(priority: IntentPriority) {
         setState { it.copy(intentPriority = priority) }
     }
+
+    fun setIntentStep(step: Step?) {
+        setState { it.copy(intentStep = step) }
+    }
 }
 
 data class TodoState(
@@ -141,7 +145,8 @@ data class TodoState(
     val intentRepeatValue: Int = 1,
     val intentRepeatUnit: TimeUnit = TimeUnit.Hours,
     val intentScheduledAt: Instant = Clock.System.now() + 1.hours,
-    val intentPriority: IntentPriority = IntentPriority.Default
+    val intentPriority: IntentPriority = IntentPriority.Default,
+    val intentStep: Step? = null,
 ) {
     val isValidNewStep get() = intentLabel.isNotEmpty()
     val repeatValues

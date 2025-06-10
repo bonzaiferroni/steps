@@ -31,7 +31,7 @@ val appConfig = PondConfig(
         RouteConfig(SettingsRoute::matchRoute) { defaultScreen<SettingsRoute> { SettingsScreen() } }
     ),
     doors = persistentListOf(
-        PortalDoor(TablerIcons.Home, StartRoute),
+        // PortalDoor(TablerIcons.Home, StartRoute),
         // PortalDoor(TablerIcons.YinYang, HelloRoute),
         PortalDoor(TablerIcons.Walk, JourneyRoute),
         PortalDoor(TablerIcons.List, PathsRoute),
