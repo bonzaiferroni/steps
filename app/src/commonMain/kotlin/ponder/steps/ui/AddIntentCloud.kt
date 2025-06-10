@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -112,8 +113,12 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
             Tabs {
                 Tab("Existing Steps") {
                     LazyColumn(1) {
-                        items(state.searchedSteps) { step ->
-                            StepItem(step, modifier = Modifier.actionable { viewModel.setIntentStep(step) })
+                        itemsIndexed(state.searchedSteps, key = { index, it -> it.id }) { index, step ->
+                            StepItem(
+                                step, modifier = Modifier.actionable { viewModel.setIntentStep(step) }
+                                    .animateItem()
+                                    .magic(offsetX = 20 * index)
+                            )
                         }
                     }
                 }

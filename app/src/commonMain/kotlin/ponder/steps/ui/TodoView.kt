@@ -11,6 +11,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
 import ponder.steps.StepProfileRoute
 import pondui.ui.behavior.ifTrue
+import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.FlowRow
@@ -58,6 +59,9 @@ fun TodoView() {
         }
         item {
             Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)
+        }
+        item {
+            BottomBarSpacer()
         }
     }
 }
