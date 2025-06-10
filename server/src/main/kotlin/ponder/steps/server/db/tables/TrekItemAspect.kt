@@ -1,6 +1,6 @@
 package ponder.steps.server.db.tables
 
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import klutch.db.Aspect
 import klutch.utils.toStringId
 import org.jetbrains.exposed.sql.JoinType
@@ -38,9 +38,9 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     stepThumbUrl = this[TrekItemAspect.stepThumbUrl],
     intentLabel = this[TrekItemAspect.intentLabel],
     expectedMinutes = this[TrekItemAspect.expectedMinutes],
-    availableAt = this[TrekItemAspect.availableAt].toInstantUtc(),
-    startedAt = this[TrekItemAspect.startedAt]?.toInstantUtc(),
-    finishedAt = this[TrekItemAspect.finishedAt]?.toInstantUtc()
+    availableAt = this[TrekItemAspect.availableAt].toInstantFromUtc(),
+    startedAt = this[TrekItemAspect.startedAt]?.toInstantFromUtc(),
+    finishedAt = this[TrekItemAspect.finishedAt]?.toInstantFromUtc()
 )
 
 // @Serializable

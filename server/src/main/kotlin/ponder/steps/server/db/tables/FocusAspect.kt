@@ -1,6 +1,6 @@
 package ponder.steps.server.db.tables
 
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import klutch.db.Aspect
 import klutch.utils.toStringId
 import org.jetbrains.exposed.sql.JoinType
@@ -32,5 +32,5 @@ fun ResultRow.toFocus() = Focus(
     stepCount = this[FocusAspect.stepCount],
     stepPathSize = this[FocusAspect.stepPathSize],
     imgUrl = this[FocusAspect.imgUrl],
-    startedAt = this[FocusAspect.startedAt]?.toInstantUtc()
+    startedAt = this[FocusAspect.startedAt]?.toInstantFromUtc()
 )

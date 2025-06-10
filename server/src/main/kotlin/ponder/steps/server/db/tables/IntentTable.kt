@@ -1,13 +1,11 @@
 package ponder.steps.server.db.tables
 
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import klutch.db.tables.UserTable
 import klutch.utils.toStringId
-import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentPriority
@@ -33,6 +31,6 @@ fun ResultRow.toIntent() = Intent(
     expectedMins = this[IntentTable.expectedMins],
     priority = this[IntentTable.priority],
     pathIds = this[IntentTable.pathIds],
-    completedAt = this[IntentTable.completedAt]?.toInstantUtc(),
-    scheduledAt = this[IntentTable.scheduledAt]?.toInstantUtc(),
+    completedAt = this[IntentTable.completedAt]?.toInstantFromUtc(),
+    scheduledAt = this[IntentTable.scheduledAt]?.toInstantFromUtc(),
 )

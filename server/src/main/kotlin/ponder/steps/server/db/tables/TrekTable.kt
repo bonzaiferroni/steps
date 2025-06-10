@@ -1,6 +1,6 @@
 package ponder.steps.server.db.tables
 
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import klutch.db.tables.UserTable
 import klutch.utils.toStringId
 import org.jetbrains.exposed.dao.id.UUIDTable
@@ -35,9 +35,9 @@ fun ResultRow.toTrek() = Trek(
     stepCount = this[TrekTable.stepCount],
     pathIds = this[TrekTable.pathIds].toList(),
     breadCrumbs = this[TrekTable.breadCrumbs].toList(),
-    availableAt = this[TrekTable.availableAt].toInstantUtc(),
-    startedAt = this[TrekTable.startedAt]?.toInstantUtc(),
-    progressAt = this[TrekTable.progressAt]?.toInstantUtc(),
-    finishedAt = this[TrekTable.finishedAt]?.toInstantUtc(),
-    expectedAt = this[TrekTable.expectedAt]?.toInstantUtc()
+    availableAt = this[TrekTable.availableAt].toInstantFromUtc(),
+    startedAt = this[TrekTable.startedAt]?.toInstantFromUtc(),
+    progressAt = this[TrekTable.progressAt]?.toInstantFromUtc(),
+    finishedAt = this[TrekTable.finishedAt]?.toInstantFromUtc(),
+    expectedAt = this[TrekTable.expectedAt]?.toInstantFromUtc()
 )

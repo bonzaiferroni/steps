@@ -1,6 +1,6 @@
 package ponder.steps.server.db.tables
 
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import klutch.db.Aspect
 import klutch.utils.toStringId
 import org.jetbrains.exposed.sql.JoinType
@@ -45,6 +45,6 @@ fun ResultRow.toStep() = Step(
     position = this.getOrNull(PathAspect.position),
     imgUrl = this[PathAspect.imgUrl],
     pathSize = this[PathAspect.pathSize],
-    updatedAt = this[PathAspect.updatedAt].toInstantUtc(),
-    createdAt = this[PathAspect.createdAt].toInstantUtc()
+    updatedAt = this[PathAspect.updatedAt].toInstantFromUtc(),
+    createdAt = this[PathAspect.createdAt].toInstantFromUtc()
 )

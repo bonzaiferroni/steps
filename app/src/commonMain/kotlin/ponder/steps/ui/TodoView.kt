@@ -1,11 +1,11 @@
 package ponder.steps.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,17 +29,20 @@ import pondui.ui.controls.Column
 import pondui.ui.controls.ControlSet
 import pondui.ui.controls.ControlSetButton
 import pondui.ui.controls.DateTimeWheel
-import pondui.ui.controls.Expando
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.Row
+import pondui.ui.controls.Tab
+import pondui.ui.controls.Tabs
+import pondui.ui.controls.Text
 import pondui.ui.controls.TextField
 import pondui.ui.controls.TimeWheel
 import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
 import pondui.ui.nav.LocalNav
+import pondui.ui.theme.Pond
 
 @Composable
 fun TodoView() {
@@ -74,72 +77,78 @@ fun TodoView() {
                 )
                 ControlSetButton("Create", onClick = viewModel::createStep)
             }
-            FlowRow(
-                1,
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(1) {
-                    Label("Scheduling")
-                    Row(1) {
-                        MenuWheel(
-                            selectedItem = state.intentTiming,
-                            options = IntentTiming.entries.toImmutableList(),
-                            onSelect = viewModel::setIntentTiming,
-                        )
-                        Box {
-                            Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40) {
-                                Row(1) {
-                                    Label("every")
-                                    MenuWheel(
-                                        selectedItem = state.intentRepeat,
-                                        options = state.repeatValues,
-                                        onSelect = viewModel::setIntentRepeat,
-                                        modifier = Modifier.width(20.dp)
-                                    )
-                                    MenuWheel(
-                                        selectedItem = state.intentRepeatUnit,
-                                        options = TimeUnit.entries.toImmutableList(),
-                                        onSelect = viewModel::setIntentRepeatUnit,
-                                        itemAlignment = Alignment.Start
-                                    )
-                                    val canSChedule = state.intentRepeatUnit > TimeUnit.Hours
-                                    Row(
-                                        spacingUnits = 1,
-                                        modifier = Modifier.magic(canSChedule, offsetX = 40)
-                                    ) {
-                                        Label("at")
-                                        TimeWheel(
-                                            instant = state.intentScheduledAt,
-                                            onChangeInstant = viewModel::setScheduleTime,
-                                        )
-                                    }
-                                }
-                            }
-                            Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40) {
-                                Row(1) {
-                                    Label("at")
-                                    DateTimeWheel(state.intentScheduledAt, onChangeInstant = viewModel::setScheduleTime)
-                                }
-                            }
+            FlowRow(1, horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth().animateContentSize()) {
+                Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
+                    Label("Priority:")
+                    Text(state.intentPriority.name)
+                }
+                Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
+                    Label("Happens:")
+                    Text(state.scheduleDescription)
+                }
+            }
+
+            Tabs {
+                Tab("Existing Steps") {
+                    LazyColumn(1) {
+                        items(state.searchedSteps) { step ->
+                            StepItem(step, modifier = Modifier.actionable { viewModel.addSearchedStep(step) })
                         }
                     }
                 }
-                Expando(4)
-                Column(1) {
-                    Label("Priority")
-                    Row(1) {
+                Tab("Adjust") {
+                    Column(1, modifier = Modifier.fillMaxWidth()) {
+                        Label("Schedule")
+                        Row(1) {
+                            MenuWheel(
+                                selectedItem = state.intentTiming,
+                                options = IntentTiming.entries.toImmutableList(),
+                                onSelect = viewModel::setIntentTiming,
+                            )
+                            Box {
+                                Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40) {
+                                    Row(1) {
+                                        Label("every")
+                                        MenuWheel(
+                                            selectedItem = state.intentRepeatValue,
+                                            options = state.repeatValues,
+                                            onSelect = viewModel::setIntentRepeat,
+                                        )
+                                        MenuWheel(
+                                            selectedItem = state.intentRepeatUnit,
+                                            options = TimeUnit.entries.toImmutableList(),
+                                            onSelect = viewModel::setIntentRepeatUnit,
+                                            itemAlignment = Alignment.Start
+                                        )
+                                        val canSChedule = state.intentRepeatUnit > TimeUnit.Hours
+                                        Row(
+                                            spacingUnits = 1,
+                                            modifier = Modifier.magic(canSChedule, offsetX = 40)
+                                        ) {
+                                            Label("at")
+                                            TimeWheel(
+                                                instant = state.intentScheduledAt,
+                                                onChangeInstant = viewModel::setScheduleAt,
+                                            )
+                                        }
+                                    }
+                                }
+                                Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40) {
+                                    Row(1) {
+                                        Label("at")
+                                        DateTimeWheel(state.intentScheduledAt, onChangeInstant = viewModel::setScheduleAt)
+                                    }
+                                }
+                            }
+                        }
+                        Label("Priority")
                         MenuWheel(
                             selectedItem = state.intentPriority,
                             options = IntentPriority.entries.toImmutableList(),
-                            onSelect = viewModel::setIntentPriority
+                            onSelect = viewModel::setIntentPriority,
+                            itemAlignment = Alignment.CenterHorizontally,
                         )
                     }
-                }
-            }
-            LazyColumn(1) {
-                items(state.searchedSteps) { step ->
-                    StepItem(step, modifier = Modifier.actionable { viewModel.addSearchedStep(step) })
                 }
             }
         }

@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kabinet.utils.formatSpanLong
+import kabinet.utils.toAgoDescription
 import kotlinx.datetime.Clock
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
@@ -49,11 +49,11 @@ fun TrekListView() {
                     H2(item.intentLabel, modifier = Modifier.weight(1f))
                     Box(modifier = Modifier.weight(1f)) {
                         if (finishedAt != null && now > finishedAt + 10.seconds) {
-                            Text("Finished ${(now - finishedAt).formatSpanLong()}")
+                            Text("Finished ${(now - finishedAt).toAgoDescription()}")
                             return@Box
                         }
                         if (availableIn.isPositive()) {
-                            Text("Available ${(-availableIn).formatSpanLong()}")
+                            Text("Available ${(-availableIn).toAgoDescription()}")
                             return@Box
                         }
                         if (startedAt == null) {

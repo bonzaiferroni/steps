@@ -2,6 +2,8 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
+import kabinet.utils.toRelativeTimeFormat
+import kabinet.utils.toTimeFormat
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -92,7 +94,7 @@ class TodoModel(
     }
 
     private suspend fun addIntent(stepId: String, label: String) {
-        println(stateNow.intentRepeat)
+        println(stateNow.intentRepeatValue)
         intentRepo.createIntent(
             NewIntent(
                 rootId = stepId,
@@ -114,14 +116,14 @@ class TodoModel(
     }
 
     fun setIntentRepeat(value: Int) {
-        setState { it.copy(intentRepeat = value) }
+        setState { it.copy(intentRepeatValue = value) }
     }
 
     fun setIntentRepeatUnit(value: TimeUnit) {
         setState { it.copy(intentRepeatUnit = value) }
     }
 
-    fun setScheduleTime(time: Instant) {
+    fun setScheduleAt(time: Instant) {
         setState { it.copy(intentScheduledAt = time) }
     }
 
@@ -136,7 +138,7 @@ data class TodoState(
     val searchedSteps: List<Step> = emptyList(),
     val intentLabel: String = "",
     val intentTiming: IntentTiming = IntentTiming.Once,
-    val intentRepeat: Int = 1,
+    val intentRepeatValue: Int = 1,
     val intentRepeatUnit: TimeUnit = TimeUnit.Hours,
     val intentScheduledAt: Instant = Clock.System.now() + 1.hours,
     val intentPriority: IntentPriority = IntentPriority.Default
@@ -154,13 +156,19 @@ data class TodoState(
 
     val repeatMinutes
         get() = if (intentTiming != IntentTiming.Repeat) null else when (intentRepeatUnit) {
-            TimeUnit.Minutes -> intentRepeat
-            TimeUnit.Hours -> intentRepeat * 60
-            TimeUnit.Days -> intentRepeat * 60 * 24
-            TimeUnit.Weeks -> intentRepeat * 60 * 24 * 7
-            TimeUnit.Months -> intentRepeat * 60 * 24 * 30
-            TimeUnit.Years -> intentRepeat * 60 * 24 * 365
+            TimeUnit.Minutes -> intentRepeatValue
+            TimeUnit.Hours -> intentRepeatValue * 60
+            TimeUnit.Days -> intentRepeatValue * 60 * 24
+            TimeUnit.Weeks -> intentRepeatValue * 60 * 24 * 7
+            TimeUnit.Months -> intentRepeatValue * 60 * 24 * 30
+            TimeUnit.Years -> intentRepeatValue * 60 * 24 * 365
         }
+
+    val scheduleDescription get() = when (intentTiming) {
+        IntentTiming.Schedule -> intentScheduledAt.toRelativeTimeFormat()
+        IntentTiming.Once -> "Once"
+        IntentTiming.Repeat -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
+    }
 }
 
 enum class IntentTiming(val label: String) {
@@ -177,7 +185,19 @@ enum class TimeUnit {
     Days,
     Weeks,
     Months,
-    Years
+    Years;
+
+    fun toRepeatFormat(value: Int) = when {
+        value == 1 -> when(this) {
+            TimeUnit.Minutes -> "minute"
+            TimeUnit.Hours -> "hour"
+            TimeUnit.Days -> "day"
+            TimeUnit.Weeks -> "week"
+            TimeUnit.Months -> "month"
+            TimeUnit.Years -> "year"
+        }
+        else -> "$value ${this.toString().lowercase()}"
+    }
 }
 
 private val repeatMinuteValues = (1..24).map { it * 5 }.toImmutableList()

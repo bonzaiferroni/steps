@@ -1,7 +1,7 @@
 package ponder.steps.server.db.services
 
 import kabinet.utils.nowToLocalDateTimeUtc
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.read
@@ -118,7 +118,7 @@ class PathService : DbService(1) {
         for (step in data.steps) {
             val pair = StepTable.select(StepTable.userId, StepTable.updatedAt)
                 .where { StepTable.id.eq(step.id) }
-                .firstOrNull()?.let { Pair(it[StepTable.userId].value.toStringId(), it[StepTable.updatedAt].toInstantUtc()) }
+                .firstOrNull()?.let { Pair(it[StepTable.userId].value.toStringId(), it[StepTable.updatedAt].toInstantFromUtc()) }
             if (pair != null && (pair.first != userId || pair.second > step.updatedAt)) continue
 
             StepTable.upsert(

@@ -1,7 +1,7 @@
 package ponder.steps.server.db.services
 
 import kabinet.utils.nowToLocalDateTimeUtc
-import kabinet.utils.toInstantUtc
+import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.readById
@@ -14,7 +14,6 @@ import klutch.utils.toStringId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -121,7 +120,7 @@ fun resolveAvailableAtFromLastTrek(intent: Intent): Instant? {
     val lastAvailableAt = TrekTable.select(TrekTable.availableAt)
         .where { TrekTable.intentId.eq(intent.id) and TrekTable.finishedAt.isNotNull() }
         .orderBy(TrekTable.startedAt, SortOrder.DESC_NULLS_LAST)
-        .firstOrNull()?.let { it[TrekTable.availableAt] }?.toInstantUtc() ?: return null
+        .firstOrNull()?.let { it[TrekTable.availableAt] }?.toInstantFromUtc() ?: return null
 
     return lastAvailableAt + repeatMins.minutes
 }
