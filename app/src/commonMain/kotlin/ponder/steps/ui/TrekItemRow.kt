@@ -11,7 +11,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import kabinet.utils.pluralize
 import ponder.steps.StepProfileRoute
+import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekItem
+import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.ifNotNull
 import pondui.ui.behavior.ifTrue
 import pondui.ui.controls.*
@@ -21,7 +23,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun LazyItemScope.TrekItemRow(
     item: TrekItem,
-    completeStep: (TrekItem) -> Unit,
+    completeStep: (TrekItem, StepOutcome) -> Unit,
 ) {
     val isFinished = item.finishedAt != null
     val nav = LocalNav.current
@@ -31,23 +33,30 @@ fun LazyItemScope.TrekItemRow(
             .animateItem()
             .ifTrue(isFinished) { alpha(.5f) }
     ) {
-        Checkbox(item.finishedAt != null) { completeStep(item) }
-        StepImage(
-            url = item.stepThumbUrl,
-            modifier = Modifier.height(72.dp)
-                .clip(CircleShape)
-                // .ifNotNull(onImageClick) { actionable(onClick = it) }
-        )
-        Column(0, modifier = Modifier.weight(1f)) {
-            Text(
-                text = item.stepLabel,
-                style = Pond.typo.h4,
-                maxLines = 2,
-            )
-            if (item.intentLabel != item.stepLabel) {
-                Row(1) {
-                    Label("Path:")
-                    Text(item.intentLabel)
+        Checkbox(item.finishedAt != null) { completeStep(item, StepOutcome.Completed) }
+        MagicItem(
+            item = item,
+            modifier = Modifier.weight(1f)
+        ) { item ->
+            Row(1) {
+                StepImage(
+                    url = item.stepThumbUrl,
+                    modifier = Modifier.height(72.dp)
+                        .clip(CircleShape)
+                    // .ifNotNull(onImageClick) { actionable(onClick = it) }
+                )
+                Column(0, modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = item.stepLabel,
+                        style = Pond.typo.h4,
+                        maxLines = 2,
+                    )
+                    if (item.intentLabel != item.stepLabel) {
+                        Row(1) {
+                            Label("Path:")
+                            Text(item.intentLabel)
+                        }
+                    }
                 }
             }
         }

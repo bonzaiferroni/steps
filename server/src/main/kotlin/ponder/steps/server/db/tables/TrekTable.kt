@@ -16,6 +16,7 @@ internal object TrekTable : UUIDTable("trek") {
     val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
     val stepIndex = integer("step_index")
     val stepCount = integer("step_count")
+    val isComplete = bool("is_complete")
     val pathIds = array<String>("path_ids")
     val breadCrumbs = array<String>("bread_crumbs")
     val availableAt = datetime("available_at")
@@ -33,6 +34,7 @@ fun ResultRow.toTrek() = Trek(
     stepId = this[TrekTable.stepId].value.toStringId(),
     stepIndex = this[TrekTable.stepIndex],
     stepCount = this[TrekTable.stepCount],
+    isComplete = this[TrekTable.isComplete],
     pathIds = this[TrekTable.pathIds].toList(),
     breadCrumbs = this[TrekTable.breadCrumbs].toList(),
     availableAt = this[TrekTable.availableAt].toInstantFromUtc(),

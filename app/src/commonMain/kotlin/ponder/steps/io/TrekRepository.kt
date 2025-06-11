@@ -2,7 +2,8 @@ package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
-import ponder.steps.model.data.Intent
+import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.TrekItem
 
 interface TrekRepository {
@@ -25,5 +26,9 @@ interface TrekRepository {
      * @param trekId The id of the trek to complete the step for
      * @return True if the step was completed successfully, false otherwise
      */
-    suspend fun completeStep(trekId: String): Boolean
+    suspend fun completeStep(trekId: String, outcome: StepOutcome): String?
+
+    suspend fun completeTrek(trekId: String): Boolean
+
+    suspend fun isFinished(trekId: String): Boolean
 }

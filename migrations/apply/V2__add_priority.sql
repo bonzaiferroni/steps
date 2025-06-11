@@ -1,0 +1,1 @@
+ALTER TABLE trek ADD is_complete BOOLEAN NOT NULL;

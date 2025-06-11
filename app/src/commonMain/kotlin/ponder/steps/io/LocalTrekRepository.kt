@@ -6,17 +6,25 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
 import ponder.steps.db.IntentDao
+import ponder.steps.db.LogDao
+import ponder.steps.db.LogEntryEntity
+import ponder.steps.db.PathStepDao
 import ponder.steps.db.StepDao
+import ponder.steps.db.StepLogDao
+import ponder.steps.db.StepLogEntity
 import ponder.steps.db.TrekDao
 import ponder.steps.db.TrekEntity
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
+import ponder.steps.model.data.StepOutcome
 import kotlin.time.Duration.Companion.minutes
 
 class LocalTrekRepository(
     private val trekDao: TrekDao = appDb.getTrekDao(),
     private val stepDao: StepDao = appDb.getStepDao(),
+    private val pathStepDao: PathStepDao = appDb.getPathStepDao(),
     private val intentDao: IntentDao = appDb.getIntentDao(),
+    private val logDao: LogDao = appDb.getLogDao()
 ) : TrekRepository {
 
     override fun flowTreksInRange(start: Instant, end: Instant) = trekDao.flowTreksInRange(start, end)
@@ -64,38 +72,41 @@ class LocalTrekRepository(
 
             trekDao.create(
                 TrekEntity(
-                id = id,
-                userId = appUserId,
-                intentId = intentId,
-                rootId = intent.rootId,
-                stepId = stepId,
-                stepIndex = 0,
-                stepCount = stepCount,
-                pathIds = intent.pathIds,
-                breadCrumbs = breadCrumbs,
-                availableAt = availableAt,
-                startedAt = null,
-                progressAt = null,
-                finishedAt = null,
-                expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes }
-            ))
+                    id = id,
+                    userId = appUserId,
+                    intentId = intentId,
+                    rootId = intent.rootId,
+                    stepId = stepId,
+                    stepIndex = 0,
+                    stepCount = stepCount,
+                    isComplete = false,
+                    pathIds = intent.pathIds,
+                    breadCrumbs = breadCrumbs,
+                    availableAt = availableAt,
+                    startedAt = null,
+                    progressAt = null,
+                    finishedAt = null,
+                    expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes }
+                ))
         }
     }
 
-    override suspend fun completeStep(trekId: String): Boolean {
-        var trek = trekDao.readTrekById(trekId) ?: return false
+    override suspend fun completeStep(trekId: String, outcome: StepOutcome): String? {
+        var trek = trekDao.readTrekById(trekId) ?: return null
 
+        val now = Clock.System.now()
+        val stepId = trek.stepId
         val pathId = trek.breadCrumbs.lastOrNull()
         if (pathId == null) {
-            trek = trek.copy(finishedAt = Clock.System.now())
+            trek = trek.copy(finishedAt = now)
         } else {
-            val pathStep = stepDao.readPathStep(pathId, trek.stepId)
-            val nextStep = stepDao.readPathStepByPosition(pathId, pathStep.position + 1)
+            val pathStep = pathStepDao.readPathStep(pathId, trek.stepId)
+            val nextStep = pathStepDao.readPathStepByPosition(pathId, pathStep.position + 1)
             if (nextStep == null) {
                 // stepping out of the path
                 val (nextStepId, breadCrumbs) = stepOut(trek.breadCrumbs)
                 if (nextStepId == null) {
-                    trek = trek.copy(finishedAt = Clock.System.now(), breadCrumbs = breadCrumbs, stepId = trek.rootId)
+                    trek = trek.copy(finishedAt = now, breadCrumbs = breadCrumbs, stepId = trek.rootId)
                 } else {
                     trek = trek.copy(breadCrumbs = breadCrumbs, stepId = nextStepId)
                 }
@@ -111,19 +122,38 @@ class LocalTrekRepository(
             ).toEntity()
         ) == 1
 
-        // finish intent if it is not set to repeat
-        if (isUpdated && trek.finishedAt != null) {
-            val intent = intentDao.readIntentById(trek.intentId)
-            if (intent.repeatMins == null) {
-                intentDao.update(
-                    intent.copy(
-                        completedAt = trek.finishedAt
-                    ).toEntity()
+        return if (isUpdated) {
+            val logId = randomUuidStringId()
+            logDao.insert(
+                LogEntryEntity(
+                    id = logId,
+                    stepId = stepId,
+                    trekId = trekId,
+                    outcome = outcome,
+                    updatedAt = now,
+                    createdAt = now
                 )
-            }
-        }
-        return isUpdated
+            )
+            logId
+        } else null
     }
+
+    override suspend fun completeTrek(trekId: String): Boolean {
+        var trek = trekDao.readTrekById(trekId) ?: return false
+        val intent = intentDao.readIntentById(trek.intentId)
+        if (intent.repeatMins == null) {
+            intentDao.update(
+                intent.copy(
+                    completedAt = trek.finishedAt
+                ).toEntity()
+            )
+        }
+        return trekDao.update(trek.copy(
+            isComplete = true
+        ).toEntity()) == 1
+    }
+
+    override suspend fun isFinished(trekId: String) = trekDao.isFinished(trekId)
 
     // returns the next step in the trek that is not consumed as a path and the associated breadcrumbs
     private suspend fun stepIn(
@@ -135,7 +165,7 @@ class LocalTrekRepository(
         var breadCrumbs = providedBreadCrumbs
         while (pathIds.contains(nextStepId)) {
             val pathId = nextStepId
-            nextStepId = stepDao.readPathStepByPosition(nextStepId, 0)?.stepId ?: break
+            nextStepId = pathStepDao.readPathStepByPosition(nextStepId, 0)?.stepId ?: break
             breadCrumbs = breadCrumbs + pathId
         }
         return nextStepId to breadCrumbs
@@ -149,8 +179,8 @@ class LocalTrekRepository(
         var nextStepId: String? = null
         while (breadCrumbs.isNotEmpty()) {
             val pathId = breadCrumbs.last()
-            val position = stepDao.readPathStep(pathId, stepId).position
-            nextStepId = stepDao.readPathStepByPosition(pathId, position + 1)?.stepId
+            val position = pathStepDao.readPathStep(pathId, stepId).position
+            nextStepId = pathStepDao.readPathStepByPosition(pathId, position + 1)?.stepId
             if (nextStepId != null) break
             stepId = breadCrumbs.last()
             breadCrumbs = breadCrumbs - stepId

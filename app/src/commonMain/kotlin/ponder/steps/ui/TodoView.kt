@@ -1,6 +1,6 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -9,12 +9,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
 import kotlinx.collections.immutable.toImmutableList
+import ponder.steps.model.data.Answer
+import ponder.steps.model.data.Question
+import pondui.ui.behavior.MagicItem
+import pondui.ui.behavior.magic
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
-import pondui.ui.controls.H2
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.MenuWheel
-import pondui.ui.controls.Row
 import pondui.ui.nav.LocalNav
 
 @Composable
@@ -38,22 +40,26 @@ fun TodoView() {
     )
 
     LazyColumn(1, horizontalAlignment = Alignment.CenterHorizontally) {
-        item {
+        item(key = "span") {
             MenuWheel(state.span, TrekSpan.entries.toImmutableList()) { viewModel::setSpan }
         }
-        item {
-            Row(1, modifier = Modifier.fillMaxWidth()) {
-                H2("Upcoming", modifier = Modifier.weight(1f))
-                Button("")
+        items(state.items, key = { it.trekId }) { item ->
+            val questionSet = state.questionSets.firstOrNull { it.trekId == item.trekId }
+            val question = questionSet?.questions?.firstOrNull()
+            MagicItem(
+                item = question,
+                itemContent = { question ->
+                    QuestionRow(question) { viewModel.answerQuestion(item.trekId, question, it) }
+                },
+                modifier = Modifier.animateItem()
+            ) {
+                TrekItemRow(item, viewModel::completeStep)
             }
         }
-        items(state.items, key = { it.trekId }) { item ->
-            TrekItemRow(item, viewModel::completeStep)
-        }
-        item {
+        item(key = "add button") {
             Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)
         }
-        item {
+        item(key = "bottom spacer") {
             BottomBarSpacer()
         }
     }

@@ -7,22 +7,26 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import kotlinx.datetime.Instant
 import ponder.steps.AppDatabaseConstructor
-import ponder.steps.model.data.IntentPriority
 
 @Database(
     entities = [
         Sprite::class,
         StepEntity::class, PathStepEntity::class,
-        IntentEntity::class, TrekEntity::class
-    ], version = 10
+        IntentEntity::class, TrekEntity::class,
+        LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class
+    ], version = 11
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getSpriteDao(): SpriteDao
     abstract fun getStepDao(): StepDao
+    abstract fun getPathStepDao(): PathStepDao
     abstract fun getIntentDao(): IntentDao
     abstract fun getTrekDao(): TrekDao
+    abstract fun getQuestionDao(): QuestionDao
+    abstract fun getLogDao(): LogDao
+    abstract fun getAnswerDao(): AnswerDao
 }
 
 class Converters {

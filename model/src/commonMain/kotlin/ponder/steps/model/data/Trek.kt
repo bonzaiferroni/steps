@@ -12,6 +12,7 @@ data class Trek(
     val stepId: String,
     val stepIndex: Int,
     val stepCount: Int,
+    val isComplete: Boolean,
     val pathIds: List<String>,
     val breadCrumbs: List<String>,
     val availableAt: Instant,

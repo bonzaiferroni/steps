@@ -22,6 +22,7 @@ import kabinet.utils.pluralize
 import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.model.data.IntentPriority
 import pondui.ui.behavior.Magic
+import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
@@ -58,10 +59,36 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
             spacingUnits = 1,
             modifier = Modifier.height(400.dp),
         ) {
-            Box(contentAlignment = Alignment.Center) {
+            MagicItem(
+                item =state.intentStep,
+                modifier = Modifier.height(44.dp),
+                itemContent = { step ->
+                    Row(
+                        spacingUnits = 1,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        StepImage(
+                            url = step.imgUrl,
+                            modifier = Modifier.height(40.dp)
+                                .clip(CircleShape)
+                        )
+                        Text(
+                            text = step.label,
+                            maxLines = 2,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (step.pathSize > 0) {
+                            Label("${step.pathSize} step${pluralize(step.pathSize)}")
+                        }
+                        ControlSet {
+                            ControlSetButton(TablerIcons.X, Pond.colors.tertiary) { viewModel.setIntentStep(null) }
+                            ControlSetButton("Add", onClick = viewModel::addExistingStep)
+                        }
+                    }
+                }
+            ) {
                 ControlSet(
                     modifier = Modifier.fillMaxWidth()
-                        .magic(state.intentStep == null, rotationX = 90)
                 ) {
                     TextField(
                         text = state.intentLabel,
@@ -71,30 +98,6 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                             .onEnterPressed(viewModel::createStep)
                     )
                     ControlSetButton("Create", onClick = viewModel::createStep)
-                }
-                Row(
-                    spacingUnits = 1,
-                    modifier = Modifier.fillMaxWidth()
-                        .magic(state.intentStep != null, rotationX = 90)
-                ) {
-                    val step = rememberLastNonNull(state.intentStep) ?: return@Row
-                    StepImage(
-                        url = step.imgUrl,
-                        modifier = Modifier.height(40.dp)
-                            .clip(CircleShape)
-                    )
-                    Text(
-                        text = step.label,
-                        maxLines = 2,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (step.pathSize > 0) {
-                        Label("${step.pathSize} step${pluralize(step.pathSize)}")
-                    }
-                    ControlSet {
-                        ControlSetButton(TablerIcons.X, Pond.colors.tertiary) { viewModel.setIntentStep(null) }
-                        ControlSetButton("Add", onClick = viewModel::addExistingStep)
-                    }
                 }
             }
             FlowRow(

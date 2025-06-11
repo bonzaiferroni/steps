@@ -14,6 +14,15 @@ import ponder.steps.model.data.TrekItem
 @Dao
 interface TrekDao {
 
+    @Insert
+    suspend fun create(trek: TrekEntity)
+
+    @Update
+    suspend fun update(vararg treks: TrekEntity): Int
+
+    @Delete
+    suspend fun delete(trek: TrekEntity): Int
+
     @Query("SELECT * FROM TrekEntity WHERE id = :trekId")
     suspend fun readTrekById(trekId: String): Trek?
 
@@ -40,12 +49,6 @@ interface TrekDao {
     )
     suspend fun readLastAvailableAt(intentId: String): Instant?
 
-    @Insert
-    suspend fun create(trek: TrekEntity)
-
-    @Update
-    suspend fun update(vararg treks: TrekEntity): Int
-
-    @Delete
-    suspend fun delete(trek: TrekEntity): Int
+    @Query("SELECT finishedAt IS NOT NULL AS isFinished FROM TrekEntity WHERE id = :trekId")
+    suspend fun isFinished(trekId: String): Boolean
 }
