@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.model.data.Intent
 import ponder.steps.model.data.Trek
 import ponder.steps.model.data.TrekItem
 
@@ -24,9 +25,9 @@ interface TrekDao {
                 "FROM TrekEntity AS t " +
                 "JOIN StepEntity AS s on t.stepId = s.id " +
                 "JOIN IntentEntity AS i on t.intentId = i.id " +
-                "WHERE availableAt > :time"
+                "WHERE availableAt > :start AND availableAt < :end"
     )
-    fun flowTrekItemsSince(time: Instant): Flow<List<TrekItem>>
+    fun flowTreksInRange(start: Instant, end: Instant): Flow<List<TrekItem>>
 
     @Query("SELECT intentId FROM TrekEntity WHERE finishedAt IS NULL")
     suspend fun readActiveTrekIntentIds(): List<String>

@@ -6,11 +6,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -20,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.X
+import kabinet.utils.pluralize
 import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.model.data.IntentPriority
 import pondui.ui.behavior.Magic
@@ -89,6 +88,9 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                         maxLines = 2,
                         modifier = Modifier.weight(1f)
                     )
+                    if (step.pathSize > 0) {
+                        Label("${step.pathSize} step${pluralize(step.pathSize)}")
+                    }
                     ControlSet {
                         ControlSetButton(TablerIcons.X, Pond.colors.tertiary) { viewModel.setIntentStep(null) }
                         ControlSetButton("Add", onClick = viewModel::addExistingStep)
@@ -146,7 +148,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                                             onSelect = viewModel::setIntentRepeatUnit,
                                             itemAlignment = Alignment.Start
                                         )
-                                        val canSChedule = state.intentRepeatUnit > TimeUnit.Hours
+                                        val canSChedule = state.intentRepeatUnit > TimeUnit.Hour
                                         Row(
                                             spacingUnits = 1,
                                             modifier = Modifier.magic(canSChedule, offsetX = 40)

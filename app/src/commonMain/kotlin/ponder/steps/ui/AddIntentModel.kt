@@ -22,7 +22,6 @@ import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.hours
-import kotlin.times
 
 class AddIntentModel(
     private val dismiss: () -> Unit,
@@ -124,7 +123,7 @@ data class AddIntentState(
     val intentLabel: String = "",
     val intentTiming: IntentTiming = IntentTiming.Once,
     val intentRepeatValue: Int = 1,
-    val intentRepeatUnit: TimeUnit = TimeUnit.Hours,
+    val intentRepeatUnit: TimeUnit = TimeUnit.Hour,
     val intentScheduledAt: Instant = Clock.System.now() + 1.hours,
     val intentPriority: IntentPriority = IntentPriority.Default,
     val intentStep: Step? = null,
@@ -132,22 +131,22 @@ data class AddIntentState(
     val isValidNewStep get() = intentLabel.isNotEmpty()
     val repeatValues
         get() = when (intentRepeatUnit) {
-            TimeUnit.Minutes -> repeatMinuteValues
-            TimeUnit.Hours -> repeatHourValues
-            TimeUnit.Days -> repeatDayValues
-            TimeUnit.Weeks -> repeatWeekValues
-            TimeUnit.Months -> repeatMonth
-            TimeUnit.Years -> repeatYears
+            TimeUnit.Minute -> repeatMinuteValues
+            TimeUnit.Hour -> repeatHourValues
+            TimeUnit.Day -> repeatDayValues
+            TimeUnit.Week -> repeatWeekValues
+            TimeUnit.Month -> repeatMonth
+            TimeUnit.Year -> repeatYears
         }
 
     val repeatMinutes
         get() = if (intentTiming != IntentTiming.Repeat) null else when (intentRepeatUnit) {
-            TimeUnit.Minutes -> intentRepeatValue
-            TimeUnit.Hours -> intentRepeatValue * 60
-            TimeUnit.Days -> intentRepeatValue * 60 * 24
-            TimeUnit.Weeks -> intentRepeatValue * 60 * 24 * 7
-            TimeUnit.Months -> intentRepeatValue * 60 * 24 * 30
-            TimeUnit.Years -> intentRepeatValue * 60 * 24 * 365
+            TimeUnit.Minute -> intentRepeatValue
+            TimeUnit.Hour -> intentRepeatValue * 60
+            TimeUnit.Day -> intentRepeatValue * 60 * 24
+            TimeUnit.Week -> intentRepeatValue * 60 * 24 * 7
+            TimeUnit.Month -> intentRepeatValue * 60 * 24 * 30
+            TimeUnit.Year -> intentRepeatValue * 60 * 24 * 365
         }
 
     val scheduleDescription get() = when (intentTiming) {
@@ -166,23 +165,16 @@ enum class IntentTiming(val label: String) {
 }
 
 enum class TimeUnit {
-    Minutes,
-    Hours,
-    Days,
-    Weeks,
-    Months,
-    Years;
+    Minute,
+    Hour,
+    Day,
+    Week,
+    Month,
+    Year;
 
     fun toRepeatFormat(value: Int) = when {
-        value == 1 -> when(this) {
-            TimeUnit.Minutes -> "minute"
-            TimeUnit.Hours -> "hour"
-            TimeUnit.Days -> "day"
-            TimeUnit.Weeks -> "week"
-            TimeUnit.Months -> "month"
-            TimeUnit.Years -> "year"
-        }
-        else -> "$value ${this.toString().lowercase()}"
+        value == 1 -> this.toString().lowercase()
+        else -> "$value ${this.toString().lowercase()}s"
     }
 }
 

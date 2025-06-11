@@ -19,7 +19,7 @@ class LocalTrekRepository(
     private val intentDao: IntentDao = appDb.getIntentDao(),
 ) : TrekRepository {
 
-    override fun flowTreksSince(time: Instant) = trekDao.flowTrekItemsSince(time)
+    override fun flowTreksInRange(start: Instant, end: Instant) = trekDao.flowTreksInRange(start, end)
 
     suspend fun startTrek(trekId: String): Boolean {
         var trek = trekDao.readTrekById(trekId) ?: return false

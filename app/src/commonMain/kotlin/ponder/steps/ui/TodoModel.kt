@@ -2,9 +2,12 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
+import kabinet.utils.startOfWeek
 import kabinet.utils.toRelativeTimeFormat
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -20,18 +23,30 @@ import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.TrekItem
+import ponder.steps.model.utils.toLocalDateTime
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 class TodoModel(
     private val trekRepo: TrekRepository = LocalTrekRepository(),
 ) : StateModel<TodoState>(TodoState()) {
 
+    private var flowJob: Job? = null
+
     fun onLoad() {
-        viewModelScope.launch {
-            trekRepo.flowTreksSince(Clock.startOfDay()).collect { treks ->
+        flowJob?.cancel()
+        flowJob = viewModelScope.launch {
+            val startTime = when (stateNow.span) {
+                TrekSpan.Hours -> Clock.startOfDay()
+                TrekSpan.Day -> Clock.startOfDay()
+                TrekSpan.Week -> Clock.startOfWeek()
+            }
+            val endTime = startTime + stateNow.span.duration
+            trekRepo.flowTreksInRange(startTime, endTime).collect { treks ->
                 setState {
                     it.copy(
                         items = treks.sortedWith(
@@ -54,10 +69,22 @@ class TodoModel(
             trekRepo.completeStep(item.trekId)
         }
     }
+
+    fun setSpan(span: TrekSpan) {
+        if (stateNow.span == span) return
+        setState { it.copy(span = span) }
+        onLoad() // Reload items for the new span
+    }
 }
 
 data class TodoState(
     val items: List<TrekItem> = emptyList(),
     val isAddingItem: Boolean = false,
+    val span: TrekSpan = TrekSpan.Day
 )
 
+enum class TrekSpan(val label: String, val duration: Duration) {
+    Hours("4 hours", 4.hours),
+    Day("Day", 1.days),
+    Week("Week", 7.days);
+}

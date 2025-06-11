@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kabinet.utils.pluralize
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepPosition
 import pondui.ui.behavior.ifNotNull
@@ -25,7 +26,7 @@ fun StepItem(
         label = step.label,
         thumbUrl = step.thumbUrl,
         position = step.position,
-        description = step.description,
+        pathSize = step.pathSize,
         isEditable = isEditable,
         modifier = modifier,
         onImageClick = onImageClick,
@@ -38,8 +39,8 @@ fun StepItem(
     label: String,
     thumbUrl: String?,
     position: Int? = null,
-    description: String? = null,
     isEditable: Boolean = false,
+    pathSize: Int = 0,
     modifier: Modifier = Modifier,
     onImageClick: (() -> Unit)? = null,
     updateLabel: (String) -> Unit = { },
@@ -63,8 +64,8 @@ fun StepItem(
                 onAcceptEdit = updateLabel,
                 maxLines = 2,
             )
-            description?.let {
-                Label(it, maxLines = 1)
+            if (pathSize > 0) {
+                Label("$pathSize step${pluralize(pathSize)}", maxLines = 1)
             }
         }
     }

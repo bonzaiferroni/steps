@@ -9,6 +9,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
+import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.StepProfileRoute
 import pondui.ui.behavior.ifTrue
 import pondui.ui.controls.BottomBarSpacer
@@ -16,6 +17,7 @@ import pondui.ui.controls.Button
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.LazyColumn
+import pondui.ui.controls.MenuWheel
 import pondui.ui.nav.LocalNav
 
 @Composable
@@ -39,6 +41,9 @@ fun TodoView() {
     )
 
     LazyColumn(1, horizontalAlignment = Alignment.CenterHorizontally) {
+        item {
+            MenuWheel(state.span, TrekSpan.entries.toImmutableList()) { viewModel::setSpan }
+        }
         items(state.items, key = { it.trekId }) { item ->
             val isFinished = item.finishedAt != null
             FlowRow(
@@ -51,7 +56,7 @@ fun TodoView() {
                 StepItem(
                     label = item.stepLabel,
                     thumbUrl = item.stepThumbUrl,
-                    description = item.stepDescription,
+                    pathSize = item.stepPathSize,
                     onImageClick = { nav.go(StepProfileRoute(item.stepId)) },
                     modifier = Modifier.weight(1f)
                 )

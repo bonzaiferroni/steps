@@ -2,16 +2,18 @@ package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.model.data.Intent
 import ponder.steps.model.data.TrekItem
 
 interface TrekRepository {
 
     /**
      * Create a flow of all treks since a given time.
-     * @param time The Instant since which to fetch treks
+     * @param start The start time to filter treks
+     * @param end The end time to filter treks
      * @return Flow of List of TrekItem
      */
-    fun flowTreksSince(time: Instant): Flow<List<TrekItem>>
+    fun flowTreksInRange(start: Instant, end: Instant): Flow<List<TrekItem>>
 
     /**
      * Create new treks for active intents without a corresponding trek
