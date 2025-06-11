@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
@@ -54,7 +56,7 @@ fun PathsScreen() {
                             .fillMaxWidth()
                             .padding(Pond.ruler.unitPadding)
                             .animateItem()
-                            .magic(offsetX = index * 10, durationMillis = 500),
+                            .magic(offsetX = index * 10.dp, durationMillis = 500),
                     )
                 }
             }

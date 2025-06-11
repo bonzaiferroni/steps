@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
@@ -48,6 +49,7 @@ fun TodoView() {
             val question = questionSet?.questions?.firstOrNull()
             MagicItem(
                 item = question,
+                offsetX = 50.dp,
                 itemContent = { question ->
                     QuestionRow(question) { viewModel.answerQuestion(item.trekId, question, it) }
                 },

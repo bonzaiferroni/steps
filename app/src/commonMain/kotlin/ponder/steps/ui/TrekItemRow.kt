@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import kabinet.utils.pluralize
 import ponder.steps.StepProfileRoute
@@ -36,6 +37,7 @@ fun LazyItemScope.TrekItemRow(
         Checkbox(item.finishedAt != null) { completeStep(item, StepOutcome.Completed) }
         MagicItem(
             item = item,
+            rotationX = 90,
             modifier = Modifier.weight(1f)
         ) { item ->
             Row(1) {

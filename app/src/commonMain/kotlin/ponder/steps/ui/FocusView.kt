@@ -27,13 +27,13 @@ fun FocusView() {
     Column(1, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         val focus = state.focus
         Box() {
-            H2("All done!", modifier = Modifier.magic(focus == null, offsetX = -100))
+            H2("All done!", modifier = Modifier.magic(focus == null, offsetX = (-100).dp))
             val intentLabel = focus?.intentLabel
             val cachedValue by produceState(initialValue = intentLabel ?: "") {
                 if (intentLabel != null) value = intentLabel
             }
 
-            H2(cachedValue, modifier = Modifier.magic(focus != null, offsetX = 100))
+            H2(cachedValue, modifier = Modifier.magic(focus != null, offsetX = 100.dp))
         }
 
         if (focus == null) return@Column
@@ -52,14 +52,14 @@ fun FocusView() {
             Button(
                 text = "Start",
                 onClick = viewModel::startTrek,
-                modifier = Modifier.magic(focus.startedAt == null, offsetY = 30)
+                modifier = Modifier.magic(focus.startedAt == null, offsetY = 30.dp)
             )
             val completeButtonText = if (focus.stepIndex + 1 == focus.stepCount) "Complete Trek"
             else "Complete Step"
             Button(
                 text = completeButtonText,
                 onClick = viewModel::completeStep,
-                modifier = Modifier.magic(focus.startedAt != null, offsetY = -30)
+                modifier = Modifier.magic(focus.startedAt != null, offsetY = (-30).dp)
             )
         }
         if (focus.startedAt == null) return@Column

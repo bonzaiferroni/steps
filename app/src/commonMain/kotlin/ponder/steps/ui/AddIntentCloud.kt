@@ -122,7 +122,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                             StepRow(
                                 step, modifier = Modifier.actionable { viewModel.setIntentStep(step) }
                                     .animateItem()
-                                    .magic(offsetX = 20 * index)
+                                    .magic(offsetX = 20.dp * index)
                             )
                         }
                     }
@@ -137,7 +137,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                                 onSelect = viewModel::setIntentTiming,
                             )
                             Box {
-                                Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40) {
+                                Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40.dp) {
                                     Row(1) {
                                         Label("every")
                                         MenuWheel(
@@ -154,7 +154,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                                         val canSChedule = state.intentRepeatUnit > TimeUnit.Hour
                                         Row(
                                             spacingUnits = 1,
-                                            modifier = Modifier.magic(canSChedule, offsetX = 40)
+                                            modifier = Modifier.magic(canSChedule, offsetX = 40.dp)
                                         ) {
                                             Label("at")
                                             TimeWheel(
@@ -164,7 +164,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                                         }
                                     }
                                 }
-                                Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40) {
+                                Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40.dp) {
                                     Row(1) {
                                         Label("at")
                                         DateTimeWheel(

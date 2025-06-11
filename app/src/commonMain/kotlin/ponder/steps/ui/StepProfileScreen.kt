@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
@@ -79,7 +80,7 @@ fun StepProfileScreen(
             if (appWindow.widthSizeClass == WindowSizeClass.Compact) {
                 Box(
                     modifier = Modifier.clip(Pond.ruler.defaultCorners)
-                        .magic(offsetX = -20)
+                        .magic(offsetX = (-20).dp)
                 ) {
                     StepImage(
                         url = profileStep.imgUrl,
@@ -106,7 +107,7 @@ fun StepProfileScreen(
                         text = it,
                         style = Pond.typo.bodyLarge,
                         modifier = Modifier.padding(Pond.ruler.unitPadding)
-                            .magic(offsetX = 20)
+                            .magic(offsetX = 20.dp)
                     )
                 }
             } else {
@@ -116,12 +117,12 @@ fun StepProfileScreen(
                         modifier = Modifier.weight(1f)
                             .clip(Pond.ruler.defaultCorners)
                             .aspectRatio(1f)
-                            .magic(offsetX = -20)
+                            .magic(offsetX = (-20).dp)
                     )
                     Column(
                         spacingUnits = 1,
                         modifier = Modifier.weight(1f)
-                            .magic(offsetX = 20)
+                            .magic(offsetX = 20.dp)
                     ) {
                         EditText(
                             text = profileStep.label,
@@ -160,7 +161,7 @@ fun StepProfileScreen(
                                         step = step,
                                         isEditable = isSelected,
                                         modifier = Modifier.weight(1f)
-                                            .magic(offsetX = index * 10, durationMillis = 500),
+                                            .magic(offsetX = index * 10.dp, durationMillis = 500),
                                         onImageClick = { nav.go(StepProfileRoute(step.id)) }
                                     ) { viewModel.editStep(step.copy(label = it)) }
                                     Magic(isSelected, fade = false) {
@@ -192,7 +193,7 @@ fun StepProfileScreen(
                                     Button(
                                         imageVector = TablerIcons.ArrowRight,
                                         isEnabled = canStepInto,
-                                        modifier = Modifier.magic(canStepInto, offsetX = -32)
+                                        modifier = Modifier.magic(canStepInto, offsetX = (-32).dp)
                                     ) { nav.go(StepProfileRoute(step.id)) }
                                 }
                             }

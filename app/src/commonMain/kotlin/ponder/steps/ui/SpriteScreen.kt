@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -49,7 +50,7 @@ fun SpriteScreen() {
 
         Column(1) {
             for (sprite in sprites) {
-                Text("${sprite.name} (${sprite.speed})", modifier = Modifier.magic(offsetX = 20))
+                Text("${sprite.name} (${sprite.speed})", modifier = Modifier.magic(offsetX = 20.dp))
             }
         }
     }
