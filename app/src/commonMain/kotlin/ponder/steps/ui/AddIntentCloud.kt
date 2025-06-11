@@ -116,7 +116,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                 Tab("Existing Steps") {
                     LazyColumn(1) {
                         itemsIndexed(state.searchedSteps, key = { index, it -> it.id }) { index, step ->
-                            StepItem(
+                            StepRow(
                                 step, modifier = Modifier.actionable { viewModel.setIntentStep(step) }
                                     .animateItem()
                                     .magic(offsetX = 20 * index)

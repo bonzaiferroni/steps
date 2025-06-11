@@ -1,28 +1,26 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kabinet.utils.pluralize
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepPosition
 import pondui.ui.behavior.ifNotNull
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
 
 @Composable
-fun StepItem(
+fun StepRow(
     step: Step,
     isEditable: Boolean = false,
     modifier: Modifier = Modifier,
     onImageClick: (() -> Unit)? = null,
     updateLabel: (String) -> Unit = { },
 ) {
-    StepItem(
+    StepRow(
         label = step.label,
         thumbUrl = step.thumbUrl,
         position = step.position,
@@ -35,7 +33,7 @@ fun StepItem(
 }
 
 @Composable
-fun StepItem(
+fun StepRow(
     label: String,
     thumbUrl: String?,
     position: Int? = null,
@@ -49,7 +47,7 @@ fun StepItem(
         StepImage(
             url = thumbUrl,
             modifier = Modifier.height(72.dp)
-                .clip(Pond.ruler.pill)
+                .clip(CircleShape)
                 .ifNotNull(onImageClick) { actionable(onClick = it) }
         )
         position?.let {

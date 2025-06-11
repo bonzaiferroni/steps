@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -69,7 +68,7 @@ fun StepProfileScreen(
             Label("Similar Steps:")
             LazyColumn {
                 items(state.similarSteps, key = { it.id }) { step ->
-                    StepItem(step, modifier = Modifier.actionable { viewModel.addSimilarStep(step) })
+                    StepRow(step, modifier = Modifier.actionable { viewModel.addSimilarStep(step) })
                 }
             }
         }
@@ -157,7 +156,7 @@ fun StepProfileScreen(
                                         .selected(isSelected)
                                         .padding(Pond.ruler.unitPadding)
                                 ) {
-                                    StepItem(
+                                    StepRow(
                                         step = step,
                                         isEditable = isSelected,
                                         modifier = Modifier.weight(1f)

@@ -3,29 +3,13 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
 import kabinet.utils.startOfWeek
-import kabinet.utils.toRelativeTimeFormat
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import ponder.steps.io.AiClient
-import ponder.steps.io.LocalIntentRepository
-import ponder.steps.io.IntentRepository
-import ponder.steps.io.LocalStepRepository
-import ponder.steps.io.StepRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.TrekRepository
-import ponder.steps.model.data.IntentPriority
-import ponder.steps.model.data.NewIntent
-import ponder.steps.model.data.NewStep
-import ponder.steps.model.data.Step
 import ponder.steps.model.data.TrekItem
-import ponder.steps.model.utils.toLocalDateTime
-import pondui.LocalValueRepository
-import pondui.ValueRepository
 import pondui.ui.core.StateModel
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -47,6 +31,7 @@ class TodoModel(
             }
             val endTime = startTime + stateNow.span.duration
             trekRepo.flowTreksInRange(startTime, endTime).collect { treks ->
+
                 setState {
                     it.copy(
                         items = treks.sortedWith(
