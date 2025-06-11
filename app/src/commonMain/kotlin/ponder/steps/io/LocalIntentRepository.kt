@@ -6,15 +6,16 @@ import ponder.steps.model.data.NewIntent
 import kabinet.utils.randomUuidStringId
 import ponder.steps.appUserId
 import ponder.steps.db.IntentEntity
+import ponder.steps.db.StepDao
 
 class LocalIntentRepository(
-    private val dao: IntentDao = appDb.getIntentDao(),
+    private val intentDao: IntentDao = appDb.getIntentDao(),
 ): IntentRepository {
-    fun readActiveIntentsFlow() = dao.readActiveIntentsFlow()
+    fun readActiveIntentsFlow() = intentDao.readActiveIntentsFlow()
 
     override suspend fun createIntent(intent: NewIntent) {
         val id = randomUuidStringId()
-        dao.create(
+        intentDao.create(
             IntentEntity(
                 id = id,
                 userId = appUserId,
@@ -25,7 +26,7 @@ class LocalIntentRepository(
                 priority = intent.priority,
                 completedAt = null,
                 scheduledAt = intent.scheduledAt,
-                pathIds = emptyList()
+                pathIds = intent.pathIds
             )
         )
     }

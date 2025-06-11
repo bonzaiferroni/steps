@@ -81,13 +81,16 @@ class AddIntentModel(
     }
 
     private suspend fun addIntent(stepId: String, label: String) {
+        val step = stepRepo.readStep(stepId) ?: error("No step with id: $stepId")
+        val pathIds = if (step.pathSize > 0) listOf(stepId) else emptyList()
         intentRepo.createIntent(
             NewIntent(
                 rootId = stepId,
                 label = label,
                 repeatMins = stateNow.repeatMinutes,
                 priority = stateNow.intentPriority,
-                scheduledAt = stateNow.intentScheduledAt
+                scheduledAt = stateNow.intentScheduledAt,
+                pathIds = pathIds
             )
         )
         trekRepo.syncTreksWithIntents()

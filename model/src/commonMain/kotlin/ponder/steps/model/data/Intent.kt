@@ -26,4 +26,5 @@ data class NewIntent(
     val expectedMins: Int? = null,
     val priority: IntentPriority = IntentPriority.Default,
     val scheduledAt: Instant? = null,
+    val pathIds: List<String> = emptyList()
 )
