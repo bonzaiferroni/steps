@@ -1,6 +1,7 @@
 package ponder.steps.io
 
 import ponder.steps.model.Api
+import ponder.steps.model.data.SpeechRequest
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
 import ponder.steps.model.data.StepSuggestRequest
@@ -21,7 +22,7 @@ class AiClient(private val client: ApiClient = globalApiClient) {
         )
     )
 
-    suspend fun generateSpeech(text: String) = client.post(Api.Gemini.GenerateSpeech, text)
+    suspend fun generateSpeech(request: SpeechRequest) = client.post(Api.Gemini.GenerateSpeech, request)
 
     suspend fun suggestStep(request: StepSuggestRequest) = client.post(Api.Steps.Suggest, request)
 }

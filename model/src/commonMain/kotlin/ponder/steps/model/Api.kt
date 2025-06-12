@@ -10,6 +10,7 @@ import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewExample
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.SpeechRequest
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
 import ponder.steps.model.data.StepSuggestRequest
@@ -21,7 +22,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
     object Gemini : ParentEndpoint(this, "/gemini") {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
         object Image : PostEndpoint<String, ImageUrls>(this, "/image")
-        object GenerateSpeech: PostEndpoint<String, String>(this, "/generate-speech")
+        object GenerateSpeech: PostEndpoint<SpeechRequest, String>(this, "/generate-speech")
     }
 
     object Examples : GetByIdEndpoint<Example>(this, "/example") {

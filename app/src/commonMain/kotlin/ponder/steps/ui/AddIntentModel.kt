@@ -49,7 +49,7 @@ class AddIntentModel(
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
             val stepId = stepRepo.createStep(NewStep(stateNow.intentLabel))
-            val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
+            val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
             if (defaultTheme.isNotEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
                     val step = stepRepo.readStep(stepId)

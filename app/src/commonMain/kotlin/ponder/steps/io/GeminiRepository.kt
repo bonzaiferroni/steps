@@ -17,5 +17,4 @@ class GeminiRepository(private val client: ApiClient = globalApiClient) {
 
     suspend fun image(request: String) = client.post(Api.Gemini.Image, request)
 
-    suspend fun generateSpeech(text: String) = client.post(Api.Gemini.GenerateSpeech, text)
 }

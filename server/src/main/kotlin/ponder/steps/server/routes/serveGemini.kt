@@ -22,12 +22,12 @@ fun Routing.serveGemini(service: GeminiService = GeminiService()) {
         service.generateImage(request)
     }
 
-    post(Api.Gemini.GenerateSpeech) { text, endpoint ->
-        service.generateSpeech(text, text)
+    post(Api.Gemini.GenerateSpeech) { request, endpoint ->
+        service.generateSpeech(request)
     }
 }
 
 fun requestToFilename(input: String): String =
     input
-        .take(64)
+        .take(64).lowercase()
         .replace(Regex("[^A-Za-z0-9]"), "_")

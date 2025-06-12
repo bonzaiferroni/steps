@@ -12,9 +12,8 @@ fun pcmToWav(
 ): ByteArray {
     val bytesPerSample = bitsPerSample / 8
     val frameSize      = bytesPerSample * channels
-    val frameCount     = pcm.size / frameSize
 
-    // Original PCM stream
+    // 1) Original PCM AIS
     val srcFormat = AudioFormat(
         AudioFormat.Encoding.PCM_SIGNED,
         inputSampleRate,
@@ -24,27 +23,43 @@ fun pcmToWav(
         inputSampleRate,
         false
     )
-    val pcmStream = AudioInputStream(
+    val srcAis = AudioInputStream(
         ByteArrayInputStream(pcm),
         srcFormat,
-        frameCount.toLong()
+        (pcm.size / frameSize).toLong()
     )
 
-    // Target 16 kHz WAV format
-    val targetSampleRate = 16000f
+    // 2) Down‐sample to 16 kHz
+    val tgtSampleRate = 16000f
     val tgtFormat = AudioFormat(
         AudioFormat.Encoding.PCM_SIGNED,
-        targetSampleRate,
+        tgtSampleRate,
         bitsPerSample,
         channels,
         frameSize,
-        targetSampleRate,
+        tgtSampleRate,
         false
     )
-    val converted = AudioSystem.getAudioInputStream(tgtFormat, pcmStream)
+    val convAis = AudioSystem.getAudioInputStream(tgtFormat, srcAis)
 
-    // Write out as WAV
+    // 3) Drain into a byte[] so we know its length
+    val buf = ByteArray(4096)
+    val baTmp = ByteArrayOutputStream()
+    var r = convAis.read(buf)
+    while (r > 0) {
+        baTmp.write(buf, 0, r)
+        r = convAis.read(buf)
+    }
+    val audioBytes = baTmp.toByteArray()
+    val frameCount = audioBytes.size / frameSize
+
+    // 4) Wrap with known length and write WAV
+    val finalAis = AudioInputStream(
+        ByteArrayInputStream(audioBytes),
+        tgtFormat,
+        frameCount.toLong()
+    )
     val out = ByteArrayOutputStream()
-    AudioSystem.write(converted, AudioFileFormat.Type.WAVE, out)
+    AudioSystem.write(finalAis, AudioFileFormat.Type.WAVE, out)
     return out.toByteArray()
 }

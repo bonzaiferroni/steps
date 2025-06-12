@@ -8,6 +8,7 @@ import kotlinx.datetime.Clock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ponder.steps.model.data.ImageUrls
+import ponder.steps.model.data.SpeechRequest
 import ponder.steps.server.plugins.env
 import ponder.steps.server.routes.requestToFilename
 import ponder.steps.server.utils.pcmToWav
@@ -43,9 +44,9 @@ class GeminiService(
         return ImageUrls(path, thumbFilename)
     }
 
-    suspend fun generateSpeech(text: String, filename: String = text): String {
-        val data = client.generateSpeech(text) ?: error("Unable to generate speech")
-        // val bytes = Base64.getDecoder().decode(data)
+    suspend fun generateSpeech(request: SpeechRequest, filename: String = request.text): String {
+        val data = client.generateSpeech(request.text, request.theme, request.voice?.apiName)
+            ?: error("Unable to generate speech")
         val bytes = pcmToWav(Base64.getDecoder().decode(data))
         val timestamp = Clock.System.now().toEpochMilliseconds().toBase62()
         val folder = "wav"

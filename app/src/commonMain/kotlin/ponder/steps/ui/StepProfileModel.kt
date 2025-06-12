@@ -5,13 +5,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
-import ponder.steps.io.GeminiRepository
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.QuestionRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.SpeechRequest
+import ponder.steps.model.data.SpeechVoice
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
@@ -105,12 +106,12 @@ class StepProfileModel(
             position = null,
             description = description
         ))
-        val theme = path.theme ?: valueRepo.readString(SETTINGS_DEFAULT_THEME)
+        val theme = path.theme ?: valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
         if (theme.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
                 val step = stepRepo.readStep(stepId)
                 if (step != null) {
-                    val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
+                    val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
                     val url = aiClient.generateImage(step, path, defaultTheme)
                     stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
                 }
@@ -135,7 +136,7 @@ class StepProfileModel(
     fun generateImage(step: Step) {
         val path = stateNow.step ?: return
         viewModelScope.launch {
-            val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
+            val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
             val url = aiClient.generateImage(step, path, defaultTheme)
             val updatedStep = step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl)
             stepRepo.updateStep(updatedStep)
@@ -145,12 +146,17 @@ class StepProfileModel(
     fun generateAudio(step: Step) {
         viewModelScope.launch {
             // Generate short audio with just the step label
-            val shortAudioUrl = aiClient.generateSpeech(step.label)
+            val request = SpeechRequest(
+                text = step.label,
+                theme = valueRepo.readString(SETTINGS_DEFAULT_AUDIO_THEME),
+                voice = valueRepo.readInt(SETTINGS_DEFAULT_VOICE).let { SpeechVoice.entries[it] }
+            )
+            val shortAudioUrl = aiClient.generateSpeech(request)
 
             // Generate long audio with step label and description if available
             val longAudioUrl = step.description?.let {
                 val longText = "${step.label}. $it"
-                aiClient.generateSpeech(longText)
+                aiClient.generateSpeech(request.copy(text = longText))
             }
 
             // Update the step with the audio URLs
