@@ -7,6 +7,7 @@ import ponder.steps.io.DataMerger
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepServerRepository
 import pondui.LocalValueRepository
+import pondui.ProvideWavePlayer
 import pondui.io.LocalUserContext
 
 import pondui.io.ProvideUserContext
@@ -22,24 +23,26 @@ fun App(
     exitApp: (() -> Unit)?,
 ) {
     ProvideTheme {
-        ProvideUserContext {
-            val scope = rememberCoroutineScope()
-            remember {
-                val valueRepo = LocalValueRepository()
-                val sync = DataMerger(
-                    leftRepo = LocalStepRepository(),
-                    rightRepo = StepServerRepository(),
-                    lastSyncAt = valueRepo.readInstant("lastUpdatedAt"),
-                    onSync = { valueRepo.writeInstant("lastUpdatedAt", it) }
-                )
-                sync.init(scope)
-            }
+        ProvideWavePlayer {
+            ProvideUserContext {
+                val scope = rememberCoroutineScope()
+                remember {
+                    val valueRepo = LocalValueRepository()
+                    val sync = DataMerger(
+                        leftRepo = LocalStepRepository(),
+                        rightRepo = StepServerRepository(),
+                        lastSyncAt = valueRepo.readInstant("lastUpdatedAt"),
+                        onSync = { valueRepo.writeInstant("lastUpdatedAt", it) }
+                    )
+                    sync.init(scope)
+                }
 
-            PondApp(
-                config = appConfig,
-                changeRoute = changeRoute,
-                exitApp = exitApp
-            )
+                PondApp(
+                    config = appConfig,
+                    changeRoute = changeRoute,
+                    exitApp = exitApp
+                )
+            }
         }
     }
 }

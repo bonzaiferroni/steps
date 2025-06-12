@@ -15,6 +15,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.painterResource
 import ponder.steps.Greeting
 import ponder.steps.HelloRoute
+import pondui.PlayWave
 import pondui.ui.controls.Button
 import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.RouteButton
@@ -23,6 +24,7 @@ import pondui.ui.controls.Scaffold
 import pondui.ui.theme.Pond
 import steps.app.generated.resources.Res
 import steps.app.generated.resources.compose_multiplatform
+import pondui.WavePlayer
 
 @Composable
 fun StartScreen() {
@@ -54,6 +56,18 @@ fun StartScreen() {
                 selectedOption = it
             }
             Text("You picked $selectedOption")
+
+            PlayWave("https://freewavesamples.com/files/8-Bit-Noise-1.wav")
+
+//            LaunchedEffect(Unit) {
+//                // val resource = "8-Bit-Noise-1.wav"
+//                val resource =
+//                // val url = Path(resource).toUri().toURL()
+//                val audio = Audio(resource) // loads the audio file
+//                audio.load()
+//                audio.play()
+//                // immediately upon execution
+//            }
         }
     }
 }
