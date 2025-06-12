@@ -152,12 +152,17 @@ class StepProfileModel(
             setState { it.copy(suggestions = suggestions) }
         }
     }
+
+    fun toggleAddingQuestion() {
+        setState { it.copy(isAddingQuestion = !it.isAddingQuestion) }
+    }
 }
 
 data class StepProfileState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
     val isAddingStep: Boolean = false,
+    val isAddingQuestion: Boolean = false,
     val newStepLabel: String = "",
     val selectedStepId: String? = null,
     val similarSteps: List<Step> = emptyList(),

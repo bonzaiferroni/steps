@@ -19,4 +19,6 @@ data class QuestionEntity(
     val stepId: String,
     val text: String,
     val type: DataType,
+    val minValue: Int?,
+    val maxValue: Int?,
 )

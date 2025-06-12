@@ -75,6 +75,12 @@ fun StepProfileScreen(
         }
     }
 
+    AddQuestionCloud(
+        title = "Add a question",
+        stepId = if (state.isAddingQuestion) profileStep.id else null,
+        dismiss = viewModel::toggleAddingQuestion
+    )
+
     Scaffold {
         Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
             if (appWindow.widthSizeClass == WindowSizeClass.Compact) {
@@ -231,6 +237,8 @@ fun StepProfileScreen(
                     ) { viewModel.editStep(profileStep.copy(theme = it)) }
                     Label("Image")
                     Button("Generate") { viewModel.generateImage(profileStep) }
+                    Label("Questions")
+                    Button("Add Question") { viewModel.toggleAddingQuestion() }
                 }
                 Tab("Activity") {
                     Text("No activity")

@@ -175,3 +175,7 @@ Maintaining documentation of the API will be an important part of your role. Wit
 * There are a few rules of thumb for ordering properties on a data class:
   * Id properties are defined first
   * Instant properties are defined last
+* When you create a UUID in a string format, use randomUuidStringId. We convert UUIDs to a custom string format supported by base62.
+* A ViewModel should never have a reference to a Dao, it should instead have a reference to a Repository that itself has a reference to a Dao.
+* When creating functions in a Repository interface, provide documentation comments for each function that describes the function, the parameters, and the return value.
+* A ControlSet container is used for two or more control items to provide a visual grouping.
