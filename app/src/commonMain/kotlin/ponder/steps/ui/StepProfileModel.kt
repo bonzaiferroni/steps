@@ -5,9 +5,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
+import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepRepository
+import ponder.steps.io.QuestionRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
@@ -18,6 +21,7 @@ import pondui.ui.core.StateModel
 class StepProfileModel(
     route: StepProfileRoute,
     val stepRepo: StepRepository = LocalStepRepository(),
+    val questionRepo: QuestionRepository = LocalQuestionRepository(),
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
 ): StateModel<StepProfileState>(StepProfileState()) {
@@ -33,6 +37,11 @@ class StepProfileModel(
         viewModelScope.launch {
             stepRepo.flowPathSteps(stepId).collect { steps ->
                 setState { it.copy(steps = steps) }
+            }
+        }
+        viewModelScope.launch {
+            questionRepo.flowQuestionsByStepId(stepId).collect { questions ->
+                setState { it.copy(questions = questions) }
             }
         }
     }
@@ -161,6 +170,7 @@ class StepProfileModel(
 data class StepProfileState(
     val step: Step? = null,
     val steps: List<Step> = emptyList(),
+    val questions: List<Question> = emptyList(),
     val isAddingStep: Boolean = false,
     val isAddingQuestion: Boolean = false,
     val newStepLabel: String = "",
@@ -169,4 +179,5 @@ data class StepProfileState(
     val suggestions: List<StepWithDescription> = emptyList()
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
+    val hasQuestions get() = questions.isNotEmpty()
 }

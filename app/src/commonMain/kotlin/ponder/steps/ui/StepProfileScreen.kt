@@ -36,6 +36,7 @@ import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
+import ponder.steps.ui.QuestionRow
 
 @Composable
 fun StepProfileScreen(
@@ -242,6 +243,13 @@ fun StepProfileScreen(
                 }
                 Tab("Activity") {
                     Text("No activity")
+                }
+                Tab("Questions", state.hasQuestions) {
+                    LazyColumn {
+                        items(state.questions, key = { it.id }) { question ->
+                            Text(question.text)
+                        }
+                    }
                 }
             }
         }

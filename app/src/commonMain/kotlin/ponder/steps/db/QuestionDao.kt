@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.Question
 
 @Dao
@@ -20,4 +21,7 @@ interface QuestionDao {
 
     @Query("SELECT * FROM QuestionEntity WHERE stepId = :stepId")
     suspend fun readQuestionsByStepId(stepId: String): List<Question>
+
+    @Query("SELECT * FROM QuestionEntity WHERE stepId = :stepId")
+    fun flowQuestionsByStepId(stepId: String): Flow<List<Question>>
 }
