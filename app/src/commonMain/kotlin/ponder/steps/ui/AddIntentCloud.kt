@@ -60,7 +60,8 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
             modifier = Modifier.height(400.dp),
         ) {
             MagicItem(
-                item =state.intentStep,
+                item = state.intentStep,
+                rotationX = 90,
                 modifier = Modifier.height(44.dp),
                 itemContent = { step ->
                     Row(
