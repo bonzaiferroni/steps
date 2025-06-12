@@ -37,6 +37,7 @@ import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import ponder.steps.ui.QuestionRow
+import pondui.utils.addShadow
 
 @Composable
 fun StepProfileScreen(
@@ -104,7 +105,7 @@ fun StepProfileScreen(
                         EditText(
                             text = profileStep.label,
                             placeholder = "Step label",
-                            style = Pond.typo.h1,
+                            style = Pond.typo.h1.addShadow(),
                             modifier = Modifier.padding(Pond.ruler.unitPadding)
                         ) { viewModel.editStep(profileStep.copy(label = it)) }
                     }
@@ -134,7 +135,7 @@ fun StepProfileScreen(
                         EditText(
                             text = profileStep.label,
                             placeholder = "Step label",
-                            style = Pond.typo.h1,
+                            style = Pond.typo.h1.addShadow(),
                             modifier = Modifier.padding(Pond.ruler.unitPadding)
                         ) { viewModel.editStep(profileStep.copy(label = it)) }
                         state.step?.description?.let {

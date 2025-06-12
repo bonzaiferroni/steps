@@ -68,9 +68,6 @@ fun TodoView() {
                 TrekItemRow(item, viewModel::completeStep)
             }
         }
-        item(key = "add button") {
-
-        }
         item(key = "bottom spacer") {
             BottomBarSpacer()
         }
