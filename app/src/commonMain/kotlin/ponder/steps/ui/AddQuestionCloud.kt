@@ -85,6 +85,11 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
                 )
             }
 
+            // Status text
+            if (state.status.isNotEmpty()) {
+                Label(state.status)
+            }
+
             // Create button
             Button(
                 text = "Create",
@@ -94,4 +99,3 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
         }
     }
 }
-

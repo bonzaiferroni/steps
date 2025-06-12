@@ -21,4 +21,5 @@ data class QuestionEntity(
     val type: DataType,
     val minValue: Int?,
     val maxValue: Int?,
+    val audioUrl: String? = null,
 )

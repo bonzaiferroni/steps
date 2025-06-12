@@ -14,7 +14,7 @@ import ponder.steps.AppDatabaseConstructor
         StepEntity::class, PathStepEntity::class,
         IntentEntity::class, TrekEntity::class,
         LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class
-    ], version = 12
+    ], version = 13
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)

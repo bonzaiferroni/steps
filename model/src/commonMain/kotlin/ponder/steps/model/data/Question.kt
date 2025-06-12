@@ -10,4 +10,5 @@ data class Question(
     val type: DataType,
     val minValue: Int? = null,
     val maxValue: Int? = null,
+    val audioUrl: String? = null,
 )
