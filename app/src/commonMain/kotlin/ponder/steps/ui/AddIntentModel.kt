@@ -93,6 +93,7 @@ class AddIntentModel(
                 pathIds = pathIds
             )
         )
+        println("vm added ${stepId}")
         trekRepo.syncTreksWithIntents()
     }
 

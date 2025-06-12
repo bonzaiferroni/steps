@@ -63,6 +63,7 @@ class LocalTrekRepository(
         val trekIntentIds = trekDao.readActiveTrekIntentIds()
 
         for (intentId in activeIntentIds - trekIntentIds) {
+            println("adding intent: ${intentId}")
             val intent = intentDao.readIntentById(intentId)
             val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
 

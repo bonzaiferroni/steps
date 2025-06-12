@@ -1,6 +1,10 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +22,7 @@ import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.MenuWheel
+import pondui.ui.controls.Row
 import pondui.ui.nav.LocalNav
 
 @Composable
@@ -42,7 +47,10 @@ fun TodoView() {
 
     LazyColumn(1, horizontalAlignment = Alignment.CenterHorizontally) {
         item(key = "span") {
-            MenuWheel(state.span, TrekSpan.entries.toImmutableList()) { viewModel::setSpan }
+            Row(horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()) {
+                MenuWheel(state.span, TrekSpan.entries.toImmutableList()) { viewModel::setSpan }
+                Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)
+            }
         }
         items(state.items, key = { it.trekId }) { item ->
             val questionSet = state.questionSets.firstOrNull { it.trekId == item.trekId }
@@ -53,13 +61,15 @@ fun TodoView() {
                 itemContent = { question ->
                     QuestionRow(question) { viewModel.answerQuestion(item.trekId, question, it) }
                 },
-                modifier = Modifier.animateItem()
+                isVisibleInit = true,
+                modifier = Modifier.height(72.dp)
+                    .animateItem()
             ) {
                 TrekItemRow(item, viewModel::completeStep)
             }
         }
         item(key = "add button") {
-            Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)
+
         }
         item(key = "bottom spacer") {
             BottomBarSpacer()

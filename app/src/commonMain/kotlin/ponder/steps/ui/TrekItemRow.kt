@@ -1,5 +1,6 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -43,7 +44,7 @@ fun LazyItemScope.TrekItemRow(
             Row(1) {
                 StepImage(
                     url = item.stepThumbUrl,
-                    modifier = Modifier.height(72.dp)
+                    modifier = Modifier.fillMaxHeight()
                         .clip(CircleShape)
                     // .ifNotNull(onImageClick) { actionable(onClick = it) }
                 )
