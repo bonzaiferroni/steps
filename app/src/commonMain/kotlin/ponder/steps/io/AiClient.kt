@@ -9,6 +9,7 @@ import pondui.io.globalApiClient
 
 class AiClient(private val client: ApiClient = globalApiClient) {
     suspend fun generateImage(stepId: String) = client.get(Api.Steps.GenerateImageV1, stepId)
+
     suspend fun generateImage(step: Step, path: Step?, defaultTheme: String?) = client.post(
         endpoint = Api.Steps.GenerateImageV2,
         value = StepImageRequest(
@@ -19,6 +20,8 @@ class AiClient(private val client: ApiClient = globalApiClient) {
             theme = step.theme ?: path?.theme ?: defaultTheme?.takeIf { it.isNotEmpty() }
         )
     )
+
+    suspend fun generateSpeech(text: String) = client.post(Api.Gemini.GenerateSpeech, text)
 
     suspend fun suggestStep(request: StepSuggestRequest) = client.post(Api.Steps.Suggest, request)
 }

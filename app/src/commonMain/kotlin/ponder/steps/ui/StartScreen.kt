@@ -57,7 +57,7 @@ fun StartScreen() {
             }
             Text("You picked $selectedOption")
 
-            PlayWave("https://freewavesamples.com/files/8-Bit-Noise-1.wav")
+            PlayWave("Watch_a_movie-UnviiMf.wav")
 
 //            LaunchedEffect(Unit) {
 //                // val resource = "8-Bit-Noise-1.wav"

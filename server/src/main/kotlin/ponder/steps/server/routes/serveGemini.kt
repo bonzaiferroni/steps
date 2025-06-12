@@ -21,6 +21,10 @@ fun Routing.serveGemini(service: GeminiService = GeminiService()) {
     post(Api.Gemini.Image) { request, endpoint ->
         service.generateImage(request)
     }
+
+    post(Api.Gemini.GenerateSpeech) { text, endpoint ->
+        service.generateSpeech(text, text)
+    }
 }
 
 fun requestToFilename(input: String): String =

@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
+import ponder.steps.io.GeminiRepository
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.QuestionRepository
@@ -137,6 +138,23 @@ class StepProfileModel(
             val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_THEME)
             val url = aiClient.generateImage(step, path, defaultTheme)
             val updatedStep = step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl)
+            stepRepo.updateStep(updatedStep)
+        }
+    }
+
+    fun generateAudio(step: Step) {
+        viewModelScope.launch {
+            // Generate short audio with just the step label
+            val shortAudioUrl = aiClient.generateSpeech(step.label)
+
+            // Generate long audio with step label and description if available
+            val longAudioUrl = step.description?.let {
+                val longText = "${step.label}. $it"
+                aiClient.generateSpeech(longText)
+            }
+
+            // Update the step with the audio URLs
+            val updatedStep = step.copy(shortAudioUrl = shortAudioUrl, longAudioUrl = longAudioUrl)
             stepRepo.updateStep(updatedStep)
         }
     }

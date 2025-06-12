@@ -21,6 +21,7 @@ object Api: ParentEndpoint(null, apiPrefix) {
     object Gemini : ParentEndpoint(this, "/gemini") {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
         object Image : PostEndpoint<String, ImageUrls>(this, "/image")
+        object GenerateSpeech: PostEndpoint<String, String>(this, "/generate-speech")
     }
 
     object Examples : GetByIdEndpoint<Example>(this, "/example") {

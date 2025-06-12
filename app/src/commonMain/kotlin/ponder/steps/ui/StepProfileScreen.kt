@@ -37,6 +37,7 @@ import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import ponder.steps.ui.QuestionRow
+import pondui.PlayWave
 import pondui.utils.addShadow
 
 @Composable
@@ -49,6 +50,10 @@ fun StepProfileScreen(
     val nav = LocalNav.current
 
     val profileStep = state.step ?: return
+
+    profileStep.shortAudioUrl?.let {
+        PlayWave("http://localhost:8080/${it}")
+    }
 
     TitleCloud("Add a step to ${state.step?.label ?: "path"}", state.isAddingStep, viewModel::toggleAddingStep) {
         Column(
@@ -239,6 +244,8 @@ fun StepProfileScreen(
                     ) { viewModel.editStep(profileStep.copy(theme = it)) }
                     Label("Image")
                     Button("Generate") { viewModel.generateImage(profileStep) }
+                    Label("Audio")
+                    Button("Generate Audio") { viewModel.generateAudio(profileStep) }
                     Label("Questions")
                     Button("Add Question") { viewModel.toggleAddingQuestion() }
                 }
