@@ -8,6 +8,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.SyncData
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 class DataMerger(
@@ -22,6 +23,7 @@ class DataMerger(
             while (true) {
                 try {
                     val syncAt = lastSyncAt
+//                    val syncAt = Clock.System.now() - 10.days
                     lastSyncAt = Clock.System.now()
 
                     val leftResponse = leftRepo.readSync(syncAt)

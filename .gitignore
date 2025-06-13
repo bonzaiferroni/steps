@@ -25,3 +25,4 @@ captures
 **/appcache.json
 **/users.json
 /server/img
+/server/wav

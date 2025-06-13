@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.PathStep
 
@@ -17,6 +18,9 @@ interface PathStepDao {
 
     @Update
     suspend fun update(vararg pathSteps: PathStepEntity): Int
+
+    @Upsert
+    suspend fun upsert(vararg pathSteps: PathStepEntity): LongArray
 
     @Delete
     suspend fun deletePathStep(pathStep: PathStepEntity): Int

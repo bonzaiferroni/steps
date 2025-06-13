@@ -139,8 +139,8 @@ class LocalStepRepository(
     }
 
     override suspend fun writeSync(data: SyncData): Int {
-        val count = stepDao.update(*data.steps.map { it.toEntity() }.toTypedArray())
-        pathStepDao.update(*data.pathSteps.map { it.toEntity() }.toTypedArray())
+        val count = stepDao.upsert(*data.steps.map { it.toEntity() }.toTypedArray()).size
+        pathStepDao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
         return count
     }
 }

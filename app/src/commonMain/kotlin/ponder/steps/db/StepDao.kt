@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
@@ -18,6 +19,9 @@ interface StepDao {
 
     @Update
     suspend fun update(vararg steps: StepEntity): Int
+
+    @Upsert
+    suspend fun upsert(vararg steps: StepEntity): LongArray
 
     @Delete
     suspend fun delete(step: StepEntity): Int
