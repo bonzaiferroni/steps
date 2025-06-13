@@ -5,13 +5,13 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
 import ponder.steps.io.DataMerger
 import ponder.steps.io.LocalStepRepository
-import ponder.steps.io.StepServerRepository
+import ponder.steps.io.LocalSyncRepository
+import ponder.steps.io.RemoteStepRepository
+import ponder.steps.io.RemoteSyncRepository
 import pondui.LocalValueRepository
 import pondui.ProvideWavePlayer
-import pondui.io.LocalUserContext
 
 import pondui.io.ProvideUserContext
-import pondui.io.collectState
 import pondui.ui.core.PondApp
 import pondui.ui.nav.NavRoute
 import pondui.ui.theme.ProvideTheme
@@ -29,8 +29,8 @@ fun App(
                 remember {
                     val valueRepo = LocalValueRepository()
                     val sync = DataMerger(
-                        leftRepo = LocalStepRepository(),
-                        rightRepo = StepServerRepository(),
+                        leftRepo = LocalSyncRepository(),
+                        rightRepo = RemoteSyncRepository(),
                         lastSyncAt = valueRepo.readInstant("lastUpdatedAt"),
                         onSync = { valueRepo.writeInstant("lastUpdatedAt", it) }
                     )

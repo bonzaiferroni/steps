@@ -131,16 +131,4 @@ class LocalStepRepository(
     override suspend fun readSearch(text: String, limit: Int) = stepDao.searchSteps(text, limit).map { it.toStep() }
 
     override fun flowSearch(text: String, limit: Int) = stepDao.flowSearch(text, limit).map { list -> list.map { it.toStep() } }
-
-    override suspend fun readSync(lastSyncAt: Instant): SyncData {
-        val steps = stepDao.readStepsUpdatedAfter(lastSyncAt).map { it.toStep() }
-        val pathSteps = pathStepDao.readPathStepsByPathIds(steps.map { it.id })
-        return SyncData(steps, pathSteps)
-    }
-
-    override suspend fun writeSync(data: SyncData): Int {
-        val count = stepDao.upsert(*data.steps.map { it.toEntity() }.toTypedArray()).size
-        pathStepDao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
-        return count
-    }
 }

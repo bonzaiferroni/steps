@@ -12,8 +12,8 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
 
 class DataMerger(
-    private val leftRepo: StepRepository,
-    private val rightRepo: StepRepository,
+    private val leftRepo: SyncRepository,
+    private val rightRepo: SyncRepository,
     private var lastSyncAt: Instant,
     private val onSync: (Instant) -> Unit,
     private val interval: Duration = 10.seconds
@@ -45,7 +45,7 @@ class DataMerger(
         }
     }
 
-    private suspend fun syncSteps(origin: SyncData, target: SyncData, targetRepo: StepRepository): Int {
+    private suspend fun syncSteps(origin: SyncData, target: SyncData, targetRepo: SyncRepository): Int {
         val steps = origin.steps.filter { origin ->
             target.steps.all { target -> origin.id != target.id || origin.updatedAt > target.updatedAt }
         }

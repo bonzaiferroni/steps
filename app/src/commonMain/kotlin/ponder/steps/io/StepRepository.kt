@@ -123,20 +123,4 @@ interface StepRepository {
      * @return A Flow that emits a list of Steps that match the search criteria
      */
     fun flowSearch(text: String, limit: Int =20): Flow<List<Step>>
-
-    /**
-     * Synchronize steps with the server.
-     *
-     * @param lastSyncAt The timestamp of the last synchronization
-     * @return A SyncResponse containing the results of the synchronization
-     */
-    suspend fun readSync(lastSyncAt: Instant): SyncData
-
-    /**
-     * Write synchronization data to the server.
-     *
-     * @param data The SyncData to write
-     * @return The number of steps written
-     */
-    suspend fun writeSync(data: SyncData): Int
 }
