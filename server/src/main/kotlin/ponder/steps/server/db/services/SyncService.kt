@@ -74,6 +74,9 @@ class SyncService : DbService() {
             }
         }
 
+        // proto garbage collection, needs to use device id
+        DeletionsTable.deleteWhere { this.userId.eq(userId) and this.recordedAt.lessEq(data.endSyncAt) }
+
         true
     }
 }

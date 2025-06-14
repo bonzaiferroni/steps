@@ -29,8 +29,10 @@ class DataMerger(
                     logData("sending", localData)
                     logData("receiving", remoteData)
 
-                    localRepo.writeSync(resolveConflicts(remoteData, localData))
-                    remoteRepo.writeSync(resolveConflicts(localData, remoteData))
+                    if (!remoteData.isEmpty)
+                        localRepo.writeSync(resolveConflicts(remoteData, localData))
+                    if (!localData.isEmpty)
+                        remoteRepo.writeSync(resolveConflicts(localData, remoteData))
 
                     localRepo.logSync(startSyncAt, endSyncAt)
                 } catch (e: Exception) {
