@@ -4,6 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
 
 @Entity(
@@ -24,7 +26,7 @@ import ponder.steps.model.data.PathStep
     indices = [
         Index(value = ["pathId"]),
         Index(value = ["stepId"]),
-    Index(value = ["pathId", "position"], unique = true)
+        Index(value = ["pathId", "position"], unique = true),
     ],
 )
 data class PathStepEntity(
@@ -33,6 +35,7 @@ data class PathStepEntity(
     val stepId: String,
     val pathId: String,
     val position: Int,
+    val updatedAt: Instant = Clock.System.now(),
 )
 
 fun PathStep.toEntity() = PathStepEntity(
@@ -40,4 +43,5 @@ fun PathStep.toEntity() = PathStepEntity(
     stepId = stepId,
     pathId = pathId,
     position = position,
+    updatedAt = updatedAt,
 )

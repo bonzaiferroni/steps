@@ -10,7 +10,7 @@ import ponder.steps.model.data.Step
 data class StepEntity(
     @PrimaryKey
     val id: String,
-    val userId: String?,
+    val userId: String,
     val label: String,
     val description: String?,
     val theme: String?,
@@ -27,7 +27,7 @@ data class StepEntity(
     companion object {
         val Empty = StepEntity(
             id = "",
-            userId = null,
+            userId = "",
             label = "",
             description = null,
             theme = null,

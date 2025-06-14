@@ -13,8 +13,9 @@ import ponder.steps.AppDatabaseConstructor
         Sprite::class,
         StepEntity::class, PathStepEntity::class,
         IntentEntity::class, TrekEntity::class,
-        LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class
-    ], version = 13
+        LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class,
+        DeletionEntity::class, SyncRecord::class
+    ], version = 16
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -27,6 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getQuestionDao(): QuestionDao
     abstract fun getLogDao(): LogDao
     abstract fun getAnswerDao(): AnswerDao
+    abstract fun getSyncDao(): SyncDao
 }
 
 class Converters {

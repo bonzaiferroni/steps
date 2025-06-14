@@ -4,12 +4,11 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import ponder.steps.model.data.PathStep
 
 @Dao
 interface StepDao {
@@ -95,7 +94,4 @@ interface StepDao {
 
     @Query("SELECT pathId FROM pathstepentity WHERE stepId IN (:stepIds)")
     suspend fun readPathIds(stepIds: List<String>): List<String>
-
-    @Query("SELECT * FROM StepEntity WHERE updatedAt > :lastSyncAt")
-    suspend fun readStepsUpdatedAfter(lastSyncAt: Instant): List<StepEntity>
 }

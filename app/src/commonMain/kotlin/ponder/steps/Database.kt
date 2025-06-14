@@ -18,6 +18,8 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
+        .addCallback(RecordUpdatedTrigger("StepEntity", "PathStepEntity"))
+        .addCallback(RecordDeletionTrigger("StepEntity"))
         // .addMigrations(MIGRATIONS)
         .fallbackToDestructiveMigration(true)
         // .fallbackToDestructiveMigrationOnDowngrade(true)
@@ -25,3 +27,4 @@ fun getRoomDatabase(
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()
 }
+

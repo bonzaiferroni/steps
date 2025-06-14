@@ -5,7 +5,7 @@ import ponder.steps.model.data.Step
 
 data class StepJoin(
     val stepId: String,
-    val userId: String?,
+    val userId: String,
     val label: String,
     val description: String?,
     val theme: String?,

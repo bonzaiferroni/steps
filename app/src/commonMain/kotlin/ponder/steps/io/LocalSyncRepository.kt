@@ -1,27 +1,56 @@
 package ponder.steps.io
 
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import ponder.steps.appDb
-import ponder.steps.db.PathStepDao
-import ponder.steps.db.StepDao
+import ponder.steps.db.SyncDao
+import ponder.steps.db.SyncRecord
 import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
 import ponder.steps.model.data.SyncData
 
 class LocalSyncRepository(
-    private val stepDao: StepDao = appDb.getStepDao(),
-    private val pathStepDao: PathStepDao = appDb.getPathStepDao(),
+    private val dao: SyncDao = appDb.getSyncDao(),
 ): SyncRepository {
 
-    override suspend fun readSync(lastSyncAt: Instant): SyncData {
-        val steps = stepDao.readStepsUpdatedAfter(lastSyncAt).map { it.toStep() }
-        val pathSteps = pathStepDao.readPathStepsByPathIds(steps.map { it.id })
-        return SyncData(steps, pathSteps)
+    suspend fun readSyncStartAt() = dao.readLastSync()?.endSyncAt ?: defaultStartSyncAt
+
+    suspend fun logSync(startSyncAt: Instant, endSyncAt: Instant) {
+        dao.deleteAllSyncRecords()
+        dao.insert(SyncRecord(startSyncAt = startSyncAt, endSyncAt = endSyncAt))
     }
 
-    override suspend fun writeSync(data: SyncData): Int {
-        val count = stepDao.upsert(*data.steps.map { it.toEntity() }.toTypedArray()).size
-        pathStepDao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
-        return count
+    override suspend fun readSync(syncStartAt: Instant, syncEndAt: Instant): SyncData {
+        val deletions = dao.readAllDeletionsBefore(syncEndAt).toSet()
+        val steps = dao.readStepsUpdated(syncStartAt, syncEndAt).map { it.toStep() }
+        val pathSteps = dao.readPathStepsUpdated(syncStartAt, syncEndAt)
+        // val questions = questionDao.readQuestionsByStepIds(stepIds)
+        return SyncData(
+            startSyncAt = syncStartAt,
+            endSyncAt = syncEndAt,
+            deletions = deletions,
+            steps = steps,
+            pathSteps = pathSteps
+        )
+    }
+
+    override suspend fun writeSync(data: SyncData): Boolean {
+        val deletions = data.deletions.toList()
+
+        // handle updates
+        dao.upsert(*data.steps.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
+
+        // handle deletions
+        dao.deleteStepsInList(deletions)
+        dao.deletePathStepsInList(deletions)
+        dao.deleteDeletionsInList(deletions)
+        dao.deleteDeletionsBefore(data.endSyncAt)
+        return true
     }
 }
+
+private val defaultStartSyncAt = LocalDate.parse("2017-03-20").atStartOfDayIn(TimeZone.UTC)

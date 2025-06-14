@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import ponder.steps.model.data.DataType
+import ponder.steps.model.data.Question
 
 @Entity(
     foreignKeys = [
@@ -22,4 +23,14 @@ data class QuestionEntity(
     val minValue: Int?,
     val maxValue: Int?,
     val audioUrl: String? = null,
+)
+
+fun Question.toEntity() = QuestionEntity(
+    id = id,
+    stepId = stepId,
+    text = text,
+    type = type,
+    minValue = minValue,
+    maxValue = maxValue,
+    audioUrl = audioUrl,
 )

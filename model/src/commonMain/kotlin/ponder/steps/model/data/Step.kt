@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Step(
     val id: String,
-    val userId: String?,
+    val userId: String,
     val label: String,
     val description: String?,
     val theme: String?,

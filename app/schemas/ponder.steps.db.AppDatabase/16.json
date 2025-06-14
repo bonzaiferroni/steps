@@ -1,0 +1,764 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 16,
+    "identityHash": "35429a0acee298503b11a34a82921fdb",
+    "entities": [
+      {
+        "tableName": "Sprite",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `speed` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "speed",
+            "columnName": "speed",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "StepEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `label` TEXT NOT NULL, `description` TEXT, `theme` TEXT, `expectedMins` INTEGER, `imgUrl` TEXT, `thumbUrl` TEXT, `shortAudioUrl` TEXT, `longAudioUrl` TEXT, `isPublic` INTEGER NOT NULL, `pathSize` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "theme",
+            "columnName": "theme",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "expectedMins",
+            "columnName": "expectedMins",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "imgUrl",
+            "columnName": "imgUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "thumbUrl",
+            "columnName": "thumbUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shortAudioUrl",
+            "columnName": "shortAudioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "longAudioUrl",
+            "columnName": "longAudioUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isPublic",
+            "columnName": "isPublic",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pathSize",
+            "columnName": "pathSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "PathStepEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `stepId` TEXT NOT NULL, `pathId` TEXT NOT NULL, `position` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`pathId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`stepId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepId",
+            "columnName": "stepId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pathId",
+            "columnName": "pathId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PathStepEntity_pathId",
+            "unique": false,
+            "columnNames": [
+              "pathId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PathStepEntity_pathId` ON `${TABLE_NAME}` (`pathId`)"
+          },
+          {
+            "name": "index_PathStepEntity_stepId",
+            "unique": false,
+            "columnNames": [
+              "stepId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PathStepEntity_stepId` ON `${TABLE_NAME}` (`stepId`)"
+          },
+          {
+            "name": "index_PathStepEntity_pathId_position",
+            "unique": true,
+            "columnNames": [
+              "pathId",
+              "position"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_PathStepEntity_pathId_position` ON `${TABLE_NAME}` (`pathId`, `position`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "StepEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "pathId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "StepEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "stepId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "IntentEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `rootId` TEXT NOT NULL, `label` TEXT NOT NULL, `repeatMins` INTEGER, `expectedMins` INTEGER, `priority` TEXT NOT NULL, `pathIds` TEXT NOT NULL, `completedAt` INTEGER, `scheduledAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`rootId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rootId",
+            "columnName": "rootId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "repeatMins",
+            "columnName": "repeatMins",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "expectedMins",
+            "columnName": "expectedMins",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "priority",
+            "columnName": "priority",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pathIds",
+            "columnName": "pathIds",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completedAt",
+            "columnName": "completedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "scheduledAt",
+            "columnName": "scheduledAt",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_IntentEntity_rootId",
+            "unique": false,
+            "columnNames": [
+              "rootId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IntentEntity_rootId` ON `${TABLE_NAME}` (`rootId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "StepEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rootId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TrekEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `intentId` TEXT NOT NULL, `rootId` TEXT NOT NULL, `stepId` TEXT NOT NULL, `stepIndex` INTEGER NOT NULL, `stepCount` INTEGER NOT NULL, `isComplete` INTEGER NOT NULL, `pathIds` TEXT NOT NULL, `breadCrumbs` TEXT NOT NULL, `availableAt` INTEGER NOT NULL, `startedAt` INTEGER, `progressAt` INTEGER, `finishedAt` INTEGER, `expectedAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`intentId`) REFERENCES `IntentEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rootId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intentId",
+            "columnName": "intentId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rootId",
+            "columnName": "rootId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepId",
+            "columnName": "stepId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepIndex",
+            "columnName": "stepIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepCount",
+            "columnName": "stepCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isComplete",
+            "columnName": "isComplete",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pathIds",
+            "columnName": "pathIds",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "breadCrumbs",
+            "columnName": "breadCrumbs",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "availableAt",
+            "columnName": "availableAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "startedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "progressAt",
+            "columnName": "progressAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "finishedAt",
+            "columnName": "finishedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "expectedAt",
+            "columnName": "expectedAt",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_TrekEntity_intentId",
+            "unique": false,
+            "columnNames": [
+              "intentId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekEntity_intentId` ON `${TABLE_NAME}` (`intentId`)"
+          },
+          {
+            "name": "index_TrekEntity_rootId",
+            "unique": false,
+            "columnNames": [
+              "rootId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekEntity_rootId` ON `${TABLE_NAME}` (`rootId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "IntentEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "intentId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "StepEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "rootId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "LogEntryEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `stepId` TEXT NOT NULL, `trekId` TEXT NOT NULL, `outcome` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`stepId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`trekId`) REFERENCES `TrekEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepId",
+            "columnName": "stepId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trekId",
+            "columnName": "trekId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LogEntryEntity_stepId",
+            "unique": false,
+            "columnNames": [
+              "stepId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntryEntity_stepId` ON `${TABLE_NAME}` (`stepId`)"
+          },
+          {
+            "name": "index_LogEntryEntity_trekId",
+            "unique": false,
+            "columnNames": [
+              "trekId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntryEntity_trekId` ON `${TABLE_NAME}` (`trekId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "StepEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "stepId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "TrekEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "trekId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "AnswerEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`logId` TEXT NOT NULL, `questionId` TEXT NOT NULL, `value` TEXT NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`logId`, `questionId`), FOREIGN KEY(`logId`) REFERENCES `LogEntryEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`questionId`) REFERENCES `QuestionEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "logId",
+            "columnName": "logId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionId",
+            "columnName": "questionId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "logId",
+            "questionId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AnswerEntity_logId",
+            "unique": false,
+            "columnNames": [
+              "logId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AnswerEntity_logId` ON `${TABLE_NAME}` (`logId`)"
+          },
+          {
+            "name": "index_AnswerEntity_questionId",
+            "unique": false,
+            "columnNames": [
+              "questionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AnswerEntity_questionId` ON `${TABLE_NAME}` (`questionId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "LogEntryEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "logId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "QuestionEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "questionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "QuestionEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `stepId` TEXT NOT NULL, `text` TEXT NOT NULL, `type` TEXT NOT NULL, `minValue` INTEGER, `maxValue` INTEGER, `audioUrl` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`stepId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stepId",
+            "columnName": "stepId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minValue",
+            "columnName": "minValue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "maxValue",
+            "columnName": "maxValue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "audioUrl",
+            "columnName": "audioUrl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_QuestionEntity_stepId",
+            "unique": false,
+            "columnNames": [
+              "stepId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_QuestionEntity_stepId` ON `${TABLE_NAME}` (`stepId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "StepEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "stepId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "DeletionEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `recordedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordedAt",
+            "columnName": "recordedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "SyncRecord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `startSyncAt` INTEGER NOT NULL, `endSyncAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startSyncAt",
+            "columnName": "startSyncAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endSyncAt",
+            "columnName": "endSyncAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35429a0acee298503b11a34a82921fdb')"
+    ]
+  }
+}

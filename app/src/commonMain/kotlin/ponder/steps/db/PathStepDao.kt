@@ -8,6 +8,8 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
 
 @Dao
@@ -23,7 +25,7 @@ interface PathStepDao {
     suspend fun upsert(vararg pathSteps: PathStepEntity): LongArray
 
     @Delete
-    suspend fun deletePathStep(pathStep: PathStepEntity): Int
+    suspend fun delete(pathStep: PathStepEntity): Int
 
     @RewriteQueriesToDropUnusedColumns
     @Query(

@@ -112,52 +112,6 @@ class PathService : DbService(1) {
             StepTable.label.lowerCase().like("%${query.lowercase()}%")
         }.map { it.toStep() }
     }
-
-    suspend fun writeSync(data: SyncData, userId: String) = dbQuery {
-        var updateSteps = 0
-        for (step in data.steps) {
-            val pair = StepTable.select(StepTable.userId, StepTable.updatedAt)
-                .where { StepTable.id.eq(step.id) }
-                .firstOrNull()?.let { Pair(it[StepTable.userId].value.toStringId(), it[StepTable.updatedAt].toInstantFromUtc()) }
-            if (pair != null && (pair.first != userId || pair.second > step.updatedAt)) continue
-
-            StepTable.upsert(
-                where = { StepTable.userId.eq(userId) and StepTable.updatedAt.less(step.updatedAt) },
-            ) {
-                it[this.id] = step.id.fromStringId()
-                it[this.userId] = userId.fromStringId()
-                it[this.label] = step.label
-                it[this.description] = step.description
-                it[this.theme] = step.theme
-                it[this.expectedMins] = step.expectedMins
-                it[this.imgUrl] = step.imgUrl
-                it[this.thumbUrl] = step.thumbUrl
-                it[this.shortAudioUrl] = step.shortAudioUrl
-                it[this.isPublic] = step.isPublic
-                it[this.pathSize] = step.pathSize
-                it[this.updatedAt] = step.updatedAt.toLocalDateTimeUtc()
-                it[this.createdAt] = step.createdAt.toLocalDateTimeUtc()
-            }
-
-            val pathSteps = data.pathSteps.filter { it.pathId == step.id }
-
-            PathStepTable.batchUpsert(pathSteps) {
-                this[PathStepTable.id] = it.id.fromStringId()
-                this[PathStepTable.stepId] = it.stepId.fromStringId()
-                this[PathStepTable.pathId] = it.pathId.fromStringId()
-                this[PathStepTable.position] = it.position
-            }
-            updateSteps++
-        }
-        updateSteps
-    }
-
-    suspend fun readSync(lastSyncAt: Instant, userId: String) = dbQuery {
-        val steps = StepTable.read { it.userId.eq(userId) and it.updatedAt.greater(lastSyncAt) }.map { it.toStep() }
-        val stepIds = steps.map { it.id.fromStringId() }
-        val pathSteps = PathStepTable.read { it.pathId.inList(stepIds) }.map { it.toPathStep() }
-        SyncData(steps, pathSteps)
-    }
 }
 
 fun updatePathSize(pathId: String) {

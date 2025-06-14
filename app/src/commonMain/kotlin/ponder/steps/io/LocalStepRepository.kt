@@ -4,7 +4,7 @@ package ponder.steps.io
 
 import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Instant
+import kotlinx.datetime.Clock
 import ponder.steps.appDb
 import ponder.steps.appUserId
 import ponder.steps.db.PathStepDao
@@ -15,7 +15,6 @@ import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.SyncData
 import kotlin.uuid.ExperimentalUuidApi
 
 class LocalStepRepository(
@@ -32,7 +31,8 @@ class LocalStepRepository(
                 id = stepId,
                 label = label,
                 userId = userId,
-                description = newStep.description
+                description = newStep.description,
+                createdAt = Clock.System.now(),
             )
         )
 
@@ -47,7 +47,7 @@ class LocalStepRepository(
 
     override suspend fun removeStepFromPath(pathId: String, stepId: String, position: Int): Boolean {
         val pathStep = pathStepDao.readPathStepAtPosition(pathId, stepId, position) ?: return false
-        return pathStepDao.deletePathStep(pathStep.toEntity()) == 1
+        return pathStepDao.delete(pathStep.toEntity()) == 1
     }
 
     override suspend fun addStepToPath(pathId: String, stepId: String, position: Int?): Boolean {
@@ -70,7 +70,7 @@ class LocalStepRepository(
                 id = pathStepId,
                 stepId = stepId,
                 pathId = pathId,
-                position = pathPosition
+                position = pathPosition,
             )
         )
 

@@ -4,9 +4,7 @@ import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
 import ponder.steps.io.DataMerger
-import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalSyncRepository
-import ponder.steps.io.RemoteStepRepository
 import ponder.steps.io.RemoteSyncRepository
 import pondui.LocalValueRepository
 import pondui.ProvideWavePlayer
@@ -27,12 +25,9 @@ fun App(
             ProvideUserContext {
                 val scope = rememberCoroutineScope()
                 remember {
-                    val valueRepo = LocalValueRepository()
                     val sync = DataMerger(
-                        leftRepo = LocalSyncRepository(),
-                        rightRepo = RemoteSyncRepository(),
-                        lastSyncAt = valueRepo.readInstant("lastUpdatedAt"),
-                        onSync = { valueRepo.writeInstant("lastUpdatedAt", it) }
+                        localRepo = LocalSyncRepository(),
+                        remoteRepo = RemoteSyncRepository(),
                     )
                     sync.init(scope)
                 }

@@ -30,5 +30,6 @@ fun Application.configureApiRoutes() {
         serveGemini()
         serveIntents()
         serveJourney()
+        serveSync()
     }
 }

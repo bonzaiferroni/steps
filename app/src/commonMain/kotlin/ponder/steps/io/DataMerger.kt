@@ -8,33 +8,30 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.SyncData
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 class DataMerger(
-    private val leftRepo: SyncRepository,
-    private val rightRepo: SyncRepository,
-    private var lastSyncAt: Instant,
-    private val onSync: (Instant) -> Unit,
-    private val interval: Duration = 10.seconds
+    private val localRepo: LocalSyncRepository,
+    private val remoteRepo: SyncRepository,
+    private val interval: Duration = 1.minutes
 ) {
     fun init(scope: CoroutineScope) {
         scope.launch(Dispatchers.IO) {
             while (true) {
                 try {
-                    val syncAt = lastSyncAt
-//                    val syncAt = Clock.System.now() - 10.days
-                    lastSyncAt = Clock.System.now()
+                    val startSyncAt = localRepo.readSyncStartAt()
+                    val endSyncAt = Clock.System.now()
 
-                    val leftResponse = leftRepo.readSync(syncAt)
-                    val rightResponse = rightRepo.readSync(syncAt)
+                    val localData = localRepo.readSync(startSyncAt, endSyncAt)
+                    val remoteData = remoteRepo.readSync(startSyncAt, endSyncAt)
 
-                    val leftCount = syncSteps(leftResponse, rightResponse, rightRepo)
-                    val rightCount = syncSteps(rightResponse, leftResponse, leftRepo)
+                    logData("sending", localData)
+                    logData("receiving", remoteData)
 
-                    if (leftCount > 0) println("sync'd $leftCount steps left to right")
-                    if (rightCount > 0) println("sync'd $rightCount steps right to left")
-                    onSync(syncAt)
+                    localRepo.writeSync(resolveConflicts(remoteData, localData))
+                    remoteRepo.writeSync(resolveConflicts(localData, remoteData))
+
+                    localRepo.logSync(startSyncAt, endSyncAt)
                 } catch (e: Exception) {
                     println("Error with sync: ${e.message}")
                     break
@@ -44,15 +41,38 @@ class DataMerger(
             }
         }
     }
+}
 
-    private suspend fun syncSteps(origin: SyncData, target: SyncData, targetRepo: SyncRepository): Int {
-        val steps = origin.steps.filter { origin ->
-            target.steps.all { target -> origin.id != target.id || origin.updatedAt > target.updatedAt }
-        }
-        val pathSteps = origin.pathSteps.filter { pathStep ->
-            steps.any { it.id == pathStep.id }
-        }
-        targetRepo.writeSync(SyncData(steps, pathSteps))
-        return steps.size
+private fun logData(label: String, data: SyncData) {
+    if (data.isEmpty) return
+    println(label)
+    println("deletions: ${data.deletions.size}, steps: ${data.steps.size}, pathSteps: ${data.pathSteps.size}")
+}
+
+private fun resolveConflicts(incoming: SyncData, outgoing: SyncData) = incoming.copy(
+    steps = resolveConflicts(incoming.steps, outgoing.steps, outgoing.deletions) { UpdatedItem(it.id, it.updatedAt) },
+    pathSteps = resolveConflicts(incoming.pathSteps, outgoing.pathSteps, outgoing.deletions) {
+        UpdatedItem(
+            it.id,
+            it.updatedAt
+        )
+    },
+)
+
+private fun <T> resolveConflicts(
+    incoming: List<T>,
+    outgoing: List<T>,
+    deletions: Set<String>,
+    toItem: (T) -> UpdatedItem
+) = incoming.filter { incomingItem ->
+    val (incomingId, incomingUpdatedAt) = toItem(incomingItem)
+    !deletions.contains(incomingId) && outgoing.all { outgoingItem ->
+        val (outgoingId, outgoingUpdatedAt) = toItem(outgoingItem)
+        incomingId != outgoingId || incomingUpdatedAt > outgoingUpdatedAt
     }
 }
+
+private data class UpdatedItem(
+    val id: String,
+    val updatedAt: Instant
+)

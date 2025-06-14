@@ -2,17 +2,14 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.randomUuidStringId
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ponder.steps.db.QuestionEntity
 import ponder.steps.io.AiClient
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.QuestionRepository
 import ponder.steps.model.data.DataType
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.SpeechRequest
 import ponder.steps.model.data.SpeechVoice
-import ponder.steps.ui.SETTINGS_DEFAULT_AUDIO_THEME
-import ponder.steps.ui.SETTINGS_DEFAULT_VOICE
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
@@ -90,7 +87,7 @@ class AddQuestionModel(
             }
 
             // Create the question entity
-            val questionEntity = QuestionEntity(
+            val question = Question(
                 id = questionId,
                 stepId = stepId,
                 text = stateNow.questionText,
@@ -101,7 +98,7 @@ class AddQuestionModel(
             )
 
             // Insert the question entity into the database using the repository
-            questionRepo.createQuestion(questionEntity)
+            questionRepo.createQuestion(question)
 
             // Reset state and dismiss the dialog
             resetState()

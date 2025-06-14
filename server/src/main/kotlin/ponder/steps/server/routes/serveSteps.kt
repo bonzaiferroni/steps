@@ -72,16 +72,6 @@ fun Routing.serveSteps(
             } ?: error("suggestions is null")
             StepSuggestResponse(suggestions)
         }
-
-        post(Api.Steps.ReadSync) { lastSyncAt, endpoint ->
-            val userId = call.getUserId()
-            service.readSync(lastSyncAt, userId)
-        }
-
-        post(Api.Steps.WriteSync) { data, endpoint ->
-            val userId = call.getUserId()
-            service.writeSync(data, userId)
-        }
     }
 }
 

@@ -11,7 +11,7 @@ import ponder.steps.model.data.Question
 @Dao
 interface QuestionDao {
     @Insert
-    suspend fun insert(log: QuestionEntity)
+    suspend fun insert(log: QuestionEntity): Long
 
     @Update
     suspend fun update(vararg log: QuestionEntity): Int
@@ -24,4 +24,7 @@ interface QuestionDao {
 
     @Query("SELECT * FROM QuestionEntity WHERE stepId = :stepId")
     fun flowQuestionsByStepId(stepId: String): Flow<List<Question>>
+
+    @Query("SELECT * FROM QuestionEntity WHERE stepId IN (:stepIds)")
+    suspend fun readQuestionsByStepIds(stepIds: List<String>): List<Question>
 }
