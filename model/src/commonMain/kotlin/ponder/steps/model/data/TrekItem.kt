@@ -14,6 +14,8 @@ data class TrekItem(
     val stepImgUrl: String?,
     val stepThumbUrl: String?,
     val stepDescription: String?,
+    val stepAudioLabelUrl: String?,
+    val stepAudioFullUrl: String?,
     val intentLabel: String,
     val intentPriority: IntentPriority,
     val expectedMinutes: Int?,

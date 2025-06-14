@@ -11,6 +11,7 @@ import ponder.steps.model.data.ImageUrls
 import ponder.steps.model.data.SpeechRequest
 import ponder.steps.server.plugins.env
 import ponder.steps.server.routes.requestToFilename
+import ponder.steps.server.utils.pcmToDownsampledWaveWav
 import ponder.steps.server.utils.pcmToWav
 import ponder.steps.server.utils.writePngThumbnail
 import java.io.File
@@ -19,7 +20,7 @@ import java.util.Base64
 class GeminiService(
     val client: GeminiClient = GeminiClient(
         token = env.read("GEMINI_KEY_RATE_LIMIT_A"),
-        // backupToken = env.read("GEMINI_KEY_RATE_LIMIT_B"),
+        backupToken = env.read("GEMINI_KEY_RATE_LIMIT_B"),
         logMessage = log::message,
     )
 ) {

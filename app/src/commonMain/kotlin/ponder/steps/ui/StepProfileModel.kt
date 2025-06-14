@@ -160,7 +160,7 @@ class StepProfileModel(
             }
 
             // Update the step with the audio URLs
-            val updatedStep = step.copy(shortAudioUrl = shortAudioUrl, longAudioUrl = longAudioUrl)
+            val updatedStep = step.copy(audioLabelUrl = shortAudioUrl, audioFullUrl = longAudioUrl)
             stepRepo.updateStep(updatedStep)
         }
     }

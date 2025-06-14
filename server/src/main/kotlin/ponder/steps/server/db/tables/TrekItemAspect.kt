@@ -21,6 +21,8 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val stepImgUrl = add(StepTable.imgUrl)
     val stepThumbUrl = add(StepTable.thumbUrl)
     val stepDescription = add(StepTable.description)
+    val stepAudioLabelUrl = add(StepTable.audioLabelUrl)
+    val stepAudioFullUrl = add(StepTable.audioFullUrl)
     val intentLabel = add(IntentTable.label)
     val intentPriority = add(IntentTable.priority)
     val expectedMinutes = add(IntentTable.expectedMins)
@@ -39,12 +41,14 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     stepImgUrl = this[TrekItemAspect.stepImgUrl],
     stepThumbUrl = this[TrekItemAspect.stepThumbUrl],
     stepDescription = this[TrekItemAspect.stepDescription],
+    stepAudioLabelUrl = this[TrekItemAspect.stepAudioLabelUrl],
+    stepAudioFullUrl = this[TrekItemAspect.stepAudioFullUrl],
     intentLabel = this[TrekItemAspect.intentLabel],
     intentPriority = this[TrekItemAspect.intentPriority],
     expectedMinutes = this[TrekItemAspect.expectedMinutes],
     availableAt = this[TrekItemAspect.availableAt].toInstantFromUtc(),
     startedAt = this[TrekItemAspect.startedAt]?.toInstantFromUtc(),
-    finishedAt = this[TrekItemAspect.finishedAt]?.toInstantFromUtc()
+    finishedAt = this[TrekItemAspect.finishedAt]?.toInstantFromUtc(),
 )
 
 // @Serializable

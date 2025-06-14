@@ -36,7 +36,6 @@ import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
-import ponder.steps.ui.QuestionRow
 import pondui.PlayWave
 import pondui.utils.addShadow
 
@@ -51,7 +50,7 @@ fun StepProfileScreen(
 
     val profileStep = state.step ?: return
 
-    profileStep.shortAudioUrl?.let {
+    profileStep.audioLabelUrl?.let {
         PlayWave("http://localhost:8080/${it}")
     }
 

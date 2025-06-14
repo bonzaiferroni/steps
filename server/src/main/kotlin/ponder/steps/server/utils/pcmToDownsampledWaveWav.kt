@@ -4,7 +4,17 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import javax.sound.sampled.*
 
-fun pcmToWav(
+// returns a proper WAV byte array every time
+fun pcmToWav(pcm: ByteArray): ByteArray {
+    val format = AudioFormat(24000f, 16, 1, true, false)
+    val frameCount = pcm.size / (format.sampleSizeInBits/8)
+    val pcmStream  = AudioInputStream(ByteArrayInputStream(pcm), format, frameCount.toLong())
+    val out = ByteArrayOutputStream()
+    AudioSystem.write(pcmStream, AudioFileFormat.Type.WAVE, out)
+    return out.toByteArray()
+}
+
+fun pcmToDownsampledWaveWav(
     pcm: ByteArray,
     inputSampleRate: Float = 24000f,
     bitsPerSample: Int = 16,

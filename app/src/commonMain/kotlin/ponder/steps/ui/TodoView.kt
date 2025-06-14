@@ -16,6 +16,8 @@ import compose.icons.tablericons.Plus
 import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Question
+import pondui.LocalWavePlayer
+import pondui.PlayWave
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
 import pondui.ui.controls.BottomBarSpacer
@@ -30,6 +32,7 @@ fun TodoView() {
     val viewModel = viewModel { TodoModel() }
     val state by viewModel.state.collectAsState()
     val nav = LocalNav.current
+    val player = LocalWavePlayer.current
 
     DisposableEffect(Unit) {
         onDispose(viewModel::onDispose)
@@ -55,6 +58,16 @@ fun TodoView() {
         items(state.items, key = { it.trekId }) { item ->
             val questionSet = state.questionSets.firstOrNull { it.trekId == item.trekId }
             val question = questionSet?.questions?.firstOrNull()
+
+            if (item.finishedAt == null) {
+                LaunchedEffect(item) {
+                    val audioUrl = item.stepAudioLabelUrl
+                    if (audioUrl != null) {
+                        player.play(toServerUrl(audioUrl))
+                    }
+                }
+            }
+
             MagicItem(
                 item = question,
                 offsetX = 50.dp,
@@ -73,3 +86,5 @@ fun TodoView() {
         }
     }
 }
+
+fun toServerUrl(url: String) = "http://localhost:8080/$url"
