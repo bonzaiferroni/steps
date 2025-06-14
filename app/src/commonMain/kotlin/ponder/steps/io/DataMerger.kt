@@ -9,11 +9,12 @@ import kotlinx.datetime.Instant
 import ponder.steps.model.data.SyncData
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class DataMerger(
     private val localRepo: LocalSyncRepository,
     private val remoteRepo: SyncRepository,
-    private val interval: Duration = 1.minutes
+    private val interval: Duration = 10.seconds
 ) {
     fun init(scope: CoroutineScope) {
         scope.launch(Dispatchers.IO) {

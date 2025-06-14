@@ -16,6 +16,13 @@ fun Application.configureDatabases() {
     initDb(env, dbTables) {
         exec(RecordUpdatedPgTrigger("step", "path_step").buildSql())
         exec(RecordDeletionPgTrigger("step", "path_step").buildSql())
+        exec("""
+            ALTER TABLE path_step DROP CONSTRAINT path_step_path_id_position_unique;
+            ALTER TABLE path_step
+                ADD CONSTRAINT path_step_path_id_position_unique
+                UNIQUE(path_id, position)
+                DEFERRABLE INITIALLY DEFERRED
+        """.trimIndent())
     }
 }
 

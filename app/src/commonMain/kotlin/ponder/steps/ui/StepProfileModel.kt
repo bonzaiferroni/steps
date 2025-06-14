@@ -38,7 +38,7 @@ class StepProfileModel(
         }
         viewModelScope.launch {
             stepRepo.flowPathSteps(stepId).collect { steps ->
-                setState { it.copy(steps = steps) }
+                setState { it.copy(steps = steps.sortedBy { pStep -> pStep.position }) }
             }
         }
         viewModelScope.launch {

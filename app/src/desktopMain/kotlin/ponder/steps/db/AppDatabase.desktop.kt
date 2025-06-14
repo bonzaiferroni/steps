@@ -1,8 +1,7 @@
-package ponder.steps
+package ponder.steps.db
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ponder.steps.db.AppDatabase
 import java.io.File
 
 fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {

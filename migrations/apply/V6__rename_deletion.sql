@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS deletion (id uuid PRIMARY KEY, user_id uuid NOT NULL, recorded_at TIMESTAMP NOT NULL, CONSTRAINT fk_deletion_user_id__id FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE ON UPDATE RESTRICT);

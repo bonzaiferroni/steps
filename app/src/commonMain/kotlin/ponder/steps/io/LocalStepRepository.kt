@@ -47,7 +47,12 @@ class LocalStepRepository(
 
     override suspend fun removeStepFromPath(pathId: String, stepId: String, position: Int): Boolean {
         val pathStep = pathStepDao.readPathStepAtPosition(pathId, stepId, position) ?: return false
-        return pathStepDao.delete(pathStep.toEntity()) == 1
+        val isSuccess = pathStepDao.delete(pathStep.toEntity()) == 1
+        if (isSuccess) {
+            updatePathSize(pathId)
+            orderPathSteps(pathId)
+        }
+        return isSuccess
     }
 
     override suspend fun addStepToPath(pathId: String, stepId: String, position: Int?): Boolean {
@@ -92,11 +97,19 @@ class LocalStepRepository(
         stepDao.update(path)
     }
 
+    private suspend fun orderPathSteps(pathId: String) {
+        val pathSteps = pathStepDao.readPathStepEntities(pathId)
+            .sortedBy { it.position }.mapIndexed { index, pathStep ->
+                pathStep.copy(position = index)
+            }
+        pathStepDao.update(*pathSteps.toTypedArray())
+    }
+
     override suspend fun readStep(stepId: String) = stepDao.readStepOrNull(stepId)?.toStep()
 
     override fun flowStep(stepId: String) = stepDao.flowStep(stepId).map { it.toStep() }
 
-    override suspend fun readPathSteps(pathId: String) = pathStepDao.readPathSteps(pathId = pathId).map { it.toStep() }
+    override suspend fun readPathSteps(pathId: String) = pathStepDao.readJoinedPathSteps(pathId = pathId).map { it.toStep() }
 
     override fun flowPathSteps(pathId: String) = pathStepDao.flowPathSteps(pathId).map { list -> list.map { it.toStep() } }
 
@@ -112,20 +125,11 @@ class LocalStepRepository(
         val stepCount = pathStepDao.readPathStepCount(pathId)
         if (movedPosition > stepCount - 1) return false
         val displacedPathStep = pathStepDao.readPathStepByPosition(pathId, movedPosition) ?: return false
-        return pathStepDao.update(
-            PathStepEntity(
-                id = pathStep.id,
-                stepId = pathStep.stepId,
-                pathId = pathStep.pathId,
-                position = displacedPathStep.position
-            ),
-            PathStepEntity(
-                id = displacedPathStep.id,
-                stepId = displacedPathStep.stepId,
-                pathId = displacedPathStep.pathId,
-                position = pathStep.position
-            )
-        ) == 2
+        pathStepDao.setPositions(
+            firstId = pathStep.id, firstPos = displacedPathStep.position,
+            secondId = displacedPathStep.id, secondPos = pathStep.position,
+        )
+        return true
     }
 
     override suspend fun readSearch(text: String, limit: Int) = stepDao.searchSteps(text, limit).map { it.toStep() }

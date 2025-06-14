@@ -1,9 +1,8 @@
-package ponder.steps
+package ponder.steps.db
 
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import ponder.steps.db.AppDatabase
 
 fun getDatabaseBuilder(ctx: Context): RoomDatabase.Builder<AppDatabase> {
     val appContext = ctx.applicationContext

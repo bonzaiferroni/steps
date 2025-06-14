@@ -3,10 +3,14 @@ package ponder.steps.db
 import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
-import ponder.steps.AppDatabaseConstructor
+import ponder.steps.RecordDeletionTrigger
+import ponder.steps.RecordUpdatedTrigger
 
 @Database(
     entities = [
@@ -15,7 +19,7 @@ import ponder.steps.AppDatabaseConstructor
         IntentEntity::class, TrekEntity::class,
         LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncRecord::class
-    ], version = 16
+    ], version = 21
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -41,4 +45,24 @@ class Converters {
     fun fromStringList(value: List<String>): String = value.joinToString(",")
     @TypeConverter
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
+}
+
+// The Room compiler generates the `actual` implementations.
+@Suppress("NO_ACTUAL_FOR_EXPECT", "KotlinNoActualForExpect", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
+    override fun initialize(): AppDatabase
+}
+
+fun getRoomDatabase(
+    builder: RoomDatabase.Builder<AppDatabase>
+): AppDatabase {
+    return builder
+        .addCallback(RecordUpdatedTrigger("StepEntity", "PathStepEntity"))
+        .addCallback(RecordDeletionTrigger("StepEntity", "PathStepEntity"))
+        // .addMigrations(MIGRATIONS)
+        .fallbackToDestructiveMigration(true)
+        // .fallbackToDestructiveMigrationOnDowngrade(true)
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.IO)
+        .build()
 }

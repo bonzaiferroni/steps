@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 16,
-    "identityHash": "166729574f9a7b94282bb74a93d60dd1",
+    "version": 19,
+    "identityHash": "35429a0acee298503b11a34a82921fdb",
     "entities": [
       {
         "tableName": "Sprite",
@@ -182,6 +182,16 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_PathStepEntity_stepId` ON `${TABLE_NAME}` (`stepId`)"
+          },
+          {
+            "name": "index_PathStepEntity_pathId_position",
+            "unique": true,
+            "columnNames": [
+              "pathId",
+              "position"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_PathStepEntity_pathId_position` ON `${TABLE_NAME}` (`pathId`, `position`)"
           }
         ],
         "foreignKeys": [
@@ -748,7 +758,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '166729574f9a7b94282bb74a93d60dd1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '35429a0acee298503b11a34a82921fdb')"
     ]
   }
 }

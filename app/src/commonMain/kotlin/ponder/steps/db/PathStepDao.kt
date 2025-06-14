@@ -8,8 +8,6 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
 
 @Dao
@@ -27,13 +25,26 @@ interface PathStepDao {
     @Delete
     suspend fun delete(pathStep: PathStepEntity): Int
 
+    @Query("""
+        UPDATE PathStepEntity
+        SET position = CASE
+            WHEN id = :firstId  THEN :firstPos
+            WHEN id = :secondId THEN :secondPos
+        END
+        WHERE id IN (:firstId, :secondId)
+        """)
+    suspend fun setPositions(firstId: String, firstPos: Int, secondId: String, secondPos: Int): Int
+
     @RewriteQueriesToDropUnusedColumns
     @Query(
         "SELECT * FROM PathStepEntity " +
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
-    suspend fun readPathSteps(pathId: String): List<StepJoin>
+    suspend fun readJoinedPathSteps(pathId: String): List<StepJoin>
+
+    @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId")
+    suspend fun readPathStepEntities(pathId: String): List<PathStepEntity>
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
