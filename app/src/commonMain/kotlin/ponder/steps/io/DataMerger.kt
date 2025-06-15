@@ -29,15 +29,19 @@ class DataMerger(
                     logData("sending", localData)
                     logData("receiving", remoteData)
 
-                    if (!remoteData.isEmpty)
-                        localRepo.writeSync(resolveConflicts(remoteData, localData))
-                    if (!localData.isEmpty)
-                        remoteRepo.writeSync(resolveConflicts(localData, remoteData))
+                    if (!localData.isEmpty) {
+                        val isSuccess = remoteRepo.writeSync(resolveConflicts(localData, remoteData))
+                        if (!isSuccess) error("error writing remote data")
+                    }
+
+                    if (!remoteData.isEmpty) {
+                        val isSuccess = localRepo.writeSync(resolveConflicts(remoteData, localData))
+                        if (!isSuccess) error("error writing remote data")
+                    }
 
                     localRepo.logSync(startSyncAt, endSyncAt)
                 } catch (e: Exception) {
                     println("Error with sync: ${e.message}")
-                    break
                 }
 
                 delay(interval)

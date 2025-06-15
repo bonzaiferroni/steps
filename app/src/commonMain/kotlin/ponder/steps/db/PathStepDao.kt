@@ -37,7 +37,7 @@ interface PathStepDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
-        "SELECT * FROM PathStepEntity " +
+        "SELECT PathStepEntity.*, StepEntity.*, PathStepEntity.id AS pathStepId FROM PathStepEntity " +
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
@@ -48,7 +48,7 @@ interface PathStepDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
-        "SELECT * FROM PathStepEntity " +
+        "SELECT PathStepEntity.*, StepEntity.*, PathStepEntity.id AS pathStepId FROM PathStepEntity " +
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
@@ -56,7 +56,7 @@ interface PathStepDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
-        "SELECT * FROM PathStepEntity " +
+        "SELECT PathStepEntity.*, StepEntity.*, PathStepEntity.id AS pathStepId FROM PathStepEntity " +
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )

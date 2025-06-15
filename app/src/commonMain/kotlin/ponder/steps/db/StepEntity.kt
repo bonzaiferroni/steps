@@ -25,7 +25,7 @@ data class StepEntity(
     val createdAt: Instant,
 ) {
     companion object {
-        val Empty = StepEntity(
+        val Empty get() = StepEntity(
             id = "",
             userId = "",
             label = "",
@@ -60,6 +60,7 @@ fun StepEntity.toStep() = Step(
     updatedAt = updatedAt,
     createdAt = createdAt,
     pathId = null,
+    pathStepId = null,
     position = null,
 )
 

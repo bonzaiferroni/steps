@@ -21,5 +21,6 @@ data class Step(
     val createdAt: Instant,
 
     val pathId: String?,
-    val position: Int?,
+    val pathStepId: String?,
+    val position: Int?
 )

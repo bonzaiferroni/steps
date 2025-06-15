@@ -31,7 +31,6 @@ import pondui.ui.nav.LocalNav
 fun TodoView() {
     val viewModel = viewModel { TodoModel() }
     val state by viewModel.state.collectAsState()
-    val nav = LocalNav.current
     val player = LocalWavePlayer.current
 
     DisposableEffect(Unit) {

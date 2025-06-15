@@ -19,7 +19,7 @@ import ponder.steps.RecordUpdatedTrigger
         IntentEntity::class, TrekEntity::class,
         LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncRecord::class
-    ], version = 22
+    ], version = 23
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)

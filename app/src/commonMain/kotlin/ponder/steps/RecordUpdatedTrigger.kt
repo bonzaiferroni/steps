@@ -21,7 +21,7 @@ private fun toTrigger(tableName: String) = """
     WHEN NEW.updatedAt = OLD.updatedAt
     BEGIN
         UPDATE $tableName
-        SET updatedAt = CAST(strftime('%s','now') AS INTEGER) * 1000
+        SET updatedAt = CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)
         WHERE rowid = NEW.rowid;
     END;
 """.trimIndent()

@@ -156,7 +156,7 @@ fun StepProfileScreen(
             Tabs {
                 Tab("Steps") {
                     LazyColumn(0, Alignment.CenterHorizontally) {
-                        itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
+                        itemsIndexed(state.steps, key = { index, step -> { step.id } }) { index, step ->
                             Column(
                                 spacingUnits = 1,
                                 modifier = Modifier.animateItem()

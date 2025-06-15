@@ -38,8 +38,8 @@ interface SyncDao {
     @Query("DELETE FROM SyncRecord")
     suspend fun deleteAllSyncRecords()
 
-    @Query("SELECT * FROM StepEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
-    suspend fun readStepsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<StepEntity>
+    @Query("SELECT * FROM StepEntity WHERE updatedAt > :startSyncAt AND :endSyncAt >= updatedAt")
+    suspend fun readStepsUpdated(startSyncAt: Instant, endSyncAt: Instant): List<StepEntity>
 
     @Query("SELECT * FROM PathStepEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
     suspend fun readPathStepsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<PathStep>

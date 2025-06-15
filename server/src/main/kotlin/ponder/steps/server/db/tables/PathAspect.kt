@@ -14,6 +14,7 @@ object PathAspect: Aspect<PathAspect, Step>(
     val stepId = add(StepTable.id)
     val userId = add(StepTable.userId)
     val pathId = add(PathStepTable.pathId)
+    val pathStepId = add(PathStepTable.id)
     val label = add(StepTable.label)
     val description = add(StepTable.description)
     val theme = add(StepTable.theme)
@@ -34,6 +35,7 @@ fun ResultRow.toStep() = Step(
     id = this[PathAspect.stepId].value.toStringId(),
     userId = this[PathAspect.userId].value.toStringId(),
     pathId = this.getOrNull(PathAspect.pathId)?.value?.toStringId(),
+    pathStepId = this.getOrNull(PathAspect.pathStepId)?.value?.toStringId(),
     label = this[PathAspect.label],
     description = this[PathAspect.description],
     theme = this[PathAspect.theme],
