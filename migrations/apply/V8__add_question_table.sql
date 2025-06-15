@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS question (id uuid PRIMARY KEY, user_id uuid NOT NULL, "text" TEXT NOT NULL, "type" INT NOT NULL, min_value INT NULL, max_value INT NULL, audio_url TEXT NULL, updated_at TIMESTAMP NOT NULL, CONSTRAINT fk_question_user_id__id FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE ON UPDATE RESTRICT);
