@@ -53,17 +53,22 @@ class DataMerger(
 private fun logData(label: String, data: SyncData) {
     if (data.isEmpty) return
     println(label)
-    println("deletions: ${data.deletions.size}, steps: ${data.steps.size}, pathSteps: ${data.pathSteps.size}")
+    print("deletions: ${data.deletions.size}")
+    print(", steps: ${data.steps.size}")
+    print(", pathSteps: ${data.pathSteps.size}")
+    println(", questions: ${data.questions.size}")
 }
 
 private fun resolveConflicts(incoming: SyncData, outgoing: SyncData) = incoming.copy(
-    steps = resolveConflicts(incoming.steps, outgoing.steps, outgoing.deletions) { UpdatedItem(it.id, it.updatedAt) },
-    pathSteps = resolveConflicts(incoming.pathSteps, outgoing.pathSteps, outgoing.deletions) {
-        UpdatedItem(
-            it.id,
-            it.updatedAt
-        )
+    steps = resolveConflicts(incoming.steps, outgoing.steps, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
     },
+    pathSteps = resolveConflicts(incoming.pathSteps, outgoing.pathSteps, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
+    questions = resolveConflicts(incoming.questions, outgoing.questions, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    }
 )
 
 private fun <T> resolveConflicts(

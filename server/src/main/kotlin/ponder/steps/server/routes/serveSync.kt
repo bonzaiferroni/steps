@@ -5,9 +5,9 @@ import klutch.server.authenticateJwt
 import klutch.server.post
 import klutch.utils.getUserId
 import ponder.steps.model.Api
-import ponder.steps.server.db.services.SyncService
+import ponder.steps.server.db.services.SyncApiService
 
-fun Routing.serveSync(service: SyncService = SyncService()) {
+fun Routing.serveSync(service: SyncApiService = SyncApiService()) {
     authenticateJwt {
         post(Api.Sync.Read) { request, endpoint ->
             val userId = call.getUserId()

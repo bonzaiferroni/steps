@@ -27,13 +27,15 @@ class LocalSyncRepository(
         val deletions = dao.readAllDeletionsBefore(syncEndAt).toSet()
         val steps = dao.readStepsUpdated(syncStartAt, syncEndAt).map { it.toStep() }
         val pathSteps = dao.readPathStepsUpdated(syncStartAt, syncEndAt)
+        val questions = dao.readQuestionsUpdated(syncStartAt, syncEndAt)
         // val questions = questionDao.readQuestionsByStepIds(stepIds)
         return SyncData(
             startSyncAt = syncStartAt,
             endSyncAt = syncEndAt,
             deletions = deletions,
             steps = steps,
-            pathSteps = pathSteps
+            pathSteps = pathSteps,
+            questions = questions
         )
     }
 
@@ -43,11 +45,13 @@ class LocalSyncRepository(
         // handle updates
         dao.upsert(*data.steps.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.questions.map { it.toEntity() }.toTypedArray())
 
         // handle deletions
         dao.deleteStepsInList(deletions)
         dao.deletePathStepsInList(deletions)
         dao.deleteDeletionsInList(deletions)
+        dao.deleteQuestionsInList(deletions)
         dao.deleteDeletionsBefore(data.endSyncAt)
         return true
     }

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.Question
 
 @Dao
 interface SyncDao {
@@ -23,11 +24,17 @@ interface SyncDao {
     @Upsert
     suspend fun upsert(vararg steps: StepEntity): LongArray
 
+    @Upsert
+    suspend fun upsert(vararg questions: QuestionEntity): LongArray
+
     @Query("DELETE FROM StepEntity WHERE id IN (:deletions)")
     suspend fun deleteStepsInList(deletions: List<String>)
 
     @Query("DELETE FROM PathStepEntity WHERE id IN (:deletions)")
     suspend fun deletePathStepsInList(deletions: List<String>)
+
+    @Query("DELETE FROM QuestionEntity WHERE id IN (:deletions)")
+    suspend fun deleteQuestionsInList(deletions: List<String>)
 
     @Query("DELETE FROM DeletionEntity WHERE id IN (:deletions)")
     suspend fun deleteDeletionsInList(deletions: List<String>)
@@ -43,6 +50,9 @@ interface SyncDao {
 
     @Query("SELECT * FROM PathStepEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
     suspend fun readPathStepsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<PathStep>
+
+    @Query("SELECT * FROM QuestionEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
+    suspend fun readQuestionsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<Question>
 
     @Query("SELECT id FROM DeletionEntity WHERE :syncAt > recordedAt")
     suspend fun readAllDeletionsBefore(syncAt: Instant): List<String>

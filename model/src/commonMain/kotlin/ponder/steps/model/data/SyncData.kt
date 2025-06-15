@@ -10,7 +10,7 @@ data class SyncData(
     val deletions: Set<String>,
     val steps: List<Step>,
     val pathSteps: List<PathStep>,
-    // val questions: List<Question>,
+    val questions: List<Question>,
 ) {
-    val isEmpty get() = deletions.isEmpty() && steps.isEmpty() && pathSteps.isEmpty()
+    val isEmpty get() = deletions.isEmpty() && steps.isEmpty() && pathSteps.isEmpty() && questions.isEmpty()
 }

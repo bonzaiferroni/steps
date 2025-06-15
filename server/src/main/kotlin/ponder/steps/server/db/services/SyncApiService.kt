@@ -18,20 +18,21 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.statements.BatchUpdateStatement
 import org.jetbrains.exposed.sql.update
 import ponder.steps.model.data.SyncData
-import ponder.steps.server.db.tables.DeletionsTable
+import ponder.steps.server.db.tables.DeletionTable
 import ponder.steps.server.db.tables.PathStepTable
+import ponder.steps.server.db.tables.QuestionTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.upsertStep
 import ponder.steps.server.db.tables.toPathStep
+import ponder.steps.server.db.tables.toQuestion
 import ponder.steps.server.db.tables.toStep
 import ponder.steps.server.db.tables.upsertPathStep
-import java.sql.BatchUpdateException
+import ponder.steps.server.db.tables.upsertQuestion
 import java.util.UUID
 
-class SyncService : DbService() {
+class SyncApiService : DbService() {
 
     suspend fun readSync(startSyncAt: Instant, endSyncAt: Instant, userId: String) = dbQuery {
 
@@ -40,9 +41,17 @@ class SyncService : DbService() {
 
         val steps = StepTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toStep() }
         val pathSteps = PathStepTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toPathStep() }
-        val deletions = DeletionsTable.readColumn(DeletionsTable.id) { syncTable(it.userId, it.recordedAt) }
+        val questions = QuestionTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toQuestion() }
+        val deletions = DeletionTable.readColumn(DeletionTable.id) { syncTable(it.userId, it.recordedAt) }
             .map { it.value.toStringId() }.toSet()
-        SyncData(startSyncAt, endSyncAt, deletions, steps, pathSteps)
+        SyncData(
+            startSyncAt = startSyncAt,
+            endSyncAt = endSyncAt,
+            deletions = deletions,
+            steps = steps,
+            pathSteps = pathSteps,
+            questions = questions,
+        )
     }
 
     suspend fun writeSync(data: SyncData, userId: String) = dbQuery {
@@ -60,21 +69,28 @@ class SyncService : DbService() {
                 body = upsertPathStep(userId)
             )
 
+            QuestionTable.batchUpsert(
+                data = data.questions,
+                where = { QuestionTable.userId.eq(userId) and QuestionTable.updatedAt.lessEq(data.endSyncAt) },
+                body = upsertQuestion(userId)
+            )
+
             // handle deletions
             val deletionIds = data.deletions.map { it.fromStringId() }
             StepTable.deleteWhere { this.id.inList(deletionIds) and this.userId.eq(userId) }
             PathStepTable.deleteWhere { this.id.inList(deletionIds) and this.userId.eq(userId) }
+            QuestionTable.deleteWhere { this.id.inList(deletionIds) and this.userId.eq(userId) }
 
             for (id in deletionIds) {
-                DeletionsTable.update(
-                    where = { DeletionsTable.id.eq(id) and DeletionsTable.userId.eq(userId) }
+                DeletionTable.update(
+                    where = { DeletionTable.id.eq(id) and DeletionTable.userId.eq(userId) }
                 ) {
-                    it[DeletionsTable.recordedAt] = data.endSyncAt.toLocalDateTimeUtc()
+                    it[DeletionTable.recordedAt] = data.endSyncAt.toLocalDateTimeUtc()
                 }
             }
 
             // proto garbage collection, needs to use device id
-            DeletionsTable.deleteWhere { this.userId.eq(userId) and this.recordedAt.lessEq(data.endSyncAt) }
+            DeletionTable.deleteWhere { this.userId.eq(userId) and this.recordedAt.lessEq(data.endSyncAt) }
 
             true
         } catch (e: ExposedSQLException) {

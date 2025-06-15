@@ -3,6 +3,7 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import ponder.steps.io.AiClient
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.QuestionRepository
@@ -94,7 +95,8 @@ class AddQuestionModel(
                 type = stateNow.questionType,
                 minValue = minValue,
                 maxValue = maxValue,
-                audioUrl = audioUrl
+                audioUrl = audioUrl,
+                updatedAt = Clock.System.now()
             )
 
             // Insert the question entity into the database using the repository

@@ -1,5 +1,6 @@
 package ponder.steps.model.data
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -11,4 +12,5 @@ data class Question(
     val minValue: Int? = null,
     val maxValue: Int? = null,
     val audioUrl: String? = null,
+    val updatedAt: Instant
 )

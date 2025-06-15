@@ -23,7 +23,7 @@ private fun toTrigger(tableName: String) = """
         INSERT INTO DeletionEntity (id, recordedAt)
         VALUES (
             OLD.id,
-            CAST(strftime('%s','now') AS INTEGER)*1000
+            CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)
         );
     END;
 """.trimIndent()

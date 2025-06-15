@@ -19,7 +19,7 @@ import ponder.steps.RecordUpdatedTrigger
         IntentEntity::class, TrekEntity::class,
         LogEntryEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncRecord::class
-    ], version = 23
+    ], version = 24
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -57,8 +57,8 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .addCallback(RecordUpdatedTrigger("StepEntity", "PathStepEntity"))
-        .addCallback(RecordDeletionTrigger("StepEntity", "PathStepEntity"))
+        .addCallback(RecordUpdatedTrigger("StepEntity", "PathStepEntity", "QuestionEntity"))
+        .addCallback(RecordDeletionTrigger("StepEntity", "PathStepEntity", "QuestionEntity"))
         // .addMigrations(MIGRATIONS)
         .fallbackToDestructiveMigration(true)
         // .fallbackToDestructiveMigrationOnDowngrade(true)

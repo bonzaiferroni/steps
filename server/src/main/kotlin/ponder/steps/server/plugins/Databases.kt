@@ -5,17 +5,18 @@ import klutch.db.initDb
 import klutch.db.tables.RefreshTokenTable
 import klutch.db.tables.UserTable
 import klutch.environment.readEnvFromPath
-import ponder.steps.server.db.tables.DeletionsTable
+import ponder.steps.server.db.tables.DeletionTable
 import ponder.steps.server.db.tables.ExampleTable
 import ponder.steps.server.db.tables.IntentTable
 import ponder.steps.server.db.tables.PathStepTable
+import ponder.steps.server.db.tables.QuestionTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekTable
 
 fun Application.configureDatabases() {
     initDb(env, dbTables) {
-        exec(RecordUpdatedPgTrigger("step", "path_step").buildSql())
-        exec(RecordDeletionPgTrigger("step", "path_step").buildSql())
+        exec(RecordUpdatedPgTrigger("step", "path_step", "question").buildSql())
+        exec(RecordDeletionPgTrigger("step", "path_step", "question").buildSql())
         exec("""
             ALTER TABLE path_step DROP CONSTRAINT path_step_path_id_position_unique;
             ALTER TABLE path_step
@@ -36,7 +37,8 @@ val dbTables = listOf(
     PathStepTable,
     IntentTable,
     TrekTable,
-    DeletionsTable,
+    DeletionTable,
+    QuestionTable,
 )
 
 //CREATE DATABASE example_db;
