@@ -15,6 +15,7 @@ import ponder.steps.model.data.Question
 
 object QuestionTable: UUIDTable("question") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
+    val stepId = reference("step_id", StepTable.id, ReferenceOption.CASCADE)
     val text = text("text")
     val type = enumeration("type", DataType::class)
     val minValue = integer("min_value").nullable()
@@ -25,7 +26,7 @@ object QuestionTable: UUIDTable("question") {
 
 fun ResultRow.toQuestion() = Question(
     id = this[QuestionTable.id].value.toStringId(),
-    stepId = this[QuestionTable.userId].value.toStringId(),
+    stepId = this[QuestionTable.stepId].value.toStringId(),
     text = this[QuestionTable.text],
     type = this[QuestionTable.type],
     minValue = this[QuestionTable.minValue],
@@ -37,6 +38,7 @@ fun ResultRow.toQuestion() = Question(
 fun upsertQuestion(userId: String): BatchUpsertStatement.(Question) -> Unit = { question ->
     this[QuestionTable.id] = question.id.fromStringId()
     this[QuestionTable.userId] = userId.fromStringId()
+    this[QuestionTable.stepId] = question.stepId.fromStringId()
     this[QuestionTable.text] = question.text
     this[QuestionTable.type] = question.type
     this[QuestionTable.minValue] = question.minValue

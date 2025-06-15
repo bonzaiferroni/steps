@@ -52,15 +52,7 @@ interface PathStepDao {
                 "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
                 "WHERE PathStepEntity.pathId = :pathId"
     )
-    fun flowPathSteps(pathId: String): Flow<List<StepJoin>>
-
-    @RewriteQueriesToDropUnusedColumns
-    @Query(
-        "SELECT PathStepEntity.*, StepEntity.*, PathStepEntity.id AS pathStepId FROM PathStepEntity " +
-                "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
-                "WHERE PathStepEntity.pathId = :pathId"
-    )
-    fun readPathStepsFlow(pathId: String): Flow<List<StepJoin>>
+    fun flowJoinedSteps(pathId: String): Flow<List<StepJoin>>
 
     @Query(
         "SELECT COUNT(*) " +
@@ -72,12 +64,21 @@ interface PathStepDao {
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId")
     suspend fun readPathStep(pathId: String, stepId: String): PathStep
 
+    @Query("SELECT * FROM PathStepEntity WHERE id = :pathStepId")
+    suspend fun readPathStep(pathStepId: String): PathStep?
+
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND position = :position")
     suspend fun readPathStepByPosition(pathId: String, position: Int): PathStep?
+
+    @Query("SELECT id FROM PathStepEntity WHERE pathId = :pathId AND position = :position")
+    suspend fun readPathStepIdByPosition(pathId: String, position: Int): String?
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND stepId = :stepId AND position = :position")
     suspend fun readPathStepAtPosition(pathId: String, stepId: String, position: Int): PathStep?
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId IN (:pathIds)")
     suspend fun readPathStepsByPathIds(pathIds: List<String>): List<PathStep>
+
+    @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId")
+    suspend fun readPathStepsByPathId(pathId: String): List<PathStep>
 }

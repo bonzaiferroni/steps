@@ -27,13 +27,13 @@ interface TrekDao {
     suspend fun readTrekById(trekId: String): Trek?
 
     @Query(
-        "SELECT t.id trekId, t.stepIndex, t.stepCount, t.availableAt, t.startedAt, t.finishedAt, " +
+        "SELECT t.id trekId, t.progress, t.availableAt, t.startedAt, t.finishedAt, " +
                 "s.id stepId, s.label stepLabel, s.pathSize stepPathSize, s.imgUrl stepImgUrl, s.thumbUrl stepThumbUrl, " +
                 "s.audioLabelUrl stepAudioLabelUrl, s.audioFullUrl stepAudioFullUrl, " +
                 "s.description stepDescription, " +
                 "i.label intentLabel, i.expectedMins, i.priority intentPriority " +
                 "FROM TrekEntity AS t " +
-                "JOIN StepEntity AS s on t.stepId = s.id " +
+                "JOIN StepEntity AS s on t.nextId = s.id " +
                 "JOIN IntentEntity AS i on t.intentId = i.id " +
                 "WHERE availableAt > :start AND availableAt < :end"
     )

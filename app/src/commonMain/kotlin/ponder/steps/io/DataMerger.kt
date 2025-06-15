@@ -41,7 +41,7 @@ class DataMerger(
 
                     localRepo.logSync(startSyncAt, endSyncAt)
                 } catch (e: Exception) {
-                    println("Error with sync: ${e.message}")
+                    println("Error with sync: ${e.message}\n${e.stackTraceToString()}")
                 }
 
                 delay(interval)

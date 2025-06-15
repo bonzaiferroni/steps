@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 data class LogEntry(
     val id: String,
     val stepId: String,
-    val trekId: String,
+    val trekId: String?,
+    val pathStepId: String?,
     val outcome: StepOutcome,
     val updatedAt: Instant,
     val createdAt: Instant,

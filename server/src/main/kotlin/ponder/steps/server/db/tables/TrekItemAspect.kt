@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.TrekItem
 
 internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
-    TrekTable.join(StepTable, JoinType.LEFT, TrekTable.stepId, StepTable.id)
+    TrekTable.join(StepTable, JoinType.LEFT, TrekTable.nextId, StepTable.id)
         .join(IntentTable, JoinType.LEFT, TrekTable.intentId, IntentTable.id),
     ResultRow::toTrekItem
 ) {
@@ -16,8 +16,7 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val stepId = add(StepTable.id)
     val stepLabel = add(StepTable.label)
     val stepPathSize = add(StepTable.pathSize)
-    val stepIndex = add(TrekTable.stepIndex)
-    val stepCount = add(TrekTable.stepCount)
+    val progress = add(TrekTable.progress)
     val stepImgUrl = add(StepTable.imgUrl)
     val stepThumbUrl = add(StepTable.thumbUrl)
     val stepDescription = add(StepTable.description)
@@ -36,8 +35,7 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     stepId = this[TrekItemAspect.stepId].value.toStringId(),
     stepLabel = this[TrekItemAspect.stepLabel],
     stepPathSize = this[TrekItemAspect.stepPathSize],
-    stepIndex = this[TrekItemAspect.stepIndex],
-    stepCount = this[TrekItemAspect.stepCount],
+    progress = this[TrekItemAspect.progress],
     stepImgUrl = this[TrekItemAspect.stepImgUrl],
     stepThumbUrl = this[TrekItemAspect.stepThumbUrl],
     stepDescription = this[TrekItemAspect.stepDescription],

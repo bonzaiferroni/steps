@@ -54,13 +54,13 @@ fun FocusView() {
                 onClick = viewModel::startTrek,
                 modifier = Modifier.magic(focus.startedAt == null, offsetY = 30.dp)
             )
-            val completeButtonText = if (focus.stepIndex + 1 == focus.stepCount) "Complete Trek"
-            else "Complete Step"
-            Button(
-                text = completeButtonText,
-                onClick = viewModel::completeStep,
-                modifier = Modifier.magic(focus.startedAt != null, offsetY = (-30).dp)
-            )
+//            val completeButtonText = if (focus.stepIndex + 1 == focus.stepCount) "Complete Trek"
+//            else "Complete Step"
+//            Button(
+//                text = completeButtonText,
+//                onClick = viewModel::completeStep,
+//                modifier = Modifier.magic(focus.startedAt != null, offsetY = (-30).dp)
+//            )
         }
         if (focus.startedAt == null) return@Column
         FlowRow(1, 2) {

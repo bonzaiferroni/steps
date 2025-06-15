@@ -5,10 +5,10 @@ import klutch.server.*
 import klutch.utils.getUserId
 import ponder.steps.model.Api
 import ponder.steps.server.db.services.FocusService
-import ponder.steps.server.db.services.JourneyService
+import ponder.steps.server.db.services.TrekApiService
 
 fun Routing.serveJourney(
-    service: JourneyService = JourneyService(),
+    service: TrekApiService = TrekApiService(),
     focusService: FocusService = FocusService()
 ) {
     authenticateJwt {

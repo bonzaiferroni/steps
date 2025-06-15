@@ -12,14 +12,16 @@ import ponder.steps.model.data.StepOutcome
     foreignKeys = [
         ForeignKey(StepEntity::class, ["id"], ["stepId"], ForeignKey.CASCADE),
         ForeignKey(TrekEntity::class, ["id"], ["trekId"], ForeignKey.CASCADE),
+        ForeignKey(PathStepEntity::class, ["id"], ["pathStepId"], ForeignKey.CASCADE)
     ],
-    indices = [Index("stepId"), Index("trekId")],
+    indices = [Index("stepId"), Index("trekId"), Index("pathStepId")],
 )
 data class LogEntryEntity(
     @PrimaryKey
     val id: String,
     val stepId: String,
-    val trekId: String,
+    val trekId: String?,
+    val pathStepId: String?,
     val outcome: StepOutcome,
     val updatedAt: Instant,
     val createdAt: Instant,
@@ -29,6 +31,7 @@ fun LogEntryEntity.toLogEntry() = LogEntry(
     id = id,
     stepId = stepId,
     trekId = trekId,
+    pathStepId = pathStepId,
     outcome = outcome,
     updatedAt = updatedAt,
     createdAt = createdAt
@@ -38,6 +41,7 @@ fun LogEntry.toEntity() = LogEntryEntity(
     id = id,
     stepId = stepId,
     trekId = trekId,
+    pathStepId = pathStepId,
     outcome = outcome,
     updatedAt = updatedAt,
     createdAt = createdAt

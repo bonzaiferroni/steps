@@ -5,27 +5,22 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
-import kotlinx.serialization.Serializable
 import ponder.steps.model.data.Trek
 
 @Entity(
     foreignKeys = [
-        ForeignKey(
-            entity = IntentEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["intentId"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = StepEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["rootId"],
-            onDelete = ForeignKey.CASCADE
-        ),
+        ForeignKey(IntentEntity::class, ["id"], ["intentId"], ForeignKey.CASCADE),
+        ForeignKey(StepEntity::class, ["id"], ["rootId"], ForeignKey.CASCADE),
+        ForeignKey(StepEntity::class, ["id"], ["nextId"], ForeignKey.SET_NULL),
+        ForeignKey(TrekEntity::class, ["id"], ["superId"], ForeignKey.CASCADE),
+        ForeignKey(PathStepEntity::class, ["id"], ["superPathStepId"], ForeignKey.CASCADE)
     ],
     indices = [
         Index(value = ["intentId"]),
         Index(value = ["rootId"]),
+        Index(value = ["nextId"]),
+        Index(value = ["superId"]),
+        Index(value = ["superPathStepId"]),
     ],
 )
 data class TrekEntity(
@@ -33,13 +28,12 @@ data class TrekEntity(
     val id: String,
     val userId: String,
     val intentId: String,
+    val superId: String?,
+    val superPathStepId: String?,
     val rootId: String,
-    val stepId: String,
-    val stepIndex: Int,
-    val stepCount: Int,
+    val nextId: String?,
+    val progress: Int,
     val isComplete: Boolean,
-    val pathIds: List<String>,
-    val breadCrumbs: List<String>,
     val availableAt: Instant,
     val startedAt: Instant?,
     val progressAt: Instant?,
@@ -51,13 +45,12 @@ fun Trek.toEntity() = TrekEntity(
     id = id,
     userId = userId,
     intentId = intentId,
+    superId = superId,
+    superPathStepId = superPathStepId,
     rootId = rootId,
-    stepId = stepId,
-    stepIndex = stepIndex,
-    stepCount = stepCount,
+    nextId = nextId,
+    progress = progress,
     isComplete = isComplete,
-    pathIds = pathIds,
-    breadCrumbs = breadCrumbs,
     availableAt = availableAt,
     startedAt = startedAt,
     progressAt = progressAt,

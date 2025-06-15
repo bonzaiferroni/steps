@@ -94,11 +94,8 @@ fun syncIntentsWithTreks(userId: String) {
             it[this.userId] = userId.fromStringId()
             it[this.intentId] = intent.id.fromStringId()
             it[this.rootId] = intent.rootId.fromStringId()
-            it[this.stepId] = stepId.fromStringId()
-            it[this.breadCrumbs] = breadCrumbs
-            it[this.pathIds] = intent.pathIds
-            it[this.stepIndex] = 0
-            it[this.stepCount] = readStepCount(intent.pathIds)
+            it[this.nextId] = stepId.fromStringId()
+            it[this.progress] = 0
             it[this.availableAt] = availableAt.toLocalDateTimeUtc()
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
             it[this.startedAt] = null

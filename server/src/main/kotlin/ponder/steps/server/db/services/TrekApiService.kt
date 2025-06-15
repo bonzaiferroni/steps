@@ -3,8 +3,6 @@ package ponder.steps.server.db.services
 import kabinet.utils.nowToLocalDateTimeUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
-import klutch.db.readColumn
-import klutch.db.readCount
 import klutch.db.readSingle
 import klutch.db.readSingleOrNull
 import klutch.db.readValue
@@ -14,16 +12,14 @@ import klutch.utils.fromStringId
 import klutch.utils.toStringId
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekItemAspect
-import ponder.steps.server.db.tables.TrekPathTable
 import ponder.steps.server.db.tables.TrekTable
 import ponder.steps.server.db.tables.toPathStep
 import ponder.steps.server.db.tables.toTrek
 
-class JourneyService: DbService() {
+class TrekApiService: DbService() {
 
     suspend fun readUserTreks(userId: String) = dbQuery {
         syncIntentsWithTreks(userId) // temporary
@@ -43,53 +39,55 @@ class JourneyService: DbService() {
     }
 
     suspend fun completeStep(trekId: String, userId: String) = dbQuery {
-        var trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
-            ?: error("Trek not found")
+//        var trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
+//            ?: error("Trek not found")
 
-        val pathId = trek.breadCrumbs.lastOrNull()
-        if (pathId == null) {
-            trek = trek.copy(finishedAt = Clock.System.now())
-        } else {
-            val pathStep = PathStepTable.readSingle { it.pathId.eq(pathId) and it.stepId.eq(trek.stepId) }.toPathStep()
-            val nextStep = PathStepTable.readSingleOrNull { it.pathId.eq(pathId) and it.position.eq(pathStep.position + 1) }?.toPathStep()
-            if (nextStep == null) {
-                // stepping out of the path
-                val (nextStepId, breadCrumbs) = stepOut(trek.breadCrumbs)
-                if (nextStepId == null) {
-                    trek = trek.copy(finishedAt = Clock.System.now(), breadCrumbs = breadCrumbs, stepId = trek.rootId)
-                } else {
-                    trek = trek.copy(breadCrumbs = breadCrumbs, stepId = nextStepId)
-                }
-            } else {
-                val (stepId, breadCrumbs) = stepIn(nextStep.stepId, trek.breadCrumbs, trek.pathIds)
-                trek = trek.copy(stepId = stepId, breadCrumbs = breadCrumbs)
-            }
-        }
-
-        TrekTable.updateById(trekId.fromStringId()) {
-            it[this.breadCrumbs] = trek.breadCrumbs
-            it[this.stepId] = trek.stepId.fromStringId()
-            it[this.stepIndex] = trek.stepIndex + 1
-            it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
-            it[this.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
-        } == 1
+//        val pathId = trek.breadCrumbs.lastOrNull()
+//        if (pathId == null) {
+//            trek = trek.copy(finishedAt = Clock.System.now())
+//        } else {
+//            val pathStep = PathStepTable.readSingle { it.pathId.eq(pathId) and it.stepId.eq(trek.stepId) }.toPathStep()
+//            val nextStep = PathStepTable.readSingleOrNull { it.pathId.eq(pathId) and it.position.eq(pathStep.position + 1) }?.toPathStep()
+//            if (nextStep == null) {
+//                // stepping out of the path
+//                val (nextStepId, breadCrumbs) = stepOut(trek.breadCrumbs)
+//                if (nextStepId == null) {
+//                    trek = trek.copy(finishedAt = Clock.System.now(), breadCrumbs = breadCrumbs, stepId = trek.rootId)
+//                } else {
+//                    trek = trek.copy(breadCrumbs = breadCrumbs, stepId = nextStepId)
+//                }
+//            } else {
+//                val (stepId, breadCrumbs) = stepIn(nextStep.stepId, trek.breadCrumbs, trek.pathIds)
+//                trek = trek.copy(stepId = stepId, breadCrumbs = breadCrumbs)
+//            }
+//        }
+//
+//        TrekTable.updateById(trekId.fromStringId()) {
+//            it[this.breadCrumbs] = trek.breadCrumbs
+//            it[this.nextId] = trek.stepId.fromStringId()
+//            it[this.progress] = trek.progress + 1
+//            it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
+//            it[this.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
+//        } == 1
+        false
     }
 
     suspend fun stepIntoPath(trekId: String, userId: String) = dbQuery {
-        val trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
-            ?: error("Trek not found")
-
-        if (pathSize(trek.stepId) == 0) error("Step is not a path: ${trek.stepId}")
-
-        val pathIds = trek.pathIds + trek.stepId
-        val (stepId, breadCrumbs) = stepIn(trek.stepId, trek.breadCrumbs, pathIds)
-
-        TrekTable.updateById(trekId.fromStringId()) {
-            it[this.breadCrumbs] = breadCrumbs
-            it[this.stepId] = stepId.fromStringId()
-            it[this.pathIds] = pathIds
-            it[this.stepCount] = readStepCount(pathIds)
-        } == 1
+//        val trek = TrekTable.readSingleOrNull { it.id.eq(trekId) and it.userId.eq(userId) }?.toTrek()
+//            ?: error("Trek not found")
+//
+//        if (pathSize(trek.stepId) == 0) error("Step is not a path: ${trek.stepId}")
+//
+//        val pathIds = trek.pathIds + trek.stepId
+//        val (stepId, breadCrumbs) = stepIn(trek.stepId, trek.breadCrumbs, pathIds)
+//
+//        TrekTable.updateById(trekId.fromStringId()) {
+//            it[this.breadCrumbs] = breadCrumbs
+//            it[this.nextId] = stepId.fromStringId()
+//            it[this.pathIds] = pathIds
+//            it[this.stepCount] = readStepCount(pathIds)
+//        } == 1
+        false
     }
 }
 

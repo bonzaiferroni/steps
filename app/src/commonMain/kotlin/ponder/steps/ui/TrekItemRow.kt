@@ -1,23 +1,16 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
-import kabinet.utils.pluralize
 import ponder.steps.StepProfileRoute
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekItem
 import pondui.ui.behavior.MagicItem
-import pondui.ui.behavior.ifNotNull
 import pondui.ui.behavior.ifTrue
 import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
@@ -68,9 +61,9 @@ fun LazyItemScope.TrekItemRow(
             }
         }
         Column(1) {
-            val progressRatio = item.stepIndex / item.stepCount.toFloat()
+            val progressRatio = item.progress / item.stepPathSize.toFloat()
             ProgressBar(progressRatio) {
-                Text("${item.stepIndex} of ${item.stepCount}")
+                Text("${item.progress} of ${item.stepPathSize}")
             }
         }
     }
