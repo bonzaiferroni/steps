@@ -7,9 +7,9 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
-import ponder.steps.model.data.Intent
 import ponder.steps.model.data.Trek
 import ponder.steps.model.data.TrekItem
+import ponder.steps.model.data.TrekStep
 
 @Dao
 interface TrekDao {
@@ -26,15 +26,18 @@ interface TrekDao {
     @Query("SELECT * FROM TrekEntity WHERE id = :trekId")
     suspend fun readTrekById(trekId: String): Trek?
 
+    @Query("SELECT * FROM TrekEntity WHERE id = :trekId")
+    fun flowTrekById(trekId: String): Flow<Trek>
+
     @Query(
-        "SELECT t.id trekId, t.progress, t.availableAt, t.startedAt, t.finishedAt, " +
-                "s.id stepId, s.label stepLabel, s.pathSize stepPathSize, s.imgUrl stepImgUrl, s.thumbUrl stepThumbUrl, " +
-                "s.audioLabelUrl stepAudioLabelUrl, s.audioFullUrl stepAudioFullUrl, " +
-                "s.description stepDescription, " +
-                "i.label intentLabel, i.expectedMins, i.priority intentPriority " +
+        "SELECT t.id trekId, t.progress, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, " +
+                "s.id stepId, s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, " +
+                "s.audioLabelUrl, s.audioFullUrl, " +
+                "s.description, " +
+                "i.label intentLabel, i.expectedMins, i.priority " +
                 "FROM TrekEntity AS t " +
-                "JOIN StepEntity AS s on t.nextId = s.id " +
-                "JOIN IntentEntity AS i on t.intentId = i.id " +
+                "JOIN StepEntity AS s ON t.nextId = s.id " +
+                "JOIN IntentEntity AS i ON t.intentId = i.id " +
                 "WHERE availableAt > :start AND availableAt < :end"
     )
     fun flowTreksInRange(start: Instant, end: Instant): Flow<List<TrekItem>>
@@ -52,4 +55,47 @@ interface TrekDao {
 
     @Query("SELECT finishedAt IS NOT NULL AS isFinished FROM TrekEntity WHERE id = :trekId")
     suspend fun isFinished(trekId: String): Boolean
+
+    @Query("SELECT * FROM TrekEntity WHERE superId = :superId")
+    fun flowSubTreks(superId: String): Flow<List<Trek>>
+
+    @Query("SELECT * FROM TrekEntity WHERE superId IS NULL AND availableAt > :start AND availableAt < :end")
+    fun flowAvailableRootTreks(start: Instant, end: Instant): Flow<List<Trek>>
+
+    @Query(
+        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
+                "s.id stepId, " +
+                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, " +
+                "i.label intentLabel, i.priority, i.expectedMins intentMins " +
+                "FROM TrekEntity AS t " +
+                "JOIN StepEntity AS s ON t.rootId = s.id " +
+                "JOIN IntentEntity AS i ON t.intentId = i.id " +
+                "WHERE t.id = :trekId"
+    )
+    fun flowTrekStepById(trekId: String): Flow<TrekStep>
+
+    @Query(
+        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
+                "s.id stepId, " +
+                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, " +
+                "p.position " +
+                "FROM TrekEntity AS st " +
+                "JOIN PathStepEntity AS p ON st.rootId = p.pathId " +
+                "JOIN StepEntity AS s ON p.stepId = s.id " +
+                "LEFT JOIN TrekEntity AS t ON p.id = t.pathStepId AND t.id = t.superId " +
+                "WHERE st.id = :superId"
+    )
+    fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
+
+    @Query(
+        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
+                "s.id stepId, " +
+                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, " +
+                "i.label intentLabel, i.priority, i.expectedMins intentMins " +
+                "FROM TrekEntity AS t " +
+                "JOIN StepEntity AS s ON t.rootId = s.id " +
+                "JOIN IntentEntity AS i ON t.intentId = i.id " +
+                "WHERE t.superId IS NULL AND availableAt > :start AND availableAt < :end"
+    )
+    fun flowRootTrekSteps(start: Instant, end: Instant): Flow<List<TrekStep>>
 }

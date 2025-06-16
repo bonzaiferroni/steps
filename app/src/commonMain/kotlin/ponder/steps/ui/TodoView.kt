@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,18 +13,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
 import kotlinx.collections.immutable.toImmutableList
-import ponder.steps.model.data.Answer
-import ponder.steps.model.data.Question
 import pondui.LocalWavePlayer
-import pondui.PlayWave
 import pondui.ui.behavior.MagicItem
-import pondui.ui.behavior.magic
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.MenuWheel
-import pondui.ui.controls.Row
-import pondui.ui.nav.LocalNav
 
 @Composable
 fun TodoView() {
@@ -60,7 +53,7 @@ fun TodoView() {
 
             if (item.finishedAt == null) {
                 LaunchedEffect(item) {
-                    val audioUrl = item.stepAudioLabelUrl
+                    val audioUrl = item.audioLabelUrl
                     if (audioUrl != null) {
                         player.play(toServerUrl(audioUrl))
                     }

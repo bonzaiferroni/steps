@@ -15,8 +15,6 @@ import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.AnswerRepository
 import ponder.steps.io.LogRepository
 import ponder.steps.io.TrekRepository
-import ponder.steps.model.data.Answer
-import ponder.steps.model.data.DataType
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.TrekItem
@@ -44,12 +42,11 @@ class TodoModel(
             }
             val endTime = startTime + stateNow.span.duration
             trekRepo.flowTreksInRange(startTime, endTime).collect { treks ->
-
                 setState {
                     it.copy(
                         items = treks.sortedWith(
                             compareByDescending<TrekItem> { trek -> trek.finishedAt ?: Instant.DISTANT_FUTURE }
-                                .thenBy { trek -> trek.intentPriority.ordinal }
+                                .thenBy { trek -> trek.priority.ordinal }
                         ))
                 }
             }

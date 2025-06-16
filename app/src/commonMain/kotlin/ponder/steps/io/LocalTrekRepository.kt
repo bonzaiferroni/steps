@@ -1,6 +1,8 @@
 package ponder.steps.io
 
+import androidx.sqlite.SQLiteException
 import kabinet.utils.randomUuidStringId
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
@@ -16,6 +18,7 @@ import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Trek
+import ponder.steps.model.data.TrekStep
 import kotlin.time.Duration.Companion.minutes
 
 class LocalTrekRepository(
@@ -49,7 +52,7 @@ class LocalTrekRepository(
             val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
 
             val id = randomUuidStringId()
-            val nextId = pathStepDao.readPathStepIdByPosition(intent.rootId, 0) ?: intent.rootId
+            val nextId = pathStepDao.readPathStepIdByPosition(intent.rootId, 0)
 
             trekDao.create(
                 TrekEntity(
@@ -57,7 +60,7 @@ class LocalTrekRepository(
                     userId = appUserId,
                     intentId = intentId,
                     superId = null,
-                    superPathStepId = null,
+                    pathStepId = null,
                     rootId = intent.rootId,
                     nextId = nextId,
                     progress = 0,
@@ -126,7 +129,7 @@ class LocalTrekRepository(
             userId = appUserId,
             intentId = trek.intentId,
             superId = trek.id,
-            superPathStepId = pathStepId,
+            pathStepId = pathStepId,
             rootId = rootId,
             nextId = nextId,
             progress = 0,
@@ -164,4 +167,10 @@ class LocalTrekRepository(
         val lastAvailableAt = trekDao.readLastAvailableAt(intent.id) ?: return null
         return lastAvailableAt + repeatMins.minutes
     }
+
+    override fun flowTrekStepById(trekId: String) = trekDao.flowTrekStepById(trekId)
+
+    override fun flowTrekStepsBySuperId(superId: String) = trekDao.flowTrekStepsBySuperId(superId)
+
+    override fun flowRootTrekSteps(start: Instant, end: Instant) = trekDao.flowRootTrekSteps(start, end)
 }

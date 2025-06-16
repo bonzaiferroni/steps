@@ -5,6 +5,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.TrekItem
+import ponder.steps.model.data.TrekStep
 
 interface TrekRepository {
 
@@ -38,4 +39,10 @@ interface TrekRepository {
     suspend fun isFinished(trekId: String): Boolean
 
     suspend fun createSubTrek(trekId: String, pathStepId: String): String
+
+    fun flowTrekStepById(trekId: String): Flow<TrekStep>
+
+    fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
+
+    fun flowRootTrekSteps(start: Instant, end: Instant): Flow<List<TrekStep>>
 }

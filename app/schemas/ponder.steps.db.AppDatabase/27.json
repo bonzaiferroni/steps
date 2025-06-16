@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 27,
-    "identityHash": "d3df5b9d7f37576edbfe1de4970a2713",
+    "identityHash": "31d8cacca5eb6615bdc195f7548144c3",
     "entities": [
       {
         "tableName": "Sprite",
@@ -303,7 +303,7 @@
       },
       {
         "tableName": "TrekEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `intentId` TEXT NOT NULL, `superId` TEXT, `superPathStepId` TEXT, `rootId` TEXT NOT NULL, `nextId` TEXT, `progress` INTEGER NOT NULL, `isComplete` INTEGER NOT NULL, `availableAt` INTEGER NOT NULL, `startedAt` INTEGER, `progressAt` INTEGER, `finishedAt` INTEGER, `expectedAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`intentId`) REFERENCES `IntentEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rootId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`nextId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`superId`) REFERENCES `TrekEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`superPathStepId`) REFERENCES `PathStepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `userId` TEXT NOT NULL, `intentId` TEXT NOT NULL, `superId` TEXT, `pathStepId` TEXT, `rootId` TEXT NOT NULL, `nextId` TEXT, `progress` INTEGER NOT NULL, `isComplete` INTEGER NOT NULL, `availableAt` INTEGER NOT NULL, `startedAt` INTEGER, `progressAt` INTEGER, `finishedAt` INTEGER, `expectedAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`intentId`) REFERENCES `IntentEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`rootId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`nextId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`superId`) REFERENCES `TrekEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`pathStepId`) REFERENCES `PathStepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -329,8 +329,8 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "superPathStepId",
-            "columnName": "superPathStepId",
+            "fieldPath": "pathStepId",
+            "columnName": "pathStepId",
             "affinity": "TEXT"
           },
           {
@@ -427,13 +427,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekEntity_superId` ON `${TABLE_NAME}` (`superId`)"
           },
           {
-            "name": "index_TrekEntity_superPathStepId",
+            "name": "index_TrekEntity_pathStepId",
             "unique": false,
             "columnNames": [
-              "superPathStepId"
+              "pathStepId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekEntity_superPathStepId` ON `${TABLE_NAME}` (`superPathStepId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekEntity_pathStepId` ON `${TABLE_NAME}` (`pathStepId`)"
           }
         ],
         "foreignKeys": [
@@ -486,7 +486,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "superPathStepId"
+              "pathStepId"
             ],
             "referencedColumns": [
               "id"
@@ -829,7 +829,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd3df5b9d7f37576edbfe1de4970a2713')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '31d8cacca5eb6615bdc195f7548144c3')"
     ]
   }
 }

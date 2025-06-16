@@ -41,7 +41,7 @@ fun LazyItemScope.TrekItemRow(
                     shape = CircleShape
                 ) {
                     StepImage(
-                        url = item.stepThumbUrl,
+                        url = item.thumbUrl,
                         modifier = Modifier.fillMaxHeight()
                     )
                 }
@@ -61,9 +61,9 @@ fun LazyItemScope.TrekItemRow(
             }
         }
         Column(1) {
-            val progressRatio = item.progress / item.stepPathSize.toFloat()
+            val progressRatio = item.progress / item.pathSize.toFloat()
             ProgressBar(progressRatio) {
-                Text("${item.progress} of ${item.stepPathSize}")
+                Text("${item.progress} of ${item.pathSize}")
             }
         }
     }

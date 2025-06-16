@@ -1,0 +1,1 @@
+When SQLiteException was Error Code: (blank), the problem was that I was trying to assign a foreign key that didn't exist

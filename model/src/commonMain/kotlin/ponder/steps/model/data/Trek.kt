@@ -9,7 +9,7 @@ data class Trek(
     val userId: String,
     val intentId: String,
     val superId: String?,
-    val superPathStepId: String?,
+    val pathStepId: String?,
     val rootId: String,
     val nextId: String?,
     val progress: Int,
