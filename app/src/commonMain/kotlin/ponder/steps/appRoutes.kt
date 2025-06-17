@@ -1,5 +1,7 @@
 package ponder.steps
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 import pondui.ui.nav.AppRoute
 import pondui.ui.nav.IdRoute

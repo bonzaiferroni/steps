@@ -1,5 +1,7 @@
 package ponder.steps.ui
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,7 +37,7 @@ class StepProfileModel(
     init {
         viewModelScope.launch {
             stepRepo.flowStep(stepId).collect { step ->
-                setState { it.copy(step = step) }
+                setState { it.copy(step = step,) }
             }
         }
         viewModelScope.launch {
@@ -120,13 +122,6 @@ class StepProfileModel(
             }
         }
         setState { it.copy(step = path.copy(pathSize = path.pathSize + 1),) }
-        viewModelScope.launch {
-            repeat(20) {
-                val stepNow = stepRepo.readStep(stepId) ?: return@repeat
-                println((Clock.System.now() - stepNow.updatedAt).inWholeMilliseconds)
-                delay(1000)
-            }
-        }
     }
 
     fun addSimilarStep(step: Step) {

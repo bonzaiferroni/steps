@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import pondui.ui.theme.Pond
 import steps.app.generated.resources.Res
 import steps.app.generated.resources.compose_multiplatform
 import pondui.WavePlayer
+import pondui.ui.controls.LazyColumn
 
 @Composable
 fun StartScreen() {
@@ -58,6 +60,16 @@ fun StartScreen() {
             Text("You picked $selectedOption")
 
             PlayWave("Watch_a_movie-UnviiMf.wav")
+
+            var items by remember { mutableStateOf((0..10).toList()) }
+            LazyColumn(1) {
+                items(items, key = { it }) { item ->
+                    Text(item.toString(), modifier = Modifier.animateItem())
+                }
+                item("shuffle") {
+                    Button("Shuffle") { items = items.shuffled() }
+                }
+            }
 
 //            LaunchedEffect(Unit) {
 //                // val resource = "8-Bit-Noise-1.wav"

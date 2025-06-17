@@ -11,8 +11,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,6 +97,7 @@ fun StepProfileScreen(
                     modifier = Modifier.clip(Pond.ruler.defaultCorners)
                         .magic(offsetX = (-20).dp)
                 ) {
+                    // feature image
                     StepImage(
                         url = profileStep.imgUrl,
                         modifier = Modifier.fillMaxWidth()
@@ -106,6 +110,7 @@ fun StepProfileScreen(
                             .fillMaxWidth()
                             .background(Color.Black.copy(.6f))
                     ) {
+                        // label
                         EditText(
                             text = profileStep.label,
                             placeholder = "Step label",
@@ -114,6 +119,7 @@ fun StepProfileScreen(
                         ) { viewModel.editStep(profileStep.copy(label = it)) }
                     }
                 }
+                // description
                 state.step?.description?.let {
                     Text(
                         text = it,
@@ -124,6 +130,7 @@ fun StepProfileScreen(
                 }
             } else {
                 Row(1) {
+                    // feature image
                     StepImage(
                         url = profileStep.imgUrl,
                         modifier = Modifier.weight(1f)
@@ -136,12 +143,14 @@ fun StepProfileScreen(
                         modifier = Modifier.weight(1f)
                             .magic(offsetX = 20.dp)
                     ) {
+                        // label
                         EditText(
                             text = profileStep.label,
                             placeholder = "Step label",
                             style = Pond.typo.h1.addShadow(),
                             modifier = Modifier.padding(Pond.ruler.unitPadding)
                         ) { viewModel.editStep(profileStep.copy(label = it)) }
+                        // description
                         state.step?.description?.let {
                             Text(
                                 it,
@@ -156,7 +165,7 @@ fun StepProfileScreen(
             Tabs {
                 Tab("Steps") {
                     LazyColumn(0, Alignment.CenterHorizontally) {
-                        itemsIndexed(state.steps, key = { index, step -> { step.id } }) { index, step ->
+                        itemsIndexed(state.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
                             Column(
                                 spacingUnits = 1,
                                 modifier = Modifier.animateItem()
@@ -211,7 +220,7 @@ fun StepProfileScreen(
                             }
                         }
                         item("add steps") {
-                            Row(1, modifier = Modifier.padding(Pond.ruler.unitPadding).animateItem()) {
+                            Row(1, modifier = Modifier.padding(Pond.ruler.unitPadding)) {
                                 Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
                                 Button(TablerIcons.Drone, onClick = viewModel::suggestNextStep)
                             }

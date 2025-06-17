@@ -95,7 +95,7 @@ interface TrekDao {
                 "FROM TrekEntity AS st " +
                 "JOIN PathStepEntity AS p ON st.rootId = p.pathId " +
                 "JOIN StepEntity AS s ON p.stepId = s.id " +
-                "LEFT JOIN TrekEntity AS t ON p.id = t.pathStepId AND t.id = t.superId " +
+                "LEFT JOIN TrekEntity AS t ON p.id = t.pathStepId AND st.id = t.superId " +
                 "WHERE st.id = :superId"
     )
     fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>

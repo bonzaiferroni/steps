@@ -22,16 +22,17 @@ class TrekPathModel(
     private val jobs = mutableListOf<Job>()
 
     init {
-        loadTrek(null)
+        loadTrek(null, true)
     }
 
-    fun loadTrek(trekId: String?) {
+    fun loadTrek(trekId: String?, isDeeper: Boolean) {
         jobs.forEach { it.cancel() }
         jobs.clear()
         if (trekId != null) {
             viewModelScope.launch {
                 trekRepo.flowTrekStepById(trekId).collect { trekStep ->
-                    setState { it.copy(trek = trekStep) }
+                    val steps = stateNow.steps.filter { it.pathStepId != trekStep.pathStepId }
+                    setState { it.copy(trek = trekStep, steps = steps) }
                 }
             }.addJob()
 
@@ -50,6 +51,7 @@ class TrekPathModel(
             }.addJob()
             setState { it.copy(trek = null) }
         }
+        setState { it.copy(isDeeper = isDeeper) }
     }
 
     private fun Job.addJob() = jobs.add(this)
@@ -63,7 +65,7 @@ class TrekPathModel(
         val pathStepId = pathStepId ?: return
         viewModelScope.launch {
             val id = trekRepo.createSubTrek(trekId, pathStepId)
-            loadTrek(id)
+            loadTrek(id, true)
         }
     }
 }
@@ -73,4 +75,5 @@ data class TrekPathState(
     val steps: List<TrekStep> = emptyList(),
     val logs: List<LogEntry> = emptyList(),
     val isAddingItem: Boolean = false,
+    val isDeeper: Boolean = false,
 )
