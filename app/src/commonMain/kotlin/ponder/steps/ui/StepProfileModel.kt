@@ -182,7 +182,6 @@ class StepProfileModel(
                 pathDescription = path.description,
                 precedingSteps = stateNow.steps.map { StepWithDescription(it.label, it.description) }
             ))
-            if (response == null) return@launch
             setState { it.copy(suggestions = response.suggestedSteps) }
         }
     }

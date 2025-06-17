@@ -65,7 +65,7 @@ interface TrekDao {
     @Query(
         "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
                 "s.id stepId, " +
-                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, " +
+                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, t.superId, " +
                 "i.label intentLabel, i.priority, i.expectedMins intentMins " +
                 "FROM TrekEntity AS t " +
                 "JOIN StepEntity AS s ON t.rootId = s.id " +
@@ -73,19 +73,6 @@ interface TrekDao {
                 "WHERE t.id = :trekId"
     )
     fun flowTrekStepById(trekId: String): Flow<TrekStep>
-
-    @Query(
-        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
-                "s.id stepId, " +
-                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, " +
-                "p.position " +
-                "FROM TrekEntity AS st " +
-                "JOIN PathStepEntity AS p ON st.rootId = p.pathId " +
-                "JOIN StepEntity AS s ON p.stepId = s.id " +
-                "LEFT JOIN TrekEntity AS t ON p.id = t.pathStepId AND t.id = t.superId " +
-                "WHERE st.id = :superId"
-    )
-    fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
 
     @Query(
         "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
@@ -98,4 +85,18 @@ interface TrekDao {
                 "WHERE t.superId IS NULL AND availableAt > :start AND availableAt < :end"
     )
     fun flowRootTrekSteps(start: Instant, end: Instant): Flow<List<TrekStep>>
+
+    @Query(
+        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
+                "s.id stepId, " +
+                "t.id trekId, t.progress, t.availableAt, t.startedAt, t.finishedAt, " +
+                "p.position, p.id pathStepId, " +
+                "st.id superId " +
+                "FROM TrekEntity AS st " +
+                "JOIN PathStepEntity AS p ON st.rootId = p.pathId " +
+                "JOIN StepEntity AS s ON p.stepId = s.id " +
+                "LEFT JOIN TrekEntity AS t ON p.id = t.pathStepId AND t.id = t.superId " +
+                "WHERE st.id = :superId"
+    )
+    fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
 }

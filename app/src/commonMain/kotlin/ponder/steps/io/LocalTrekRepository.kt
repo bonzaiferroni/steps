@@ -123,7 +123,7 @@ class LocalTrekRepository(
         val pathStep = pathStepDao.readPathStep(pathStepId) ?: error("No pathstep with id: $pathStepId")
         val id = randomUuidStringId()
         val rootId = pathStep.stepId
-        val nextId = pathStepDao.readPathStepIdByPosition(rootId, 0) ?: rootId
+        val nextId = pathStepDao.readPathStepIdByPosition(rootId, 0)
         val subTrek = Trek(
             id = id,
             userId = appUserId,

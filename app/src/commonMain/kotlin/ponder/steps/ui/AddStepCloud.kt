@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,12 +44,21 @@ import pondui.ui.controls.TimeWheel
 import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
-import pondui.utils.rememberLastNonNull
 
 @Composable
-fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
-    val viewModel = viewModel { AddIntentModel(dismiss) }
+fun AddStepCloud(
+    title: String,
+    isVisible: Boolean,
+    createIntent: Boolean,
+    pathId: String?,
+    dismiss: () -> Unit
+) {
+    val viewModel = viewModel { AddStepModel(dismiss) }
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(createIntent, pathId) {
+        viewModel.setParameters(createIntent, pathId)
+    }
 
     TitleCloud(
         title = title,
@@ -60,7 +70,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
             modifier = Modifier.height(400.dp),
         ) {
             MagicItem(
-                item = state.intentStep,
+                item = state.existingStep,
                 rotationX = 90,
                 modifier = Modifier.height(44.dp),
                 itemContent = { step ->
@@ -101,18 +111,20 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                     ControlSetButton("Create", onClick = viewModel::createStep)
                 }
             }
-            FlowRow(
-                1,
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth().animateContentSize()
-            ) {
-                Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
-                    Label("Priority:")
-                    Text(state.intentPriority.name)
-                }
-                Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
-                    Label("Happens:")
-                    Text(state.scheduleDescription)
+            if (state.createIntent) {
+                FlowRow(
+                    1,
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    modifier = Modifier.fillMaxWidth().animateContentSize()
+                ) {
+                    Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
+                        Label("Priority:")
+                        Text(state.intentPriority.name)
+                    }
+                    Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
+                        Label("Happens:")
+                        Text(state.scheduleDescription)
+                    }
                 }
             }
 
@@ -128,7 +140,7 @@ fun AddIntentCloud(title: String, isVisible: Boolean, dismiss: () -> Unit) {
                         }
                     }
                 }
-                Tab("Adjust") {
+                Tab("Adjust", state.createIntent) {
                     Column(1, modifier = Modifier.fillMaxWidth()) {
                         Label("Schedule")
                         Row(1) {

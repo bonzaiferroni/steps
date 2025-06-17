@@ -52,4 +52,8 @@ class RemoteStepRepository(private val client: ApiClient = globalApiClient): Ste
     ): Flow<List<Step>> {
         TODO("Not yet implemented")
     }
+
+    override suspend fun isValidPathStep(pathId: String, stepId: String): Boolean {
+        TODO("Not yet implemented")
+    }
 }

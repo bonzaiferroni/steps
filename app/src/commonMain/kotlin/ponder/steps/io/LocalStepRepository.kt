@@ -55,13 +55,18 @@ class LocalStepRepository(
         return isSuccess
     }
 
-    override suspend fun addStepToPath(pathId: String, stepId: String, position: Int?): Boolean {
-        // make sure the step is not upstream to avoid recursion
+    override suspend fun isValidPathStep(pathId: String, stepId: String): Boolean {
         var upstreamIds = listOf(pathId)
         while (upstreamIds.isNotEmpty()) {
             if (upstreamIds.contains(stepId)) return false
             upstreamIds = stepDao.readPathIds(upstreamIds)
         }
+        return true
+    }
+
+    override suspend fun addStepToPath(pathId: String, stepId: String, position: Int?): Boolean {
+        // make sure the step is not upstream to avoid recursion
+        if (!isValidPathStep(pathId, stepId)) return false
         addVerifiedStepToPath(pathId, stepId, position)
         return true
     }

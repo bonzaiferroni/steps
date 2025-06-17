@@ -34,9 +34,11 @@ fun TodoView() {
         viewModel.onLoad()
     }
 
-    AddIntentCloud(
+    AddStepCloud(
         title = "Add step",
         isVisible = state.isAddingItem,
+        createIntent = true,
+        pathId = null,
         dismiss = viewModel::toggleAddItem
     )
 

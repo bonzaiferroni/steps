@@ -23,17 +23,21 @@ import pondui.ValueRepository
 import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.hours
 
-class AddIntentModel(
+class AddStepModel(
     private val dismiss: () -> Unit,
     private val trekRepo: TrekRepository = LocalTrekRepository(),
     private val stepRepo: StepRepository = LocalStepRepository(),
     private val intentRepo: IntentRepository = LocalIntentRepository(),
     private val valueRepo: ValueRepository = LocalValueRepository(),
     private val aiClient: AiClient = AiClient(),
-): StateModel<AddIntentState>(AddIntentState()) {
+) : StateModel<AddIntentState>(AddIntentState()) {
 
     init {
         setNewStepLabel("")
+    }
+
+    fun setParameters(createIntent: Boolean, pathId: String?) {
+        setState { it.copy(createIntent = createIntent, pathId = pathId) }
     }
 
     fun setNewStepLabel(value: String) {
@@ -48,7 +52,12 @@ class AddIntentModel(
     fun createStep() {
         if (!stateNow.isValidNewStep) return
         viewModelScope.launch {
-            val stepId = stepRepo.createStep(NewStep(stateNow.intentLabel))
+            val stepId = stepRepo.createStep(
+                NewStep(
+                    label = stateNow.intentLabel,
+                    pathId = stateNow.pathId
+                )
+            )
             val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
             if (defaultTheme.isNotEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
@@ -59,24 +68,34 @@ class AddIntentModel(
                 }
             }
 
-            addIntent(stepId, stateNow.intentLabel)
-            resetAddItemState()
+            if (stateNow.createIntent) {
+                addIntent(stepId, stateNow.intentLabel)
+            }
+            finishDialog()
         }
     }
 
     fun addExistingStep() {
-        val step = stateNow.intentStep ?: return
+        val step = stateNow.existingStep ?: return
         viewModelScope.launch {
-            addIntent(step.id, step.label)
-            resetAddItemState()
+            val pathId = stateNow.pathId
+            if (stateNow.createIntent) {
+                addIntent(step.id, step.label)
+                finishDialog()
+            } else if (pathId != null) {
+                stepRepo.addStepToPath(pathId, step.id, null)
+                finishDialog()
+            }
         }
     }
 
-    private fun resetAddItemState() {
-        setState { it.copy(
-            intentLabel = "",
-            intentStep = null,
-        ) }
+    private fun finishDialog() {
+        setState {
+            it.copy(
+                intentLabel = "",
+                existingStep = null,
+            )
+        }
         dismiss()
     }
 
@@ -117,7 +136,7 @@ class AddIntentModel(
     }
 
     fun setIntentStep(step: Step?) {
-        setState { it.copy(intentStep = step) }
+        setState { it.copy(existingStep = step) }
     }
 }
 
@@ -129,7 +148,9 @@ data class AddIntentState(
     val intentRepeatUnit: TimeUnit = TimeUnit.Hour,
     val intentScheduledAt: Instant = Clock.System.now() + 1.hours,
     val intentPriority: IntentPriority = IntentPriority.Default,
-    val intentStep: Step? = null,
+    val existingStep: Step? = null,
+    val createIntent: Boolean = false,
+    val pathId: String? = null,
 ) {
     val isValidNewStep get() = intentLabel.isNotEmpty()
     val repeatValues
@@ -152,11 +173,12 @@ data class AddIntentState(
             TimeUnit.Year -> intentRepeatValue * 60 * 24 * 365
         }
 
-    val scheduleDescription get() = when (intentTiming) {
-        IntentTiming.Schedule -> intentScheduledAt.toRelativeTimeFormat()
-        IntentTiming.Once -> "Once"
-        IntentTiming.Repeat -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
-    }
+    val scheduleDescription
+        get() = when (intentTiming) {
+            IntentTiming.Schedule -> intentScheduledAt.toRelativeTimeFormat()
+            IntentTiming.Once -> "Once"
+            IntentTiming.Repeat -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
+        }
 }
 
 enum class IntentTiming(val label: String) {

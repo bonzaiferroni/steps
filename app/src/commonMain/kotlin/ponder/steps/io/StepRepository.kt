@@ -123,4 +123,6 @@ interface StepRepository {
      * @return A Flow that emits a list of Steps that match the search criteria
      */
     fun flowSearch(text: String, limit: Int =20): Flow<List<Step>>
+
+    suspend fun isValidPathStep(pathId: String, stepId: String): Boolean
 }

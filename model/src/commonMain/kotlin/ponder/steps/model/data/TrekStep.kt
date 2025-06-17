@@ -28,4 +28,6 @@ data class TrekStep(
     val intentLabel: String? = null,
     val priority: IntentPriority? = null,
     val intentMins: Int? = null,
+    // super trek data
+    val superId: String? = null,
 )

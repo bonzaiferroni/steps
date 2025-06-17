@@ -7,6 +7,8 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ponder.steps.appDb
 import ponder.steps.db.TrekDao
+import ponder.steps.io.LocalTrekRepository
+import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.LogEntry
 import ponder.steps.model.data.TrekStep
@@ -14,7 +16,7 @@ import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.days
 
 class TrekPathModel(
-    private val trekDao: TrekDao = appDb.getTrekDao()
+    private val trekRepo: TrekRepository = LocalTrekRepository()
 ): StateModel<TrekPathState>(TrekPathState()) {
 
     private val jobs = mutableListOf<Job>()
@@ -28,13 +30,13 @@ class TrekPathModel(
         jobs.clear()
         if (trekId != null) {
             viewModelScope.launch {
-                trekDao.flowTrekStepById(trekId).collect { trekStep ->
+                trekRepo.flowTrekStepById(trekId).collect { trekStep ->
                     setState { it.copy(trek = trekStep) }
                 }
             }.addJob()
 
             viewModelScope.launch {
-                trekDao.flowTrekStepsBySuperId(trekId).collect { trekSteps ->
+                trekRepo.flowTrekStepsBySuperId(trekId).collect { trekSteps ->
                     setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }
                 }
             }.addJob()
@@ -42,7 +44,7 @@ class TrekPathModel(
             viewModelScope.launch {
                 val start = Clock.startOfDay()
                 val end = start + 1.days
-                trekDao.flowRootTrekSteps(start, end).collect { trekSteps ->
+                trekRepo.flowRootTrekSteps(start, end).collect { trekSteps ->
                     setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.availableAt }) }
                 }
             }.addJob()
@@ -54,6 +56,15 @@ class TrekPathModel(
 
     fun toggleAddItem() {
         setState { it.copy(isAddingItem = !it.isAddingItem) }
+    }
+
+    fun branchStep(pathStepId: String?) {
+        val trekId = stateNow.trek?.trekId ?: return
+        val pathStepId = pathStepId ?: return
+        viewModelScope.launch {
+            val id = trekRepo.createSubTrek(trekId, pathStepId)
+            loadTrek(id)
+        }
     }
 }
 
