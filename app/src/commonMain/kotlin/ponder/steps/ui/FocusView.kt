@@ -58,7 +58,7 @@ fun FocusView() {
 //            else "Complete Step"
 //            Button(
 //                text = completeButtonText,
-//                onClick = viewModel::completeStep,
+//                onClick = viewModel::setOutcome,
 //                modifier = Modifier.magic(focus.startedAt != null, offsetY = (-30).dp)
 //            )
         }

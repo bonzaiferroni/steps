@@ -7,7 +7,7 @@ import ponder.steps.model.data.DataType
 
 @Entity(
     foreignKeys = [
-        ForeignKey(LogEntryEntity::class, ["id"], ["logId"], ForeignKey.CASCADE),
+        ForeignKey(StepLogEntity::class, ["id"], ["logId"], ForeignKey.CASCADE),
         ForeignKey(QuestionEntity::class, ["id"], ["questionId"], ForeignKey.CASCADE),
     ],
     indices = [Index("logId"), Index("questionId")],

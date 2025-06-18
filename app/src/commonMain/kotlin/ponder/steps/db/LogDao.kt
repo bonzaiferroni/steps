@@ -13,43 +13,46 @@ import ponder.steps.model.data.StepOutcome
 interface LogDao {
 
     @Insert
-    suspend fun insert(logEntry: LogEntryEntity)
+    suspend fun insert(stepLogEntity: StepLogEntity)
 
     @Update
-    suspend fun update(vararg logEntries: LogEntryEntity): Int
+    suspend fun update(vararg logEntries: StepLogEntity): Int
 
     @Delete
-    suspend fun delete(logEntry: LogEntryEntity): Int
+    suspend fun delete(logEntry: StepLogEntity): Int
 
-    @Query("DELETE FROM LogEntryEntity WHERE id = :id")
+    @Query("DELETE FROM StepLogEntity WHERE stepId = :stepId AND trekId = :trekId AND pathStepId = :pathStepId")
+    suspend fun delete(stepId: String, trekId: String, pathStepId: String?): Int
+
+    @Query("DELETE FROM StepLogEntity WHERE id = :id")
     suspend fun deleteLogEntryById(id: String): Int
 
-    @Query("SELECT * FROM LogEntryEntity")
-    fun getAllLogEntriesAsFlow(): Flow<List<LogEntryEntity>>
+    @Query("SELECT * FROM StepLogEntity")
+    fun getAllLogEntriesAsFlow(): Flow<List<StepLogEntity>>
 
-    @Query("SELECT * FROM LogEntryEntity WHERE id = :logEntryId")
-    suspend fun readLogEntryOrNull(logEntryId: String): LogEntryEntity?
+    @Query("SELECT * FROM StepLogEntity WHERE id = :logEntryId")
+    suspend fun readLogEntryOrNull(logEntryId: String): StepLogEntity?
 
-    @Query("SELECT * FROM LogEntryEntity WHERE id = :logEntryId")
-    fun flowLogEntry(logEntryId: String): Flow<LogEntryEntity>
+    @Query("SELECT * FROM StepLogEntity WHERE id = :logEntryId")
+    fun flowLogEntry(logEntryId: String): Flow<StepLogEntity>
 
     suspend fun readLogEntry(logEntryId: String) = readLogEntryOrNull(logEntryId) ?: error("logEntryId missing: $logEntryId")
 
-    @Query("SELECT * FROM LogEntryEntity WHERE stepId = :stepId")
-    suspend fun readLogEntriesByStepId(stepId: String): List<LogEntryEntity>
+    @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
+    suspend fun readLogEntriesByStepId(stepId: String): List<StepLogEntity>
 
-    @Query("SELECT * FROM LogEntryEntity WHERE trekId = :trekId")
-    suspend fun readLogEntriesByTrekId(trekId: String): List<LogEntryEntity>
+    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
+    suspend fun readStepLogsByTrekId(trekId: String): List<StepLogEntity>
 
-    @Query("SELECT * FROM LogEntryEntity WHERE trekId = :trekId")
-    fun flowLogEntriesByTrekId(trekId: String): Flow<List<LogEntryEntity>>
+    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
+    fun flowLogEntriesByTrekId(trekId: String): Flow<List<StepLogEntity>>
 
-    @Query("SELECT * FROM LogEntryEntity WHERE outcome = :outcome")
-    suspend fun readLogEntriesByOutcome(outcome: StepOutcome): List<LogEntryEntity>
+    @Query("SELECT * FROM StepLogEntity WHERE outcome = :outcome")
+    suspend fun readLogEntriesByOutcome(outcome: StepOutcome): List<StepLogEntity>
 
-    @Query("SELECT * FROM LogEntryEntity WHERE createdAt > :startTime AND createdAt < :endTime")
-    suspend fun readLogEntriesInTimeRange(startTime: Instant, endTime: Instant): List<LogEntryEntity>
+    @Query("SELECT * FROM StepLogEntity WHERE createdAt > :startTime AND createdAt < :endTime")
+    suspend fun readLogEntriesInTimeRange(startTime: Instant, endTime: Instant): List<StepLogEntity>
 
-    @Query("SELECT * FROM LogEntryEntity WHERE updatedAt > :lastSyncAt")
-    suspend fun readLogEntriesUpdatedAfter(lastSyncAt: Instant): List<LogEntryEntity>
+    @Query("SELECT * FROM StepLogEntity WHERE updatedAt > :lastSyncAt")
+    suspend fun readLogEntriesUpdatedAfter(lastSyncAt: Instant): List<StepLogEntity>
 }

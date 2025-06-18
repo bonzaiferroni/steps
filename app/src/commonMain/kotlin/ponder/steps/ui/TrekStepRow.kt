@@ -1,22 +1,24 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.Plus
 import ponder.steps.StepProfileRoute
 import ponder.steps.model.data.StepOutcome
-import ponder.steps.model.data.TrekItem
 import ponder.steps.model.data.TrekStep
 import pondui.ui.behavior.MagicItem
-import pondui.ui.behavior.ifTrue
 import pondui.ui.behavior.magic
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
@@ -33,9 +35,8 @@ import pondui.ui.theme.Pond
 fun LazyItemScope.TrekStepRow(
     item: TrekStep,
     isFinished: Boolean,
-    isHeader: Boolean,
     isDeeper: Boolean,
-    completeStep: (TrekStep, StepOutcome) -> Unit,
+    setOutcome: (TrekStep, StepOutcome?) -> Unit,
     loadTrek: (String) -> Unit,
     branchStep: (String) -> Unit,
 ) {
@@ -45,9 +46,17 @@ fun LazyItemScope.TrekStepRow(
         modifier = Modifier.fillMaxWidth()
             .animateItem()
             .magic(offsetX = if (isDeeper) 30.dp else (-30).dp)
-            .ifTrue(isFinished) { alpha(.5f) }
     ) {
-        Checkbox(item.finishedAt != null) { completeStep(item, StepOutcome.Completed) }
+        Box(modifier = Modifier.width(32.dp), contentAlignment = Alignment.Center) {
+            val trekId = item.trekId
+            if (trekId != null) {
+                IconButton(TablerIcons.ArrowRight, padding = PaddingValues(0.dp)) { loadTrek(trekId) }
+            } else {
+                Checkbox(isFinished) {
+                    setOutcome(item, if (isFinished) null else StepOutcome.Completed)
+                }
+            }
+        }
         MagicItem(
             item = item,
             rotationX = 90,
@@ -79,18 +88,15 @@ fun LazyItemScope.TrekStepRow(
                 }
             }
         }
-        if (isHeader) {
-            val progressRatio = (item.progress ?: 0) / item.pathSize.toFloat()
+        val pathStepId = item.pathStepId
+        if (item.trekId == null && pathStepId != null) {
+            IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
+        }
+        val progress = item.progress
+        if (progress != null && item.pathSize > 0) {
+            val progressRatio = progress / item.pathSize.toFloat()
             ProgressBar(progressRatio) {
                 Text("${item.progress} of ${item.pathSize}")
-            }
-        } else {
-            val trekId = item.trekId
-            val pathStepId = item.pathStepId
-            if (trekId != null) {
-                IconButton(TablerIcons.ArrowRight) { loadTrek(trekId) }
-            } else if (pathStepId != null) {
-                IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
             }
         }
     }

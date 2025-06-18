@@ -4,12 +4,12 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LogEntry(
-    val id: String,
+data class StepLog(
+    val id: String = "",
     val stepId: String,
     val trekId: String?,
     val pathStepId: String?,
     val outcome: StepOutcome,
-    val updatedAt: Instant,
-    val createdAt: Instant,
+    val updatedAt: Instant = Instant.DISTANT_PAST,
+    val createdAt: Instant = Instant.DISTANT_FUTURE,
 )

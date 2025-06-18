@@ -2,7 +2,6 @@ package ponder.steps.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,19 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowLeft
-import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.Plus
 import ponder.steps.model.data.Question
 import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
-import pondui.ui.controls.Expando
 import pondui.ui.controls.H3
 import pondui.ui.controls.IconButton
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.Row
-import pondui.ui.controls.Text
-import pondui.ui.controls.TextButton
 import pondui.ui.theme.Pond
 
 @Composable
@@ -57,7 +52,11 @@ fun TrekPathView() {
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                MagicItem(state.trek, offsetX = if (state.isDeeper) 30.dp else (-30).dp) { trekStep ->
+                MagicItem(
+                    item = state.trek,
+                    key = { state.trek?.trekId} ,
+                    offsetX = if (state.isDeeper) 30.dp else (-30).dp
+                ) { trekStep ->
                     StepImage(
                         url = trekStep?.imgUrl,
                         modifier = Modifier.clip(Pond.ruler.defaultCorners)
@@ -88,23 +87,16 @@ fun TrekPathView() {
                 modifier = Modifier.height(72.dp)
                     .animateItem()
             ) {
+                val outcome = state.logs.firstOrNull { it.pathStepId == trekStep.pathStepId }?.outcome
                 TrekStepRow(
                     item = trekStep,
-                    isFinished = false,
-                    isHeader = false,
+                    isFinished = outcome != null,
                     isDeeper = state.isDeeper,
-                    completeStep = { step, outcome -> },
+                    setOutcome = viewModel::setOutcome,
                     loadTrek = { viewModel.loadTrek(it, true) },
                     branchStep = viewModel::branchStep
                 )
             }
-
-//            Row(1, modifier = Modifier.animateItem()) {
-//                Text(trekStep.stepLabel)
-//                Expando()
-//                val trekId = trekStep.trekId
-
-//            }
         }
 
         item(key = "bottom spacer") {

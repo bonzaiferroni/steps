@@ -1,15 +1,13 @@
 package ponder.steps.io
 
-import androidx.sqlite.SQLiteException
 import kabinet.utils.randomUuidStringId
-import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
 import ponder.steps.db.IntentDao
 import ponder.steps.db.LogDao
-import ponder.steps.db.LogEntryEntity
+import ponder.steps.db.StepLogEntity
 import ponder.steps.db.PathStepDao
 import ponder.steps.db.StepDao
 import ponder.steps.db.TrekDao
@@ -18,7 +16,6 @@ import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Trek
-import ponder.steps.model.data.TrekStep
 import kotlin.time.Duration.Companion.minutes
 
 class LocalTrekRepository(
@@ -74,38 +71,43 @@ class LocalTrekRepository(
         }
     }
 
-    override suspend fun completeStep(
+    override suspend fun setOutcome(
         trekId: String,
-        stepId: String?,
+        stepId: String,
         pathStepId: String?,
-        outcome: StepOutcome
+        outcome: StepOutcome?
     ): String? {
         val trek = trekDao.readTrekById(trekId) ?: return null
-        val stepId = stepId ?: trek.nextId ?: error("unable to find nextId")
-        val step = stepDao.readStep(stepId)
-        val now = Clock.System.now()
-        val progress = trek.progress + 1
-        val finishedAt = if (trek.rootId == stepId || progress == step.pathSize) now else null
-        val pathStepId = pathStepId ?: pathStepDao.readPathStepIdByPosition(trek.rootId, trek.progress)
 
-        val logId = randomUuidStringId()
-        logDao.insert(
-            LogEntryEntity(
-                id = logId,
-                stepId = stepId,
-                trekId = trekId,
-                pathStepId = pathStepId,
-                outcome = outcome,
-                updatedAt = now,
-                createdAt = now
+        val now = Clock.System.now()
+        val logId =if (outcome != null) {
+            val logId = randomUuidStringId()
+            logDao.insert(
+                StepLogEntity(
+                    id = logId,
+                    stepId = stepId,
+                    trekId = trekId,
+                    pathStepId = pathStepId,
+                    outcome = outcome,
+                    updatedAt = now,
+                    createdAt = now
+                )
             )
-        )
+            logId
+        } else {
+            logDao.delete(stepId, trekId, pathStepId)
+            null
+        }
+
+        val step = stepDao.readStep(stepId)
+        val progress = if (pathStepId == null) 0 else if (outcome == null) trek.progress - 1 else trek.progress + 1
+        val finishedAt = if (trek.rootId == stepId || progress == step.pathSize) now else null
 
         val nextId = if (finishedAt == null) {
-            val logs = logDao.readLogEntriesByTrekId(trekId)
+            val logs = logDao.readStepLogsByTrekId(trekId)
             pathStepDao.readPathStepsByPathId(trek.rootId).sortedBy { it.position }.firstOrNull { pathStep ->
                 logs.all { it.pathStepId != pathStep.id }
-            }?.stepId
+            }?.id
         } else null
 
         trekDao.update(trek.copy(

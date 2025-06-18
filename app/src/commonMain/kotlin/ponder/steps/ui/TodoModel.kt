@@ -61,17 +61,17 @@ class TodoModel(
 
     fun completeStep(item: TrekItem, outcome: StepOutcome) {
         viewModelScope.launch {
-            val logId = trekRepo.completeStep(item.trekId, null, null, outcome) ?: error("error completing step: ${item.stepLabel}")
-            if (outcome == StepOutcome.Completed) {
-                val questions = questionRepo.readQuestionsByStepId(item.stepId)
-                if (questions.isNotEmpty()) {
-                    modifyQuestionSetState(QuestionSet(item.trekId, logId, questions))
-                    return@launch
-                }
-            }
-            if (trekRepo.isFinished(item.trekId)) {
-                trekRepo.completeTrek(item.trekId)
-            }
+//            val logId = trekRepo.setOutcome(item.trekId, null, null, outcome) ?: error("error completing step: ${item.stepLabel}")
+//            if (outcome == StepOutcome.Completed) {
+//                val questions = questionRepo.readQuestionsByStepId(item.stepId)
+//                if (questions.isNotEmpty()) {
+//                    modifyQuestionSetState(QuestionSet(item.trekId, logId, questions))
+//                    return@launch
+//                }
+//            }
+//            if (trekRepo.isFinished(item.trekId)) {
+//                trekRepo.completeTrek(item.trekId)
+//            }
         }
     }
 

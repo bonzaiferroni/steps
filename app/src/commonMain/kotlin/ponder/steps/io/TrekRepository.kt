@@ -27,11 +27,11 @@ interface TrekRepository {
      * @param trekId The id of the trek to complete the step for
      * @return True if the step was completed successfully, false otherwise
      */
-    suspend fun completeStep(
+    suspend fun setOutcome(
         trekId: String,
-        stepId: String?,
+        stepId: String,
         pathStepId: String?,
-        outcome: StepOutcome
+        outcome: StepOutcome?
     ): String?
 
     suspend fun completeTrek(trekId: String): Boolean
