@@ -7,49 +7,49 @@ import ponder.steps.model.data.StepOutcome
 
 interface StepLogRepository {
     /**
-     * Get a log entry by its ID
-     * @param logEntryId The ID of the log entry to retrieve
-     * @return The log entry, or null if not found
+     * Get a step log by its ID
+     * @param stepLogId The ID of the step log to retrieve
+     * @return The step log, or null if not found
      */
-    suspend fun readStepLog(logEntryId: String): StepLog?
-    
+    suspend fun readStepLog(stepLogId: String): StepLog?
+
     /**
-     * Get a flow of a log entry by its ID
-     * @param logEntryId The ID of the log entry to retrieve
-     * @return Flow of the log entry
+     * Get a flow of a step log by its ID
+     * @param stepLogId The ID of the step log to retrieve
+     * @return Flow of the step log
      */
-    fun flowLogEntry(logEntryId: String): Flow<StepLog>
-    
+    fun flowStepLog(stepLogId: String): Flow<StepLog>
+
     /**
-     * Get all log entries for a step
+     * Get all step logs for a step
      * @param stepId The ID of the step
-     * @return List of log entries for the step
+     * @return List of step logs for the step
      */
-    suspend fun readLogEntriesByStepId(stepId: String): List<StepLog>
-    
+    suspend fun readStepLogsByStepId(stepId: String): List<StepLog>
+
     /**
-     * Get all log entries with a specific outcome
+     * Get all step logs with a specific outcome
      * @param outcome The outcome to filter by
-     * @return List of log entries with the specified outcome
+     * @return List of step logs with the specified outcome
      */
-    suspend fun readLogEntriesByOutcome(outcome: StepOutcome): List<StepLog>
-    
+    suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog>
+
     /**
-     * Get all log entries in a time range
+     * Get all step logs in a time range
      * @param startTime The start of the time range
      * @param endTime The end of the time range
-     * @return List of log entries in the time range
+     * @return List of step logs in the time range
      */
-    suspend fun readLogEntriesInTimeRange(startTime: Instant, endTime: Instant): List<StepLog>
+    suspend fun readStepLogsInTimeRange(startTime: Instant, endTime: Instant): List<StepLog>
 
     suspend fun createStepLog(stepLog: StepLog): String
 
     suspend fun deleteTrekStepLog(trekId: String, stepId: String, pathStepId: String?): Boolean
 
     /**
-     * Get a flow of all log entries for a trek
+     * Get a flow of all step logs for a trek
      * @param trekId The ID of the trek
-     * @return Flow of list of log entries for the trek
+     * @return Flow of list of step logs for the trek
      */
     fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>
 

@@ -8,7 +8,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.StepLogDao
 import ponder.steps.db.toEntity
-import ponder.steps.db.toLogEntry
+import ponder.steps.db.toStepLog
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 
@@ -17,23 +17,23 @@ class LocalStepLogRepository(
 ) : StepLogRepository {
 
     override suspend fun readStepLog(stepLogId: String): StepLog? {
-        return stepLogDao.readLogEntryOrNull(stepLogId)?.toLogEntry()
+        return stepLogDao.readStepLogOrNull(stepLogId)?.toStepLog()
     }
 
-    override fun flowLogEntry(logEntryId: String): Flow<StepLog> {
-        return stepLogDao.flowLogEntry(logEntryId).map { it.toLogEntry() }
+    override fun flowStepLog(stepLogId: String): Flow<StepLog> {
+        return stepLogDao.flowStepLog(stepLogId).map { it.toStepLog() }
     }
 
-    override suspend fun readLogEntriesByStepId(stepId: String): List<StepLog> {
-        return stepLogDao.readLogEntriesByStepId(stepId).map { it.toLogEntry() }
+    override suspend fun readStepLogsByStepId(stepId: String): List<StepLog> {
+        return stepLogDao.readStepLogsByStepId(stepId).map { it.toStepLog() }
     }
 
-    override suspend fun readLogEntriesByOutcome(outcome: StepOutcome): List<StepLog> {
-        return stepLogDao.readLogEntriesByOutcome(outcome).map { it.toLogEntry() }
+    override suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog> {
+        return stepLogDao.readStepLogsByOutcome(outcome).map { it.toStepLog() }
     }
 
-    override suspend fun readLogEntriesInTimeRange(startTime: Instant, endTime: Instant): List<StepLog> {
-        return stepLogDao.readLogEntriesInTimeRange(startTime, endTime).map { it.toLogEntry() }
+    override suspend fun readStepLogsInTimeRange(startTime: Instant, endTime: Instant): List<StepLog> {
+        return stepLogDao.readStepLogsInTimeRange(startTime, endTime).map { it.toStepLog() }
     }
 
     override suspend fun createStepLog(stepLog: StepLog): String {

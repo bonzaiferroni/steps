@@ -27,7 +27,7 @@ data class StepLogEntity(
     val createdAt: Instant,
 )
 
-fun StepLogEntity.toLogEntry() = StepLog(
+fun StepLogEntity.toStepLog() = StepLog(
     id = id,
     stepId = stepId,
     trekId = trekId,
