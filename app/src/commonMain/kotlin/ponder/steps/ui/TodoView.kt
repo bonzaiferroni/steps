@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,12 +17,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowLeft
 import compose.icons.tablericons.Plus
+import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.TrekStep
+import ponder.steps.ui.TrekStepRow
 import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
 import pondui.ui.controls.H3
 import pondui.ui.controls.IconButton
+import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.Row
 import pondui.ui.theme.Pond
@@ -39,13 +44,9 @@ fun TodoView() {
         dismiss = viewModel::toggleAddItem
     )
 
+    val getKey: (TrekStep) -> Any = { it.pathStepId ?: it.trekId ?: it.stepId }
+
     LazyColumn(1) {
-        item("controls") {
-            Row(horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()) {
-                // MenuWheel(state.span, TrekSpan.entries.toImmutableList()) { viewModel::setSpan }
-                Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)
-            }
-        }
 
         item("image") {
             Box(
@@ -67,17 +68,16 @@ fun TodoView() {
         }
 
         state.trek?.let { trekStep ->
-            item(trekStep.pathStepId ?: trekStep.trekId ?: trekStep.stepId) {
+            item(getKey(trekStep)) {
                 Row(1, modifier = Modifier.animateItem()) {
                     IconButton(TablerIcons.ArrowLeft) { viewModel.loadTrek(trekStep.superId, false) }
                     H3(trekStep.stepLabel, modifier = Modifier.weight(1f))
                 }
             }
         }
-        items(state.steps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
-            val log = state.logs.firstOrNull {
-                if (it.pathStepId != null) it.pathStepId == trekStep.pathStepId else it.trekId == trekStep.trekId
-            }
+
+        items(state.steps, key = getKey) { trekStep ->
+            val log = state.getLog(trekStep)
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[trekStep.stepId] ?: emptyList() else emptyList()
             val answers = state.answers[trekStep.pathStepId] ?: emptyList()
@@ -104,6 +104,16 @@ fun TodoView() {
                     loadTrek = { viewModel.loadTrek(it, true) },
                     branchStep = viewModel::branchStep
                 )
+            }
+        }
+
+        item("controls") {
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Label("Completed", modifier = Modifier.weight(1f))
+                Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)
             }
         }
 

@@ -99,4 +99,8 @@ data class TodoState(
     val stepLogs: List<StepLog> = emptyList(),
     val questions: Map<StepId, List<Question>> = emptyMap(),
     val answers: Map<PathStepId, List<Answer>> = emptyMap(),
-)
+) {
+    fun getLog(trekStep: TrekStep) = logs.firstOrNull {
+        if (it.pathStepId != null) it.pathStepId == trekStep.pathStepId else it.trekId == trekStep.trekId
+    }
+}
