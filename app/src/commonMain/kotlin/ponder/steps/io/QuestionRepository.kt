@@ -4,6 +4,7 @@ import androidx.room.MapColumn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.db.QuestionEntity
+import ponder.steps.db.StepId
 import ponder.steps.model.data.Question
 
 interface QuestionRepository {
@@ -19,7 +20,7 @@ interface QuestionRepository {
      * @param trekId The ID of the trek for which the questions should be streamed.
      * @return A Flow emitting a map where the key is the pathStep ID and the value is a list of questions associated with that step.
      */
-    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<String, List<Question>>>
+    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<StepId, List<Question>>>
 
-    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<String, List<Question>>>
+    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<StepId, List<Question>>>
 }

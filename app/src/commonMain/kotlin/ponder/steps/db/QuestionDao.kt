@@ -36,7 +36,7 @@ interface QuestionDao {
                 "JOIN QuestionEntity AS q ON p.stepId = q.stepId " +
                 "WHERE t.id = :trekId"
     )
-    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<@MapColumn("stepId") String, List<Question>>>
+    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 
     @Query(
         "SELECT q.* FROM TrekEntity AS t " +
@@ -44,5 +44,7 @@ interface QuestionDao {
                 "JOIN QuestionEntity AS q ON s.id = q.stepId " +
                 "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
     )
-    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<@MapColumn("stepId") String, List<Question>>>
+    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 }
+
+typealias StepId = String

@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import ponder.steps.db.PathStepId
+import ponder.steps.db.StepId
 import ponder.steps.io.AnswerRepository
 import ponder.steps.io.LocalAnswerRepository
 import ponder.steps.io.LocalStepLogRepository
@@ -95,6 +97,6 @@ data class TodoState(
     val isAddingItem: Boolean = false,
     val isDeeper: Boolean = false,
     val stepLogs: List<StepLog> = emptyList(),
-    val questions: Map<String, List<Question>> = emptyMap(), // String is stepId
-    val answers: Map<String, List<Answer>> = emptyMap(), // String is pathStepId
+    val questions: Map<StepId, List<Question>> = emptyMap(),
+    val answers: Map<PathStepId, List<Answer>> = emptyMap(),
 )
