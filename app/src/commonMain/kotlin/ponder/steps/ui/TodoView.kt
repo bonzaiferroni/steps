@@ -66,7 +66,7 @@ fun TodoView() {
                 item = question,
                 offsetX = 50.dp,
                 itemContent = { question ->
-                    QuestionRow(question) { viewModel.answerQuestion(item.trekId, question, it) }
+                    QuestionRow(item.stepLabel, question) { viewModel.answerQuestion(item.trekId, question, it) }
                 },
                 isVisibleInit = true,
                 modifier = Modifier.height(72.dp)

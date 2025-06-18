@@ -24,6 +24,7 @@ import pondui.ui.theme.Pond
 
 @Composable
 fun QuestionRow(
+    stepLabel: String,
     question: Question,
     modifier: Modifier = Modifier,
     answerQuestion: (String?) -> Unit
@@ -31,6 +32,11 @@ fun QuestionRow(
     val dataType = question.type
     var fieldText by remember { mutableStateOf("") }
     var answerText by remember { mutableStateOf<String?>(null) }
+
+    fun onSubmit() {
+        fieldText = ""
+        answerQuestion(answerText)
+    }
 
     fun updateAnswer(value: String) {
         fieldText = value
@@ -43,12 +49,15 @@ fun QuestionRow(
     }
 
     Column(1, modifier = modifier) {
-        Text(question.text)
+        Row(1) {
+            Label("$stepLabel:", modifier = Modifier.weight(1f, fill = false))
+            Text(question.text, modifier = Modifier.weight(1f))
+        }
         Row(1) {
             when (dataType) {
-                DataType.String -> StringAnswer(fieldText, ::updateAnswer)
+                DataType.String -> StringAnswer(fieldText, ::updateAnswer, ::onSubmit)
                 DataType.Integer -> IntegerAnswer(fieldText, ::updateAnswer)
-                DataType.Float -> StringAnswer(fieldText, ::updateAnswer)
+                DataType.Float -> StringAnswer(fieldText, ::updateAnswer, ::onSubmit)
                 DataType.Boolean -> TODO()
             }
             val isAnswering = fieldText.isNotEmpty()
@@ -57,10 +66,7 @@ fun QuestionRow(
                 text = if (isAnswering) "Done" else "Skip",
                 background = if (isAnswering) Pond.colors.primary else Pond.colors.secondary,
                 isEnabled = !isAnswering || hasAnswer,
-                onClick = {
-                    fieldText = ""
-                    answerQuestion(answerText)
-                },
+                onClick = ::onSubmit,
             )
         }
     }
@@ -69,12 +75,14 @@ fun QuestionRow(
 @Composable
 fun RowScope.StringAnswer(
     answerText: String,
-    changeAnswer: (String) -> Unit
+    changeAnswer: (String) -> Unit,
+    onSubmit: () -> Unit,
 ) {
     TextField(
         text = answerText,
         onTextChange = changeAnswer,
         modifier = Modifier.weight(1f)
+            .onEnterPressed(onSubmit)
     )
 }
 

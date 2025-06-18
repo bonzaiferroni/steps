@@ -86,7 +86,7 @@ fun TrekPathView() {
                 item = question,
                 offsetX = 50.dp,
                 itemContent = { question ->
-                    QuestionRow(question) { answerText ->
+                    QuestionRow(trekStep.stepLabel, question) { answerText ->
                         if (log != null && answerText != null)
                             viewModel.answerQuestion(log, question, answerText)
                     }
