@@ -57,33 +57,29 @@ fun LazyItemScope.TrekStepRow(
                 }
             }
         }
-        MagicItem(
-            item = item,
-            rotationX = 90,
-            modifier = Modifier.weight(1f)
-        ) { item ->
-            Row(1) {
-                ContentButton(
-                    onClick = { nav.go(StepProfileRoute(item.stepId)) },
-                    shape = CircleShape
-                ) {
+        Row(1) {
+            ContentButton(
+                onClick = { nav.go(StepProfileRoute(item.stepId)) },
+                shape = CircleShape
+            ) {
+                MagicItem(item.thumbUrl, rotationX = 90) { url ->
                     StepImage(
-                        url = item.thumbUrl,
+                        url = url,
                         modifier = Modifier.fillMaxHeight()
                     )
                 }
-                Column(0, modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = item.stepLabel,
-                        style = Pond.typo.h4,
-                        maxLines = 2,
-                    )
-                    val intentLabel = item.intentLabel
-                    if (intentLabel != null && intentLabel != item.stepLabel) {
-                        Row(1) {
-                            Label("Path:")
-                            Text(intentLabel)
-                        }
+            }
+            Column(0, modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.stepLabel,
+                    style = Pond.typo.h4,
+                    maxLines = 2,
+                )
+                val intentLabel = item.intentLabel
+                if (intentLabel != null && intentLabel != item.stepLabel) {
+                    Row(1) {
+                        Label("Path:")
+                        Text(intentLabel)
                     }
                 }
             }

@@ -15,6 +15,7 @@ import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.IntentPriority
+import ponder.steps.model.data.IntentTiming
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
@@ -108,6 +109,7 @@ class AddStepModel(
                 label = label,
                 repeatMins = stateNow.repeatMinutes,
                 priority = stateNow.intentPriority,
+                timing = stateNow.intentTiming,
                 scheduledAt = stateNow.intentScheduledAt,
                 pathIds = pathIds
             )
@@ -179,14 +181,6 @@ data class AddIntentState(
             IntentTiming.Once -> "Once"
             IntentTiming.Repeat -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
         }
-}
-
-enum class IntentTiming(val label: String) {
-    Schedule("Schedule"),
-    Once("One time"),
-    Repeat("Repeat");
-
-    override fun toString() = label
 }
 
 enum class TimeUnit {

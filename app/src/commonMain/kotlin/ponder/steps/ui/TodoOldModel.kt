@@ -41,15 +41,15 @@ class TodoOldModel(
                 TrekSpan.Week -> Clock.startOfWeek()
             }
             val endTime = startTime + stateNow.span.duration
-            trekRepo.flowTreksInRange(startTime, endTime).collect { treks ->
-                setState {
-                    it.copy(
-                        items = treks.sortedWith(
-                            compareByDescending<TrekItem> { trek -> trek.finishedAt ?: Instant.DISTANT_FUTURE }
-                                .thenBy { trek -> trek.priority.ordinal }
-                        ))
-                }
-            }
+//            trekRepo.flowTreksInRange(startTime, endTime).collect { treks ->
+//                setState {
+//                    it.copy(
+//                        items = treks.sortedWith(
+//                            compareByDescending<TrekItem> { trek -> trek.finishedAt ?: Instant.DISTANT_FUTURE }
+//                                .thenBy { trek -> trek.priority.ordinal }
+//                        ))
+//                }
+//            }
         }
     }
 

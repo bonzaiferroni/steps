@@ -11,7 +11,6 @@ data class Trek(
     val superId: String?,
     val pathStepId: String?,
     val rootId: String,
-    val nextId: String?,
     val progress: Int,
     val isComplete: Boolean,
     val availableAt: Instant,

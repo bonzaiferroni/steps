@@ -11,14 +11,12 @@ import ponder.steps.model.data.Trek
     foreignKeys = [
         ForeignKey(IntentEntity::class, ["id"], ["intentId"], ForeignKey.CASCADE),
         ForeignKey(StepEntity::class, ["id"], ["rootId"], ForeignKey.CASCADE),
-        ForeignKey(PathStepEntity::class, ["id"], ["nextId"], ForeignKey.SET_NULL),
         ForeignKey(TrekEntity::class, ["id"], ["superId"], ForeignKey.CASCADE),
         ForeignKey(PathStepEntity::class, ["id"], ["pathStepId"], ForeignKey.SET_NULL)
     ],
     indices = [
         Index(value = ["intentId"]),
         Index(value = ["rootId"]),
-        Index(value = ["nextId"]),
         Index(value = ["superId"]),
         Index(value = ["pathStepId"]),
     ],
@@ -31,7 +29,6 @@ data class TrekEntity(
     val superId: String?,
     val pathStepId: String?,
     val rootId: String,
-    val nextId: String?,
     val progress: Int,
     val isComplete: Boolean,
     val availableAt: Instant,
@@ -48,7 +45,6 @@ fun Trek.toEntity() = TrekEntity(
     superId = superId,
     pathStepId = pathStepId,
     rootId = rootId,
-    nextId = nextId,
     progress = progress,
     isComplete = isComplete,
     availableAt = availableAt,

@@ -22,6 +22,7 @@ import compose.icons.tablericons.X
 import kabinet.utils.pluralize
 import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.model.data.IntentPriority
+import ponder.steps.model.data.IntentTiming
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic

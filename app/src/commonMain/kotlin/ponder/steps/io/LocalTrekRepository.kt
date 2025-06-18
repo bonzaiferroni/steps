@@ -14,6 +14,7 @@ import ponder.steps.db.TrekDao
 import ponder.steps.db.TrekEntity
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
+import ponder.steps.model.data.IntentTiming
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Trek
 import kotlin.time.Duration.Companion.minutes
@@ -25,8 +26,6 @@ class LocalTrekRepository(
     private val intentDao: IntentDao = appDb.getIntentDao(),
     private val stepLogDao: StepLogDao = appDb.getLogDao()
 ) : TrekRepository {
-
-    override fun flowTreksInRange(start: Instant, end: Instant) = trekDao.flowTreksInRange(start, end)
 
     suspend fun startTrek(trekId: String): Boolean {
         var trek = trekDao.readTrekById(trekId) ?: return false
@@ -41,15 +40,22 @@ class LocalTrekRepository(
     }
 
     override suspend fun syncTreksWithIntents() {
-        val activeIntentIds = intentDao.readActiveItentIds()
+        val activeIntentIds = intentDao.readActiveIntentIds()
         val trekIntentIds = trekDao.readActiveTrekIntentIds()
 
         for (intentId in activeIntentIds - trekIntentIds) {
             val intent = intentDao.readIntentById(intentId)
-            val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
+            val repeatMins = intent.repeatMins
+            val lastAvailableAt = trekDao.readLastAvailableAt(intent.id)
+            if (lastAvailableAt != null && intent.timing != IntentTiming.Repeat) continue
+            val now = Clock.System.now()
+            val scheduledAt = intent.scheduledAt ?: Instant.DISTANT_FUTURE
+            if (intent.timing == IntentTiming.Schedule && scheduledAt > now) continue
 
+            val availableAt = intent.scheduledAt
+                ?: (if (repeatMins != null && lastAvailableAt != null) lastAvailableAt + repeatMins.minutes else null)
+                ?: now
             val id = randomUuidStringId()
-            val nextId = pathStepDao.readPathStepIdByPosition(intent.rootId, 0)
 
             trekDao.create(
                 TrekEntity(
@@ -59,7 +65,6 @@ class LocalTrekRepository(
                     superId = null,
                     pathStepId = null,
                     rootId = intent.rootId,
-                    nextId = nextId,
                     progress = 0,
                     isComplete = false,
                     availableAt = availableAt,
@@ -107,18 +112,10 @@ class LocalTrekRepository(
         val progress = if (pathStepId == null) 0 else if (outcome == null) trek.progress - 1 else trek.progress + 1
         val finishedAt = if (trek.rootId == stepId || progress == step.pathSize) now else null
 
-        val nextId = if (finishedAt == null) {
-            val logs = stepLogDao.readStepLogsByTrekId(trekId)
-            pathStepDao.readPathStepsByPathId(trek.rootId).sortedBy { it.position }.firstOrNull { pathStep ->
-                logs.all { it.pathStepId != pathStep.id }
-            }?.id
-        } else null
-
         trekDao.update(trek.copy(
             progress = progress,
             finishedAt = finishedAt,
             progressAt = now,
-            nextId = nextId
         ).toEntity())
 
         return logId
@@ -129,7 +126,6 @@ class LocalTrekRepository(
         val pathStep = pathStepDao.readPathStep(pathStepId) ?: error("No pathstep with id: $pathStepId")
         val id = randomUuidStringId()
         val rootId = pathStep.stepId
-        val nextId = pathStepDao.readPathStepIdByPosition(rootId, 0)
         val subTrek = Trek(
             id = id,
             userId = appUserId,
@@ -137,7 +133,6 @@ class LocalTrekRepository(
             superId = trek.id,
             pathStepId = pathStepId,
             rootId = rootId,
-            nextId = nextId,
             progress = 0,
             isComplete = false,
             availableAt = trek.availableAt,

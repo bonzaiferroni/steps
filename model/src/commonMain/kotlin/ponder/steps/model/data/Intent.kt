@@ -12,6 +12,7 @@ data class Intent(
     val repeatMins: Int?,
     val expectedMins: Int?,
     val priority: IntentPriority,
+    val timing: IntentTiming,
     // val isRegularTime: Boolean,
     val pathIds: List<String>,
     val completedAt: Instant?,
@@ -25,6 +26,15 @@ data class NewIntent(
     val repeatMins: Int? = null,
     val expectedMins: Int? = null,
     val priority: IntentPriority = IntentPriority.Default,
+    val timing: IntentTiming = IntentTiming.Once,
     val scheduledAt: Instant? = null,
     val pathIds: List<String> = emptyList()
 )
+
+enum class IntentTiming(val label: String) {
+    Schedule("Schedule"),
+    Once("One time"),
+    Repeat("Repeat");
+
+    override fun toString() = label
+}

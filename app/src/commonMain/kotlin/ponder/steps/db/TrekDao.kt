@@ -29,20 +29,7 @@ interface TrekDao {
     @Query("SELECT * FROM TrekEntity WHERE id = :trekId")
     fun flowTrekById(trekId: String): Flow<Trek>
 
-    @Query(
-        "SELECT t.id trekId, t.progress, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, " +
-                "s.id stepId, s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, " +
-                "s.audioLabelUrl, s.audioFullUrl, " +
-                "s.description, " +
-                "i.label intentLabel, i.expectedMins, i.priority " +
-                "FROM TrekEntity AS t " +
-                "JOIN StepEntity AS s ON t.nextId = s.id " +
-                "JOIN IntentEntity AS i ON t.intentId = i.id " +
-                "WHERE availableAt > :start AND availableAt < :end"
-    )
-    fun flowTreksInRange(start: Instant, end: Instant): Flow<List<TrekItem>>
-
-    @Query("SELECT intentId FROM TrekEntity WHERE finishedAt IS NULL")
+    @Query("SELECT intentId FROM TrekEntity WHERE NOT isComplete")
     suspend fun readActiveTrekIntentIds(): List<String>
 
     @Query(

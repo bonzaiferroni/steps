@@ -75,7 +75,9 @@ fun TodoView() {
             }
         }
         items(state.steps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
-            val log = state.logs.firstOrNull { it.pathStepId == trekStep.pathStepId }
+            val log = state.logs.firstOrNull {
+                if (it.pathStepId != null) it.pathStepId == trekStep.pathStepId else it.trekId == trekStep.trekId
+            }
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[trekStep.stepId] ?: emptyList() else emptyList()
             val answers = state.answers[trekStep.pathStepId] ?: emptyList()

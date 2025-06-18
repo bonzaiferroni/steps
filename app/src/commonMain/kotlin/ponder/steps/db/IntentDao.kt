@@ -20,7 +20,7 @@ interface IntentDao  {
     fun readActiveIntentsFlow(): Flow<List<Intent>>
 
     @Query("SELECT id FROM IntentEntity WHERE completedAt IS NULL")
-    suspend fun readActiveItentIds(): List<String>
+    suspend fun readActiveIntentIds(): List<String>
 
     @Insert
     suspend fun create(intent: IntentEntity)

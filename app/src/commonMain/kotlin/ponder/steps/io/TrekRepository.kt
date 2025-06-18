@@ -10,14 +10,6 @@ import ponder.steps.model.data.TrekStep
 interface TrekRepository {
 
     /**
-     * Create a flow of all treks since a given time.
-     * @param start The start time to filter treks
-     * @param end The end time to filter treks
-     * @return Flow of List of TrekItem
-     */
-    fun flowTreksInRange(start: Instant, end: Instant): Flow<List<TrekItem>>
-
-    /**
      * Create new treks for active intents without a corresponding trek
      */
     suspend fun syncTreksWithIntents()
