@@ -82,7 +82,7 @@ interface TrekDao {
                 "FROM TrekEntity AS t " +
                 "JOIN StepEntity AS s ON t.rootId = s.id " +
                 "JOIN IntentEntity AS i ON t.intentId = i.id " +
-                "WHERE t.superId IS NULL AND availableAt > :start AND availableAt < :end"
+                "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
     )
     fun flowRootTrekSteps(start: Instant, end: Instant): Flow<List<TrekStep>>
 

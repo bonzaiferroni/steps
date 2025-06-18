@@ -1,131 +1,100 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kabinet.utils.replace
 import kabinet.utils.startOfDay
-import kabinet.utils.startOfWeek
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import ponder.steps.io.AnswerRepository
 import ponder.steps.io.LocalAnswerRepository
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalTrekRepository
-import ponder.steps.io.AnswerRepository
 import ponder.steps.io.StepLogRepository
+import ponder.steps.io.QuestionRepository
 import ponder.steps.io.TrekRepository
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Question
-import ponder.steps.model.data.TrekItem
+import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.TrekStep
 import pondui.ui.core.StateModel
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 
 class TodoModel(
     private val trekRepo: TrekRepository = LocalTrekRepository(),
-    private val questionRepo: LocalQuestionRepository = LocalQuestionRepository(),
-    private val logRepo: StepLogRepository = LocalStepLogRepository(),
-    private val answerRepo: AnswerRepository = LocalAnswerRepository()
-) : StateModel<TodoState>(TodoState()) {
+    private val questionRepo: QuestionRepository = LocalQuestionRepository(),
+    private val answerRepo: AnswerRepository = LocalAnswerRepository(),
+    private val stepLogRepo: StepLogRepository = LocalStepLogRepository(),
+): StateModel<TodoState>(TodoState()) {
 
-    private var flowJob: Job? = null
-
-    fun onLoad() {
-        flowJob?.cancel()
-        flowJob = viewModelScope.launch {
-            val startTime = when (stateNow.span) {
-                TrekSpan.Hours -> Clock.startOfDay()
-                TrekSpan.Day -> Clock.startOfDay()
-                TrekSpan.Week -> Clock.startOfWeek()
-            }
-            val endTime = startTime + stateNow.span.duration
-            trekRepo.flowTreksInRange(startTime, endTime).collect { treks ->
-                setState {
-                    it.copy(
-                        items = treks.sortedWith(
-                            compareByDescending<TrekItem> { trek -> trek.finishedAt ?: Instant.DISTANT_FUTURE }
-                                .thenBy { trek -> trek.priority.ordinal }
-                        ))
-                }
-            }
-        }
+    init {
+        loadTrek(null, true)
     }
 
-    fun onDispose() = cancelJobs()
+    fun loadTrek(trekId: String?, isDeeper: Boolean) {
+        clearJobs()
+        if (trekId != null) {
+            trekRepo.flowTrekStepById(trekId).launchCollectJob { trekStep ->
+                val steps = stateNow.steps.filter { it.pathStepId != trekStep.pathStepId }
+                setState { it.copy(trek = trekStep, steps = steps) }
+            }
+            trekRepo.flowTrekStepsBySuperId(trekId).launchCollectJob { trekSteps ->
+                setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }
+            }
+            stepLogRepo.flowPathLogsByTrekId(trekId).launchCollectJob(::setLogs)
+            questionRepo.flowPathQuestionsByTrekId(trekId).launchCollectJob(::setQuestions)
+            answerRepo.flowPathQuestionsByTrekId(trekId).launchCollectJob(::setAnswers)
+        } else {
+            val start = Clock.startOfDay()
+            val end = start + 1.days
+            trekRepo.flowRootTrekSteps(start, end).launchCollectJob { trekSteps ->
+                setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.availableAt }, trek = null) }
+            }
+            stepLogRepo.flowRootLogs(start, end).launchCollectJob(::setLogs)
+            questionRepo.flowRootQuestions(start, end).launchCollectJob(::setQuestions)
+            answerRepo.flowRootAnswers(start, end).launchCollectJob(::setAnswers)
+        }
+        setState { it.copy(isDeeper = isDeeper) }
+    }
+
+    private fun setLogs(logs: List<StepLog>) = setState { it.copy(logs = logs) }
+    private fun setQuestions(questions: Map<String, List<Question>>) = setState { it.copy(questions = questions ) }
+    private fun setAnswers(answers: Map<String, List<Answer>>) = setState { it.copy(answers = answers) }
 
     fun toggleAddItem() {
         setState { it.copy(isAddingItem = !it.isAddingItem) }
     }
 
-    fun completeStep(item: TrekItem, outcome: StepOutcome) {
+    fun branchStep(pathStepId: String?) {
+        val trekId = stateNow.trek?.trekId ?: return
+        val pathStepId = pathStepId ?: return
         viewModelScope.launch {
-            val logId = trekRepo.setOutcome(item.trekId, item.stepId, null, outcome) ?: error("error completing step: ${item.stepLabel}")
-            if (outcome == StepOutcome.Completed) {
-                val questions = questionRepo.readQuestionsByStepId(item.stepId)
-                if (questions.isNotEmpty()) {
-                    modifyQuestionSetState(QuestionSet(item.trekId, logId, questions))
-                    return@launch
-                }
-            }
-            if (trekRepo.isFinished(item.trekId)) {
-                trekRepo.completeTrek(item.trekId)
-            }
+            val id = trekRepo.createSubTrek(trekId, pathStepId)
+            loadTrek(id, true)
         }
     }
 
-    fun setSpan(span: TrekSpan) {
-        if (stateNow.span == span) return
-        setState { it.copy(span = span) }
-        onLoad() // Reload items for the new span
-    }
-
-    fun answerQuestion(trekId: String, question: Question, answerText: String?) {
-        var questionSet = stateNow.questionSets.firstOrNull { it.trekId == trekId } ?: error("Question set not found")
-        val questions = questionSet.questions.filter { it.id != question.id }
-        questionSet = questionSet.copy(questions = questions)
-        if (answerText == null) {
-            modifyQuestionSetState(questionSet)
-            return
-        }
+    fun setOutcome(trekStep: TrekStep, outcome: StepOutcome? = null) {
+        val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
         viewModelScope.launch {
-            val success = answerRepo.createAnswer(questionSet.logId, question.id, answerText, question.type)
-            if (success) {
-                modifyQuestionSetState(questionSet)
-                if (questionSet.questions.isEmpty() && trekRepo.isFinished(trekId)) {
-                    trekRepo.completeTrek(trekId)
-                }
-            }
+            trekRepo.setOutcome(trekId, trekStep.stepId, trekStep.pathStepId, outcome)
         }
     }
 
-    private fun modifyQuestionSetState(questionSet: QuestionSet) {
-        if (questionSet.questions.isEmpty()) {
-            setState { it.copy(questionSets = it.questionSets.filter { set -> set.trekId != questionSet.trekId }) }
-        } else if (stateNow.questionSets.all { it.trekId != questionSet.trekId }) {
-            setState { it.copy(questionSets = it.questionSets + questionSet) }
-        } else {
-            setState { it.copy(questionSets = it.questionSets.replace(questionSet) { set -> set.trekId == questionSet.trekId }) }
+    fun answerQuestion(stepLog: StepLog, question: Question, answerText: String) {
+        viewModelScope.launch {
+            answerRepo.createAnswer(stepLog.id, question.id, answerText, question.type)
         }
     }
 }
 
 data class TodoState(
-    val items: List<TrekItem> = emptyList(),
-    val questionSets: List<QuestionSet> = emptyList(),
+    val trek: TrekStep? = null,
+    val steps: List<TrekStep> = emptyList(),
+    val logs: List<StepLog> = emptyList(),
     val isAddingItem: Boolean = false,
-    val span: TrekSpan = TrekSpan.Day
-)
-
-enum class TrekSpan(val label: String, val duration: Duration) {
-    Hours("4 hours", 4.hours),
-    Day("Day", 1.days),
-    Week("Week", 7.days);
-}
-
-data class QuestionSet(
-    val trekId: String,
-    val logId: String,
-    val questions: List<Question>
+    val isDeeper: Boolean = false,
+    val stepLogs: List<StepLog> = emptyList(),
+    val questions: Map<String, List<Question>> = emptyMap(), // String is stepId
+    val answers: Map<String, List<Answer>> = emptyMap(), // String is pathStepId
 )

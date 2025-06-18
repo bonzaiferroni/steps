@@ -49,7 +49,7 @@ fun LazyItemScope.TrekStepRow(
     ) {
         Box(modifier = Modifier.width(32.dp), contentAlignment = Alignment.Center) {
             val trekId = item.trekId
-            if (trekId != null) {
+            if (trekId != null && item.pathSize > 0) {
                 IconButton(TablerIcons.ArrowRight, padding = PaddingValues(0.dp)) { loadTrek(trekId) }
             } else {
                 Checkbox(isFinished) {

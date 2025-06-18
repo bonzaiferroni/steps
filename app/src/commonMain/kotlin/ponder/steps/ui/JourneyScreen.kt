@@ -12,8 +12,8 @@ fun JourneyScreen() {
         TopBarSpacer()
 
         Tabs {
-            Tab("Path Focus") { TrekPathView() }
-            Tab("Doing") { TodoView() }
+            Tab("Today") { TodoView() }
+            // Tab("Doing") { TodoOldView() }
             Tab("Focus") { FocusView() }
             Tab("Plan") { IntentListView() }
         }

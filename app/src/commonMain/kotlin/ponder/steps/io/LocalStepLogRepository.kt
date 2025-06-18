@@ -47,9 +47,14 @@ class LocalStepLogRepository(
         return id
     }
 
-    override suspend fun deleteTrekStepLog(stepId: String, trekId: String, pathStepId: String?): Boolean {
-        return stepLogDao.delete(stepId, trekId, pathStepId) == 1
+    override suspend fun deleteTrekStepLog(trekId: String, stepId: String, pathStepId: String?): Boolean {
+        return if (pathStepId != null)
+            stepLogDao.delete(trekId, stepId, pathStepId) == 1
+        else
+            stepLogDao.deleteIfNullPathStepId(trekId, stepId) == 1
     }
 
     override fun flowPathLogsByTrekId(trekId: String) = stepLogDao.flowPathLogsByTrekId(trekId)
+
+    override fun flowRootLogs(start: Instant, end: Instant) = stepLogDao.flowRootLogs(start, end)
 }

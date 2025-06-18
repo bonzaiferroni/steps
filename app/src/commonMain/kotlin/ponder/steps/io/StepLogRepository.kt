@@ -44,7 +44,7 @@ interface StepLogRepository {
 
     suspend fun createStepLog(stepLog: StepLog): String
 
-    suspend fun deleteTrekStepLog(stepId: String, trekId: String, pathStepId: String?): Boolean
+    suspend fun deleteTrekStepLog(trekId: String, stepId: String, pathStepId: String?): Boolean
 
     /**
      * Get a flow of all log entries for a trek
@@ -52,4 +52,6 @@ interface StepLogRepository {
      * @return Flow of list of log entries for the trek
      */
     fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>
+
+    fun flowRootLogs(start: Instant, end: Instant): Flow<List<StepLog>>
 }

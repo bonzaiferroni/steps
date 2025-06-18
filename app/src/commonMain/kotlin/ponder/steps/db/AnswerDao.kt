@@ -8,6 +8,7 @@ import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
 
 @Dao
@@ -35,8 +36,16 @@ interface AnswerDao {
 
     @Query(
         "SELECT a.*, l.pathStepId FROM StepLogEntity AS l " +
-                "LEFT JOIN AnswerEntity AS a ON l.id = a.logId " +
+                "JOIN AnswerEntity AS a ON l.id = a.logId " +
                 "WHERE l.trekId = :trekId"
     )
     fun flowPathAnswersByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") String, List<Answer>>>
+
+    @Query(
+        "SELECT a.*, l.pathStepId FROM TrekEntity as t " +
+                "JOIN StepLogEntity AS l ON t.id = l.trekId " +
+                "JOIN AnswerEntity AS a ON l.id = a.logId " +
+                "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
+    )
+    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<@MapColumn("pathStepId") String, List<Answer>>>
 }

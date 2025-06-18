@@ -1,6 +1,7 @@
 package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.AnswerDao
 import ponder.steps.db.AnswerEntity
@@ -56,4 +57,6 @@ class LocalAnswerRepository(
     }
 
     override fun flowPathQuestionsByTrekId(trekId: String) = answerDao.flowPathAnswersByTrekId(trekId)
+
+    override fun flowRootAnswers(start: Instant, end: Instant) = answerDao.flowRootAnswers(start, end)
 }

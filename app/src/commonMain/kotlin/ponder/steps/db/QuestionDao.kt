@@ -7,6 +7,7 @@ import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.Question
 
 @Dao
@@ -30,10 +31,18 @@ interface QuestionDao {
     suspend fun readQuestionsByStepIds(stepIds: List<String>): List<Question>
 
     @Query(
-        "SELECT p.id pathStepId, q.* FROM TrekEntity AS t " +
-                "LEFT JOIN PathStepEntity AS p ON t.rootId = p.pathId " +
-                "LEFT JOIN QuestionEntity AS q ON p.stepId = q.stepId " +
+        "SELECT q.* FROM TrekEntity AS t " +
+                "JOIN PathStepEntity AS p ON t.rootId = p.pathId " +
+                "JOIN QuestionEntity AS q ON p.stepId = q.stepId " +
                 "WHERE t.id = :trekId"
     )
-    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") String, List<Question>>>
+    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<@MapColumn("stepId") String, List<Question>>>
+
+    @Query(
+        "SELECT q.* FROM TrekEntity AS t " +
+                "JOIN StepEntity AS s ON t.rootId = s.id " +
+                "JOIN QuestionEntity AS q ON s.id = q.stepId " +
+                "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
+    )
+    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<@MapColumn("stepId") String, List<Question>>>
 }

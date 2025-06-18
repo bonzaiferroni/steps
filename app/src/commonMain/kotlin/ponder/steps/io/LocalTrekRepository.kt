@@ -95,7 +95,11 @@ class LocalTrekRepository(
             )
             logId
         } else {
-            stepLogDao.delete(stepId, trekId, pathStepId)
+            if (pathStepId != null)
+                stepLogDao.delete(trekId, stepId, pathStepId)
+            else {
+                stepLogDao.deleteIfNullPathStepId(trekId, stepId)
+            }
             null
         }
 
