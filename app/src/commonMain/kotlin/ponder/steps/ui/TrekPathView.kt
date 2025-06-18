@@ -17,6 +17,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowLeft
 import compose.icons.tablericons.Plus
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.StepOutcome
 import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
@@ -75,22 +76,28 @@ fun TrekPathView() {
             }
         }
         items(state.steps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
-            val question: Question? = null
+            val log = state.logs.firstOrNull { it.pathStepId == trekStep.pathStepId }
+            val questions = if (log?.outcome == StepOutcome.Completed)
+                state.questions[trekStep.pathStepId] ?: emptyList() else emptyList()
+            val answers = state.answers[trekStep.pathStepId] ?: emptyList()
+            val question = questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } }
 
             MagicItem(
                 item = question,
                 offsetX = 50.dp,
                 itemContent = { question ->
-                    // QuestionRow(question) { viewModel.answerQuestion(item.trekId, question, it) }
+                    QuestionRow(question) { answerText ->
+                        if (log != null && answerText != null)
+                            viewModel.answerQuestion(log, question, answerText)
+                    }
                 },
                 isVisibleInit = true,
                 modifier = Modifier.height(72.dp)
                     .animateItem()
             ) {
-                val outcome = state.logs.firstOrNull { it.pathStepId == trekStep.pathStepId }?.outcome
                 TrekStepRow(
                     item = trekStep,
-                    isFinished = outcome != null,
+                    isFinished = log != null,
                     isDeeper = state.isDeeper,
                     setOutcome = viewModel::setOutcome,
                     loadTrek = { viewModel.loadTrek(it, true) },

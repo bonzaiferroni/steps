@@ -5,10 +5,16 @@ import kabinet.utils.startOfDay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import ponder.steps.io.LocalLogRepository
+import ponder.steps.io.AnswerRepository
+import ponder.steps.io.LocalAnswerRepository
+import ponder.steps.io.LocalStepLogRepository
+import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalTrekRepository
-import ponder.steps.io.LogRepository
+import ponder.steps.io.StepLogRepository
+import ponder.steps.io.QuestionRepository
 import ponder.steps.io.TrekRepository
+import ponder.steps.model.data.Answer
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekStep
@@ -17,49 +23,44 @@ import kotlin.time.Duration.Companion.days
 
 class TrekPathModel(
     private val trekRepo: TrekRepository = LocalTrekRepository(),
-    private val logRepo: LogRepository = LocalLogRepository(),
+    private val questionRepo: QuestionRepository = LocalQuestionRepository(),
+    private val answerRepo: AnswerRepository = LocalAnswerRepository(),
+    private val stepLogRepo: StepLogRepository = LocalStepLogRepository(),
 ): StateModel<TrekPathState>(TrekPathState()) {
-
-    private val jobs = mutableListOf<Job>()
 
     init {
         loadTrek(null, true)
     }
 
     fun loadTrek(trekId: String?, isDeeper: Boolean) {
-        jobs.forEach { it.cancel() }
-        jobs.clear()
+        clearJobs()
         if (trekId != null) {
-            viewModelScope.launch {
-                trekRepo.flowTrekStepById(trekId).collect { trekStep ->
-                    val steps = stateNow.steps.filter { it.pathStepId != trekStep.pathStepId }
-                    setState { it.copy(trek = trekStep, steps = steps) }
-                }
-            }.addJob()
-            viewModelScope.launch {
-                trekRepo.flowTrekStepsBySuperId(trekId).collect { trekSteps ->
-                    setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }
-                }
-            }.addJob()
-            viewModelScope.launch {
-                logRepo.flowStepLogsByTrekId(trekId).collect { logs ->
-                    setState { it.copy(logs = logs) }
-                }
-            }.addJob()
+            trekRepo.flowTrekStepById(trekId).launchCollectJob { trekStep ->
+                val steps = stateNow.steps.filter { it.pathStepId != trekStep.pathStepId }
+                setState { it.copy(trek = trekStep, steps = steps) }
+            }
+            trekRepo.flowTrekStepsBySuperId(trekId).launchCollectJob { trekSteps ->
+                setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }
+            }
+            stepLogRepo.flowPathLogsByTrekId(trekId).launchCollectJob { logs ->
+                setState { it.copy(logs = logs) }
+            }
+            questionRepo.flowPathQuestionsByTrekId(trekId).launchCollectJob { questions ->
+                setState { it.copy(questions = questions ) }
+            }
+            answerRepo.flowPathQuestionsByTrekId(trekId).launchCollectJob { answers ->
+                setState { it.copy(answers = answers) }
+            }
         } else {
-            viewModelScope.launch {
-                val start = Clock.startOfDay()
-                val end = start + 1.days
-                trekRepo.flowRootTrekSteps(start, end).collect { trekSteps ->
-                    setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.availableAt }) }
-                }
-            }.addJob()
+            val start = Clock.startOfDay()
+            val end = start + 1.days
+            trekRepo.flowRootTrekSteps(start, end).launchCollectJob { trekSteps ->
+                setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.availableAt }) }
+            }
             setState { it.copy(trek = null) }
         }
         setState { it.copy(isDeeper = isDeeper) }
     }
-
-    private fun Job.addJob() = jobs.add(this)
 
     fun toggleAddItem() {
         setState { it.copy(isAddingItem = !it.isAddingItem) }
@@ -80,6 +81,12 @@ class TrekPathModel(
             trekRepo.setOutcome(trekId, trekStep.stepId, trekStep.pathStepId, outcome)
         }
     }
+
+    fun answerQuestion(stepLog: StepLog, question: Question, answerText: String) {
+        viewModelScope.launch {
+            answerRepo.createAnswer(stepLog.id, question.id, answerText, question.type)
+        }
+    }
 }
 
 data class TrekPathState(
@@ -88,5 +95,7 @@ data class TrekPathState(
     val logs: List<StepLog> = emptyList(),
     val isAddingItem: Boolean = false,
     val isDeeper: Boolean = false,
-    val stepLogs: List<StepLog> = emptyList()
+    val stepLogs: List<StepLog> = emptyList(),
+    val questions: Map<String, List<Question>> = emptyMap(), // String is pathStepId
+    val answers: Map<String, List<Answer>> = emptyMap(), // String is pathStepId
 )

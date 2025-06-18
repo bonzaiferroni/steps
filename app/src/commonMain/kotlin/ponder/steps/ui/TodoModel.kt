@@ -9,11 +9,11 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.io.LocalAnswerRepository
-import ponder.steps.io.LocalLogRepository
+import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.AnswerRepository
-import ponder.steps.io.LogRepository
+import ponder.steps.io.StepLogRepository
 import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Question
@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.hours
 class TodoModel(
     private val trekRepo: TrekRepository = LocalTrekRepository(),
     private val questionRepo: LocalQuestionRepository = LocalQuestionRepository(),
-    private val logRepo: LogRepository = LocalLogRepository(),
+    private val logRepo: StepLogRepository = LocalStepLogRepository(),
     private val answerRepo: AnswerRepository = LocalAnswerRepository()
 ) : StateModel<TodoState>(TodoState()) {
 
@@ -61,17 +61,17 @@ class TodoModel(
 
     fun completeStep(item: TrekItem, outcome: StepOutcome) {
         viewModelScope.launch {
-//            val logId = trekRepo.setOutcome(item.trekId, null, null, outcome) ?: error("error completing step: ${item.stepLabel}")
-//            if (outcome == StepOutcome.Completed) {
-//                val questions = questionRepo.readQuestionsByStepId(item.stepId)
-//                if (questions.isNotEmpty()) {
-//                    modifyQuestionSetState(QuestionSet(item.trekId, logId, questions))
-//                    return@launch
-//                }
-//            }
-//            if (trekRepo.isFinished(item.trekId)) {
-//                trekRepo.completeTrek(item.trekId)
-//            }
+            val logId = trekRepo.setOutcome(item.trekId, item.stepId, null, outcome) ?: error("error completing step: ${item.stepLabel}")
+            if (outcome == StepOutcome.Completed) {
+                val questions = questionRepo.readQuestionsByStepId(item.stepId)
+                if (questions.isNotEmpty()) {
+                    modifyQuestionSetState(QuestionSet(item.trekId, logId, questions))
+                    return@launch
+                }
+            }
+            if (trekRepo.isFinished(item.trekId)) {
+                trekRepo.completeTrek(item.trekId)
+            }
         }
     }
 

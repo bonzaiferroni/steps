@@ -3,6 +3,7 @@ package ponder.steps.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -27,4 +28,12 @@ interface QuestionDao {
 
     @Query("SELECT * FROM QuestionEntity WHERE stepId IN (:stepIds)")
     suspend fun readQuestionsByStepIds(stepIds: List<String>): List<Question>
+
+    @Query(
+        "SELECT p.id pathStepId, q.* FROM TrekEntity AS t " +
+                "LEFT JOIN PathStepEntity AS p ON t.rootId = p.pathId " +
+                "LEFT JOIN QuestionEntity AS q ON p.stepId = q.stepId " +
+                "WHERE t.id = :trekId"
+    )
+    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") String, List<Question>>>
 }

@@ -54,4 +54,6 @@ class LocalAnswerRepository(
     override fun flowAnswersByLogId(logId: String): Flow<List<Answer>> {
         return answerDao.flowAnswersByLogId(logId)
     }
+
+    override fun flowPathQuestionsByTrekId(trekId: String) = answerDao.flowPathAnswersByTrekId(trekId)
 }

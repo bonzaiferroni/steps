@@ -6,7 +6,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
 import ponder.steps.db.IntentDao
-import ponder.steps.db.LogDao
+import ponder.steps.db.StepLogDao
 import ponder.steps.db.StepLogEntity
 import ponder.steps.db.PathStepDao
 import ponder.steps.db.StepDao
@@ -23,7 +23,7 @@ class LocalTrekRepository(
     private val stepDao: StepDao = appDb.getStepDao(),
     private val pathStepDao: PathStepDao = appDb.getPathStepDao(),
     private val intentDao: IntentDao = appDb.getIntentDao(),
-    private val logDao: LogDao = appDb.getLogDao()
+    private val stepLogDao: StepLogDao = appDb.getLogDao()
 ) : TrekRepository {
 
     override fun flowTreksInRange(start: Instant, end: Instant) = trekDao.flowTreksInRange(start, end)
@@ -80,9 +80,9 @@ class LocalTrekRepository(
         val trek = trekDao.readTrekById(trekId) ?: return null
 
         val now = Clock.System.now()
-        val logId =if (outcome != null) {
+        val logId = if (outcome != null) {
             val logId = randomUuidStringId()
-            logDao.insert(
+            stepLogDao.insert(
                 StepLogEntity(
                     id = logId,
                     stepId = stepId,
@@ -95,7 +95,7 @@ class LocalTrekRepository(
             )
             logId
         } else {
-            logDao.delete(stepId, trekId, pathStepId)
+            stepLogDao.delete(stepId, trekId, pathStepId)
             null
         }
 
@@ -104,7 +104,7 @@ class LocalTrekRepository(
         val finishedAt = if (trek.rootId == stepId || progress == step.pathSize) now else null
 
         val nextId = if (finishedAt == null) {
-            val logs = logDao.readStepLogsByTrekId(trekId)
+            val logs = stepLogDao.readStepLogsByTrekId(trekId)
             pathStepDao.readPathStepsByPathId(trek.rootId).sortedBy { it.position }.firstOrNull { pathStep ->
                 logs.all { it.pathStepId != pathStep.id }
             }?.id

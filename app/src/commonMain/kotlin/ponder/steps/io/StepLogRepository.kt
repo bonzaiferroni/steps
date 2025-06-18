@@ -5,7 +5,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 
-interface LogRepository {
+interface StepLogRepository {
     /**
      * Get a log entry by its ID
      * @param logEntryId The ID of the log entry to retrieve
@@ -28,20 +28,6 @@ interface LogRepository {
     suspend fun readLogEntriesByStepId(stepId: String): List<StepLog>
     
     /**
-     * Get all log entries for a trek
-     * @param trekId The ID of the trek
-     * @return List of log entries for the trek
-     */
-    suspend fun readLogEntriesByTrekId(trekId: String): List<StepLog>
-    
-    /**
-     * Get a flow of all log entries for a trek
-     * @param trekId The ID of the trek
-     * @return Flow of list of log entries for the trek
-     */
-    fun flowStepLogsByTrekId(trekId: String): Flow<List<StepLog>>
-    
-    /**
      * Get all log entries with a specific outcome
      * @param outcome The outcome to filter by
      * @return List of log entries with the specified outcome
@@ -59,4 +45,11 @@ interface LogRepository {
     suspend fun createStepLog(stepLog: StepLog): String
 
     suspend fun deleteTrekStepLog(stepId: String, trekId: String, pathStepId: String?): Boolean
+
+    /**
+     * Get a flow of all log entries for a trek
+     * @param trekId The ID of the trek
+     * @return Flow of list of log entries for the trek
+     */
+    fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>
 }

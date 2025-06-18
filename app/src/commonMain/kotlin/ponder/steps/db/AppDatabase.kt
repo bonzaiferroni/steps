@@ -30,7 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getIntentDao(): IntentDao
     abstract fun getTrekDao(): TrekDao
     abstract fun getQuestionDao(): QuestionDao
-    abstract fun getLogDao(): LogDao
+    abstract fun getLogDao(): StepLogDao
     abstract fun getAnswerDao(): AnswerDao
     abstract fun getSyncDao(): SyncDao
 }

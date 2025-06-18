@@ -1,8 +1,10 @@
 package ponder.steps.db
 
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -30,4 +32,11 @@ interface AnswerDao {
 
     @Query("SELECT * FROM AnswerEntity WHERE logId = :logId")
     fun flowAnswersByLogId(logId: String): Flow<List<Answer>>
+
+    @Query(
+        "SELECT a.*, l.pathStepId FROM StepLogEntity AS l " +
+                "LEFT JOIN AnswerEntity AS a ON l.id = a.logId " +
+                "WHERE l.trekId = :trekId"
+    )
+    fun flowPathAnswersByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") String, List<Answer>>>
 }

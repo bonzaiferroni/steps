@@ -3,14 +3,16 @@ package ponder.steps.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 
 @Dao
-interface LogDao {
+interface StepLogDao {
 
     @Insert
     suspend fun insert(stepLogEntity: StepLogEntity)
@@ -44,9 +46,6 @@ interface LogDao {
     @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
     suspend fun readStepLogsByTrekId(trekId: String): List<StepLogEntity>
 
-    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
-    fun flowLogEntriesByTrekId(trekId: String): Flow<List<StepLogEntity>>
-
     @Query("SELECT * FROM StepLogEntity WHERE outcome = :outcome")
     suspend fun readLogEntriesByOutcome(outcome: StepOutcome): List<StepLogEntity>
 
@@ -55,4 +54,7 @@ interface LogDao {
 
     @Query("SELECT * FROM StepLogEntity WHERE updatedAt > :lastSyncAt")
     suspend fun readLogEntriesUpdatedAfter(lastSyncAt: Instant): List<StepLogEntity>
+
+    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
+    fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>
 }

@@ -3,8 +3,6 @@ package ponder.steps.io
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.appDb
 import ponder.steps.db.QuestionDao
-import ponder.steps.db.QuestionEntity
-import ponder.steps.db.StepDao
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Question
 
@@ -21,5 +19,7 @@ class LocalQuestionRepository(
     override suspend fun deleteQuestion(question: Question) = questionDao.delete(question.toEntity()) == 1
 
     override fun flowQuestionsByStepId(stepId: String): Flow<List<Question>> = questionDao.flowQuestionsByStepId(stepId)
+
+    override fun flowPathQuestionsByTrekId(trekId: String) = questionDao.flowPathQuestionsByTrekId(trekId)
 }
 
