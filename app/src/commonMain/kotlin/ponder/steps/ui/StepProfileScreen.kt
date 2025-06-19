@@ -54,7 +54,7 @@ fun StepProfileScreen(
     val profileStep = state.step ?: return
 
     profileStep.audioLabelUrl?.let {
-        PlayWave("http://localhost:8080/${it}")
+        // PlayWave("http://localhost:8080/${it}")
     }
 
     TitleCloud("Add a step to ${state.step?.label ?: "path"}", state.isAddingStep, viewModel::toggleAddingStep) {
@@ -162,7 +162,7 @@ fun StepProfileScreen(
                 }
             }
 
-            Tabs {
+            Tabs("Activity") {
                 Tab("Steps") {
                     LazyColumn(0, Alignment.CenterHorizontally) {
                         itemsIndexed(state.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
