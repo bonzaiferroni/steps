@@ -67,4 +67,7 @@ interface StepLogDao {
                 "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
     )
     fun flowRootLogs(start: Instant, end: Instant): Flow<List<StepLog>>
+
+    @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
+    fun flowStepLogsByStepId(stepId: StepId): Flow<List<StepLog>>
 }

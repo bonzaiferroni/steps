@@ -1,10 +1,13 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
@@ -49,9 +53,9 @@ fun QuestionRow(
     }
 
     Column(1, modifier = modifier) {
-        Row(1) {
-            Label("$stepLabel:", modifier = Modifier.weight(1f, fill = false))
-            Text(question.text, modifier = Modifier.weight(1f))
+        Row(1, modifier = Modifier.fillMaxWidth()) {
+            Label("$stepLabel:", modifier = Modifier.widthIn(max = 100.dp), maxLines = 1)
+            Text(question.text, modifier = Modifier.weight(1f), maxLines = 1)
         }
         Row(1) {
             when (dataType) {

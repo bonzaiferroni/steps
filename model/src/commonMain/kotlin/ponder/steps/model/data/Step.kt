@@ -1,12 +1,13 @@
 package ponder.steps.model.data
 
+import kabinet.model.UserId
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Step(
-    val id: String,
-    val userId: String,
+    val id: StepId,
+    val userId: UserId,
     val label: String,
     val description: String?,
     val theme: String?,
@@ -24,3 +25,5 @@ data class Step(
     val pathStepId: String?,
     val position: Int?
 )
+
+typealias StepId = String

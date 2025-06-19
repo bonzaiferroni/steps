@@ -5,9 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PathStep(
-    val id: String,
-    val stepId: String,
-    val pathId: String,
+    val id: PathStepId,
+    val stepId: StepId,
+    val pathId: StepId,
     val position: Int,
     val updatedAt: Instant,
 )
+
+typealias PathStepId = String

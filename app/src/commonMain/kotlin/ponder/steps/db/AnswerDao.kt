@@ -1,6 +1,5 @@
 package ponder.steps.db
 
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -10,6 +9,9 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
+import ponder.steps.model.data.PathStepId
+import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.TrekId
 
 @Dao
 interface AnswerDao {
@@ -42,12 +44,15 @@ interface AnswerDao {
     fun flowPathAnswersByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") PathStepId, List<Answer>>>
 
     @Query(
-        "SELECT a.*, l.pathStepId FROM TrekEntity as t " +
+        "SELECT a.*, l.trekId FROM TrekEntity AS t " +
                 "JOIN StepLogEntity AS l ON t.id = l.trekId " +
                 "JOIN AnswerEntity AS a ON l.id = a.logId " +
-                "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
+                "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR NOT t.isComplete) "
     )
-    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<@MapColumn("pathStepId") PathStepId, List<Answer>>>
-}
+    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<@MapColumn("trekId") TrekId, List<Answer>>>
 
-typealias PathStepId = String
+    @Query("SELECT * FROM StepLogEntity AS s " +
+            "JOIN AnswerEntity AS a ON s.id = a.logId " +
+            "WHERE s.stepId = :stepId")
+    fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
+}

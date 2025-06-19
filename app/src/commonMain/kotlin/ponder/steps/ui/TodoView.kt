@@ -80,7 +80,7 @@ fun TodoView() {
             val log = state.getLog(trekStep)
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[trekStep.stepId] ?: emptyList() else emptyList()
-            val answers = state.answers[trekStep.pathStepId] ?: emptyList()
+            val answers = state.getAnswers(trekStep)
             val question = questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } }
 
             MagicItem(
@@ -101,6 +101,7 @@ fun TodoView() {
                     isFinished = log != null,
                     isDeeper = state.isDeeper,
                     setOutcome = viewModel::setOutcome,
+                    questionCount = questions.size,
                     loadTrek = { viewModel.loadTrek(it, true) },
                     branchStep = viewModel::branchStep
                 )

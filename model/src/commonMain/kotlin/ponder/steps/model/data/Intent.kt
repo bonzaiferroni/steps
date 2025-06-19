@@ -1,13 +1,14 @@
 package ponder.steps.model.data
 
+import kabinet.model.UserId
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Intent(
-    val id: String,
-    val userId: String,
-    val rootId: String,
+    val id: IntentId,
+    val userId: UserId,
+    val rootId: StepId,
     val label: String,
     val repeatMins: Int?,
     val expectedMins: Int?,
@@ -18,6 +19,8 @@ data class Intent(
     val completedAt: Instant?,
     val scheduledAt: Instant?,
 )
+
+typealias IntentId = String
 
 @Serializable
 data class NewIntent(

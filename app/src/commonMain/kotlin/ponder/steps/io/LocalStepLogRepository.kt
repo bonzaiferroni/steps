@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
+import ponder.steps.db.StepId
 import ponder.steps.db.StepLogDao
 import ponder.steps.db.toEntity
 import ponder.steps.db.toStepLog
@@ -57,4 +58,6 @@ class LocalStepLogRepository(
     override fun flowPathLogsByTrekId(trekId: String) = stepLogDao.flowPathLogsByTrekId(trekId)
 
     override fun flowRootLogs(start: Instant, end: Instant) = stepLogDao.flowRootLogs(start, end)
+
+    override fun flowStepLogsByStepId(stepId: StepId) = stepLogDao.flowStepLogsByStepId(stepId)
 }

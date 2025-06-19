@@ -258,7 +258,7 @@ fun StepProfileScreen(
                     Button("Add Question") { viewModel.toggleAddingQuestion() }
                 }
                 Tab("Activity") {
-                    Text("No activity")
+                    StepActivityView(route.stepId)
                 }
                 Tab("Questions", state.hasQuestions) {
                     LazyColumn {

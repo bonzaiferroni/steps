@@ -5,8 +5,10 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.AnswerDao
 import ponder.steps.db.AnswerEntity
+import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
+import ponder.steps.model.data.StepLog
 
 class LocalAnswerRepository(
     private val answerDao: AnswerDao = appDb.getAnswerDao()
@@ -59,4 +61,6 @@ class LocalAnswerRepository(
     override fun flowPathQuestionsByTrekId(trekId: String) = answerDao.flowPathAnswersByTrekId(trekId)
 
     override fun flowRootAnswers(start: Instant, end: Instant) = answerDao.flowRootAnswers(start, end)
+
+    override fun flowAnswersByStepId(stepId: StepId) = answerDao.flowAnswersByStepId(stepId)
 }

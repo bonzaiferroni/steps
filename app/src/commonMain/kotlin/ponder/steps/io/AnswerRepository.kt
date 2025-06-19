@@ -3,10 +3,13 @@ package ponder.steps.io
 import androidx.room.MapColumn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
-import ponder.steps.db.PathStepId
+import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.TrekId
 
 interface AnswerRepository {
     suspend fun createAnswer(logId: String, questionId: String, value: String, type: DataType): Boolean
@@ -25,5 +28,7 @@ interface AnswerRepository {
      */
     fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<PathStepId, List<Answer>>>
 
-    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<PathStepId, List<Answer>>>
+    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<TrekId, List<Answer>>>
+
+    fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
 }

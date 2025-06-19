@@ -39,6 +39,7 @@ fun LazyItemScope.TrekStepRow(
     item: TrekStep,
     isFinished: Boolean,
     isDeeper: Boolean,
+    questionCount: Int,
     setOutcome: (TrekStep, StepOutcome?) -> Unit,
     loadTrek: (String) -> Unit,
     branchStep: (String) -> Unit,
@@ -89,6 +90,9 @@ fun LazyItemScope.TrekStepRow(
                     )
                     if (!showProgress && item.pathSize > 0) {
                         Label("${item.pathSize} steps")
+                    }
+                    if (questionCount > 0) {
+                        Label("$questionCount questions")
                     }
                     val intentLabel = item.intentLabel
                     if (intentLabel != null && intentLabel != item.stepLabel) {
