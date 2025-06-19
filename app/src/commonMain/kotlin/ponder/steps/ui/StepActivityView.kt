@@ -35,7 +35,7 @@ fun StepActivityView(stepId: String) {
                 ),
                 ChartArray(
                     values = listOf(
-                        ChartValue(0f, 20f, "1"),
+                        ChartValue(0f, 30f, "1"),
                         ChartValue(1f, 15f, "2"),
                         ChartValue(2f, 7f, "3"),
                         ChartValue(3f, 15f, "4"),
