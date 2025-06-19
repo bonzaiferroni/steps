@@ -8,12 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import pondui.ui.controls.AxisValue
 import pondui.ui.controls.ChartArray
 import pondui.ui.controls.ChartConfig
 import pondui.ui.controls.ChartValue
 import pondui.ui.controls.Column
 import pondui.ui.controls.LineChart
-import pondui.ui.controls.VerticalAxisConfig
+import pondui.ui.controls.AxisConfig
 
 @Composable
 fun StepActivityView(stepId: String) {
@@ -28,7 +29,7 @@ fun StepActivityView(stepId: String) {
                         ChartValue(0f, 0f, "1"),
                         ChartValue(1f, 10f, "2"),
                         ChartValue(2f, 5f, "3"),
-                        ChartValue(3f, 25f, "4"),
+                        ChartValue(3f, 30f, "4"),
                         ChartValue(4f, 5f, "5"),
                     ),
                 ),
@@ -43,11 +44,11 @@ fun StepActivityView(stepId: String) {
                 )
             ),
             config = ChartConfig(
-                leftAxis = VerticalAxisConfig(
-                    values = listOf(0f, 15f, 30f),
-                )
+                leftAxis = AxisConfig(values = listOf(AxisValue(0f), AxisValue(15f), AxisValue(30f)),),
+                rightAxis = AxisConfig(values = listOf(AxisValue(0f), AxisValue(15f), AxisValue(30f)),),
+                bottomAxis = AxisConfig(values = listOf(AxisValue(0f), AxisValue(1f), AxisValue(2f), AxisValue(3f), AxisValue(4f)))
             ),
-            modifier = Modifier.fillMaxWidth().height(300.dp)
+            modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(0f))
         )
     }
 }
