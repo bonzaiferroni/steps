@@ -8,13 +8,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import pondui.ui.controls.AxisValue
-import pondui.ui.controls.ChartArray
-import pondui.ui.controls.ChartConfig
-import pondui.ui.controls.ChartValue
+import pondui.ui.charts.AxisValue
+import pondui.ui.charts.ChartArray
+import pondui.ui.charts.ChartConfig
+import pondui.ui.charts.ChartValue
 import pondui.ui.controls.Column
-import pondui.ui.controls.LineChart
-import pondui.ui.controls.AxisConfig
+import pondui.ui.charts.LineChart
+import pondui.ui.charts.AxisConfig
+import pondui.ui.theme.DefaultColors.swatches
+import pondui.ui.theme.Pond
 
 @Composable
 fun StepActivityView(stepId: String) {
@@ -32,6 +34,7 @@ fun StepActivityView(stepId: String) {
                         ChartValue(3f, 30f, "4"),
                         ChartValue(4f, 5f, "5"),
                     ),
+                    color = swatches[0]
                 ),
                 ChartArray(
                     values = listOf(
@@ -41,12 +44,24 @@ fun StepActivityView(stepId: String) {
                         ChartValue(3f, 15f, "4"),
                         ChartValue(4f, 8f, "5"),
                     ),
+                    color = swatches[1]
                 )
             ),
             config = ChartConfig(
-                leftAxis = AxisConfig(values = listOf(AxisValue(0f), AxisValue(15f), AxisValue(30f)),),
-                rightAxis = AxisConfig(values = listOf(AxisValue(0f), AxisValue(15f), AxisValue(30f)),),
-                bottomAxis = AxisConfig(values = listOf(AxisValue(0f), AxisValue(1f), AxisValue(2f), AxisValue(3f), AxisValue(4f)))
+                leftAxis = AxisConfig(
+                    values = listOf(AxisValue(0f), AxisValue(15f), AxisValue(30f)),
+                    color = swatches[0]
+                    ),
+                rightAxis = AxisConfig(
+                    values = listOf(AxisValue(0f), AxisValue(15f), AxisValue(30f)),
+                    color = swatches[1]
+                    ),
+                bottomAxis = AxisConfig(
+                    values = listOf(AxisValue(0f), AxisValue(1f), AxisValue(2f), AxisValue(3f), AxisValue(4f)),
+                    color = Pond.localColors.content
+                ),
+                glowColor = Pond.colors.glow,
+                contentColor = Pond.localColors.content
             ),
             modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(0f))
         )
