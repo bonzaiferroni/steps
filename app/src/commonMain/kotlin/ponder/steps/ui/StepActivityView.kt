@@ -4,18 +4,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import pondui.ui.charts.AxisValue
+import pondui.ui.charts.AxisConfig
 import pondui.ui.charts.ChartArray
 import pondui.ui.charts.ChartConfig
 import pondui.ui.charts.ChartValue
 import pondui.ui.controls.Column
 import pondui.ui.charts.LineChart
-import pondui.ui.charts.AxisConfig
-import pondui.ui.charts.VerticalAxis
+import pondui.ui.charts.AxisSide
+import pondui.ui.charts.BottomAxisConfig
+import pondui.ui.charts.SideAxisConfig
 import pondui.ui.theme.DefaultColors.swatches
 import pondui.ui.theme.Pond
 
@@ -38,20 +40,20 @@ fun StepActivityView(stepId: String) {
                     color = swatches[0],
                     provideX = { it.x },
                     provideY = { it.y },
-                    axis = VerticalAxis.Left
+                    axis = SideAxisConfig(3, AxisSide.Left)
                 ),
                 ChartArray(
                     values = listOf(
-                        ChartValue(0f, 30f, "1"),
-                        ChartValue(1f, 15f, "2"),
-                        ChartValue(2f, 7f, "3"),
-                        ChartValue(3f, 15f, "4"),
-                        ChartValue(4f, 8f, "5"),
+                        ChartValue(0f, 30000f, "1"),
+                        ChartValue(1f, 15000f, "2"),
+                        ChartValue(2f, 7000f, "3"),
+                        ChartValue(3f, 15000f, "4"),
+                        ChartValue(4f, 8000f, "5"),
                     ),
                     color = swatches[1],
                     provideX = { it.x },
                     provideY = { it.y },
-                    axis = VerticalAxis.Right
+                    axis = SideAxisConfig(3, AxisSide.Right)
                 )
             ),
             config = ChartConfig(
@@ -68,7 +70,8 @@ fun StepActivityView(stepId: String) {
 //                    color = Pond.localColors.content
 //                ),
                 glowColor = Pond.colors.glow,
-                contentColor = Pond.localColors.content
+                contentColor = Pond.localColors.content,
+                bottomAxis = BottomAxisConfig(5)
             ),
             modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(.1f))
         )
