@@ -38,13 +38,15 @@ fun StepActivityView(stepId: String) {
                     values = state.buckets,
                     color = swatches[0],
                     provideY = { it.sum.toDouble() },
-                    axis = SideAxisAutoConfig(3, AxisSide.Left)
+                    axis = SideAxisAutoConfig(3, AxisSide.Left),
+                    floor = 0.0
                 ),
                 ChartArray(
                     values = state.buckets,
                     color = swatches[1],
                     provideY = { it.count.toDouble() },
-                    axis = SideAxisAutoConfig(3, AxisSide.Right)
+                    axis = SideAxisAutoConfig(3, AxisSide.Right),
+                    floor = 0.0,
                 )
             ),
             config = ChartConfig(
