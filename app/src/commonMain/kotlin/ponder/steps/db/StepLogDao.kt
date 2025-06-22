@@ -32,31 +32,31 @@ interface StepLogDao {
     suspend fun deleteStepLogById(id: String): Int
 
     @Query("SELECT * FROM StepLogEntity")
-    fun getAllStepLogsAsFlow(): Flow<List<StepLogEntity>>
+    fun getAllStepLogsAsFlow(): Flow<List<StepLog>>
 
     @Query("SELECT * FROM StepLogEntity WHERE id = :stepLogId")
-    suspend fun readStepLogOrNull(stepLogId: String): StepLogEntity?
+    suspend fun readStepLogOrNull(stepLogId: String): StepLog?
 
     @Query("SELECT * FROM StepLogEntity WHERE id = :stepLogId")
-    fun flowStepLog(stepLogId: String): Flow<StepLogEntity>
+    fun flowStepLog(stepLogId: String): Flow<StepLog>
 
     suspend fun readStepLog(stepLogId: String) =
         readStepLogOrNull(stepLogId) ?: error("stepLogId missing: $stepLogId")
 
     @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
-    suspend fun readStepLogsByStepId(stepId: String): List<StepLogEntity>
+    suspend fun readStepLogsByStepId(stepId: String): List<StepLog>
 
     @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
-    suspend fun readStepLogsByTrekId(trekId: String): List<StepLogEntity>
+    suspend fun readStepLogsByTrekId(trekId: String): List<StepLog>
 
     @Query("SELECT * FROM StepLogEntity WHERE outcome = :outcome")
-    suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLogEntity>
+    suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog>
 
     @Query("SELECT * FROM StepLogEntity WHERE createdAt > :startTime AND createdAt < :endTime")
-    suspend fun readStepLogsInTimeRange(startTime: Instant, endTime: Instant): List<StepLogEntity>
+    suspend fun readStepLogsInTimeRange(startTime: Instant, endTime: Instant): List<StepLog>
 
     @Query("SELECT * FROM StepLogEntity WHERE updatedAt > :lastSyncAt")
-    suspend fun readStepLogsUpdatedAfter(lastSyncAt: Instant): List<StepLogEntity>
+    suspend fun readStepLogsUpdatedAfter(lastSyncAt: Instant): List<StepLog>
 
     @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
     fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>

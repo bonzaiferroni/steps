@@ -15,7 +15,7 @@ data class TrekStep(
     val audioLabelUrl: String?,
     val audioFullUrl: String?,
     // trek data (sometimes null)
-    val trekId: String?,
+    val trekId: TrekId?,
     val progress: Int?,
     val availableAt: Instant?,
     val startedAt: Instant?,

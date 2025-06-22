@@ -2,6 +2,7 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ponder.steps.db.StepId
@@ -17,9 +18,11 @@ import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.TrekId
 import ponder.steps.model.data.TrekStep
 import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 class TodoModel(
     private val trekRepo: TrekRepository = LocalTrekRepository(),
@@ -30,30 +33,36 @@ class TodoModel(
 
     init {
         loadTrek(null, true)
+        viewModelScope.launch {
+            while (true) {
+                trekRepo.syncTreksWithIntents()
+                delay(1.minutes)
+            }
+        }
     }
 
     fun loadTrek(trekId: String?, isDeeper: Boolean) {
         clearJobs()
         if (trekId != null) {
-            trekRepo.flowTrekStepById(trekId).launchCollectJob { trekStep ->
+            trekRepo.flowTrekStepById(trekId).launchCollect { trekStep ->
                 val steps = stateNow.steps.filter { it.pathStepId != trekStep.pathStepId }
                 setState { it.copy(trek = trekStep, steps = steps) }
             }
-            trekRepo.flowTrekStepsBySuperId(trekId).launchCollectJob { trekSteps ->
+            trekRepo.flowTrekStepsBySuperId(trekId).launchCollect { trekSteps ->
                 setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }
             }
-            stepLogRepo.flowPathLogsByTrekId(trekId).launchCollectJob(::setLogs)
-            questionRepo.flowPathQuestionsByTrekId(trekId).launchCollectJob(::setQuestions)
-            answerRepo.flowPathQuestionsByTrekId(trekId).launchCollectJob(::setAnswers)
+            stepLogRepo.flowPathLogsByTrekId(trekId).launchCollect(::setLogs)
+            questionRepo.flowPathQuestionsByTrekId(trekId).launchCollect(::setQuestions)
+            answerRepo.flowPathQuestionsByTrekId(trekId).launchCollect(::setAnswers)
         } else {
             val start = Clock.startOfDay()
             val end = start + 1.days
-            trekRepo.flowRootTrekSteps(start, end).launchCollectJob { trekSteps ->
+            trekRepo.flowRootTrekSteps(start, end).launchCollect { trekSteps ->
                 setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.availableAt }, trek = null) }
             }
-            stepLogRepo.flowRootLogs(start, end).launchCollectJob(::setLogs)
-            questionRepo.flowRootQuestions(start, end).launchCollectJob(::setQuestions)
-            answerRepo.flowRootAnswers(start, end).launchCollectJob(::setAnswers)
+            stepLogRepo.flowRootLogs(start, end).launchCollect(::setLogs)
+            questionRepo.flowRootQuestions(start, end).launchCollect(::setQuestions)
+            answerRepo.flowRootAnswers(start, end).launchCollect(::setAnswers)
         }
         setState { it.copy(isDeeper = isDeeper) }
     }
@@ -82,9 +91,10 @@ class TodoModel(
         }
     }
 
-    fun answerQuestion(stepLog: StepLog, question: Question, answerText: String) {
+    fun answerQuestion(trekStep: TrekStep, stepLog: StepLog, question: Question, answerText: String) {
+        val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
         viewModelScope.launch {
-            answerRepo.createAnswer(stepLog.id, question.id, answerText, question.type)
+            trekRepo.createAnswer(trekId, Answer(stepLog.id, question.id, answerText, question.type))
         }
     }
 }

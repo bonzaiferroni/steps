@@ -40,6 +40,14 @@ interface TrekDao {
     )
     suspend fun readLastAvailableAt(intentId: String): Instant?
 
+    @Query(
+        "SELECT finishedAt FROM TrekEntity " +
+                "WHERE intentId = :intentId " +
+                "ORDER BY finishedAt DESC " +
+                "LIMIT 1"
+    )
+    suspend fun readLastFinishedAt(intentId: String): Instant?
+
     @Query("SELECT finishedAt IS NOT NULL AS isFinished FROM TrekEntity WHERE id = :trekId")
     suspend fun isFinished(trekId: String): Boolean
 

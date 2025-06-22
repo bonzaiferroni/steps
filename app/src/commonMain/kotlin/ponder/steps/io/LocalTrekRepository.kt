@@ -5,18 +5,29 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
+import ponder.steps.db.AnswerDao
+import ponder.steps.db.AnswerEntity
 import ponder.steps.db.IntentDao
 import ponder.steps.db.StepLogDao
 import ponder.steps.db.StepLogEntity
 import ponder.steps.db.PathStepDao
+import ponder.steps.db.QuestionDao
 import ponder.steps.db.StepDao
 import ponder.steps.db.TrekDao
 import ponder.steps.db.TrekEntity
 import ponder.steps.db.toEntity
+import ponder.steps.model.data.Answer
+import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentTiming
+import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.PathStepId
+import ponder.steps.model.data.StepId
+import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Trek
+import ponder.steps.model.data.TrekId
 import kotlin.time.Duration.Companion.minutes
 
 class LocalTrekRepository(
@@ -24,7 +35,9 @@ class LocalTrekRepository(
     private val stepDao: StepDao = appDb.getStepDao(),
     private val pathStepDao: PathStepDao = appDb.getPathStepDao(),
     private val intentDao: IntentDao = appDb.getIntentDao(),
-    private val stepLogDao: StepLogDao = appDb.getLogDao()
+    private val stepLogDao: StepLogDao = appDb.getLogDao(),
+    private val questionDao: QuestionDao = appDb.getQuestionDao(),
+    private val answerDao: AnswerDao = appDb.getAnswerDao(),
 ) : TrekRepository {
 
     suspend fun startTrek(trekId: String): Boolean {
@@ -47,14 +60,15 @@ class LocalTrekRepository(
             val intent = intentDao.readIntentById(intentId)
             val repeatMins = intent.repeatMins
             val lastAvailableAt = trekDao.readLastAvailableAt(intent.id)
+            val lastFinishedAt = trekDao.readLastFinishedAt(intent.id)
             if (lastAvailableAt != null && intent.timing != IntentTiming.Repeat) continue
             val now = Clock.System.now()
             val scheduledAt = intent.scheduledAt ?: Instant.DISTANT_FUTURE
             if (intent.timing == IntentTiming.Schedule && scheduledAt > now) continue
 
-            val availableAt = intent.scheduledAt
-                ?: (if (repeatMins != null && lastAvailableAt != null) lastAvailableAt + repeatMins.minutes else null)
-                ?: now
+            val availableAt = if (intent.timing != IntentTiming.Repeat || repeatMins == null || lastFinishedAt == null)
+                (intent.scheduledAt ?: now) else lastFinishedAt + repeatMins.minutes
+
             val id = randomUuidStringId()
 
             trekDao.create(
@@ -77,13 +91,11 @@ class LocalTrekRepository(
     }
 
     override suspend fun setOutcome(
-        trekId: String,
-        stepId: String,
-        pathStepId: String?,
+        trekId: TrekId,
+        stepId: StepId,
+        pathStepId: PathStepId?,
         outcome: StepOutcome?
-    ): String? {
-        val trek = trekDao.readTrekById(trekId) ?: return null
-
+    ): StepLogId? {
         val now = Clock.System.now()
         val logId = if (outcome != null) {
             val logId = randomUuidStringId()
@@ -108,15 +120,7 @@ class LocalTrekRepository(
             null
         }
 
-        val step = stepDao.readStep(stepId)
-        val progress = if (pathStepId == null) 0 else if (outcome == null) trek.progress - 1 else trek.progress + 1
-        val finishedAt = if (trek.rootId == stepId || progress == step.pathSize) now else null
-
-        trekDao.update(trek.copy(
-            progress = progress,
-            finishedAt = finishedAt,
-            progressAt = now,
-        ).toEntity())
+        setProgress(trekId)
 
         return logId
     }
@@ -156,9 +160,11 @@ class LocalTrekRepository(
                 ).toEntity()
             )
         }
-        return trekDao.update(trek.copy(
-            isComplete = true
-        ).toEntity()) == 1
+        return trekDao.update(
+            trek.copy(
+                isComplete = true
+            ).toEntity()
+        ) == 1
     }
 
     override suspend fun isFinished(trekId: String) = trekDao.isFinished(trekId)
@@ -174,4 +180,73 @@ class LocalTrekRepository(
     override fun flowTrekStepsBySuperId(superId: String) = trekDao.flowTrekStepsBySuperId(superId)
 
     override fun flowRootTrekSteps(start: Instant, end: Instant) = trekDao.flowRootTrekSteps(start, end)
+
+    suspend fun setProgress(trekId: TrekId?) {
+        val trekId = trekId ?: return
+        val trek = trekDao.readTrekById(trekId) ?: return
+        val pathSteps = pathStepDao.readPathStepsByPathId(trek.rootId)
+        val logs = stepLogDao.readStepLogsByTrekId(trekId)
+        val status = getStatus(trek, pathSteps, logs)
+
+        trekDao.update(
+            when (status) {
+                TrekStatus.Unfinished -> trek.copy(
+                    progress = logs.size,
+                    isComplete = false,
+                    finishedAt = null
+                )
+
+                TrekStatus.Finished -> trek.copy(
+                    progress = logs.size,
+                    isComplete = false,
+                    finishedAt = trek.finishedAt ?: Clock.System.now()
+                )
+
+                TrekStatus.Completed -> trek.copy(
+                    progress = logs.size,
+                    isComplete = true,
+                    finishedAt = trek.finishedAt ?: Clock.System.now()
+                )
+            }.toEntity()
+        )
+
+        setProgress(trek.superId) // recursion
+    }
+
+    private suspend fun getStatus(
+        trek: Trek,
+        pathSteps: List<PathStep>,
+        logs: List<StepLog>,
+    ): TrekStatus {
+        if (pathSteps.isEmpty()) {
+            val trekStepLog = logs.firstOrNull { it.stepId == trek.rootId } ?: return TrekStatus.Unfinished
+            if (trekStepLog.outcome == StepOutcome.Skipped) return TrekStatus.Completed
+            val questions = questionDao.readQuestionsByStepId(trek.rootId)
+            if (questions.isEmpty()) return TrekStatus.Completed
+            val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
+            if (answers.any { it.logId == trekStepLog.id }) return TrekStatus.Completed
+            else return TrekStatus.Finished
+        }
+        if (pathSteps.any { ps -> logs.all { l -> l.pathStepId != ps.id } }) return TrekStatus.Unfinished
+        val unskippedStepIds =
+            pathSteps.mapNotNull { ps -> if (logs.all { l -> l.outcome != StepOutcome.Skipped }) ps.stepId else null }
+        val questions = questionDao.readQuestionsByStepIds(unskippedStepIds)
+        val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
+        if (questions.all { q -> answers.any { a -> a.questionId == q.id } }) return TrekStatus.Completed
+        else return TrekStatus.Finished
+    }
+
+    override suspend fun createAnswer(trekId: TrekId, answer: Answer): Boolean {
+        val isSuccess = answerDao.insert(answer.toEntity()) != -1L
+        if (isSuccess) {
+            setProgress(trekId)
+        }
+        return isSuccess
+    }
+}
+
+private enum class TrekStatus {
+    Unfinished, // some steps incomplete
+    Finished, // all steps completed
+    Completed, // all questions answered
 }

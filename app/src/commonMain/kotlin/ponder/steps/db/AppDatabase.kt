@@ -11,6 +11,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import ponder.steps.RecordDeletionTrigger
 import ponder.steps.RecordUpdatedTrigger
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 @Database(
     entities = [
@@ -40,6 +42,11 @@ class Converters {
     fun fromInstant(value: Instant): Long = value.toEpochMilliseconds()
     @TypeConverter
     fun toInstant(value: Long): Instant = Instant.fromEpochMilliseconds(value)
+
+    @TypeConverter
+    fun fromDuration(value: Duration): Long = value.inWholeMilliseconds
+    @TypeConverter
+    fun toDuration(value: Long): Duration = value.milliseconds
 
     @TypeConverter
     fun fromStringList(value: List<String>): String = value.joinToString(",")

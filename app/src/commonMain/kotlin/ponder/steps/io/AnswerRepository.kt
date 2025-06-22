@@ -1,18 +1,17 @@
 package ponder.steps.io
 
-import androidx.room.MapColumn
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.db.IntBucket
 import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.PathStepId
-import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.TrekId
+import kotlin.time.Duration
 
 interface AnswerRepository {
-    suspend fun createAnswer(logId: String, questionId: String, value: String, type: DataType): Boolean
     suspend fun readAnswersByLogId(logId: String): List<Answer>
     suspend fun readAnswersByQuestionId(questionId: String): List<Answer>
     suspend fun readAnswer(logId: String, questionId: String): Answer?
@@ -31,4 +30,6 @@ interface AnswerRepository {
     fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<TrekId, List<Answer>>>
 
     fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
+
+    fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration): Flow<List<IntBucket>>
 }

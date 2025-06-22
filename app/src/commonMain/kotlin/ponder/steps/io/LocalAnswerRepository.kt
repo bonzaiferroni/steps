@@ -5,36 +5,23 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.AnswerDao
 import ponder.steps.db.AnswerEntity
+import ponder.steps.db.IntBucket
 import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.StepLog
+import kotlin.time.Duration
 
 class LocalAnswerRepository(
     private val answerDao: AnswerDao = appDb.getAnswerDao()
 ) : AnswerRepository {
 
-    override suspend fun createAnswer(logId: String, questionId: String, value: String, type: DataType): Boolean {
-        val answerEntity = AnswerEntity(logId, questionId, value, type)
-        return try {
-            answerDao.insert(answerEntity)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
+    override suspend fun readAnswersByLogId(logId: String) = answerDao.readAnswersByLogId(logId)
 
-    override suspend fun readAnswersByLogId(logId: String): List<Answer> {
-        return answerDao.readAnswersByLogId(logId)
-    }
+    override suspend fun readAnswersByQuestionId(questionId: String) =
+        answerDao.readAnswersByQuestionId(questionId)
 
-    override suspend fun readAnswersByQuestionId(questionId: String): List<Answer> {
-        return answerDao.readAnswersByQuestionId(questionId)
-    }
-
-    override suspend fun readAnswer(logId: String, questionId: String): Answer? {
-        return answerDao.readAnswer(logId, questionId)
-    }
+    override suspend fun readAnswer(logId: String, questionId: String) = answerDao.readAnswer(logId, questionId)
 
     override suspend fun updateAnswer(answer: Answer): Boolean {
         val answerEntity = AnswerEntity(answer.logId, answer.questionId, answer.value, answer.type)
@@ -63,4 +50,7 @@ class LocalAnswerRepository(
     override fun flowRootAnswers(start: Instant, end: Instant) = answerDao.flowRootAnswers(start, end)
 
     override fun flowAnswersByStepId(stepId: StepId) = answerDao.flowAnswersByStepId(stepId)
+
+    override fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration) =
+        answerDao.flowIntegerSumsByQuestionId(questionId, interval)
 }

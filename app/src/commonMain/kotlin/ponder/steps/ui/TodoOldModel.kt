@@ -90,13 +90,13 @@ class TodoOldModel(
             return
         }
         viewModelScope.launch {
-            val success = answerRepo.createAnswer(questionSet.logId, question.id, answerText, question.type)
-            if (success) {
-                modifyQuestionSetState(questionSet)
-                if (questionSet.questions.isEmpty() && trekRepo.isFinished(trekId)) {
-                    trekRepo.completeTrek(trekId)
-                }
-            }
+//            val success = answerRepo.createAnswer(questionSet.logId, question.id, answerText, question.type)
+//            if (success) {
+//                modifyQuestionSetState(questionSet)
+//                if (questionSet.questions.isEmpty() && trekRepo.isFinished(trekId)) {
+//                    trekRepo.completeTrek(trekId)
+//                }
+//            }
         }
     }
 

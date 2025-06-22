@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.Plus
+import kabinet.utils.startOfDay
+import kotlinx.datetime.Clock
 import ponder.steps.StepProfileRoute
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekStep
@@ -100,6 +102,11 @@ fun LazyItemScope.TrekStepRow(
                             Label("Path:")
                             Text(intentLabel)
                         }
+                    }
+                    val startOfDay = Clock.startOfDay()
+                    val availableAt = item.availableAt
+                    if (availableAt != null && startOfDay > availableAt) {
+                        Label("From ${(startOfDay - availableAt).inWholeDays + 1} days ago")
                     }
                 }
             }

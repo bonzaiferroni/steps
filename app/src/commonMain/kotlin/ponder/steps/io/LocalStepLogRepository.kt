@@ -18,23 +18,23 @@ class LocalStepLogRepository(
 ) : StepLogRepository {
 
     override suspend fun readStepLog(stepLogId: String): StepLog? {
-        return stepLogDao.readStepLogOrNull(stepLogId)?.toStepLog()
+        return stepLogDao.readStepLogOrNull(stepLogId)
     }
 
     override fun flowStepLog(stepLogId: String): Flow<StepLog> {
-        return stepLogDao.flowStepLog(stepLogId).map { it.toStepLog() }
+        return stepLogDao.flowStepLog(stepLogId)
     }
 
     override suspend fun readStepLogsByStepId(stepId: String): List<StepLog> {
-        return stepLogDao.readStepLogsByStepId(stepId).map { it.toStepLog() }
+        return stepLogDao.readStepLogsByStepId(stepId)
     }
 
     override suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog> {
-        return stepLogDao.readStepLogsByOutcome(outcome).map { it.toStepLog() }
+        return stepLogDao.readStepLogsByOutcome(outcome)
     }
 
     override suspend fun readStepLogsInTimeRange(startTime: Instant, endTime: Instant): List<StepLog> {
-        return stepLogDao.readStepLogsInTimeRange(startTime, endTime).map { it.toStepLog() }
+        return stepLogDao.readStepLogsInTimeRange(startTime, endTime)
     }
 
     override suspend fun createStepLog(stepLog: StepLog): String {

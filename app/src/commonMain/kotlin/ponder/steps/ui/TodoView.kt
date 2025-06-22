@@ -89,7 +89,7 @@ fun TodoView() {
                 itemContent = { question ->
                     QuestionRow(trekStep.stepLabel, question) { answerText ->
                         if (log != null && answerText != null)
-                            viewModel.answerQuestion(log, question, answerText)
+                            viewModel.answerQuestion(trekStep, log, question, answerText)
                     }
                 },
                 isVisibleInit = true,

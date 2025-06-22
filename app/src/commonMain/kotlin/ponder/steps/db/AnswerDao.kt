@@ -11,12 +11,14 @@ import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.TrekId
+import kotlin.time.Duration
 
 @Dao
 interface AnswerDao {
     @Insert
-    suspend fun insert(answer: AnswerEntity)
+    suspend fun insert(answer: AnswerEntity): Long
 
     @Update
     suspend fun update(vararg answer: AnswerEntity): Int
@@ -25,7 +27,10 @@ interface AnswerDao {
     suspend fun delete(answer: AnswerEntity): Int
 
     @Query("SELECT * FROM AnswerEntity WHERE logId = :logId")
-    suspend fun readAnswersByLogId(logId: String): List<Answer>
+    suspend fun readAnswersByLogId(logId: StepLogId): List<Answer>
+
+    @Query("SELECT * FROM AnswerEntity WHERE logId IN (:logIds)")
+    suspend fun readAnswersByLogIds(logIds: List<StepLogId>): List<Answer>
 
     @Query("SELECT * FROM AnswerEntity WHERE questionId = :questionId")
     suspend fun readAnswersByQuestionId(questionId: String): List<Answer>
@@ -55,4 +60,21 @@ interface AnswerDao {
             "JOIN AnswerEntity AS a ON s.id = a.logId " +
             "WHERE s.stepId = :stepId")
     fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
+
+    @Query("SELECT " +
+            "(l.createdAt/:interval)*:interval AS intervalStart, " +
+            "SUM(CAST(a.value AS INTEGER)) AS sum, " +
+            "COUNT(*) AS count " +
+            "FROM AnswerEntity AS a " +
+            "JOIN StepLogEntity AS l ON a.logId = l.id " +
+            "WHERE a.questionId = :questionId AND a.type = 'Integer' " +
+            "GROUP BY intervalStart " +
+            "ORDER BY intervalStart")
+    fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration): Flow<List<IntBucket>>
 }
+
+data class IntBucket(
+    val sum: Int,
+    val count: Int,
+    val intervalStart: Instant
+)

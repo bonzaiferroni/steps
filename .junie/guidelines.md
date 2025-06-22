@@ -179,3 +179,4 @@ Maintaining documentation of the API will be an important part of your role. Wit
 * A ViewModel should never have a reference to a Dao, it should instead have a reference to a Repository that itself has a reference to a Dao.
 * When creating functions in a Repository interface, provide documentation comments for each function that describes the function, the parameters, and the return value.
 * A ControlSet container is used for two or more control items to provide a visual grouping.
+* When creating functions within a LocalRepository that merely call functions from a Dao, assign the function from the dao directly with the = operator rather than simply returning the value within the body of a function.

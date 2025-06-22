@@ -3,6 +3,7 @@ package ponder.steps.db
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 
 @Entity(
@@ -18,4 +19,11 @@ data class AnswerEntity(
     val questionId: String,
     val value: String,
     val type: DataType,
+)
+
+fun Answer.toEntity() = AnswerEntity(
+    logId = logId,
+    questionId = questionId,
+    value = value,
+    type = type,
 )

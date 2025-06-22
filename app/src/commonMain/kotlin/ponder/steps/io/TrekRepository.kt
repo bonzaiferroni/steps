@@ -2,8 +2,11 @@ package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.model.data.Answer
+import ponder.steps.model.data.DataType
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.TrekId
 import ponder.steps.model.data.TrekItem
 import ponder.steps.model.data.TrekStep
 
@@ -37,4 +40,6 @@ interface TrekRepository {
     fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
 
     fun flowRootTrekSteps(start: Instant, end: Instant): Flow<List<TrekStep>>
+
+    suspend fun createAnswer(trekId: TrekId, answer: Answer): Boolean
 }

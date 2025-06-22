@@ -31,7 +31,7 @@ interface QuestionDao {
     suspend fun readQuestionsByStepIds(stepIds: List<String>): List<Question>
 
     @Query(
-        "SELECT q.* FROM TrekEntity AS t " +
+        "SELECT DISTINCT q.* FROM TrekEntity AS t " +
                 "JOIN PathStepEntity AS p ON t.rootId = p.pathId " +
                 "JOIN QuestionEntity AS q ON p.stepId = q.stepId " +
                 "WHERE t.id = :trekId"
@@ -39,7 +39,7 @@ interface QuestionDao {
     fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 
     @Query(
-        "SELECT q.* FROM TrekEntity AS t " +
+        "SELECT DISTINCT q.* FROM TrekEntity AS t " +
                 "JOIN StepEntity AS s ON t.rootId = s.id " +
                 "JOIN QuestionEntity AS q ON s.id = q.stepId " +
                 "WHERE t.superId IS NULL AND ((t.availableAt > :start AND t.availableAt < :end) OR NOT t.isComplete) "
