@@ -8,6 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kabinet.utils.fromDoubleMillis
+import kabinet.utils.toRelativeTimeFormat
+import kabinet.utils.toShortDescription
+import kabinet.utils.toTimeFormat
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import pondui.ui.charts.ChartArray
@@ -33,20 +37,22 @@ fun StepActivityView(stepId: String) {
                 ChartArray(
                     values = state.buckets,
                     color = swatches[0],
-                    provideY = { it.sum.toFloat() },
+                    provideY = { it.sum.toDouble() },
                     axis = SideAxisAutoConfig(3, AxisSide.Left)
                 ),
                 ChartArray(
                     values = state.buckets,
                     color = swatches[1],
-                    provideY = { it.count.toFloat() },
+                    provideY = { it.count.toDouble() },
                     axis = SideAxisAutoConfig(3, AxisSide.Right)
                 )
             ),
             config = ChartConfig(
                 glowColor = Pond.colors.glow,
                 contentColor = Pond.localColors.content,
-                bottomAxis = BottomAxisAutoConfig(5),
+                bottomAxis = BottomAxisAutoConfig(5) {
+                    (Clock.System.now() - Instant.fromDoubleMillis(it)).toShortDescription()
+                },
             ),
             modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(.1f)),
             provideX = { it.intervalStart },
