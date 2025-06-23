@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kabinet.utils.fromDoubleMillis
+import kabinet.utils.toDoubleMillis
 import kabinet.utils.toRelativeTimeFormat
 import kabinet.utils.toShortDescription
 import kabinet.utils.toTimeFormat
@@ -25,6 +26,7 @@ import pondui.ui.charts.TimeChart
 import pondui.ui.theme.DefaultColors.swatches
 import pondui.ui.theme.Pond
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 @Composable
 fun StepActivityView(stepId: String) {
@@ -52,11 +54,10 @@ fun StepActivityView(stepId: String) {
             config = ChartConfig(
                 glowColor = Pond.colors.glow,
                 contentColor = Pond.localColors.content,
-                bottomAxis = BottomAxisAutoConfig(5) {
-                    (Clock.System.now() - Instant.fromDoubleMillis(it)).toShortDescription()
-                },
+                startX = (Clock.System.now() - 6.hours).toDoubleMillis(),
+                bottomAxis = BottomAxisAutoConfig(5) { Instant.fromDoubleMillis(it).toTimeFormat() },
             ),
-            modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(.1f)),
+            modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(.0f)),
             provideX = { it.intervalStart },
         )
     }
