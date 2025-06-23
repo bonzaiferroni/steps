@@ -8,8 +8,10 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.StepId
 import ponder.steps.db.StepLogDao
+import ponder.steps.db.TimeUnit
 import ponder.steps.db.toEntity
 import ponder.steps.db.toStepLog
+import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 
@@ -60,4 +62,8 @@ class LocalStepLogRepository(
     override fun flowRootLogs(start: Instant, end: Instant) = stepLogDao.flowRootLogs(start, end)
 
     override fun flowStepLogsByStepId(stepId: StepId) = stepLogDao.flowStepLogsByStepId(stepId)
+
+    override suspend fun readLogCountsByStepId(stepId: StepId, interval: TimeUnit) = stepLogDao.readLogCountsByStepId(stepId, interval)
+
+    override suspend fun readEarliestLogTimeByStepId(stepId: StepId) = stepLogDao.readEarliestLogTimeByStepId(stepId)
 }

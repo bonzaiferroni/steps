@@ -2,13 +2,13 @@ package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
-import ponder.steps.db.IntBucket
 import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
 import ponder.steps.db.TimeUnit
+import ponder.steps.model.data.IntBucket
 import ponder.steps.model.data.TrekId
 import kotlin.time.Duration
 
@@ -34,5 +34,5 @@ interface AnswerRepository {
 
     fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration): Flow<List<IntBucket>>
 
-    fun flowIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): Flow<List<IntBucket>>
+    suspend fun readIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): List<IntBucket>
 }

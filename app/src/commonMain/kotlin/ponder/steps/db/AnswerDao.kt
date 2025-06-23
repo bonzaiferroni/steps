@@ -13,6 +13,7 @@ import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepLogId
 import ponder.steps.db.TimeUnit
+import ponder.steps.model.data.IntBucket
 import ponder.steps.model.data.TrekId
 import kotlin.time.Duration
 
@@ -102,11 +103,5 @@ interface AnswerDao {
                 "END " +
                 "ORDER BY intervalStart"
     )
-    fun flowIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): Flow<List<IntBucket>>
+    suspend fun readIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): List<IntBucket>
 }
-
-data class IntBucket(
-    val sum: Int,
-    val count: Int,
-    val intervalStart: Instant
-)

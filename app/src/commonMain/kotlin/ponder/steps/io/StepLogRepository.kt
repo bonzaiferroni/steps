@@ -3,6 +3,8 @@ package ponder.steps.io
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.db.StepId
+import ponder.steps.db.TimeUnit
+import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 
@@ -57,4 +59,8 @@ interface StepLogRepository {
     fun flowRootLogs(start: Instant, end: Instant): Flow<List<StepLog>>
 
     fun flowStepLogsByStepId(stepId: StepId): Flow<List<StepLog>>
+
+    suspend fun readLogCountsByStepId(stepId: StepId, interval: TimeUnit): List<CountBucket>
+
+    suspend fun readEarliestLogTimeByStepId(stepId: StepId): Instant
 }

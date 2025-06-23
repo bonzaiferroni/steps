@@ -52,6 +52,6 @@ class LocalAnswerRepository(
     override fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration) =
         answerDao.flowIntegerSumsByQuestionId(questionId, interval)
 
-    override fun flowIntegerSumsByQuestionId(questionId: String, interval: TimeUnit) =
-        answerDao.flowIntegerSumsByQuestionId(questionId, interval)
+    override suspend fun readIntegerSumsByQuestionId(questionId: String, interval: TimeUnit) =
+        answerDao.readIntegerSumsByQuestionId(questionId, interval)
 }

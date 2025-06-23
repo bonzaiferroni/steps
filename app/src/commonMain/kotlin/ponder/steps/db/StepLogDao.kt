@@ -1,5 +1,6 @@
 package ponder.steps.db
 
+import androidx.compose.ui.graphics.Interval
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -7,6 +8,8 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.model.data.CountBucket
+import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 
@@ -70,4 +73,32 @@ interface StepLogDao {
 
     @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
     fun flowStepLogsByStepId(stepId: StepId): Flow<List<StepLog>>
+
+    @Query(
+        "SELECT " +
+                "CASE :interval " +
+                "WHEN 'Minute' THEN (CAST(strftime('%s', l.createdAt/1000,'unixepoch','localtime')/600 AS INTEGER)*600)*1000 " +
+                "WHEN 'Hour'   THEN strftime('%s', strftime('%Y-%m-%d %H:00:00', l.createdAt/1000,'unixepoch','localtime'))*1000 " +
+                "WHEN 'Day'    THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime'))*1000 " +
+                "WHEN 'Week'   THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime','weekday 0','-6 days'))*1000 " +
+                "WHEN 'Month'  THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime','start of month'))*1000 " +
+                "WHEN 'Year'   THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime','start of year'))*1000 " +
+                "END AS intervalStart, " +
+                "COUNT(*) AS count " +
+                "FROM StepLogEntity AS l " +
+                "WHERE stepId = :stepId " +
+                "GROUP BY CASE :interval " +
+                "WHEN 'Minute' THEN (CAST(strftime('%s', l.createdAt/1000,'unixepoch','localtime')/600 AS INTEGER)*600)*1000 " +
+                "WHEN 'Hour'   THEN strftime('%s', strftime('%Y-%m-%d %H:00:00', l.createdAt/1000,'unixepoch','localtime'))*1000 " +
+                "WHEN 'Day'    THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime'))*1000 " +
+                "WHEN 'Week'   THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime','weekday 0','-6 days'))*1000 " +
+                "WHEN 'Month'  THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime','start of month'))*1000 " +
+                "WHEN 'Year'   THEN strftime('%s', date(l.createdAt/1000,'unixepoch','localtime','start of year'))*1000 " +
+                "END " +
+                "ORDER BY intervalStart"
+    )
+    suspend fun readLogCountsByStepId(stepId: StepId, interval: TimeUnit): List<CountBucket>
+
+    @Query("SELECT MIN(createdAt) FROM StepLogEntity WHERE stepId = :stepId")
+    suspend fun readEarliestLogTimeByStepId(stepId: StepId): Instant
 }
