@@ -55,7 +55,7 @@ fun StepActivityView(stepId: String) {
                 glowColor = Pond.colors.glow,
                 contentColor = Pond.localColors.content,
                 startX = (Clock.System.now() - 6.hours).toDoubleMillis(),
-                bottomAxis = BottomAxisAutoConfig(5) { Instant.fromDoubleMillis(it).toTimeFormat() },
+                bottomAxis = BottomAxisAutoConfig(5),
             ),
             modifier = Modifier.fillMaxWidth().height(300.dp).background(Color.White.copy(.0f)),
             provideX = { it.intervalStart },
