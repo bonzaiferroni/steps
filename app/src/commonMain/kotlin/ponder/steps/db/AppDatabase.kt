@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import ponder.steps.RecordDeletionTrigger
 import ponder.steps.RecordUpdatedTrigger
+import ponder.steps.db.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -52,6 +53,11 @@ class Converters {
     fun fromStringList(value: List<String>): String = value.joinToString(",")
     @TypeConverter
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
+
+    @TypeConverter
+    fun fromTimeUnit(value: TimeUnit): String = TimeUnit.Hour.toString()
+    @TypeConverter
+    fun toTimeUnit(value: String): TimeUnit = TimeUnit.valueOf(value)
 }
 
 // The Room compiler generates the `actual` implementations.

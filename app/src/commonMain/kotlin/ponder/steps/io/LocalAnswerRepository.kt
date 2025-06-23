@@ -5,11 +5,9 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.AnswerDao
 import ponder.steps.db.AnswerEntity
-import ponder.steps.db.IntBucket
 import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
-import ponder.steps.model.data.DataType
-import ponder.steps.model.data.StepLog
+import ponder.steps.db.TimeUnit
 import kotlin.time.Duration
 
 class LocalAnswerRepository(
@@ -52,5 +50,8 @@ class LocalAnswerRepository(
     override fun flowAnswersByStepId(stepId: StepId) = answerDao.flowAnswersByStepId(stepId)
 
     override fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration) =
+        answerDao.flowIntegerSumsByQuestionId(questionId, interval)
+
+    override fun flowIntegerSumsByQuestionId(questionId: String, interval: TimeUnit) =
         answerDao.flowIntegerSumsByQuestionId(questionId, interval)
 }

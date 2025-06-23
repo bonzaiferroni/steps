@@ -10,6 +10,7 @@ import ponder.steps.io.StepLogRepository
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.QuestionId
+import ponder.steps.db.TimeUnit
 import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -34,7 +35,7 @@ class StepActivityModel(
     }
 
     fun setQuestion(questionId: QuestionId) {
-        answerRepo.flowIntegerSumsByQuestionId(questionId, 5.minutes).launchCollect { buckets ->
+        answerRepo.flowIntegerSumsByQuestionId(questionId, TimeUnit.Hour).launchCollect { buckets ->
             println(buckets)
             setState { it.copy(buckets = buckets) }
         }

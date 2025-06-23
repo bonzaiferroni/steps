@@ -19,6 +19,7 @@ import ponder.steps.model.data.IntentTiming
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
+import ponder.steps.db.TimeUnit
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
@@ -181,20 +182,6 @@ data class AddIntentState(
             IntentTiming.Once -> "Once"
             IntentTiming.Repeat -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
         }
-}
-
-enum class TimeUnit {
-    Minute,
-    Hour,
-    Day,
-    Week,
-    Month,
-    Year;
-
-    fun toRepeatFormat(value: Int) = when {
-        value == 1 -> this.toString().lowercase()
-        else -> "$value ${this.toString().lowercase()}s"
-    }
 }
 
 private val repeatMinuteValues = (1..24).map { it * 5 }.toImmutableList()

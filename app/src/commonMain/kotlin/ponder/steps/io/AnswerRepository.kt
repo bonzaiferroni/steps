@@ -8,6 +8,7 @@ import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
+import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.TrekId
 import kotlin.time.Duration
 
@@ -32,4 +33,6 @@ interface AnswerRepository {
     fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
 
     fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration): Flow<List<IntBucket>>
+
+    fun flowIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): Flow<List<IntBucket>>
 }
