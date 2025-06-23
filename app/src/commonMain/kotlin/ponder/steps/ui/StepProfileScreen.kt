@@ -90,181 +90,181 @@ fun StepProfileScreen(
         dismiss = viewModel::toggleAddingQuestion
     )
 
-    Scaffold {
-        Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
-            if (appWindow.widthSizeClass == WindowSizeClass.Compact) {
-                Box(
-                    modifier = Modifier.clip(Pond.ruler.defaultCorners)
-                        .magic(offsetX = (-20).dp)
-                ) {
-                    // feature image
-                    StepImage(
-                        url = profileStep.imgUrl,
-                        modifier = Modifier.fillMaxWidth()
-                            .aspectRatio(1f)
+    Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
+        TopBarSpacer()
 
-                    )
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .background(Color.Black.copy(.6f))
-                    ) {
-                        // label
-                        EditText(
-                            text = profileStep.label,
-                            placeholder = "Step label",
-                            style = Pond.typo.h1.addShadow(),
+        if (appWindow.widthSizeClass == WindowSizeClass.Compact) {
+            Box(
+                modifier = Modifier.clip(Pond.ruler.defaultCorners)
+                    .magic(offsetX = (-20).dp)
+            ) {
+                // feature image
+                StepImage(
+                    url = profileStep.imgUrl,
+                    modifier = Modifier.fillMaxWidth()
+                        .aspectRatio(1f)
+
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(.6f))
+                ) {
+                    // label
+                    EditText(
+                        text = profileStep.label,
+                        placeholder = "Step label",
+                        style = Pond.typo.h1.addShadow(),
+                        modifier = Modifier.padding(Pond.ruler.unitPadding)
+                    ) { viewModel.editStep(profileStep.copy(label = it)) }
+                }
+            }
+            // description
+            state.step?.description?.let {
+                Text(
+                    text = it,
+                    style = Pond.typo.bodyLarge,
+                    modifier = Modifier.padding(Pond.ruler.unitPadding)
+                        .magic(offsetX = 20.dp)
+                )
+            }
+        } else {
+            Row(1) {
+                // feature image
+                StepImage(
+                    url = profileStep.imgUrl,
+                    modifier = Modifier.weight(1f)
+                        .clip(Pond.ruler.defaultCorners)
+                        .aspectRatio(1f)
+                        .magic(offsetX = (-20).dp)
+                )
+                Column(
+                    spacingUnits = 1,
+                    modifier = Modifier.weight(1f)
+                        .magic(offsetX = 20.dp)
+                ) {
+                    // label
+                    EditText(
+                        text = profileStep.label,
+                        placeholder = "Step label",
+                        style = Pond.typo.h1.addShadow(),
+                        modifier = Modifier.padding(Pond.ruler.unitPadding)
+                    ) { viewModel.editStep(profileStep.copy(label = it)) }
+                    // description
+                    state.step?.description?.let {
+                        Text(
+                            it,
+                            Pond.typo.bodyLarge,
                             modifier = Modifier.padding(Pond.ruler.unitPadding)
-                        ) { viewModel.editStep(profileStep.copy(label = it)) }
+                        )
                     }
                 }
-                // description
-                state.step?.description?.let {
-                    Text(
-                        text = it,
-                        style = Pond.typo.bodyLarge,
-                        modifier = Modifier.padding(Pond.ruler.unitPadding)
-                            .magic(offsetX = 20.dp)
-                    )
-                }
-            } else {
-                Row(1) {
-                    // feature image
-                    StepImage(
-                        url = profileStep.imgUrl,
-                        modifier = Modifier.weight(1f)
-                            .clip(Pond.ruler.defaultCorners)
-                            .aspectRatio(1f)
-                            .magic(offsetX = (-20).dp)
-                    )
-                    Column(
-                        spacingUnits = 1,
-                        modifier = Modifier.weight(1f)
-                            .magic(offsetX = 20.dp)
-                    ) {
-                        // label
-                        EditText(
-                            text = profileStep.label,
-                            placeholder = "Step label",
-                            style = Pond.typo.h1.addShadow(),
-                            modifier = Modifier.padding(Pond.ruler.unitPadding)
-                        ) { viewModel.editStep(profileStep.copy(label = it)) }
-                        // description
-                        state.step?.description?.let {
-                            Text(
-                                it,
-                                Pond.typo.bodyLarge,
-                                modifier = Modifier.padding(Pond.ruler.unitPadding)
-                            )
+            }
+        }
+
+        Tabs("Activity") {
+            Tab("Steps") {
+                LazyColumn(0, Alignment.CenterHorizontally) {
+                    itemsIndexed(state.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
+                        Column(
+                            spacingUnits = 1,
+                            modifier = Modifier.animateItem()
+                        ) {
+                            val isSelected = state.selectedStepId == step.id
+                            Row(
+                                spacingUnits = 1,
+                                modifier = Modifier.fillMaxWidth()
+                                    .actionable(isEnabled = !isSelected) { viewModel.selectStep(step.id) }
+                                    .selected(isSelected)
+                                    .padding(Pond.ruler.unitPadding)
+                            ) {
+                                StepRow(
+                                    step = step,
+                                    isEditable = isSelected,
+                                    modifier = Modifier.weight(1f)
+                                        .magic(offsetX = index * 10.dp, durationMillis = 500),
+                                    onImageClick = { nav.go(StepProfileRoute(step.id)) }
+                                ) { viewModel.editStep(step.copy(label = it)) }
+                                Magic(isSelected, fade = false) {
+                                    Row(1) {
+                                        Button(
+                                            imageVector = TablerIcons.Trash,
+                                            isEnabled = isSelected,
+                                            background = Pond.colors.tertiary,
+                                            modifier = Modifier.magic(isSelected, rotationZ = 360)
+                                        ) { viewModel.remoteStepFromPath(step) }
+                                        ControlSet(
+                                            modifier = Modifier.magic(isSelected, scale = true),
+                                            maxItemsInEachRow = 1
+                                        ) {
+                                            ControlSetButton(
+                                                imageVector = TablerIcons.ArrowUp,
+                                                isEnabled = (step.position ?: 0) > 0,
+                                                background = Pond.colors.secondary
+                                            ) { viewModel.moveStep(step, -1) }
+                                            ControlSetButton(
+                                                imageVector = TablerIcons.ArrowDown,
+                                                isEnabled = (step.position ?: 0) < state.steps.size - 1,
+                                                background = Pond.colors.secondary
+                                            ) { viewModel.moveStep(step, 1) }
+                                        }
+                                    }
+                                }
+                                val canStepInto = step.pathSize > 0 || isSelected
+                                Button(
+                                    imageVector = TablerIcons.ArrowRight,
+                                    isEnabled = canStepInto,
+                                    modifier = Modifier.magic(canStepInto, offsetX = (-32).dp)
+                                ) { nav.go(StepProfileRoute(step.id)) }
+                            }
+                        }
+                    }
+                    item("add steps") {
+                        Row(1, modifier = Modifier.padding(Pond.ruler.unitPadding)) {
+                            Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
+                            Button(TablerIcons.Drone, onClick = viewModel::suggestNextStep)
+                        }
+                    }
+                    items(state.suggestions, key = { it.label }) { suggestion ->
+                        Column(1) {
+                            TextButton(
+                                suggestion.label,
+                                Pond.typo.h3
+                            ) { viewModel.createStepFromSuggestion(suggestion) }
+                            suggestion.description?.let { Text(it) }
+                            Expando(1)
                         }
                     }
                 }
             }
-
-            Tabs("Activity") {
-                Tab("Steps") {
-                    LazyColumn(0, Alignment.CenterHorizontally) {
-                        itemsIndexed(state.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
-                            Column(
-                                spacingUnits = 1,
-                                modifier = Modifier.animateItem()
-                            ) {
-                                val isSelected = state.selectedStepId == step.id
-                                Row(
-                                    spacingUnits = 1,
-                                    modifier = Modifier.fillMaxWidth()
-                                        .actionable(isEnabled = !isSelected) { viewModel.selectStep(step.id) }
-                                        .selected(isSelected)
-                                        .padding(Pond.ruler.unitPadding)
-                                ) {
-                                    StepRow(
-                                        step = step,
-                                        isEditable = isSelected,
-                                        modifier = Modifier.weight(1f)
-                                            .magic(offsetX = index * 10.dp, durationMillis = 500),
-                                        onImageClick = { nav.go(StepProfileRoute(step.id)) }
-                                    ) { viewModel.editStep(step.copy(label = it)) }
-                                    Magic(isSelected, fade = false) {
-                                        Row(1) {
-                                            Button(
-                                                imageVector = TablerIcons.Trash,
-                                                isEnabled = isSelected,
-                                                background = Pond.colors.tertiary,
-                                                modifier = Modifier.magic(isSelected, rotationZ = 360)
-                                            ) { viewModel.remoteStepFromPath(step) }
-                                            ControlSet(
-                                                modifier = Modifier.magic(isSelected, scale = true),
-                                                maxItemsInEachRow = 1
-                                            ) {
-                                                ControlSetButton(
-                                                    imageVector = TablerIcons.ArrowUp,
-                                                    isEnabled = (step.position ?: 0) > 0,
-                                                    background = Pond.colors.secondary
-                                                ) { viewModel.moveStep(step, -1) }
-                                                ControlSetButton(
-                                                    imageVector = TablerIcons.ArrowDown,
-                                                    isEnabled = (step.position ?: 0) < state.steps.size - 1,
-                                                    background = Pond.colors.secondary
-                                                ) { viewModel.moveStep(step, 1) }
-                                            }
-                                        }
-                                    }
-                                    val canStepInto = step.pathSize > 0 || isSelected
-                                    Button(
-                                        imageVector = TablerIcons.ArrowRight,
-                                        isEnabled = canStepInto,
-                                        modifier = Modifier.magic(canStepInto, offsetX = (-32).dp)
-                                    ) { nav.go(StepProfileRoute(step.id)) }
-                                }
-                            }
-                        }
-                        item("add steps") {
-                            Row(1, modifier = Modifier.padding(Pond.ruler.unitPadding)) {
-                                Button(TablerIcons.Plus, onClick = viewModel::toggleAddingStep)
-                                Button(TablerIcons.Drone, onClick = viewModel::suggestNextStep)
-                            }
-                        }
-                        items(state.suggestions, key = { it.label }) { suggestion ->
-                            Column(1) {
-                                TextButton(
-                                    suggestion.label,
-                                    Pond.typo.h3
-                                ) { viewModel.createStepFromSuggestion(suggestion) }
-                                suggestion.description?.let { Text(it) }
-                                Expando(1)
-                            }
-                        }
-                    }
-                }
-                Tab("Edit") {
-                    Label("Description")
-                    EditText(
-                        text = profileStep.description ?: "",
-                        placeholder = "Step Description",
-                        modifier = Modifier.padding(horizontal = 32.dp),
-                    ) { viewModel.editStep(profileStep.copy(description = it)) }
-                    Label("Theme")
-                    EditText(
-                        text = profileStep.theme ?: "",
-                        placeholder = "Image Theme",
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    ) { viewModel.editStep(profileStep.copy(theme = it)) }
-                    Label("Image")
-                    Button("Generate") { viewModel.generateImage(profileStep) }
-                    Label("Audio")
-                    Button("Generate Audio") { viewModel.generateAudio(profileStep) }
-                    Label("Questions")
-                    Button("Add Question") { viewModel.toggleAddingQuestion() }
-                }
-                Tab("Activity") {
-                    StepActivityView(route.stepId)
-                }
-                Tab("Questions", state.hasQuestions) {
-                    LazyColumn {
-                        items(state.questions, key = { it.id }) { question ->
-                            Text(question.text)
-                        }
+            Tab("Edit") {
+                Label("Description")
+                EditText(
+                    text = profileStep.description ?: "",
+                    placeholder = "Step Description",
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                ) { viewModel.editStep(profileStep.copy(description = it)) }
+                Label("Theme")
+                EditText(
+                    text = profileStep.theme ?: "",
+                    placeholder = "Image Theme",
+                    modifier = Modifier.padding(horizontal = 32.dp)
+                ) { viewModel.editStep(profileStep.copy(theme = it)) }
+                Label("Image")
+                Button("Generate") { viewModel.generateImage(profileStep) }
+                Label("Audio")
+                Button("Generate Audio") { viewModel.generateAudio(profileStep) }
+                Label("Questions")
+                Button("Add Question") { viewModel.toggleAddingQuestion() }
+            }
+            Tab("Activity") {
+                StepActivityView(route.stepId)
+            }
+            Tab("Questions", state.hasQuestions) {
+                LazyColumn {
+                    items(state.questions, key = { it.id }) { question ->
+                        Text(question.text)
                     }
                 }
             }
