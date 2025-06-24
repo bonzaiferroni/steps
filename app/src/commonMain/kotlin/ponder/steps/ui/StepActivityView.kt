@@ -19,8 +19,11 @@ import pondui.ui.charts.ChartConfig
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BarChart
 import pondui.ui.charts.BarChartArray
+import pondui.ui.charts.BarChartConfig
 import pondui.ui.charts.BottomAxisAutoConfig
 import pondui.ui.charts.ChartBox
+import pondui.ui.charts.LineChart
+import pondui.ui.charts.LineChartConfig
 import pondui.ui.charts.SideAxisAutoConfig
 import pondui.ui.charts.TimeChart
 import pondui.ui.controls.LazyColumn
@@ -45,16 +48,16 @@ fun StepActivityView(stepId: String) {
         item("completions") {
             ChartBox("Step completions") {
                 BarChart(
-                    array = BarChartArray(
-                        values = state.countBuckets,
-                        interval = state.interval.inWholeMilliseconds.toDouble(),
-                        provideColor = { swatches[0] },
-                        provideY = { it.count.toDouble() },
-                        provideX = { it.intervalStart.toDoubleMillis() },
-                        axis = SideAxisAutoConfig(3, AxisSide.Left),
-                        floor = 0.0,
-                    ),
-                    config = ChartConfig(
+                    config = BarChartConfig(
+                        array = BarChartArray(
+                            values = state.countBuckets,
+                            interval = state.interval.inWholeMilliseconds.toDouble(),
+                            provideColor = { swatches[0] },
+                            provideY = { it.count.toDouble() },
+                            provideX = { it.intervalStart.toDoubleMillis() },
+                            axis = SideAxisAutoConfig(3, AxisSide.Left),
+                            floor = 0.0,
+                        ),
                         glowColor = Pond.colors.glow,
                         contentColor = Pond.localColors.content,
                         bottomAxis = BottomAxisAutoConfig(5),
@@ -67,31 +70,32 @@ fun StepActivityView(stepId: String) {
 
         items(state.intQuestionBuckets, key = { it.question.id }) { intQuestionBucket ->
             ChartBox(intQuestionBucket.question.text) {
-                TimeChart(
-                    arrays = listOf(
-                        LineChartArray(
-                            values = intQuestionBucket.buckets,
-                            color = swatches[0],
-                            provideY = { it.sum.toDouble() },
-                            axis = SideAxisAutoConfig(3, AxisSide.Left),
-                            floor = 0.0
+                LineChart(
+                    config = LineChartConfig(
+                        arrays = listOf(
+                            LineChartArray(
+                                values = intQuestionBucket.buckets,
+                                color = swatches[0],
+                                provideY = { it.sum.toDouble() },
+                                axis = SideAxisAutoConfig(3, AxisSide.Left),
+                                floor = 0.0
+                            ),
+                            LineChartArray(
+                                values = intQuestionBucket.buckets,
+                                color = swatches[1],
+                                provideY = { it.count.toDouble() },
+                                axis = SideAxisAutoConfig(3, AxisSide.Right),
+                                floor = 0.0,
+                            )
                         ),
-                        LineChartArray(
-                            values = intQuestionBucket.buckets,
-                            color = swatches[1],
-                            provideY = { it.count.toDouble() },
-                            axis = SideAxisAutoConfig(3, AxisSide.Right),
-                            floor = 0.0,
-                        )
-                    ),
-                    config = ChartConfig(
                         glowColor = Pond.colors.glow,
                         contentColor = Pond.localColors.content,
                         startX = (Clock.System.now() - 6.hours).toDoubleMillis(),
                         bottomAxis = BottomAxisAutoConfig(5),
+                        provideX = { it.intervalStart.toDoubleMillis() },
+                        provideLabelX = { Instant.fromDoubleMillis(it).toTimeFormat(true) },
                     ),
                     modifier = Modifier.fillMaxWidth().height(300.dp),
-                    provideX = { it.intervalStart },
                 )
             }
         }
