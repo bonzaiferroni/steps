@@ -92,7 +92,7 @@ interface AnswerDao {
                 "COUNT(*) AS count " +
                 "FROM AnswerEntity AS a " +
                 "JOIN StepLogEntity AS l ON a.logId = l.id " +
-                "WHERE a.questionId = :questionId AND a.type = 'Integer' " +
+                "WHERE a.questionId = :questionId AND a.type = 'Integer' AND l.createdAt >= :startAt " +
                 "GROUP BY CASE :interval " +
                 "WHEN 'Minute' THEN (CAST(strftime('%s', l.createdAt/1000,'unixepoch','localtime')/600 AS INTEGER)*600)*1000 " +
                 "WHEN 'Hour'   THEN strftime('%s', strftime('%Y-%m-%d %H:00:00', l.createdAt/1000,'unixepoch','localtime'))*1000 " +
@@ -103,5 +103,5 @@ interface AnswerDao {
                 "END " +
                 "ORDER BY intervalStart"
     )
-    suspend fun readIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): List<IntBucket>
+    suspend fun readIntegerSumsByQuestionId(questionId: String, startAt: Instant, interval: TimeUnit): List<IntBucket>
 }

@@ -15,8 +15,10 @@ import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.IntBucket
 import pondui.ui.core.StateModel
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 class StepActivityModel(
     private val stepId: String,
@@ -37,27 +39,35 @@ class StepActivityModel(
                 1000.days > timeSpan -> TimeUnit.Month
                 else -> TimeUnit.Year
             }
-            val countBuckets = stepLogRepo.readLogCountsByStepId(stepId, timeUnit)
-            setState { it.copy(countBuckets = countBuckets, timeUnit = timeUnit) }
+
+            setState { it.copy(timeUnit = timeUnit) }
 
             questionRepo.flowQuestionsByStepId(stepId).collect { questions ->
                 setState { it.copy(questions = questions) }
-                readAnswers()
+                refreshData()
             }
         }
-
     }
 
-    fun readAnswers() {
+    fun refreshData() {
         viewModelScope.launch {
+            val startAt = Clock.System.now() - stateNow.interval * CHART_MAX_BARS
+            println(Clock.System.now() - startAt)
+            val countBuckets = stepLogRepo.readLogCountsByStepId(stepId, startAt, stateNow.timeUnit)
             val intQuestionBuckets = mutableListOf<QuestionBuckets<IntBucket>>()
             for (question in stateNow.questions) {
                 if (question.type != DataType.Integer) continue
-                val buckets = answerRepo.readIntegerSumsByQuestionId(question.id, TimeUnit.Hour)
+                val buckets = answerRepo.readIntegerSumsByQuestionId(question.id, startAt, stateNow.timeUnit)
                 intQuestionBuckets.add(QuestionBuckets(question, buckets))
             }
-            setState { it.copy(intQuestionBuckets = intQuestionBuckets) }
+            setState { it.copy(intQuestionBuckets = intQuestionBuckets, countBuckets = countBuckets) }
         }
+    }
+
+    fun setTimeUnit(timeUnit: TimeUnit) {
+        if (stateNow.timeUnit == timeUnit) return
+        setState { it.copy(timeUnit = timeUnit) }
+        refreshData()
     }
 }
 
@@ -65,10 +75,17 @@ data class StepActivityState(
     val questions: List<Question> = emptyList(),
     val countBuckets: List<CountBucket> = emptyList(),
     val intQuestionBuckets: List<QuestionBuckets<IntBucket>> = emptyList(),
-    val timeUnit: TimeUnit = TimeUnit.Hour
-)
+    val timeUnit: TimeUnit = TimeUnit.Hour,
+) {
+    val interval: Duration get() = when (timeUnit) {
+        TimeUnit.Minute -> 10.minutes
+        else -> timeUnit.toDuration()
+    }
+}
 
 data class QuestionBuckets<T>(
     val question: Question,
     val buckets: List<T>
 )
+
+internal const val CHART_MAX_BARS = 120

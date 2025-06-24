@@ -55,7 +55,7 @@ class Converters {
     fun toStringList(value: String): List<String> = if (value.isEmpty()) emptyList() else value.split(",")
 
     @TypeConverter
-    fun fromTimeUnit(value: TimeUnit): String = TimeUnit.Hour.toString()
+    fun fromTimeUnit(value: TimeUnit): String = value.toString()
     @TypeConverter
     fun toTimeUnit(value: String): TimeUnit = TimeUnit.valueOf(value)
 }

@@ -10,8 +10,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kabinet.utils.fromDoubleMillis
 import kabinet.utils.toDoubleMillis
 import kabinet.utils.toTimeFormat
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import ponder.steps.db.TimeUnit
 import pondui.ui.charts.LineChartArray
 import pondui.ui.charts.ChartConfig
 import pondui.ui.charts.AxisSide
@@ -22,6 +24,8 @@ import pondui.ui.charts.ChartBox
 import pondui.ui.charts.SideAxisAutoConfig
 import pondui.ui.charts.TimeChart
 import pondui.ui.controls.LazyColumn
+import pondui.ui.controls.MenuWheel
+import pondui.ui.controls.Row
 import pondui.ui.controls.bottomBarSpacerItem
 import pondui.ui.theme.DefaultColors.swatches
 import pondui.ui.theme.Pond
@@ -33,11 +37,17 @@ fun StepActivityView(stepId: String) {
     val state by viewModel.state.collectAsState()
 
     LazyColumn(1) {
-        item {
+        item("controls") {
+            Row(1) {
+                MenuWheel(state.timeUnit, TimeUnit.entries.toImmutableList(), onSelect = viewModel::setTimeUnit)
+            }
+        }
+        item("completions") {
             ChartBox("Step completions") {
                 BarChart(
                     array = BarChartArray(
                         values = state.countBuckets,
+                        interval = state.interval.inWholeMilliseconds.toDouble(),
                         provideColor = { swatches[0] },
                         provideY = { it.count.toDouble() },
                         provideX = { it.intervalStart.toDoubleMillis() },
@@ -55,7 +65,7 @@ fun StepActivityView(stepId: String) {
             }
         }
 
-        items(state.intQuestionBuckets) { intQuestionBucket ->
+        items(state.intQuestionBuckets, key = { it.question.id }) { intQuestionBucket ->
             ChartBox(intQuestionBucket.question.text) {
                 TimeChart(
                     arrays = listOf(

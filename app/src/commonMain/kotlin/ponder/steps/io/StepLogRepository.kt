@@ -60,7 +60,7 @@ interface StepLogRepository {
 
     fun flowStepLogsByStepId(stepId: StepId): Flow<List<StepLog>>
 
-    suspend fun readLogCountsByStepId(stepId: StepId, interval: TimeUnit): List<CountBucket>
+    suspend fun readLogCountsByStepId(stepId: StepId, startAt: Instant, interval: TimeUnit): List<CountBucket>
 
     suspend fun readEarliestLogTimeByStepId(stepId: StepId): Instant
 }

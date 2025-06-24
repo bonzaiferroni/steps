@@ -34,5 +34,5 @@ interface AnswerRepository {
 
     fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration): Flow<List<IntBucket>>
 
-    suspend fun readIntegerSumsByQuestionId(questionId: String, interval: TimeUnit): List<IntBucket>
+    suspend fun readIntegerSumsByQuestionId(questionId: String, startAt: Instant, interval: TimeUnit): List<IntBucket>
 }

@@ -86,7 +86,7 @@ interface StepLogDao {
                 "END AS intervalStart, " +
                 "COUNT(*) AS count " +
                 "FROM StepLogEntity AS l " +
-                "WHERE stepId = :stepId " +
+                "WHERE l.stepId = :stepId AND l.createdAt >= :startAt " +
                 "GROUP BY CASE :interval " +
                 "WHEN 'Minute' THEN (CAST(strftime('%s', l.createdAt/1000,'unixepoch','localtime')/600 AS INTEGER)*600)*1000 " +
                 "WHEN 'Hour'   THEN strftime('%s', strftime('%Y-%m-%d %H:00:00', l.createdAt/1000,'unixepoch','localtime'))*1000 " +
@@ -97,7 +97,7 @@ interface StepLogDao {
                 "END " +
                 "ORDER BY intervalStart"
     )
-    suspend fun readLogCountsByStepId(stepId: StepId, interval: TimeUnit): List<CountBucket>
+    suspend fun readLogCountsByStepId(stepId: StepId, startAt: Instant, interval: TimeUnit): List<CountBucket>
 
     @Query("SELECT MIN(createdAt) FROM StepLogEntity WHERE stepId = :stepId")
     suspend fun readEarliestLogTimeByStepId(stepId: StepId): Instant

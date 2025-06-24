@@ -63,7 +63,8 @@ class LocalStepLogRepository(
 
     override fun flowStepLogsByStepId(stepId: StepId) = stepLogDao.flowStepLogsByStepId(stepId)
 
-    override suspend fun readLogCountsByStepId(stepId: StepId, interval: TimeUnit) = stepLogDao.readLogCountsByStepId(stepId, interval)
+    override suspend fun readLogCountsByStepId(stepId: StepId, startAt: Instant, interval: TimeUnit) =
+        stepLogDao.readLogCountsByStepId(stepId, startAt, interval)
 
     override suspend fun readEarliestLogTimeByStepId(stepId: StepId) = stepLogDao.readEarliestLogTimeByStepId(stepId)
 }
