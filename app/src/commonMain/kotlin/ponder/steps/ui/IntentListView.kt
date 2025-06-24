@@ -4,7 +4,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Trash
 import pondui.ui.controls.*
+import pondui.ui.theme.Pond
+import java.awt.Button
 
 @Composable
 fun IntentListView() {
@@ -23,8 +27,10 @@ fun IntentListView() {
     Column(1) {
         LazyColumn(1, modifier = Modifier.weight(1f)) {
             items(state.intents, key = { it.id }) { item ->
-                FlowRow(1, 2) {
-                    H1(item.label)
+                Row(1) {
+                    Text(item.label)
+                    Expando()
+                    Button(TablerIcons.Trash, Pond.colors.danger) { viewModel.deleteIntent(item) }
                 }
             }
         }

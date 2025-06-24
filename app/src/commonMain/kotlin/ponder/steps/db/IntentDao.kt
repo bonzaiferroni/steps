@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.Intent
+import ponder.steps.model.data.IntentId
 
 @Dao
 interface IntentDao  {
@@ -30,4 +31,7 @@ interface IntentDao  {
 
     @Delete
     suspend fun deleteStep(intent: IntentEntity): Int
+
+    @Query("DELETE FROM IntentEntity WHERE id = :intentId")
+    suspend fun deleteIntent(intentId: IntentId): Int
 }
