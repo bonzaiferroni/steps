@@ -52,9 +52,9 @@ class IntentListModel(
         }
     }
 
-    fun deleteIntent(intent: Intent) {
+    fun removeIntent(intent: Intent) {
         viewModelScope.launch {
-            intentRepo.deleteIntent(intent.id)
+            intentRepo.completeIntent(intent.id)
         }
     }
 }

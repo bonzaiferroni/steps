@@ -8,7 +8,6 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.Trash
 import pondui.ui.controls.*
 import pondui.ui.theme.Pond
-import java.awt.Button
 
 @Composable
 fun IntentListView() {
@@ -30,7 +29,7 @@ fun IntentListView() {
                 Row(1) {
                     Text(item.label)
                     Expando()
-                    Button(TablerIcons.Trash, Pond.colors.danger) { viewModel.deleteIntent(item) }
+                    Button(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeIntent(item) }
                 }
             }
         }

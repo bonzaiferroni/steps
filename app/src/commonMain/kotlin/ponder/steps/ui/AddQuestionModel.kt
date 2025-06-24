@@ -56,11 +56,11 @@ class AddQuestionModel(
             val stepId = stateNow.stepId ?: return@launch
 
             // Convert min and max values to integers if applicable
-            val minValue = if (stateNow.questionType == DataType.Integer || stateNow.questionType == DataType.Float) {
+            val minValue = if (stateNow.questionType == DataType.Integer || stateNow.questionType == DataType.Decimal) {
                 stateNow.minValue?.toIntOrNull()
             } else null
 
-            val maxValue = if (stateNow.questionType == DataType.Integer || stateNow.questionType == DataType.Float) {
+            val maxValue = if (stateNow.questionType == DataType.Integer || stateNow.questionType == DataType.Decimal) {
                 stateNow.maxValue?.toIntOrNull()
             } else null
 

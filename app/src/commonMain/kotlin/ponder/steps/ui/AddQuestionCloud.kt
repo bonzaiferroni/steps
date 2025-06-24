@@ -7,28 +7,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
-import ponder.steps.db.QuestionDao
-import ponder.steps.db.QuestionEntity
-import ponder.steps.io.LocalQuestionRepository
-import ponder.steps.io.QuestionRepository
 import ponder.steps.model.data.DataType
-import ponder.steps.model.data.Question
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
-import pondui.ui.controls.ControlSet
-import pondui.ui.controls.ControlSetButton
 import pondui.ui.controls.Label
 import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.TextField
 import pondui.ui.controls.TitleCloud
-import pondui.ui.core.StateModel
-import java.util.UUID
 
 @Composable
 fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
@@ -67,7 +56,7 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
             )
 
             // Min and Max values for numeric types
-            if (state.questionType == DataType.Integer || state.questionType == DataType.Float) {
+            if (state.questionType == DataType.Integer || state.questionType == DataType.Decimal) {
                 Label("Min Value (optional):")
                 TextField(
                     text = state.minValue ?: "",

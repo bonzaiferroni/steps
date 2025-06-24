@@ -1,6 +1,5 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,18 +12,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
-import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
 import pondui.ui.controls.*
 import pondui.ui.controls.ControlSetButton
 import pondui.ui.theme.Pond
+import pondui.utils.lighten
 
 @Composable
 fun QuestionRow(
@@ -47,8 +44,9 @@ fun QuestionRow(
         answerText = when (dataType) {
             DataType.String -> value.takeIf { it.isNotEmpty() }
             DataType.Integer -> value.toIntOrNull()?.toString()
-            DataType.Float -> value.toFloatOrNull()?.toString()
+            DataType.Decimal -> value.toFloatOrNull()?.toString()
             DataType.Boolean -> value.toBooleanStrictOrNull()?.toString()
+            DataType.TimeStamp -> value
         }
     }
 
@@ -61,8 +59,9 @@ fun QuestionRow(
             when (dataType) {
                 DataType.String -> StringAnswer(fieldText, ::updateAnswer, ::onSubmit)
                 DataType.Integer -> IntegerAnswer(fieldText, ::updateAnswer)
-                DataType.Float -> StringAnswer(fieldText, ::updateAnswer, ::onSubmit)
-                DataType.Boolean -> TODO()
+                DataType.Decimal -> IntegerAnswer(fieldText, ::updateAnswer)
+                DataType.Boolean -> BooleanAnswer(fieldText, ::updateAnswer, ::onSubmit)
+                DataType.TimeStamp -> TODO()
             }
             val isAnswering = fieldText.isNotEmpty()
             val hasAnswer = answerText?.isNotEmpty() == true
@@ -111,6 +110,22 @@ fun RowScope.IntegerAnswer(
             AddToNumberButton(10, initializedAnswer, changeAnswer)
             AddToNumberButton(100, initializedAnswer, changeAnswer)
         }
+    }
+}
+
+@Composable
+fun RowScope.BooleanAnswer(
+    answerText: String,
+    changeAnswer: (String) -> Unit,
+    onSubmit: () -> Unit,
+) {
+    ControlSet {
+        val selectedAnswer = answerText.toBooleanStrictOrNull()
+        val bgColor = Pond.colors.secondary
+        val selectedColor = bgColor.lighten()
+        val toBg: (Boolean?) -> Color = { value -> if (value == true) selectedColor else bgColor }
+        Button("True", toBg(selectedAnswer)) { changeAnswer(true.toString()); onSubmit() }
+        Button("False", toBg(selectedAnswer)) { changeAnswer(false.toString()); onSubmit() }
     }
 }
 
