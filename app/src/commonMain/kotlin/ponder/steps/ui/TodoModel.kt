@@ -67,7 +67,7 @@ class TodoModel(
         setState { it.copy(isDeeper = isDeeper) }
     }
 
-    private fun setLogs(logs: List<StepLog>) = setState { it.copy(logs = logs) }
+    private fun setLogs(logs: List<StepLog>) = setState { it.copy(logs = logs) }.also { println(logs) }
     private fun setQuestions(questions: Map<String, List<Question>>) = setState { it.copy(questions = questions ) }
     private fun setAnswers(answers: Map<String, List<Answer>>) = setState { it.copy(answers = answers) }
 

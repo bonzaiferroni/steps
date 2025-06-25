@@ -188,6 +188,8 @@ class LocalTrekRepository(
         val logs = stepLogDao.readStepLogsByTrekId(trekId)
         val status = getStatus(trek, pathSteps, logs)
 
+        println(status)
+
         trekDao.update(
             when (status) {
                 TrekStatus.Unfinished -> trek.copy(

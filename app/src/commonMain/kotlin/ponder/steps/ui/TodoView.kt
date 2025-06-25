@@ -98,7 +98,7 @@ fun TodoView() {
             ) {
                 TrekStepRow(
                     item = trekStep,
-                    isFinished = log != null,
+                    isFinished = trekStep.finishedAt != null || log != null,
                     isDeeper = state.isDeeper,
                     setOutcome = viewModel::setOutcome,
                     questionCount = questions.size,
