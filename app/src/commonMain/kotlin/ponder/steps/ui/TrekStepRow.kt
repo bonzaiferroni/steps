@@ -2,7 +2,6 @@ package ponder.steps.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,9 +27,11 @@ import pondui.ui.behavior.magic
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.ContentButton
+import pondui.ui.controls.Icon
 import pondui.ui.controls.IconButton
 import pondui.ui.controls.Label
 import pondui.ui.controls.ProgressBar
+import pondui.ui.controls.ProgressBarButton
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.nav.LocalNav
@@ -48,7 +49,8 @@ fun LazyItemScope.TrekStepRow(
 ) {
     val nav = LocalNav.current
     val progress = item.progress
-    val showProgress = progress != null && item.pathSize > 0
+    val trekId = item.trekId
+    val isTrek = trekId != null && progress != null && item.pathSize > 0
     val isFinishedAnimated by animateFloatAsState(if (isFinished) 1f else 0f)
 
     Row(
@@ -57,16 +59,6 @@ fun LazyItemScope.TrekStepRow(
             .animateItem()
             .magic(offsetX = if (isDeeper) 30.dp else (-30).dp)
     ) {
-        Box(modifier = Modifier.width(32.dp), contentAlignment = Alignment.Center) {
-            val trekId = item.trekId
-            if (trekId != null && item.pathSize > 0) {
-                IconButton(TablerIcons.ArrowRight, padding = PaddingValues(0.dp)) { loadTrek(trekId) }
-            } else {
-                Checkbox(isFinished) {
-                    setOutcome(item, if (isFinished) null else StepOutcome.Completed)
-                }
-            }
-        }
         Row(
             spacingUnits = 1,
             modifier = Modifier.graphicsLayer { alpha = (1f - isFinishedAnimated) * .5f + .5f }
@@ -90,7 +82,7 @@ fun LazyItemScope.TrekStepRow(
                         style = Pond.typo.bodyLarge,
                         maxLines = 2,
                     )
-                    if (!showProgress && item.pathSize > 0) {
+                    if (!isTrek && item.pathSize > 0) {
                         Label("${item.pathSize} steps")
                     }
                     if (questionCount > 0) {
@@ -115,10 +107,20 @@ fun LazyItemScope.TrekStepRow(
                 IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
             }
 
-            if (showProgress) {
+            if (isTrek) {
                 val progressRatio = progress / item.pathSize.toFloat()
-                ProgressBar(progressRatio) {
-                    Text("${item.progress} of ${item.pathSize}")
+                ProgressBarButton(
+                    ratio = progressRatio,
+                    onClick = { loadTrek(trekId) }
+                ) {
+                    Row(1) {
+                        Text("${item.progress} of ${item.pathSize}")
+                        Icon(TablerIcons.ArrowRight)
+                    }
+                }
+            } else {
+                Checkbox(isFinished) {
+                    setOutcome(item, if (isFinished) null else StepOutcome.Completed)
                 }
             }
         }

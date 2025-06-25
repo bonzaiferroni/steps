@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
+import ponder.steps.model.data.IntentState
 
 @Dao
 interface IntentDao  {
@@ -38,4 +39,5 @@ interface IntentDao  {
 
     @Query("UPDATE IntentEntity SET completedAt = :completedAt WHERE id = :intentId")
     suspend fun completeIntent(intentId: IntentId, completedAt: Instant): Int
+
 }

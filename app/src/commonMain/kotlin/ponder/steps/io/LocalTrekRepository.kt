@@ -6,7 +6,6 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
 import ponder.steps.db.AnswerDao
-import ponder.steps.db.AnswerEntity
 import ponder.steps.db.IntentDao
 import ponder.steps.db.StepLogDao
 import ponder.steps.db.StepLogEntity
@@ -17,7 +16,6 @@ import ponder.steps.db.TrekDao
 import ponder.steps.db.TrekEntity
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Answer
-import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentTiming
 import ponder.steps.model.data.PathStep
@@ -187,8 +185,6 @@ class LocalTrekRepository(
         val pathSteps = pathStepDao.readPathStepsByPathId(trek.rootId)
         val logs = stepLogDao.readStepLogsByTrekId(trekId)
         val status = getStatus(trek, pathSteps, logs)
-
-        println(status)
 
         trekDao.update(
             when (status) {
