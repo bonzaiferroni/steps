@@ -1,6 +1,7 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight

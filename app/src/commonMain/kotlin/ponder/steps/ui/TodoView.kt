@@ -1,10 +1,16 @@
 package ponder.steps.ui
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
@@ -12,6 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
@@ -22,6 +31,7 @@ import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekStep
 import ponder.steps.ui.TrekStepRow
 import pondui.ui.behavior.MagicItem
+import pondui.ui.behavior.ifTrue
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
 import pondui.ui.controls.H3
@@ -30,11 +40,39 @@ import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.Row
 import pondui.ui.theme.Pond
+import kotlin.math.roundToInt
 
 @Composable
 fun TodoView() {
     val viewModel = viewModel { TodoModel() }
     val state by viewModel.state.collectAsState()
+
+    var offsetX by remember { mutableStateOf(0f) }
+    var draggedItem by remember (state.trek?.trekId) { mutableStateOf<TrekStep?>(null) }
+    val dragAnimator = remember { Animatable(0f) }
+    val dragAnimation by dragAnimator.asState()
+    var animatedItem by remember { mutableStateOf<TrekStep?>(null) }
+    val canDragRight = state.trek != null
+
+    LaunchedEffect(offsetX, draggedItem) {
+        if (offsetX != 0f && draggedItem == null) {
+            dragAnimator.animateTo(0f)
+            animatedItem = null
+            offsetX = 0f
+        } else {
+            animatedItem = draggedItem
+            dragAnimator.snapTo(offsetX)
+        }
+    }
+    LaunchedEffect(offsetX) {
+        val item = draggedItem
+        if (offsetX < -100 && item != null) {
+            viewModel.loadTrek(item.trekId, true)
+        }
+        if (offsetX > 100) {
+            viewModel.loadTrek(state.trek?.superId, false)
+        }
+    }
 
     AddStepCloud(
         title = "Add step",
@@ -43,8 +81,6 @@ fun TodoView() {
         pathId = state.trek?.stepId,
         dismiss = viewModel::toggleAddItem
     )
-
-    val getKey: (TrekStep) -> Any = { it.pathStepId ?: it.trekId ?: it.stepId }
 
     LazyColumn(1) {
 
@@ -68,7 +104,7 @@ fun TodoView() {
         }
 
         state.trek?.let { trekStep ->
-            item(getKey(trekStep)) {
+            item("Header") {
                 Row(1, modifier = Modifier.animateItem()) {
                     IconButton(TablerIcons.ArrowLeft) { viewModel.loadTrek(trekStep.superId, false) }
                     H3(trekStep.stepLabel, modifier = Modifier.weight(1f))
@@ -76,12 +112,13 @@ fun TodoView() {
             }
         }
 
-        items(state.steps, key = getKey) { trekStep ->
+        items(state.steps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
             val log = state.getLog(trekStep)
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[trekStep.stepId] ?: emptyList() else emptyList()
             val answers = state.getAnswers(trekStep)
             val question = questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } }
+            val canDragLeft = trekStep.trekId != null && trekStep.pathSize > 0 && question == null
 
             MagicItem(
                 item = question,
@@ -95,6 +132,32 @@ fun TodoView() {
                 isVisibleInit = true,
                 modifier = Modifier.height(72.dp)
                     .animateItem()
+                    .graphicsLayer {
+                        if (dragAnimation < 0) {
+                            if (trekStep == animatedItem)
+                                translationX = dragAnimation
+                            else
+                                alpha = (100 + dragAnimation) / 100
+                        } else {
+                            translationX = dragAnimation
+                            alpha = (100 - dragAnimation) / 100
+                        }
+                    }
+                    .pointerInput(Unit) {
+                        detectDragGestures(
+                            onDragStart = { offset ->
+                            },
+                            onDrag = { change, dragAmount ->
+                                if (dragAmount.x < 0 && canDragLeft || dragAmount.x > 0 && canDragRight) {
+                                    draggedItem = trekStep
+                                    offsetX += dragAmount.x
+                                }
+                            },
+                            onDragEnd = {
+                                draggedItem = null
+                            }
+                        )
+                    }
             ) {
                 TrekStepRow(
                     item = trekStep,
