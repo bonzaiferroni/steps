@@ -45,8 +45,7 @@ class TodoModel(
         clearJobs()
         if (trekId != null) {
             trekRepo.flowTrekStepById(trekId).launchCollect { trekStep ->
-                val steps = stateNow.steps.filter { it.pathStepId != trekStep.pathStepId }
-                setState { it.copy(trek = trekStep, steps = steps) }
+                setState { it.copy(trek = trekStep) }
             }
             trekRepo.flowTrekStepsBySuperId(trekId).launchCollect { trekSteps ->
                 setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }
@@ -58,7 +57,7 @@ class TodoModel(
             val start = Clock.startOfDay()
             val end = start + 1.days
             trekRepo.flowRootTrekSteps(start, end).launchCollect { trekSteps ->
-                setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.availableAt }, trek = null) }
+                setState { it.copy(steps = trekSteps.sortedByDescending { trek -> trek.availableAt }, trek = null) }
             }
             stepLogRepo.flowRootLogs(start, end).launchCollect(::setLogs)
             questionRepo.flowRootQuestions(start, end).launchCollect(::setQuestions)
@@ -67,7 +66,7 @@ class TodoModel(
         setState { it.copy(isDeeper = isDeeper) }
     }
 
-    private fun setLogs(logs: List<StepLog>) = setState { it.copy(logs = logs) }.also { println(logs) }
+    private fun setLogs(logs: List<StepLog>) = setState { it.copy(logs = logs) }
     private fun setQuestions(questions: Map<String, List<Question>>) = setState { it.copy(questions = questions ) }
     private fun setAnswers(answers: Map<String, List<Answer>>) = setState { it.copy(answers = answers) }
 
@@ -113,6 +112,10 @@ data class TodoState(
         if (it.pathStepId != null) it.pathStepId == trekStep.pathStepId else it.trekId == trekStep.trekId
     }
     fun getAnswers(trek: TrekStep) = answers[(trek.pathStepId ?: trek.trekId)] ?: emptyList()
+
+    val totalProgress get() = if (trek != null) (trek.progress ?: 0) else steps.count { it.finishedAt != null }
+    val totalSteps get() = steps.size
+    val progressRatio get() = totalProgress / (totalSteps.takeIf { it > 0 } ?: 1).toFloat()
 }
 
 typealias TrekIdOrPathStepId = String

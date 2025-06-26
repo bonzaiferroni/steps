@@ -30,4 +30,6 @@ data class TrekStep(
     val intentMins: Int? = null,
     // super trek data
     val superId: String? = null,
-)
+) {
+    val progressRatio get() = (progress ?: 0) / (pathSize.takeIf { it > 0 }?.toFloat() ?: 1f)
+}

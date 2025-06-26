@@ -1,46 +1,40 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowLeft
 import compose.icons.tablericons.Plus
-import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekStep
-import ponder.steps.ui.TrekStepRow
 import pondui.ui.behavior.MagicItem
-import pondui.ui.behavior.ifTrue
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
+import pondui.ui.controls.Column
+import pondui.ui.controls.H1
 import pondui.ui.controls.H3
+import pondui.ui.controls.Icon
 import pondui.ui.controls.IconButton
-import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
+import pondui.ui.controls.ProgressBar
+import pondui.ui.controls.ProgressBarButton
 import pondui.ui.controls.Row
+import pondui.ui.controls.Section
+import pondui.ui.controls.Text
 import pondui.ui.theme.Pond
-import kotlin.math.roundToInt
 
 @Composable
 fun TodoView() {
@@ -84,30 +78,42 @@ fun TodoView() {
 
     LazyColumn(1) {
 
-        item("image") {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                MagicItem(
-                    item = state.trek,
-                    key = { state.trek?.trekId} ,
-                    offsetX = if (state.isDeeper) 30.dp else (-30).dp
-                ) { trekStep ->
-                    StepImage(
-                        url = trekStep?.imgUrl,
-                        modifier = Modifier.clip(Pond.ruler.defaultCorners)
-                            .width(200.dp)
-                    )
-                }
-            }
-        }
+        item("header") {
+            Section {
+                Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
+                    val trekStep = state.trek
+                    Row(
+                        spacingUnits = 1,
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(modifier = Modifier.width(50.dp)) {
+                            if (trekStep != null) {
+                                IconButton(TablerIcons.ArrowLeft) { viewModel.loadTrek(trekStep.superId, false)  }
+                            }
+                        }
+                        MagicItem(
+                            item = state.trek,
+                            key = { state.trek?.trekId},
+                            offsetX = if (state.isDeeper) 30.dp else (-30).dp,
+                            modifier = Modifier.weight(1f)
+                        ) { trekStep ->
+                            StepImage(
+                                url = trekStep?.imgUrl,
+                                modifier = Modifier.clip(Pond.ruler.defaultCorners)
+                                    .width(200.dp)
+                            )
+                        }
+                        Box(modifier = Modifier.width(50.dp))
+                    }
 
-        state.trek?.let { trekStep ->
-            item("Header") {
-                Row(1, modifier = Modifier.animateItem()) {
-                    IconButton(TablerIcons.ArrowLeft) { viewModel.loadTrek(trekStep.superId, false) }
-                    H3(trekStep.stepLabel, modifier = Modifier.weight(1f))
+                    H1(trekStep?.stepLabel ?: "Today's Journey")
+                    ProgressBar(
+                        progress = state.progressRatio,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("${state.totalProgress} of ${state.totalSteps}")
+                    }
                 }
             }
         }
@@ -143,24 +149,25 @@ fun TodoView() {
                             alpha = (100 - dragAnimation) / 100
                         }
                     }
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { offset ->
-                            },
-                            onDrag = { change, dragAmount ->
-                                if (dragAmount.x < 0 && canDragLeft || dragAmount.x > 0 && canDragRight) {
-                                    draggedItem = trekStep
-                                    offsetX += dragAmount.x
-                                }
-                            },
-                            onDragEnd = {
-                                draggedItem = null
-                            }
-                        )
-                    }
+//                    .pointerInput(Unit) {
+//                        detectDragGestures(
+//                            onDragStart = { offset ->
+//                            },
+//                            onDrag = { change, dragAmount ->
+//                                if (dragAmount.x < 0 && canDragLeft || dragAmount.x > 0 && canDragRight) {
+//                                    change.consume()
+//                                    draggedItem = trekStep
+//                                    offsetX += dragAmount.x
+//                                }
+//                            },
+//                            onDragEnd = {
+//                                draggedItem = null
+//                            }
+//                        )
+//                    }
             ) {
                 TrekStepRow(
-                    item = trekStep,
+                    trekStep = trekStep,
                     isFinished = trekStep.finishedAt != null || log != null,
                     isDeeper = state.isDeeper,
                     setOutcome = viewModel::setOutcome,

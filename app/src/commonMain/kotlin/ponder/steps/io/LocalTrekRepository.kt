@@ -110,9 +110,9 @@ class LocalTrekRepository(
             )
             logId
         } else {
-            if (pathStepId != null)
+            if (pathStepId != null) {
                 stepLogDao.delete(trekId, stepId, pathStepId)
-            else {
+            } else {
                 stepLogDao.deleteIfNullPathStepId(trekId, stepId)
             }
             null
@@ -207,6 +207,28 @@ class LocalTrekRepository(
                 )
             }.toEntity()
         )
+
+        val pathStepId = trek.pathStepId
+        val superId = trek.superId
+        if (superId != null && pathStepId != null) {
+            if (status == TrekStatus.Unfinished) {
+                stepLogDao.delete(superId, trek.rootId, pathStepId)
+            } else {
+                val logId = randomUuidStringId()
+                val now = Clock.System.now()
+                stepLogDao.insert(
+                    StepLogEntity(
+                        id = logId,
+                        stepId = trek.rootId,
+                        trekId = superId,
+                        pathStepId = pathStepId,
+                        outcome = StepOutcome.Completed,
+                        updatedAt = now,
+                        createdAt = now
+                    )
+                )
+            }
+        }
 
         setProgress(trek.superId) // recursion
     }
