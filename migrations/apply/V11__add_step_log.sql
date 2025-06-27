@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS step_log (id uuid PRIMARY KEY, user_id uuid NOT NULL, step_id uuid NOT NULL, trek_id uuid NULL, path_step_id uuid NULL, outcome INT NOT NULL, created_at TIMESTAMP NOT NULL, updated_at TIMESTAMP NOT NULL);
+CREATE TABLE IF NOT EXISTS answer (id uuid PRIMARY KEY, user_id uuid NOT NULL, step_log_id uuid NOT NULL, question_id uuid NOT NULL, "value" TEXT NOT NULL, "type" INT NOT NULL, updated_at TIMESTAMP NOT NULL);
+ALTER TABLE step_log ADD CONSTRAINT fk_step_log_user_id__id FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE step_log ADD CONSTRAINT fk_step_log_step_id__id FOREIGN KEY (step_id) REFERENCES step(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE step_log ADD CONSTRAINT fk_step_log_trek_id__id FOREIGN KEY (trek_id) REFERENCES trek(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE step_log ADD CONSTRAINT fk_step_log_path_step_id__id FOREIGN KEY (path_step_id) REFERENCES path_step(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE answer ADD CONSTRAINT fk_answer_user_id__id FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE answer ADD CONSTRAINT fk_answer_step_log_id__id FOREIGN KEY (step_log_id) REFERENCES step_log(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE answer ADD CONSTRAINT fk_answer_question_id__id FOREIGN KEY (question_id) REFERENCES question(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE intent ADD timing INT NOT NULL;
+ALTER TABLE intent ADD updated_at TIMESTAMP NOT NULL;
+ALTER TABLE trek ADD updated_at TIMESTAMP NOT NULL;

@@ -1,0 +1,1 @@
+ALTER TABLE trek DROP COLUMN step_id;
