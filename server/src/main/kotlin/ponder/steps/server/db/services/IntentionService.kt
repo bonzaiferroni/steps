@@ -88,13 +88,10 @@ fun syncIntentsWithTreks(userId: String) {
         val intent = IntentTable.readById(intentId.fromStringId()).toIntent()
         val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
 
-        val (stepId, breadCrumbs) = stepIn(intent.rootId, emptyList(), intent.pathIds)
-
         TrekTable.insert {
             it[this.userId] = userId.fromStringId()
             it[this.intentId] = intent.id.fromStringId()
             it[this.rootId] = intent.rootId.fromStringId()
-            it[this.nextId] = stepId.fromStringId()
             it[this.progress] = 0
             it[this.availableAt] = availableAt.toLocalDateTimeUtc()
             it[this.progressAt] = Clock.nowToLocalDateTimeUtc()

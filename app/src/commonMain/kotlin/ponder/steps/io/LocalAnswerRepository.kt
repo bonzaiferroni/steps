@@ -8,6 +8,7 @@ import ponder.steps.db.AnswerEntity
 import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.db.TimeUnit
+import ponder.steps.db.toEntity
 import kotlin.time.Duration
 
 class LocalAnswerRepository(
@@ -21,27 +22,11 @@ class LocalAnswerRepository(
 
     override suspend fun readAnswer(logId: String, questionId: String) = answerDao.readAnswer(logId, questionId)
 
-    override suspend fun updateAnswer(answer: Answer): Boolean {
-        val answerEntity = AnswerEntity(answer.logId, answer.questionId, answer.value, answer.type)
-        return try {
-            answerDao.update(answerEntity) > 0
-        } catch (e: Exception) {
-            false
-        }
-    }
+    override suspend fun updateAnswer(answer: Answer) = answerDao.update(answer.toEntity()) == 1
 
-    override suspend fun deleteAnswer(answer: Answer): Boolean {
-        val answerEntity = AnswerEntity(answer.logId, answer.questionId, answer.value, answer.type)
-        return try {
-            answerDao.delete(answerEntity) > 0
-        } catch (e: Exception) {
-            false
-        }
-    }
+    override suspend fun deleteAnswer(answer: Answer) = answerDao.delete(answer.toEntity()) > 0
 
-    override fun flowAnswersByLogId(logId: String): Flow<List<Answer>> {
-        return answerDao.flowAnswersByLogId(logId)
-    }
+    override fun flowAnswersByLogId(logId: String) = answerDao.flowAnswersByLogId(logId)
 
     override fun flowPathQuestionsByTrekId(trekId: String) = answerDao.flowPathAnswersByTrekId(trekId)
 

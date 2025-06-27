@@ -57,6 +57,10 @@ private fun logData(label: String, data: SyncData) {
     print(", steps: ${data.steps.size}")
     print(", pathSteps: ${data.pathSteps.size}")
     println(", questions: ${data.questions.size}")
+    print("intents: ${data.intents.size}")
+    print(", treks: ${data.treks.size}")
+    print(", stepLogs: ${data.stepLogs.size}")
+    println(", answers: ${data.answers.size}")
 }
 
 private fun resolveConflicts(incoming: SyncData, outgoing: SyncData) = incoming.copy(
@@ -67,6 +71,18 @@ private fun resolveConflicts(incoming: SyncData, outgoing: SyncData) = incoming.
         UpdatedItem(it.id, it.updatedAt)
     },
     questions = resolveConflicts(incoming.questions, outgoing.questions, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
+    intents = resolveConflicts(incoming.intents, outgoing.intents, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
+    treks = resolveConflicts(incoming.treks, outgoing.treks, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
+    stepLogs = resolveConflicts(incoming.stepLogs, outgoing.stepLogs, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
+    answers = resolveConflicts(incoming.answers, outgoing.answers, outgoing.deletions) {
         UpdatedItem(it.id, it.updatedAt)
     }
 )

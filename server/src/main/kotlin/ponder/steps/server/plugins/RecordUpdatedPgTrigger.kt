@@ -1,6 +1,6 @@
 package ponder.steps.server.plugins
 
-class RecordUpdatedPgTrigger(vararg val tableNames: String) {
+class RecordUpdatedPgTrigger(val tableNames: List<String>) {
     fun buildSql() = buildString {
         appendLine(recordUpdatedAtFunction)
         for (tableName in tableNames) {

@@ -16,9 +16,9 @@ data class Trek(
     val isComplete: Boolean,
     val availableAt: Instant,
     val startedAt: Instant?,
-    val progressAt: Instant?,
     val finishedAt: Instant?,
     val expectedAt: Instant?,
+    val updatedAt: Instant,
 )
 
 typealias TrekId = String

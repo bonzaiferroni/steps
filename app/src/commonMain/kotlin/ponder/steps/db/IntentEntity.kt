@@ -36,6 +36,7 @@ data class IntentEntity(
     val pathIds: List<String>,
     val completedAt: Instant?,
     val scheduledAt: Instant?,
+    val updatedAt: Instant,
 )
 
 fun Intent.toEntity() = IntentEntity(
@@ -50,4 +51,5 @@ fun Intent.toEntity() = IntentEntity(
     pathIds = pathIds,
     completedAt = completedAt,
     scheduledAt = scheduledAt,
+    updatedAt = updatedAt,
 )

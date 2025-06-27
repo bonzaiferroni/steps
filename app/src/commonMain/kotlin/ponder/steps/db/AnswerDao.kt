@@ -28,24 +28,24 @@ interface AnswerDao {
     @Delete
     suspend fun delete(answer: AnswerEntity): Int
 
-    @Query("SELECT * FROM AnswerEntity WHERE logId = :logId")
+    @Query("SELECT * FROM AnswerEntity WHERE stepLogId = :logId")
     suspend fun readAnswersByLogId(logId: StepLogId): List<Answer>
 
-    @Query("SELECT * FROM AnswerEntity WHERE logId IN (:logIds)")
+    @Query("SELECT * FROM AnswerEntity WHERE stepLogId IN (:logIds)")
     suspend fun readAnswersByLogIds(logIds: List<StepLogId>): List<Answer>
 
     @Query("SELECT * FROM AnswerEntity WHERE questionId = :questionId")
     suspend fun readAnswersByQuestionId(questionId: String): List<Answer>
 
-    @Query("SELECT * FROM AnswerEntity WHERE logId = :logId AND questionId = :questionId")
+    @Query("SELECT * FROM AnswerEntity WHERE stepLogId = :logId AND questionId = :questionId")
     suspend fun readAnswer(logId: String, questionId: String): Answer?
 
-    @Query("SELECT * FROM AnswerEntity WHERE logId = :logId")
+    @Query("SELECT * FROM AnswerEntity WHERE stepLogId = :logId")
     fun flowAnswersByLogId(logId: String): Flow<List<Answer>>
 
     @Query(
         "SELECT a.*, l.pathStepId FROM StepLogEntity AS l " +
-                "JOIN AnswerEntity AS a ON l.id = a.logId " +
+                "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
                 "WHERE l.trekId = :trekId"
     )
     fun flowPathAnswersByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") PathStepId, List<Answer>>>
@@ -53,14 +53,14 @@ interface AnswerDao {
     @Query(
         "SELECT a.*, l.trekId FROM TrekEntity AS t " +
                 "JOIN StepLogEntity AS l ON t.id = l.trekId " +
-                "JOIN AnswerEntity AS a ON l.id = a.logId " +
+                "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
                 "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
     )
     fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<@MapColumn("trekId") TrekId, List<Answer>>>
 
     @Query(
         "SELECT * FROM StepLogEntity AS s " +
-                "JOIN AnswerEntity AS a ON s.id = a.logId " +
+                "JOIN AnswerEntity AS a ON s.id = a.stepLogId " +
                 "WHERE s.stepId = :stepId"
     )
     fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
@@ -71,7 +71,7 @@ interface AnswerDao {
                 "SUM(CAST(a.value AS INTEGER)) AS sum, " +
                 "COUNT(*) AS count " +
                 "FROM AnswerEntity AS a " +
-                "JOIN StepLogEntity AS l ON a.logId = l.id " +
+                "JOIN StepLogEntity AS l ON a.stepLogId = l.id " +
                 "WHERE a.questionId = :questionId AND a.type = 'Integer' " +
                 "GROUP BY intervalStart " +
                 "ORDER BY intervalStart"
@@ -91,7 +91,7 @@ interface AnswerDao {
                 "SUM(CAST(a.value AS INTEGER)) AS sum, " +
                 "COUNT(*) AS count " +
                 "FROM AnswerEntity AS a " +
-                "JOIN StepLogEntity AS l ON a.logId = l.id " +
+                "JOIN StepLogEntity AS l ON a.stepLogId = l.id " +
                 "WHERE a.questionId = :questionId AND a.type = 'Integer' AND l.createdAt >= :startAt " +
                 "GROUP BY CASE :interval " +
                 "WHEN 'Minute' THEN (CAST(strftime('%s', l.createdAt/1000,'unixepoch','localtime')/600 AS INTEGER)*600)*1000 " +

@@ -29,6 +29,7 @@ class LocalIntentRepository(
                 completedAt = null,
                 scheduledAt = intent.scheduledAt,
                 pathIds = intent.pathIds,
+                updatedAt = Clock.System.now()
             )
         )
     }

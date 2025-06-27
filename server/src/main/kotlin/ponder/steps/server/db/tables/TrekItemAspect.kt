@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.TrekItem
 
 internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
-    TrekTable.join(StepTable, JoinType.LEFT, TrekTable.nextId, StepTable.id)
+    TrekTable.join(StepTable, JoinType.LEFT, StepTable.id)
         .join(IntentTable, JoinType.LEFT, TrekTable.intentId, IntentTable.id),
     ResultRow::toTrekItem
 ) {

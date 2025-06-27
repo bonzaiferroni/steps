@@ -6,6 +6,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.appUserId
 import ponder.steps.db.AnswerDao
+import ponder.steps.db.AnswerEntity
 import ponder.steps.db.IntentDao
 import ponder.steps.db.StepLogDao
 import ponder.steps.db.StepLogEntity
@@ -18,6 +19,7 @@ import ponder.steps.db.toEntity
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentTiming
+import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepId
@@ -81,9 +83,9 @@ class LocalTrekRepository(
                     isComplete = false,
                     availableAt = availableAt,
                     startedAt = null,
-                    progressAt = null,
                     finishedAt = null,
-                    expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes }
+                    expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes },
+                    updatedAt = now
                 ))
         }
     }
@@ -139,9 +141,9 @@ class LocalTrekRepository(
             isComplete = false,
             availableAt = trek.availableAt,
             startedAt = null,
-            progressAt = null,
             finishedAt = null,
             expectedAt = null,
+            updatedAt = Clock.System.now()
         )
 
         trekDao.create(subTrek.toEntity())
@@ -244,7 +246,7 @@ class LocalTrekRepository(
             val questions = questionDao.readQuestionsByStepId(trek.rootId)
             if (questions.isEmpty()) return TrekStatus.Completed
             val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
-            if (answers.any { it.logId == trekStepLog.id }) return TrekStatus.Completed
+            if (answers.any { it.stepLogId == trekStepLog.id }) return TrekStatus.Completed
             else return TrekStatus.Finished
         }
         if (pathSteps.any { ps -> logs.all { l -> l.pathStepId != ps.id } }) return TrekStatus.Unfinished
@@ -256,8 +258,17 @@ class LocalTrekRepository(
         else return TrekStatus.Finished
     }
 
-    override suspend fun createAnswer(trekId: TrekId, answer: Answer): Boolean {
-        val isSuccess = answerDao.insert(answer.toEntity()) != -1L
+    override suspend fun createAnswer(trekId: TrekId, answer: NewAnswer): Boolean {
+        val id = randomUuidStringId()
+        val answer = AnswerEntity(
+            id = id,
+            stepLogId = answer.stepLogId,
+            questionId = answer.questionId,
+            value = answer.value,
+            type = answer.type,
+            updatedAt = Clock.System.now()
+        )
+        val isSuccess = answerDao.insert(answer) != -1L
         if (isSuccess) {
             setProgress(trekId)
         }

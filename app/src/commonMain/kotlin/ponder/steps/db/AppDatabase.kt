@@ -12,6 +12,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.RecordDeletionTrigger
 import ponder.steps.RecordUpdatedTrigger
 import ponder.steps.db.TimeUnit
+import ponder.steps.model.db.synchronizedData
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -22,7 +23,7 @@ import kotlin.time.Duration.Companion.milliseconds
         IntentEntity::class, TrekEntity::class,
         StepLogEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncRecord::class
-    ], version = 36
+    ], version = 37
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -70,8 +71,8 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .addCallback(RecordUpdatedTrigger("StepEntity", "PathStepEntity", "QuestionEntity"))
-        .addCallback(RecordDeletionTrigger("StepEntity", "PathStepEntity", "QuestionEntity"))
+        .addCallback(RecordUpdatedTrigger(synchronizedEntities))
+        .addCallback(RecordDeletionTrigger(synchronizedEntities))
         // .addMigrations(MIGRATIONS)
         .fallbackToDestructiveMigration(true)
         // .fallbackToDestructiveMigrationOnDowngrade(true)
@@ -79,3 +80,5 @@ fun getRoomDatabase(
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()
 }
+
+private val synchronizedEntities = synchronizedData.map { "${it.simpleName!!}Entity" }

@@ -1,5 +1,6 @@
 package ponder.steps.io
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -28,14 +29,22 @@ class LocalSyncRepository(
         val steps = dao.readStepsUpdated(syncStartAt, syncEndAt).map { it.toStep() }
         val pathSteps = dao.readPathStepsUpdated(syncStartAt, syncEndAt)
         val questions = dao.readQuestionsUpdated(syncStartAt, syncEndAt)
-        // val questions = questionDao.readQuestionsByStepIds(stepIds)
+        val intents = dao.readIntentsUpdated(syncStartAt, syncEndAt)
+        val treks = dao.readTreksUpdated(syncStartAt, syncEndAt)
+        val stepLogs = dao.readStepLogsUpdated(syncStartAt, syncEndAt)
+        val answers = dao.readAnswersUpdated(syncStartAt, syncEndAt)
+
         return SyncData(
             startSyncAt = syncStartAt,
             endSyncAt = syncEndAt,
             deletions = deletions,
             steps = steps,
             pathSteps = pathSteps,
-            questions = questions
+            questions = questions,
+            intents = intents,
+            treks = treks,
+            stepLogs = stepLogs,
+            answers = answers,
         )
     }
 
@@ -46,13 +55,21 @@ class LocalSyncRepository(
         dao.upsert(*data.steps.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.questions.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.intents.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.treks.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.stepLogs.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.answers.map { it.toEntity() }.toTypedArray())
 
         // handle deletions
         dao.deleteStepsInList(deletions)
         dao.deletePathStepsInList(deletions)
         dao.deleteDeletionsInList(deletions)
         dao.deleteQuestionsInList(deletions)
-        dao.deleteDeletionsBefore(data.endSyncAt)
+        dao.deleteIntentsInList(deletions)
+        dao.deleteTreksInList(deletions)
+        dao.deleteStepLogsInList(deletions)
+        dao.deleteAnswersInList(deletions)
+        dao.deleteDeletionsBefore(data.endSyncAt).also { println(Clock.System.now() - data.endSyncAt) }
         return true
     }
 }

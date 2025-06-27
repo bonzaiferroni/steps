@@ -34,10 +34,13 @@ import steps.app.generated.resources.compose_multiplatform
 import pondui.WavePlayer
 import pondui.ui.controls.ExampleScrollHeader
 import pondui.ui.controls.LazyColumn
+import pondui.ui.controls.TopBarSpacer
 
 @Composable
 fun StartScreen() {
     Column {
+        TopBarSpacer()
+
         var showContent by remember { mutableStateOf(false) }
 
         Column(

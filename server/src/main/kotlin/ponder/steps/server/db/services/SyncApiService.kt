@@ -20,16 +20,28 @@ import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 import ponder.steps.model.data.SyncData
+import ponder.steps.server.db.tables.AnswerTable
 import ponder.steps.server.db.tables.DeletionTable
+import ponder.steps.server.db.tables.IntentTable
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.QuestionTable
+import ponder.steps.server.db.tables.StepLogTable
 import ponder.steps.server.db.tables.StepTable
+import ponder.steps.server.db.tables.TrekTable
+import ponder.steps.server.db.tables.toAnswer
+import ponder.steps.server.db.tables.toIntent
 import ponder.steps.server.db.tables.upsertStep
 import ponder.steps.server.db.tables.toPathStep
 import ponder.steps.server.db.tables.toQuestion
 import ponder.steps.server.db.tables.toStep
+import ponder.steps.server.db.tables.toStepLog
+import ponder.steps.server.db.tables.toTrek
+import ponder.steps.server.db.tables.upsertAnswer
+import ponder.steps.server.db.tables.upsertIntent
 import ponder.steps.server.db.tables.upsertPathStep
 import ponder.steps.server.db.tables.upsertQuestion
+import ponder.steps.server.db.tables.upsertStepLog
+import ponder.steps.server.db.tables.upsertTrek
 import java.util.UUID
 
 class SyncApiService : DbService() {
@@ -42,8 +54,14 @@ class SyncApiService : DbService() {
         val steps = StepTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toStep() }
         val pathSteps = PathStepTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toPathStep() }
         val questions = QuestionTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toQuestion() }
+        val intents = IntentTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toIntent() }
+        val treks = TrekTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toTrek() }
+        val stepLogs = StepLogTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toStepLog() }
+        val answers = AnswerTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toAnswer() }
+
         val deletions = DeletionTable.readColumn(DeletionTable.id) { syncTable(it.userId, it.recordedAt) }
             .map { it.value.toStringId() }.toSet()
+
         SyncData(
             startSyncAt = startSyncAt,
             endSyncAt = endSyncAt,
@@ -51,6 +69,10 @@ class SyncApiService : DbService() {
             steps = steps,
             pathSteps = pathSteps,
             questions = questions,
+            intents = intents,
+            treks = treks,
+            stepLogs = stepLogs,
+            answers = answers,
         )
     }
 
@@ -73,6 +95,30 @@ class SyncApiService : DbService() {
                 data = data.questions,
                 where = { QuestionTable.userId.eq(userId) and QuestionTable.updatedAt.lessEq(data.endSyncAt) },
                 body = upsertQuestion(userId)
+            )
+
+            IntentTable.batchUpsert(
+                data = data.intents,
+                where = { IntentTable.userId.eq(userId) and IntentTable.updatedAt.lessEq(data.endSyncAt) },
+                body = upsertIntent(userId)
+            )
+
+            TrekTable.batchUpsert(
+                data = data.treks,
+                where = { TrekTable.userId.eq(userId) and TrekTable.updatedAt.lessEq(data.endSyncAt) },
+                body = upsertTrek(userId)
+            )
+
+            StepLogTable.batchUpsert(
+                data = data.stepLogs,
+                where = { StepLogTable.userId.eq(userId) and StepLogTable.updatedAt.lessEq(data.endSyncAt) },
+                body = upsertStepLog(userId)
+            )
+
+            AnswerTable.batchUpsert(
+                data = data.answers,
+                where = { AnswerTable.userId.eq(userId) and AnswerTable.updatedAt.lessEq(data.endSyncAt) },
+                body = upsertAnswer(userId)
             )
 
             // handle deletions

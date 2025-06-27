@@ -11,6 +11,11 @@ data class SyncData(
     val steps: List<Step>,
     val pathSteps: List<PathStep>,
     val questions: List<Question>,
+    val intents: List<Intent>,
+    val treks: List<Trek>,
+    val stepLogs: List<StepLog>,
+    val answers: List<Answer>,
 ) {
     val isEmpty get() = deletions.isEmpty() && steps.isEmpty() && pathSteps.isEmpty() && questions.isEmpty()
+            && intents.isEmpty() && treks.isEmpty() && stepLogs.isEmpty() && answers.isEmpty()
 }

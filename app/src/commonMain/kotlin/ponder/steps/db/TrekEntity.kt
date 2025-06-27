@@ -33,9 +33,9 @@ data class TrekEntity(
     val isComplete: Boolean,
     val availableAt: Instant,
     val startedAt: Instant?,
-    val progressAt: Instant?,
     val finishedAt: Instant?,
     val expectedAt: Instant?,
+    val updatedAt: Instant,
 )
 
 fun Trek.toEntity() = TrekEntity(
@@ -49,7 +49,7 @@ fun Trek.toEntity() = TrekEntity(
     isComplete = isComplete,
     availableAt = availableAt,
     startedAt = startedAt,
-    progressAt = progressAt,
     finishedAt = finishedAt,
-    expectedAt = expectedAt
+    expectedAt = expectedAt,
+    updatedAt = updatedAt,
 )

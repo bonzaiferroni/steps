@@ -15,6 +15,7 @@ import ponder.steps.io.StepLogRepository
 import ponder.steps.io.QuestionRepository
 import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.Answer
+import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
@@ -93,7 +94,7 @@ class TodoModel(
     fun answerQuestion(trekStep: TrekStep, stepLog: StepLog, question: Question, answerText: String) {
         val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
         viewModelScope.launch {
-            trekRepo.createAnswer(trekId, Answer(stepLog.id, question.id, answerText, question.type))
+            trekRepo.createAnswer(trekId, NewAnswer(stepLog.id, question.id, answerText, question.type))
         }
     }
 }

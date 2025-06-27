@@ -10,8 +10,8 @@ data class StepLog(
     val trekId: TrekId?,
     val pathStepId: PathStepId?,
     val outcome: StepOutcome,
-    val updatedAt: Instant = Instant.DISTANT_PAST,
     val createdAt: Instant = Instant.DISTANT_FUTURE,
+    val updatedAt: Instant = Instant.DISTANT_PAST,
 )
 
 data class NewStepLog(

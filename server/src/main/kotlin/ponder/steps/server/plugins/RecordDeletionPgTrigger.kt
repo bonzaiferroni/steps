@@ -1,6 +1,6 @@
 package ponder.steps.server.plugins
 
-class RecordDeletionPgTrigger(vararg val tableNames: String) {
+class RecordDeletionPgTrigger(val tableNames: List<String>) {
     fun buildSql() = buildString {
         appendLine(recordDeletionFunction)
         for (tableName in tableNames) {

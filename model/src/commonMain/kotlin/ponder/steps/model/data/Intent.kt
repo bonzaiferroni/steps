@@ -18,6 +18,7 @@ data class Intent(
     val pathIds: List<String>,
     val completedAt: Instant?,
     val scheduledAt: Instant?,
+    val updatedAt: Instant,
 )
 
 typealias IntentId = String

@@ -5,7 +5,7 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 class RecordUpdatedTrigger(
-    vararg val tableNames: String
+    val tableNames: List<String>
 ) : RoomDatabase.Callback() {
     override fun onOpen(connection: SQLiteConnection) {
         super.onOpen(connection)

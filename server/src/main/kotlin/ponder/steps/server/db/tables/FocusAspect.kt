@@ -8,13 +8,13 @@ import org.jetbrains.exposed.sql.ResultRow
 import ponder.steps.model.data.Focus
 
 object FocusAspect: Aspect<FocusAspect, Focus>(
-    TrekTable.join(StepTable, JoinType.LEFT, TrekTable.nextId, StepTable.id)
+    TrekTable.join(StepTable, JoinType.LEFT, StepTable.id)
         .join(IntentTable, JoinType.LEFT, TrekTable.intentId, IntentTable.id),
     ResultRow::toFocus
 ) {
     val trekId = add(TrekTable.id)
     val intentLabel = add(IntentTable.label)
-    val stepId = add(TrekTable.nextId)
+    // val stepId = add(TrekTable.nextId)
     val stepLabel = add(StepTable.label)
     val stepIndex = add(TrekTable.progress)
     val stepPathSize = add(StepTable.pathSize)
@@ -24,7 +24,7 @@ object FocusAspect: Aspect<FocusAspect, Focus>(
 
 fun ResultRow.toFocus() = Focus(
     trekId = this[FocusAspect.trekId].value.toStringId(),
-    stepId = this[FocusAspect.stepId].value.toStringId(),
+    // stepId = this[FocusAspect.stepId].value.toStringId(),
     intentLabel = this[FocusAspect.intentLabel],
     stepLabel = this[FocusAspect.stepLabel],
     stepIndex = this[FocusAspect.stepIndex],
