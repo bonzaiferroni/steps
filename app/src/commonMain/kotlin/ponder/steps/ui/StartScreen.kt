@@ -2,17 +2,23 @@ package ponder.steps.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.painterResource
 import ponder.steps.Greeting
 import ponder.steps.HelloRoute
@@ -26,12 +32,14 @@ import pondui.ui.theme.Pond
 import steps.app.generated.resources.Res
 import steps.app.generated.resources.compose_multiplatform
 import pondui.WavePlayer
+import pondui.ui.controls.ExampleScrollHeader
 import pondui.ui.controls.LazyColumn
 
 @Composable
 fun StartScreen() {
-    Scaffold {
+    Column {
         var showContent by remember { mutableStateOf(false) }
+
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -59,17 +67,9 @@ fun StartScreen() {
             }
             Text("You picked $selectedOption")
 
-            PlayWave("Watch_a_movie-UnviiMf.wav")
+            // ExampleScrollHeader()
 
-            var items by remember { mutableStateOf((0..10).toList()) }
-            LazyColumn(1) {
-                items(items, key = { it }) { item ->
-                    Text(item.toString(), modifier = Modifier.animateItem())
-                }
-                item("shuffle") {
-                    Button("Shuffle") { items = items.shuffled() }
-                }
-            }
+            EyBox()
 
 //            LaunchedEffect(Unit) {
 //                // val resource = "8-Bit-Noise-1.wav"
@@ -81,5 +81,13 @@ fun StartScreen() {
 //                // immediately upon execution
 //            }
         }
+    }
+}
+
+@Composable
+fun EyBox() {
+    Box() {
+        var count by remember { mutableStateOf(0) }
+        Button(count.toString()) { count++ }
     }
 }

@@ -32,6 +32,7 @@ import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.ProgressBarButton
 import pondui.ui.controls.Row
+import pondui.ui.controls.ScrollHeader
 import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 import pondui.ui.theme.Pond
@@ -75,9 +76,8 @@ fun TodoView() {
         pathId = state.trek?.stepId,
         dismiss = viewModel::toggleAddItem
     )
-
+    
     LazyColumn(1) {
-
         item("header") {
             Section {
                 Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
