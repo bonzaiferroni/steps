@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -23,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.sun.rowset.internal.Row
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
@@ -30,6 +34,7 @@ import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Drone
 import compose.icons.tablericons.Plus
 import compose.icons.tablericons.Trash
+import compose.icons.tablericons.X
 import ponder.steps.StepProfileRoute
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
@@ -238,7 +243,7 @@ fun StepProfileScreen(
                     }
                 }
             }
-            Tab("Edit") {
+            Tab("Edit", modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Label("Description")
                 EditText(
                     text = profileStep.description ?: "",
@@ -257,6 +262,22 @@ fun StepProfileScreen(
                 Button("Generate Audio") { viewModel.generateAudio(profileStep) }
                 Label("Questions")
                 Button("Add Question") { viewModel.toggleAddingQuestion() }
+                Label("Tags")
+                LazyRow(1) {
+                    items(state.tags) { tag ->
+                        Row(1) {
+                            Text(tag.label)
+                            IconButton(TablerIcons.X, Pond.colors.danger) { viewModel.removeTag(tag.id) }
+                        }
+                    }
+                }
+                ControlSet {
+                    TextField(
+                        text = state.newStepLabel,
+                        onTextChange = viewModel::setNewTagLabel,
+                        modifier = Modifier.onEnterPressed(viewModel::addNewTag))
+                    Button("Add", onClick = viewModel::addNewTag)
+                }
             }
             Tab("Activity") {
                 StepActivityView(route.stepId)

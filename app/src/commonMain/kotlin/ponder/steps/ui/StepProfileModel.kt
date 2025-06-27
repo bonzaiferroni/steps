@@ -11,6 +11,7 @@ import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepRepository
+import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.QuestionRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
@@ -20,6 +21,8 @@ import ponder.steps.model.data.SpeechVoice
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
+import ponder.steps.model.data.Tag
+import ponder.steps.model.data.TagId
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
@@ -30,25 +33,24 @@ class StepProfileModel(
     val questionRepo: QuestionRepository = LocalQuestionRepository(),
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
+    val tagRepo: LocalTagRepository = LocalTagRepository()
 ): StateModel<StepProfileState>(StepProfileState()) {
 
     private val stepId: String = route.stepId
 
     init {
-        viewModelScope.launch {
-            stepRepo.flowStep(stepId).collect { step ->
-                setState { it.copy(step = step,) }
-            }
+        stepRepo.flowStep(stepId).launchCollect { step ->
+            setState { it.copy(step = step,) }
         }
-        viewModelScope.launch {
-            stepRepo.flowPathSteps(stepId).collect { steps ->
-                setState { it.copy(steps = steps.sortedBy { pStep -> pStep.position }) }
-            }
+        stepRepo.flowPathSteps(stepId).launchCollect { steps ->
+            setState { it.copy(steps = steps.sortedBy { pStep -> pStep.position }) }
         }
-        viewModelScope.launch {
-            questionRepo.flowQuestionsByStepId(stepId).collect { questions ->
-                setState { it.copy(questions = questions) }
-            }
+        questionRepo.flowQuestionsByStepId(stepId).launchCollect { questions ->
+            setState { it.copy(questions = questions) }
+        }
+        tagRepo.flowTagsByStepId(stepId).launchCollect { tags ->
+            println(tags.size)
+            setState { it.copy(tags = tags) }
         }
     }
 
@@ -192,6 +194,25 @@ class StepProfileModel(
     fun toggleAddingQuestion() {
         setState { it.copy(isAddingQuestion = !it.isAddingQuestion) }
     }
+
+    fun setNewTagLabel(value: String) {
+        setState { it.copy(newTagLabel = value) }
+    }
+
+    fun addNewTag() {
+        if (!stateNow.isValidNewTagLabel) return
+
+        viewModelScope.launch {
+            tagRepo.addTag(stepId, stateNow.newTagLabel)
+            setState { it.copy(newStepLabel = "") }
+        }
+    }
+
+    fun removeTag(tagId: TagId) {
+        viewModelScope.launch {
+            tagRepo.removeTag(stepId, tagId)
+        }
+    }
 }
 
 data class StepProfileState(
@@ -203,8 +224,11 @@ data class StepProfileState(
     val newStepLabel: String = "",
     val selectedStepId: String? = null,
     val similarSteps: List<Step> = emptyList(),
-    val suggestions: List<StepWithDescription> = emptyList()
+    val suggestions: List<StepWithDescription> = emptyList(),
+    val tags: List<Tag> = emptyList(),
+    val newTagLabel: String = "",
 ) {
     val isValidNewStep get() = newStepLabel.isNotBlank()
+    val isValidNewTagLabel get() = newTagLabel.isNotBlank()
     val hasQuestions get() = questions.isNotEmpty()
 }

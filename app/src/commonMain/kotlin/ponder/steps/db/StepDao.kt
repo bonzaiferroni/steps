@@ -14,7 +14,7 @@ import kotlinx.datetime.Instant
 interface StepDao {
 
     @Insert
-    suspend fun insert(step: StepEntity)
+    suspend fun insert(step: StepEntity): Long
 
     @Update
     suspend fun update(vararg steps: StepEntity): Int

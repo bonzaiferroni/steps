@@ -4,13 +4,17 @@ Modify Example.kt
 Modify ExampleEntity.kt
 	Add updatedAt
 	Add updatedAt to toEntity
+	
+Modify ExampleTable.kt
+	Add updatedAt to table
+	Add updatedAt to toExample
+	Add upsertExample(userId: String)
 
 Modify AppDatabase.kt
-	Add "Example" to triggers
 	Bump version number
 	
-Modify Databases.kt
-	Add "example" to pg triggers
+Modify synchronizedData.kt
+	Add "example" to synchronizedData
 
 Modify SyncData.kt
 	Add example: List<Example>

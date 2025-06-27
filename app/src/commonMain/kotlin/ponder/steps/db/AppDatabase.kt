@@ -22,8 +22,9 @@ import kotlin.time.Duration.Companion.milliseconds
         StepEntity::class, PathStepEntity::class,
         IntentEntity::class, TrekEntity::class,
         StepLogEntity::class, AnswerEntity::class, QuestionEntity::class,
-        DeletionEntity::class, SyncRecord::class
-    ], version = 37
+        DeletionEntity::class, SyncRecord::class,
+        TagEntity::class, StepTagEntity::class,
+    ], version = 38
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -37,6 +38,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getLogDao(): StepLogDao
     abstract fun getAnswerDao(): AnswerDao
     abstract fun getSyncDao(): SyncDao
+    abstract fun getTagDao(): TagDao
+    abstract fun getStepTagDao(): StepTagDao
 }
 
 class Converters {
