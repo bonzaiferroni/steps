@@ -39,6 +39,7 @@ class DataMerger(
                         if (!isSuccess) error("error writing remote data")
                     }
 
+                    localRepo.cleanSync(endSyncAt)
                     localRepo.logSync(startSyncAt, endSyncAt)
                 } catch (e: Exception) {
                     println("Error with sync: ${e.message}\n${e.stackTraceToString()}")
@@ -61,6 +62,8 @@ private fun logData(label: String, data: SyncData) {
     print(", treks: ${data.treks.size}")
     print(", stepLogs: ${data.stepLogs.size}")
     println(", answers: ${data.answers.size}")
+    print("tags: ${data.tags.size}")
+    println(", stepTags: ${data.stepTags.size}")
 }
 
 private fun resolveConflicts(incoming: SyncData, outgoing: SyncData) = incoming.copy(
@@ -84,7 +87,13 @@ private fun resolveConflicts(incoming: SyncData, outgoing: SyncData) = incoming.
     },
     answers = resolveConflicts(incoming.answers, outgoing.answers, outgoing.deletions) {
         UpdatedItem(it.id, it.updatedAt)
-    }
+    },
+    tags = resolveConflicts(incoming.tags, outgoing.tags, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
+    stepTags = resolveConflicts(incoming.stepTags, outgoing.stepTags, outgoing.deletions) {
+        UpdatedItem(it.id, it.updatedAt)
+    },
 )
 
 private fun <T> resolveConflicts(

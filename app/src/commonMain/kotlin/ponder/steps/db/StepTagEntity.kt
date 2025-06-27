@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.StepId
+import ponder.steps.model.data.StepTag
 import ponder.steps.model.data.StepTagId
 import ponder.steps.model.data.TagId
 
@@ -35,4 +36,11 @@ data class StepTagEntity(
     val stepId: StepId,
     val tagId: TagId,
     val updatedAt: Instant,
+)
+
+fun StepTag.toEntity() = StepTagEntity(
+    id = id,
+    stepId = stepId,
+    tagId = tagId,
+    updatedAt = updatedAt,
 )

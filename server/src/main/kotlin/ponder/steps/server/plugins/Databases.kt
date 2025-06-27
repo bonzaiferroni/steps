@@ -15,6 +15,8 @@ import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.QuestionTable
 import ponder.steps.server.db.tables.StepLogTable
 import ponder.steps.server.db.tables.StepTable
+import ponder.steps.server.db.tables.StepTagTable
+import ponder.steps.server.db.tables.TagTable
 import ponder.steps.server.db.tables.TrekTable
 
 fun Application.configureDatabases() {
@@ -45,6 +47,8 @@ val dbTables = listOf(
     QuestionTable,
     StepLogTable,
     AnswerTable,
+    TagTable,
+    StepTagTable,
 )
 
 //CREATE DATABASE example_db;

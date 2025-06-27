@@ -6,6 +6,8 @@ import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepTag
+import ponder.steps.model.data.Tag
 import ponder.steps.model.data.Trek
 
 val synchronizedData = listOf(
@@ -16,4 +18,6 @@ val synchronizedData = listOf(
     Trek::class,
     StepLog::class,
     Answer::class,
+    Tag::class,
+    StepTag::class,
 )

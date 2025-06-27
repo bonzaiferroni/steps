@@ -11,6 +11,8 @@ import ponder.steps.model.data.Intent
 import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepTag
+import ponder.steps.model.data.Tag
 import ponder.steps.model.data.Trek
 
 @Dao
@@ -43,6 +45,12 @@ interface SyncDao {
     @Upsert
     suspend fun upsert(vararg answers: AnswerEntity): LongArray
 
+    @Upsert
+    suspend fun upsert(vararg tags: TagEntity): LongArray
+
+    @Upsert
+    suspend fun upsert(vararg stepTags: StepTagEntity): LongArray
+
     @Query("DELETE FROM StepEntity WHERE id IN (:deletions)")
     suspend fun deleteStepsInList(deletions: List<String>)
 
@@ -66,6 +74,12 @@ interface SyncDao {
 
     @Query("DELETE FROM AnswerEntity WHERE id IN (:answers)")
     suspend fun deleteAnswersInList(answers: List<String>)
+
+    @Query("DELETE FROM TagEntity WHERE id IN (:tags)")
+    suspend fun deleteTagsInList(tags: List<String>)
+
+    @Query("DELETE FROM StepTagEntity WHERE id IN (:stepTags)")
+    suspend fun deleteStepTagsInList(stepTags: List<String>)
 
     @Query("DELETE FROM DeletionEntity WHERE :syncEndAt > recordedAt")
     suspend fun deleteDeletionsBefore(syncEndAt: Instant)
@@ -99,4 +113,10 @@ interface SyncDao {
 
     @Query("SELECT * FROM AnswerEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
     suspend fun readAnswersUpdated(syncStartAt: Instant, syncEndAt: Instant): List<Answer>
+
+    @Query("SELECT * FROM TagEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
+    suspend fun readTagsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<Tag>
+
+    @Query("SELECT * FROM StepTagEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
+    suspend fun readStepTagsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<StepTag>
 }

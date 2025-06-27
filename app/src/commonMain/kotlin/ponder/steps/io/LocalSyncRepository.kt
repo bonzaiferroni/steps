@@ -33,6 +33,8 @@ class LocalSyncRepository(
         val treks = dao.readTreksUpdated(syncStartAt, syncEndAt)
         val stepLogs = dao.readStepLogsUpdated(syncStartAt, syncEndAt)
         val answers = dao.readAnswersUpdated(syncStartAt, syncEndAt)
+        val tags = dao.readTagsUpdated(syncStartAt, syncEndAt)
+        val stepTags = dao.readStepTagsUpdated(syncStartAt, syncEndAt)
 
         return SyncData(
             startSyncAt = syncStartAt,
@@ -45,6 +47,8 @@ class LocalSyncRepository(
             treks = treks,
             stepLogs = stepLogs,
             answers = answers,
+            tags = tags,
+            stepTags = stepTags
         )
     }
 
@@ -59,6 +63,8 @@ class LocalSyncRepository(
         dao.upsert(*data.treks.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.stepLogs.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.answers.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.tags.map { it.toEntity() }.toTypedArray())
+        dao.upsert(*data.stepTags.map { it.toEntity() }.toTypedArray())
 
         // handle deletions
         dao.deleteStepsInList(deletions)
@@ -69,7 +75,13 @@ class LocalSyncRepository(
         dao.deleteTreksInList(deletions)
         dao.deleteStepLogsInList(deletions)
         dao.deleteAnswersInList(deletions)
-        dao.deleteDeletionsBefore(data.endSyncAt).also { println(Clock.System.now() - data.endSyncAt) }
+        dao.deleteTagsInList(deletions)
+        dao.deleteStepTagsInList(deletions)
+        return true
+    }
+
+    suspend fun cleanSync(endSyncAt: Instant): Boolean {
+        dao.deleteDeletionsBefore(endSyncAt)
         return true
     }
 }

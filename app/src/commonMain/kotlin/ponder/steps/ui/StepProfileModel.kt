@@ -49,7 +49,6 @@ class StepProfileModel(
             setState { it.copy(questions = questions) }
         }
         tagRepo.flowTagsByStepId(stepId).launchCollect { tags ->
-            println(tags.size)
             setState { it.copy(tags = tags) }
         }
     }
