@@ -24,6 +24,7 @@ import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.IntentPriority
 import ponder.steps.model.data.IntentTiming
+import ponder.steps.model.data.StepId
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
@@ -52,7 +53,7 @@ fun AddStepCloud(
     title: String,
     isVisible: Boolean,
     createIntent: Boolean,
-    pathId: String?,
+    pathId: StepId?,
     dismiss: () -> Unit
 ) {
     val viewModel = viewModel { AddStepModel(dismiss) }

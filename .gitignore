@@ -26,3 +26,4 @@ captures
 **/users.json
 /server/img
 /server/wav
+/app/my_room.*

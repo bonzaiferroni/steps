@@ -40,7 +40,7 @@ fun LazyItemScope.TrekStepRow(
     questionCount: Int,
     setOutcome: (TrekStep, StepOutcome?) -> Unit,
     loadTrek: (String) -> Unit,
-    branchStep: (String) -> Unit,
+//    branchStep: (String) -> Unit,
 ) {
     val nav = LocalNav.current
     val progress = trekStep.progress
@@ -97,10 +97,10 @@ fun LazyItemScope.TrekStepRow(
                     }
                 }
             }
-            val pathStepId = trekStep.pathStepId
-            if (trekStep.trekId == null && pathStepId != null) {
-                IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
-            }
+//            val pathStepId = trekStep.pathStepId
+//            if (trekStep.trekId == null && pathStepId != null) {
+//                IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
+//            }
 
             if (isTrek) {
                 val progressRatio = progress / trekStep.pathSize.toFloat()
