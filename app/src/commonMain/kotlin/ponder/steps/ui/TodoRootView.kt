@@ -16,7 +16,7 @@ import pondui.ui.controls.Text
 
 @Composable
 fun TodoRootView(
-    loadTrek: (TrekId?) -> Unit,
+    loadTrek: (TrekId?, Boolean) -> Unit,
 ) {
     val viewModel = viewModel { TodoRootModel(loadTrek) }
     val state by viewModel.treks.state.collectAsState()

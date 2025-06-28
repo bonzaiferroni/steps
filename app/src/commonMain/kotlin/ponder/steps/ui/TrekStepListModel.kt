@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ponder.steps.db.StepId
@@ -25,7 +24,7 @@ import pondui.ui.core.SubModel
 
 @Stable
 abstract class TrekStepListModel(
-    private val loadTrek: (TrekId?) -> Unit,
+    private val loadTrek: (TrekId?, Boolean) -> Unit,
     override val coroutineScope: CoroutineScope,
     protected val trekRepo: TrekRepository = LocalTrekRepository(),
     protected val questionRepo: QuestionRepository = LocalQuestionRepository(),
@@ -55,13 +54,13 @@ abstract class TrekStepListModel(
         setState { it.copy(isAddingItem = !it.isAddingItem) }
     }
 
-    fun loadTrek(trekId: TrekId?, superId: TrekId?, pathStepId: PathStepId?) {
+    fun loadDeeperTrek(trekId: TrekId?, superId: TrekId?, pathStepId: PathStepId?) {
         if (trekId != null) {
-            loadTrek(trekId)
+            loadTrek(trekId, true)
         } else if (superId != null && pathStepId != null) {
             coroutineScope.launch {
                 val id = trekRepo.createSubTrek(superId, pathStepId)
-                loadTrek(id)
+                loadTrek(id, true)
             }
         }
     }

@@ -1,41 +1,23 @@
 package ponder.steps.ui
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
-import compose.icons.tablericons.ArrowLeft
 import compose.icons.tablericons.Plus
-import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepOutcome
-import ponder.steps.model.data.TrekId
-import ponder.steps.ui.TrekStepRow
 import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
-import pondui.ui.controls.Column
-import pondui.ui.controls.H1
-import pondui.ui.controls.IconButton
 import pondui.ui.controls.LazyColumn
-import pondui.ui.controls.ProgressBar
-import pondui.ui.controls.Row
-import pondui.ui.controls.Section
-import pondui.ui.controls.Text
-import pondui.ui.theme.Pond
-import kotlin.text.get
 
 @Composable
 fun TrekStepListView(
@@ -81,7 +63,7 @@ fun TrekStepListView(
                     isDeeper = true,
                     setOutcome = viewModel::setOutcome,
                     questionCount = questions.size,
-                    loadTrek = viewModel::loadTrek,
+                    loadTrek = viewModel::loadDeeperTrek,
 //                    branchStep = branchStep
                 )
             }

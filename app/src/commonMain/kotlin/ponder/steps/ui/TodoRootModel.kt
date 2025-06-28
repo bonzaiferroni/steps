@@ -8,7 +8,7 @@ import ponder.steps.model.data.TrekId
 import kotlin.time.Duration.Companion.days
 
 class TodoRootModel(
-    loadTrek: (TrekId?) -> Unit
+    loadTrek: (TrekId?, Boolean) -> Unit,
 ): ViewModel() {
 
     val treks = object: TrekStepListModel(loadTrek, viewModelScope) {

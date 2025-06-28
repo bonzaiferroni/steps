@@ -11,7 +11,7 @@ import pondui.ui.core.StateModel
 
 class TrekProfileModel(
     private val trekId: TrekId,
-    private val loadTrek: (TrekId?) -> Unit,
+    private val loadTrek: (TrekId?, Boolean) -> Unit,
     protected val trekRepo: TrekRepository = LocalTrekRepository(),
 ): StateModel<TodoTrekState>(TodoTrekState()) {
 
@@ -29,15 +29,6 @@ class TrekProfileModel(
             stepLogRepo.flowPathLogsByTrekId(trekId).launchCollect(::setLogs)
             questionRepo.flowPathQuestionsByTrekId(trekId).launchCollect(::setQuestions)
             answerRepo.flowPathQuestionsByTrekId(trekId).launchCollect(::setAnswers)
-        }
-    }
-
-    fun branchStep(pathStepId: PathStepId?) {
-        val trekId = stateNow.trek?.trekId ?: return
-        val pathStepId = pathStepId ?: return
-        viewModelScope.launch {
-            val id = trekRepo.createSubTrek(trekId, pathStepId)
-            loadTrek(id)
         }
     }
 }

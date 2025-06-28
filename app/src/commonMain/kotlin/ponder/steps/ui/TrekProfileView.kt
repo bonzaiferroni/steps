@@ -26,7 +26,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun TrekProfileView(
     trekId: TrekId,
-    loadTrek: (TrekId?) -> Unit
+    loadTrek: (TrekId?, Boolean) -> Unit
 ) {
     val viewModel = viewModel (key = trekId) { TrekProfileModel(trekId, loadTrek) }
     val state by viewModel.state.collectAsState()
@@ -42,7 +42,7 @@ fun TrekProfileView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(modifier = Modifier.width(50.dp)) {
-                        IconButton(TablerIcons.ArrowLeft) { loadTrek(trekStep.superId)  }
+                        IconButton(TablerIcons.ArrowLeft) { loadTrek(trekStep.superId, false)  }
                     }
                     StepImage(
                         url = trekStep.imgUrl,
