@@ -16,7 +16,9 @@ import compose.icons.tablericons.Plus
 import kabinet.utils.startOfDay
 import kotlinx.datetime.Clock
 import ponder.steps.StepProfileRoute
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.TrekId
 import ponder.steps.model.data.TrekStep
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
@@ -39,13 +41,12 @@ fun LazyItemScope.TrekStepRow(
     isDeeper: Boolean,
     questionCount: Int,
     setOutcome: (TrekStep, StepOutcome?) -> Unit,
-    loadTrek: (String) -> Unit,
+    loadTrek: (TrekId?, TrekId?, PathStepId?) -> Unit,
 //    branchStep: (String) -> Unit,
 ) {
     val nav = LocalNav.current
-    val progress = trekStep.progress
+    val progress = trekStep.progress ?: 0
     val trekId = trekStep.trekId
-    val isTrek = trekId != null && progress != null && trekStep.pathSize > 0
     val isFinishedAnimated by animateFloatAsState(if (isFinished) 1f else 0f)
 
     Row(
@@ -77,9 +78,6 @@ fun LazyItemScope.TrekStepRow(
                         style = Pond.typo.bodyLarge,
                         maxLines = 2,
                     )
-                    if (!isTrek && trekStep.pathSize > 0) {
-                        Label("${trekStep.pathSize} steps")
-                    }
                     if (questionCount > 0) {
                         Label("$questionCount questions")
                     }
@@ -102,14 +100,14 @@ fun LazyItemScope.TrekStepRow(
 //                IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
 //            }
 
-            if (isTrek) {
+            if (trekStep.pathSize > 0) {
                 val progressRatio = progress / trekStep.pathSize.toFloat()
                 ProgressBarButton(
                     progress = progressRatio,
-                    onClick = { loadTrek(trekId) }
+                    onClick = { loadTrek(trekStep.trekId, trekStep.superId, trekStep.pathStepId) }
                 ) {
                     Row(1) {
-                        Text("${trekStep.progress} of ${trekStep.pathSize}")
+                        Text("$progress of ${trekStep.pathSize}")
                         Icon(TablerIcons.ArrowRight)
                     }
                 }

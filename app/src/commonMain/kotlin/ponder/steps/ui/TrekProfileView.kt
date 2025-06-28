@@ -28,7 +28,7 @@ fun TrekProfileView(
     trekId: TrekId,
     loadTrek: (TrekId?) -> Unit
 ) {
-    val viewModel = viewModel { TrekProfileModel(trekId, loadTrek) }
+    val viewModel = viewModel (key = trekId) { TrekProfileModel(trekId, loadTrek) }
     val state by viewModel.state.collectAsState()
 
     val trekStep = state.trek ?: return
@@ -62,6 +62,6 @@ fun TrekProfileView(
             }
         }
 
-        TrekStepListView(viewModel.treks, trekStep.stepId, loadTrek) // viewModel::branchStep
+        TrekStepListView(viewModel.treks, trekStep.stepId) // viewModel::branchStep
     }
 }

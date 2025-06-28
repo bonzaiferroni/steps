@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kabinet.utils.startOfDay
 import kotlinx.datetime.Clock
+import ponder.steps.model.data.TrekId
 import kotlin.time.Duration.Companion.days
 
-class TodoRootModel(): ViewModel() {
+class TodoRootModel(
+    loadTrek: (TrekId?) -> Unit
+): ViewModel() {
 
-    val treks = object: TrekStepListModel(viewModelScope) {
+    val treks = object: TrekStepListModel(loadTrek, viewModelScope) {
         init {
             val start = Clock.startOfDay()
             val end = start + 1.days

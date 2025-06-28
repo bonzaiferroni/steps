@@ -21,7 +21,7 @@ class TrekProfileModel(
         }
     }
 
-    val treks = object: TrekStepListModel(viewModelScope) {
+    val treks = object: TrekStepListModel(loadTrek, viewModelScope) {
         init {
             trekRepo.flowTrekStepsBySuperId(trekId).launchCollect { trekSteps ->
                 setState { it.copy(steps = trekSteps.sortedBy { trek -> trek.position }) }

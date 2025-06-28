@@ -41,7 +41,6 @@ import kotlin.text.get
 fun TrekStepListView(
     viewModel: TrekStepListModel,
     pathId: StepId?,
-    loadTrek: (TrekId?) -> Unit,
 //    branchStep: ((PathStepId?) -> Unit)?,
 ) {
     val state by viewModel.state.collectAsState()
@@ -82,7 +81,7 @@ fun TrekStepListView(
                     isDeeper = true,
                     setOutcome = viewModel::setOutcome,
                     questionCount = questions.size,
-                    loadTrek = { loadTrek(it) },
+                    loadTrek = viewModel::loadTrek,
 //                    branchStep = branchStep
                 )
             }
