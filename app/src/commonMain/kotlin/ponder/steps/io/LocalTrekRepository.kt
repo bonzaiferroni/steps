@@ -274,6 +274,8 @@ class LocalTrekRepository(
         }
         return isSuccess
     }
+
+    suspend fun readTrekThumbnails(trekIds: List<TrekId>) = trekDao.readTrekThumbnails(trekIds)
 }
 
 private enum class TrekStatus {

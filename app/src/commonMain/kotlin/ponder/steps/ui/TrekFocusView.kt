@@ -24,11 +24,11 @@ import pondui.ui.controls.Text
 import pondui.ui.theme.Pond
 
 @Composable
-fun TrekProfileView(
+fun TrekFocusView(
     trekId: TrekId,
     loadTrek: (TrekId?, Boolean) -> Unit
 ) {
-    val viewModel = viewModel (key = trekId) { TrekProfileModel(trekId, loadTrek) }
+    val viewModel = viewModel (key = trekId) { TrekFocusModel(trekId, loadTrek) }
     val state by viewModel.state.collectAsState()
 
     val trekStep = state.trek ?: return
@@ -36,22 +36,12 @@ fun TrekProfileView(
     Column(1) {
         Section {
             Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(
-                    spacingUnits = 1,
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(modifier = Modifier.width(50.dp)) {
-                        IconButton(TablerIcons.ArrowLeft) { loadTrek(trekStep.superId, false)  }
-                    }
-                    StepImage(
-                        url = trekStep.imgUrl,
-                        modifier = Modifier.clip(Pond.ruler.defaultCorners)
-                            .width(200.dp)
-                    )
-                    Box(modifier = Modifier.width(50.dp))
-                }
-
+                StepImage(
+                    url = trekStep.imgUrl,
+                    modifier = Modifier.clip(Pond.ruler.defaultCorners)
+                        .width(200.dp)
+                )
+                // IconButton(TablerIcons.ArrowLeft) { loadTrek(trekStep.superId, false)  }
                 H1(trekStep.stepLabel)
                 ProgressBar(
                     progress = trekStep.progressRatio,

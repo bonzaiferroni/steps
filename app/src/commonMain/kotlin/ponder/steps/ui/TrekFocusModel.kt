@@ -1,19 +1,17 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.TrekRepository
-import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.TrekId
 import ponder.steps.model.data.TrekStep
 import pondui.ui.core.StateModel
 
-class TrekProfileModel(
+class TrekFocusModel(
     private val trekId: TrekId,
     private val loadTrek: (TrekId?, Boolean) -> Unit,
     protected val trekRepo: TrekRepository = LocalTrekRepository(),
-): StateModel<TodoTrekState>(TodoTrekState()) {
+): StateModel<TrekFocusState>(TrekFocusState()) {
 
     init {
         trekRepo.flowTrekStepById(trekId).launchCollect { trekStep ->
@@ -33,6 +31,6 @@ class TrekProfileModel(
     }
 }
 
-data class TodoTrekState(
+data class TrekFocusState(
     val trek: TrekStep? = null,
 )

@@ -8,6 +8,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Trek
+import ponder.steps.model.data.TrekId
 import ponder.steps.model.data.TrekItem
 import ponder.steps.model.data.TrekStep
 
@@ -94,4 +95,12 @@ interface TrekDao {
                 "WHERE st.id = :superId"
     )
     fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
+
+    @Query("SELECT t.id trekId, s.thumbUrl url FROM TrekEntity AS t JOIN StepEntity AS s ON s.id = t.rootId WHERE t.id IN (:trekIds)")
+    suspend fun readTrekThumbnails(trekIds: List<TrekId>): List<TrekImgUrl>
 }
+
+data class TrekImgUrl(
+    val trekId: TrekId,
+    val url: String,
+)

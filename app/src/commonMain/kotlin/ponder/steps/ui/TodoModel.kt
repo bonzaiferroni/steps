@@ -3,6 +3,7 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ponder.steps.db.TrekImgUrl
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.TrekId
@@ -10,7 +11,7 @@ import pondui.ui.core.StateModel
 import kotlin.time.Duration.Companion.minutes
 
 class TodoModel(
-    trekRepo: TrekRepository = LocalTrekRepository()
+    private val trekRepo: LocalTrekRepository = LocalTrekRepository()
 ): StateModel<TodoState>(TodoState()) {
 
     init {
@@ -37,10 +38,25 @@ class TodoModel(
                 setState { it.copy(stack = listOf(trekId), stackIndex = 0) }
             }
         }
+        refreshBreadcrumbs()
+    }
+
+    private fun refreshBreadcrumbs() {
+        val index = stateNow.stackIndex
+        if (index == null) {
+            setState { it.copy(breadcrumbUrls = emptyList()) }
+        } else {
+            viewModelScope.launch {
+                val urls = trekRepo.readTrekThumbnails(stateNow.stack.subList(0, index + 1))
+                    .sortedBy { t -> stateNow.stack.indexOfFirst { it == t.trekId } }
+                setState { it.copy(breadcrumbUrls = urls) }
+            }
+        }
     }
 }
 
 data class TodoState(
     val stack: List<TrekId> = emptyList(),
     val stackIndex: Int? = null,
+    val breadcrumbUrls: List<TrekImgUrl> = emptyList(),
 )
