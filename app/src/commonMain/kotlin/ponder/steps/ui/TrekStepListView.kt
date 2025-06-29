@@ -72,7 +72,7 @@ fun TrekStepListView(
         item("controls") {
             Row(
                 horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().animateItem()
             ) {
                 // Label("Completed", modifier = Modifier.weight(1f))
                 Button(TablerIcons.Plus, onClick = viewModel::toggleAddItem)

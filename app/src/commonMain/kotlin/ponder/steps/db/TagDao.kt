@@ -3,6 +3,7 @@ package ponder.steps.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
@@ -44,6 +45,11 @@ interface TagDao {
                 "LIMIT :limit"
     )
     fun flowTopTagCounts(limit: Int): Flow<List<TagCount>>
+
+    @Query("SELECT t.*, st.stepId FROM StepTagEntity AS st " +
+            "JOIN TagEntity AS t ON st.tagId = t.id " +
+            "WHERE st.stepId IN (:stepIds)")
+    fun flowTagsByStepIds(stepIds: List<StepId>): Flow<Map<@MapColumn("stepId") StepId, List<Tag>>>
 }
 
 data class TagCount(

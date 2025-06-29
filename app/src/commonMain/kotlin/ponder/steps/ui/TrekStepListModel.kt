@@ -30,6 +30,9 @@ class TrekStepListModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
 ) : SubModel<TrekStepListState>(TrekStepListState(), viewModel) {
 
+    var allTrekSteps: List<TrekStep> = emptyList()
+    var trekStepFilter: ((TrekStep) -> Boolean)? = null
+
     fun setTrekSteps(trekSteps: List<TrekStep>) {
         clearJobs()
         val stepIds = trekSteps.map { it.stepId }
@@ -43,7 +46,18 @@ class TrekStepListModel(
         answerRepo.flowAnswersByTrekIds(trekIds).launchCollect { answers ->
             setState { it.copy(answers = answers) }
         }
-        setState { it.copy(trekSteps = trekSteps) }
+        allTrekSteps = trekSteps
+        refreshSteps()
+    }
+
+    private fun refreshSteps() {
+        val filteredSteps = trekStepFilter?.let { filter -> allTrekSteps.filter { filter(it) } } ?: allTrekSteps
+        setState { it.copy(trekSteps = filteredSteps) }
+    }
+
+    fun setFilter(filter: ((TrekStep) -> Boolean)?) {
+        trekStepFilter = filter
+        refreshSteps()
     }
 
     fun setOutcome(trekStep: TrekStep, outcome: StepOutcome? = null) {
