@@ -12,6 +12,7 @@ import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.TrekId
 
 @Dao
 interface StepLogDao {
@@ -70,6 +71,13 @@ interface StepLogDao {
                 "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
     )
     fun flowRootLogs(start: Instant, end: Instant): Flow<List<StepLog>>
+
+    @Query(
+        "SELECT l.* FROM TrekEntity AS t " +
+                "JOIN StepLogEntity AS l ON t.id = l.trekId " +
+                "WHERE t.id IN (:trekIds)"
+    )
+    fun flowLogsByTrekIds(trekIds: List<TrekId>): Flow<List<StepLog>>
 
     @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
     fun flowStepLogsByStepId(stepId: StepId): Flow<List<StepLog>>

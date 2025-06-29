@@ -1,51 +1,61 @@
 package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.launch
 import ponder.steps.db.StepId
-import ponder.steps.io.AnswerRepository
 import ponder.steps.io.LocalAnswerRepository
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalTrekRepository
-import ponder.steps.io.QuestionRepository
-import ponder.steps.io.StepLogRepository
 import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekId
 import ponder.steps.model.data.TrekStep
 import pondui.ui.core.SubModel
 
 @Stable
-abstract class TrekStepListModel(
+class TrekStepListModel(
+    viewModel: ViewModel,
     private val loadTrek: (TrekId?, Boolean) -> Unit,
-    override val coroutineScope: CoroutineScope,
-    protected val trekRepo: TrekRepository = LocalTrekRepository(),
-    protected val questionRepo: QuestionRepository = LocalQuestionRepository(),
-    protected val answerRepo: AnswerRepository = LocalAnswerRepository(),
-    protected val stepLogRepo: StepLogRepository = LocalStepLogRepository(),
-) : SubModel<TrekStepListState>(TrekStepListState()) {
+    private val trekRepo: TrekRepository = LocalTrekRepository(),
+    private val questionRepo: LocalQuestionRepository = LocalQuestionRepository(),
+    private val answerRepo: LocalAnswerRepository = LocalAnswerRepository(),
+    private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
+) : SubModel<TrekStepListState>(TrekStepListState(), viewModel) {
 
-    protected fun setLogs(logs: List<StepLog>) = setState { it.copy(logs = logs) }
-    protected fun setQuestions(questions: Map<String, List<Question>>) = setState { it.copy(questions = questions ) }
-    protected fun setAnswers(answers: Map<String, List<Answer>>) = setState { it.copy(answers = answers) }
+    fun setTrekSteps(trekSteps: List<TrekStep>) {
+        clearJobs()
+        val stepIds = trekSteps.map { it.stepId }
+        val trekIds = trekSteps.mapNotNull { it.trekId ?: it.superId }
+        questionRepo.flowQuestionsByStepIds(stepIds).launchCollect { questions ->
+            setState { it.copy(questions = questions) }
+        }
+        stepLogRepo.flowLogsByTrekIds(trekIds).launchCollect { stepLogs ->
+            setState { it.copy(stepLogs = stepLogs) }
+        }
+        answerRepo.flowAnswersByTrekIds(trekIds).launchCollect { answers ->
+            setState { it.copy(answers = answers) }
+        }
+        setState { it.copy(trekSteps = trekSteps) }
+    }
 
     fun setOutcome(trekStep: TrekStep, outcome: StepOutcome? = null) {
         val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
-        coroutineScope.launch {
+        viewModelScope.launch {
             trekRepo.setOutcome(trekId, trekStep.stepId, trekStep.pathStepId, outcome)
         }
     }
 
     fun answerQuestion(trekStep: TrekStep, stepLog: StepLog, question: Question, answerText: String) {
         val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
-        coroutineScope.launch {
+        viewModelScope.launch {
             trekRepo.createAnswer(trekId, NewAnswer(stepLog.id, question.id, answerText, question.type))
         }
     }
@@ -58,7 +68,7 @@ abstract class TrekStepListModel(
         if (trekId != null) {
             loadTrek(trekId, true)
         } else if (superId != null && pathStepId != null) {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 val id = trekRepo.createSubTrek(superId, pathStepId)
                 loadTrek(id, true)
             }
@@ -67,20 +77,18 @@ abstract class TrekStepListModel(
 }
 
 data class TrekStepListState(
-    val steps: List<TrekStep> = emptyList(),
-    val logs: List<StepLog> = emptyList(),
+    val trekSteps: List<TrekStep> = emptyList(),
+    val stepLogs: List<StepLog> = emptyList(),
     val questions: Map<StepId, List<Question>> = emptyMap(),
-    val answers: Map<TrekIdOrPathStepId, List<Answer>> = emptyMap(),
+    val answers: Map<StepLogId, List<Answer>> = emptyMap(),
     val isAddingItem: Boolean = false,
 ) {
-    fun getLog(trekStep: TrekStep) = logs.firstOrNull {
+    fun getLog(trekStep: TrekStep) = stepLogs.firstOrNull {
         if (it.pathStepId != null) it.pathStepId == trekStep.pathStepId else it.trekId == trekStep.trekId
     }
-    fun getAnswers(trek: TrekStep) = answers[(trek.pathStepId ?: trek.trekId)] ?: emptyList()
+    fun getAnswers(stepLogId: StepLogId) = answers[stepLogId] ?: emptyList()
 
-    val totalProgress get() = steps.count { it.finishedAt != null }
-    val totalSteps get() = steps.size
+    val totalProgress get() = trekSteps.count { it.finishedAt != null }
+    val totalSteps get() = trekSteps.size
     val progressRatio get() = totalProgress / (totalSteps.takeIf { it > 0 } ?: 1).toFloat()
 }
-
-typealias TrekIdOrPathStepId = String

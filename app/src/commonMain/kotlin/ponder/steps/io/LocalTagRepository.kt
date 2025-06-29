@@ -30,4 +30,6 @@ class LocalTagRepository(
     }
 
     suspend fun removeTag(stepId: StepId, tagId: TagId) = stepTagDao.deleteStepTag(stepId, tagId) == 1
+
+    fun flowTopTagCounts(limit: Int = 10) = tagDao.flowTopTagCounts(limit)
 }

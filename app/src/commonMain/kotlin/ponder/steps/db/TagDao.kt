@@ -25,11 +25,29 @@ interface TagDao {
     @Delete
     suspend fun delete(tag: TagEntity): Int
 
-    @Query("SELECT t.* FROM StepTagEntity AS st " +
-            "JOIN TagEntity AS t ON st.tagId = t.id " +
-            "WHERE st.stepId = :stepId ")
+    @Query(
+        "SELECT t.* FROM StepTagEntity AS st " +
+                "JOIN TagEntity AS t ON st.tagId = t.id " +
+                "WHERE st.stepId = :stepId "
+    )
     fun flowTagsByStepId(stepId: StepId): Flow<List<Tag>>
 
     @Query("SELECT id FROM TagEntity WHERE LOWER(label) = LOWER(:label)")
     suspend fun readTagIdByLabel(label: String): TagId?
+
+    @Query(
+        "SELECT t.id tagId, t.label label, COUNT(s.stepId) count " +
+                "FROM StepTagEntity AS s " +
+                "JOIN TagEntity     AS t ON t.id = s.tagId " +
+                "GROUP BY s.tagId, t.label " +
+                "ORDER BY COUNT(s.stepId) DESC " +
+                "LIMIT :limit"
+    )
+    fun flowTopTagCounts(limit: Int): Flow<List<TagCount>>
 }
+
+data class TagCount(
+    val tagId: String,
+    val label: String,
+    val count: Int
+)

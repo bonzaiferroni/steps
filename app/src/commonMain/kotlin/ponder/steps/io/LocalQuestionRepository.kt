@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.QuestionDao
+import ponder.steps.db.StepId
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Question
 
@@ -24,5 +25,7 @@ class LocalQuestionRepository(
     override fun flowPathQuestionsByTrekId(trekId: String) = questionDao.flowPathQuestionsByTrekId(trekId)
 
     override fun flowRootQuestions(start: Instant, end: Instant) = questionDao.flowRootQuestions(start, end)
+
+    fun flowQuestionsByStepIds(stepIds: List<StepId>) = questionDao.flowQuestionsByStepIds(stepIds)
 }
 

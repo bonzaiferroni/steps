@@ -9,6 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.TrekId
 
 @Dao
 interface QuestionDao {
@@ -45,6 +46,9 @@ interface QuestionDao {
                 "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
     )
     fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
+
+    @Query("SELECT DISTINCT * FROM QuestionEntity WHERE stepId IN (:stepIds)")
+    fun flowQuestionsByStepIds(stepIds: List<StepId>): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 }
 
 typealias StepId = String

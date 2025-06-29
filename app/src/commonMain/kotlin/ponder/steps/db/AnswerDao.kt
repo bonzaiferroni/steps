@@ -12,7 +12,6 @@ import ponder.steps.model.data.Answer
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepLogId
-import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.IntBucket
 import ponder.steps.model.data.TrekId
 import kotlin.time.Duration
@@ -57,6 +56,11 @@ interface AnswerDao {
                 "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
     )
     fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<@MapColumn("trekId") TrekId, List<Answer>>>
+
+    @Query("SELECT a.* FROM StepLogEntity AS l " +
+            "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
+            "WHERE l.trekId IN (:trekIds)")
+    fun flowAnswersByTrekIds(trekIds: List<TrekId>): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
 
     @Query(
         "SELECT * FROM StepLogEntity AS s " +

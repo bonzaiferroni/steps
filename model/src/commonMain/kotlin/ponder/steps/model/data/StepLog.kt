@@ -3,6 +3,11 @@ package ponder.steps.model.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
+/**
+ * @param trekId is either the trek that contains the step, or the trek that consists of the step
+ * @param stepId is either a step within the trek, or the root step
+ */
+
 @Serializable
 data class StepLog(
     val id: StepLogId,

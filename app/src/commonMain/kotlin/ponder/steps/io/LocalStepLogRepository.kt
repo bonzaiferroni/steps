@@ -14,6 +14,7 @@ import ponder.steps.db.toStepLog
 import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.TrekId
 
 class LocalStepLogRepository(
     private val stepLogDao: StepLogDao = appDb.getLogDao()
@@ -67,4 +68,6 @@ class LocalStepLogRepository(
         stepLogDao.readLogCountsByStepId(stepId, startAt, interval)
 
     override suspend fun readEarliestLogTimeByStepId(stepId: StepId) = stepLogDao.readEarliestLogTimeByStepId(stepId)
+
+    fun flowLogsByTrekIds(trekIds: List<TrekId>) = stepLogDao.flowLogsByTrekIds(trekIds)
 }

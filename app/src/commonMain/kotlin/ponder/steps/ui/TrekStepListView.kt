@@ -36,11 +36,11 @@ fun TrekStepListView(
     )
 
     LazyColumn(1) {
-        items(state.steps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
+        items(state.trekSteps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
             val log = state.getLog(trekStep)
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[trekStep.stepId] ?: emptyList() else emptyList()
-            val answers = state.getAnswers(trekStep)
+            val answers = log?.let { state.getAnswers(it.id) } ?: emptyList()
             val question = questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } }
             val canDragLeft = trekStep.trekId != null && trekStep.pathSize > 0 && question == null
 
