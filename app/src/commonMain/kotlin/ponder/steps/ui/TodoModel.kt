@@ -1,6 +1,7 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ponder.steps.db.TrekImgUrl
@@ -15,7 +16,7 @@ class TodoModel(
 ): StateModel<TodoState>(TodoState()) {
 
     init {
-        viewModelScope.launch {
+        ioLaunch {
             while (true) {
                 trekRepo.syncTreksWithIntents()
                 delay(1.minutes)
@@ -46,7 +47,7 @@ class TodoModel(
         if (index == null) {
             setState { it.copy(breadcrumbUrls = emptyList()) }
         } else {
-            viewModelScope.launch {
+            ioLaunch {
                 val urls = trekRepo.readTrekThumbnails(stateNow.stack.subList(0, index + 1))
                     .sortedBy { t -> stateNow.stack.indexOfFirst { it == t.trekId } }
                 setState { it.copy(breadcrumbUrls = urls) }

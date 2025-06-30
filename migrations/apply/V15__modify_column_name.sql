@@ -1,0 +1,3 @@
+ALTER TABLE trek ADD intent_id uuid NOT NULL;
+ALTER TABLE trek ADD CONSTRAINT fk_trek_intent_id__id FOREIGN KEY (intent_id) REFERENCES intent(id) ON DELETE CASCADE ON UPDATE RESTRICT;
+ALTER TABLE trek DROP COLUMN quest_id;

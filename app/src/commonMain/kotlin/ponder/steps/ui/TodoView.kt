@@ -83,8 +83,11 @@ fun TodoView() {
                 if (page == 0) {
                     TodoRootView(viewModel::loadTrek)
                 } else {
-                    val trekId = state.stack[page - 1]
-                    TrekFocusView(trekId, viewModel::loadTrek)
+                    val stackIndex = page - 1
+                    if (state.stack.size > stackIndex) {
+                        val trekId = state.stack[stackIndex]
+                        TrekFocusView(trekId, viewModel::loadTrek)
+                    }
                 }
             }
         }

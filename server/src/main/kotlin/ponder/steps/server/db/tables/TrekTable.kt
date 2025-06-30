@@ -14,7 +14,7 @@ import ponder.steps.model.data.Trek
 
 internal object TrekTable : UUIDTable("trek") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
-    val intentId = reference("quest_id", IntentTable.id, ReferenceOption.CASCADE)
+    val intentId = reference("intent_id", IntentTable.id, ReferenceOption.CASCADE)
     val superId = reference("super_id", TrekTable.id, ReferenceOption.CASCADE).nullable()
     val superPathStepId = reference("super_path_step_id", PathStepTable.id, ReferenceOption.CASCADE).nullable()
     val rootId = reference("root_id", StepTable.id, ReferenceOption.CASCADE)

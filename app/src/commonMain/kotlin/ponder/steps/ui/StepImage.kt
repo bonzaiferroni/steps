@@ -14,7 +14,7 @@ fun StepImage(
     modifier: Modifier = Modifier
 ) {
     AsyncImage(
-        model = url?.let { "http://localhost:8080/${it}" } ?: Res.getUri("drawable/horse.png"),
+        model = url?.let { "http://192.168.1.100:8080/${it}" } ?: Res.getUri("drawable/horse.png"),
         contentDescription = null,
         modifier = modifier.aspectRatio(1f)
     )

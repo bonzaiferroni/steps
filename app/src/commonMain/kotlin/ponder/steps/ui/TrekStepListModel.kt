@@ -62,7 +62,7 @@ class TrekStepListModel(
 
     fun setOutcome(trekStep: TrekStep, outcome: StepOutcome? = null) {
         val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
-        viewModelScope.launch {
+        ioLaunch {
             trekRepo.setOutcome(trekId, trekStep.stepId, trekStep.pathStepId, outcome)
         }
     }
