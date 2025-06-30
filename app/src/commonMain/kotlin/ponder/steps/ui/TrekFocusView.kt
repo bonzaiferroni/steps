@@ -16,6 +16,7 @@ import compose.icons.tablericons.ArrowLeft
 import ponder.steps.model.data.TrekId
 import pondui.ui.controls.Column
 import pondui.ui.controls.H1
+import pondui.ui.controls.H2
 import pondui.ui.controls.IconButton
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
@@ -39,10 +40,10 @@ fun TrekFocusView(
                 StepImage(
                     url = trekStep.imgUrl,
                     modifier = Modifier.clip(Pond.ruler.defaultCorners)
-                        .width(200.dp)
+                        .width(100.dp)
                 )
                 // IconButton(TablerIcons.ArrowLeft) { loadTrek(trekStep.superId, false)  }
-                H1(trekStep.stepLabel)
+                H2(trekStep.stepLabel)
                 ProgressBar(
                     progress = trekStep.progressRatio,
                     modifier = Modifier.fillMaxWidth()

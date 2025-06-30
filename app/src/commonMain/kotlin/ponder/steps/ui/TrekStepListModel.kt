@@ -69,7 +69,7 @@ class TrekStepListModel(
 
     fun answerQuestion(trekStep: TrekStep, stepLog: StepLog, question: Question, answerText: String) {
         val trekId = trekStep.superId ?: trekStep.trekId ?: error("No trekId")
-        viewModelScope.launch {
+        ioLaunch {
             trekRepo.createAnswer(trekId, NewAnswer(stepLog.id, question.id, answerText, question.type))
         }
     }
@@ -82,7 +82,7 @@ class TrekStepListModel(
         if (trekId != null) {
             loadTrek(trekId, true)
         } else if (superId != null && pathStepId != null) {
-            viewModelScope.launch {
+            ioLaunch {
                 val id = trekRepo.createSubTrek(superId, pathStepId)
                 loadTrek(id, true)
             }

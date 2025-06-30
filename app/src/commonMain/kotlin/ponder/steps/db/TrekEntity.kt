@@ -19,6 +19,7 @@ import ponder.steps.model.data.Trek
         Index(value = ["rootId"]),
         Index(value = ["superId"]),
         Index(value = ["pathStepId"]),
+        Index(value = ["superId", "pathStepId"], unique = true)
     ],
 )
 data class TrekEntity(

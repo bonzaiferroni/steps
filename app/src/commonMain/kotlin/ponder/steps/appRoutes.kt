@@ -1,13 +1,10 @@
 package ponder.steps
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 import pondui.ui.nav.AppRoute
 import pondui.ui.nav.IdRoute
 import pondui.ui.nav.matchLongIdRoute
 import pondui.ui.nav.matchStringIdRoute
-import pondui.ui.nav.matchStringOrNullIdRoute
 
 @Serializable
 object StartRoute : AppRoute("Start")
@@ -33,7 +30,10 @@ data class StepProfileRoute(val stepId: String) : IdRoute<String>(TITLE, stepId)
 object GeminiRoute : AppRoute("Gemini")
 
 @Serializable
-object JourneyRoute : AppRoute("Journey")
+object TodoRoute : AppRoute("Todo")
+
+@Serializable
+object PlanRoute : AppRoute("Plan")
 
 @Serializable
 object SettingsRoute : AppRoute("Settings")

@@ -10,7 +10,7 @@ import pondui.ui.controls.*
 import pondui.ui.theme.Pond
 
 @Composable
-fun IntentListView() {
+fun PlanScreen() {
     val viewModel = viewModel { IntentListModel() }
     val state by viewModel.state.collectAsState()
 
@@ -24,6 +24,9 @@ fun IntentListView() {
     }
 
     Column(1) {
+
+        TopBarSpacer()
+
         LazyColumn(1, modifier = Modifier.weight(1f)) {
             items(state.intents, key = { it.id }) { item ->
                 Row(1) {

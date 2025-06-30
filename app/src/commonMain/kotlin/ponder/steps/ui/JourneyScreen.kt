@@ -12,10 +12,10 @@ fun JourneyScreen() {
         TopBarSpacer()
 
         Tabs {
-            Tab("Today") { TodoView() }
+            Tab("Today") { TodoScreen() }
             // Tab("Doing") { TodoOldView() }
             Tab("Focus") { FocusView() }
-            Tab("Plan") { IntentListView() }
+            Tab("Plan") { PlanScreen() }
         }
     }
 }
