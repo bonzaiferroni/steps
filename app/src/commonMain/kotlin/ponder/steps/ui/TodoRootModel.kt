@@ -28,8 +28,8 @@ class TodoRootModel(
 
     val todoList = TodoListModel(
         viewModel = this,
+        trekPath = null,
         navToTrekPath = navToTrekPath,
-        breadcrumbs = emptyList()
     )
 
     init {

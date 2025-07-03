@@ -14,9 +14,7 @@ import ponder.steps.model.data.TrekId
 import pondui.ui.core.StateModel
 
 class TodoPathModel(
-    private val trekId: TrekId,
-    private val pathId: StepId,
-    private val breadcrumbs: List<StepId>,
+    private val trekPath: TrekPath,
     navToTrekPath: (TrekPath?, Boolean) -> Unit,
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository(),
@@ -27,13 +25,14 @@ class TodoPathModel(
 
     val todoList = TodoListModel(
         viewModel = this,
+        trekPath = trekPath,
         navToTrekPath = navToTrekPath,
-        breadcrumbs = breadcrumbs,
     )
 
     private var stepFlowJob: Job? = null
 
     fun activate() {
+        val pathId = trekPath.pathId; val trekId = trekPath.trekId
         stepFlowJob?.cancel()
         stepFlowJob = stepRepo.flowStep(pathId).launchCollect { step ->
             setState { it.copy(step = step) }

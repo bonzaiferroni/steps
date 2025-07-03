@@ -23,13 +23,11 @@ import pondui.ui.theme.Pond
 
 @Composable
 fun TodoPathView(
-    trekId: TrekId,
-    pathId: StepId,
-    breadcrumbs: List<StepId>,
+    trekPath: TrekPath,
     isActive: Boolean,
     navToPath: (TrekPath?, Boolean) -> Unit
 ) {
-    val viewModel = viewModel (key = trekId + pathId) { TodoPathModel(trekId, pathId, breadcrumbs, navToPath) }
+    val viewModel = viewModel (key = trekPath.key) { TodoPathModel(trekPath, navToPath) }
     val state by viewModel.state.collectAsState()
     val todoList by viewModel.todoList.state.collectAsState()
 
@@ -58,7 +56,7 @@ fun TodoPathView(
                     modifier = Modifier.clip(Pond.ruler.defaultCorners)
                         .width(100.dp)
                 )
-                // IconButton(TablerIcons.ArrowLeft) { navToPath(trekStep.superId, false)  }
+                // IconButton(TablerIcons.ArrowLeft) { navToDeeperPath(trekStep.superId, false)  }
                 H2(step.label)
                 ProgressBar(
                     progress = todoList.progressRatio,
@@ -69,6 +67,6 @@ fun TodoPathView(
             }
         }
 
-        TodoListView(viewModel.todoList, pathId) // viewModel::branchStep
+        TodoListView(viewModel.todoList, trekPath.pathId) // viewModel::branchStep
     }
 }

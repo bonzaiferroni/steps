@@ -19,7 +19,7 @@ import pondui.ui.core.SubModel
 @Stable
 class TodoListModel(
     private val viewModel: ViewModel,
-    private val breadcrumbs: List<StepId>,
+    private val trekPath: TrekPath?,
     private val navToTrekPath: (TrekPath?, Boolean) -> Unit,
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
 ) : SubModel<TodoListState>(TodoListState(), viewModel) {
@@ -55,17 +55,17 @@ class TodoListModel(
 
     fun setOutcome(trekId: TrekId, step: Step, outcome: StepOutcome? = null) {
         ioLaunch {
-            trekRepo.setOutcome(trekId, step, outcome, breadcrumbs)
+            trekRepo.setOutcome(trekId, step, outcome, trekPath?.breadcrumbs)
         }
     }
 
-    fun answerQuestion(trekId: TrekId, stepLog: StepLog, question: Question, answerText: String) {
+    fun answerQuestion(trekId: TrekId, step: Step, stepLog: StepLog, question: Question, answerText: String) {
         ioLaunch {
             trekRepo.createAnswer(
                 trekId = trekId,
-                stepId = stepLog.stepId,
+                step = step,
                 answer = NewAnswer(stepLog.id, question.id, answerText, question.type),
-                breadcrumbs = emptyList()
+                breadcrumbs = trekPath?.breadcrumbs
             )
         }
     }
@@ -75,8 +75,10 @@ class TodoListModel(
         refreshSteps()
     }
 
-    fun navToPath(trekId: TrekId, pathId: StepId) {
-        navToTrekPath(TrekPath(trekId, pathId), true)
+    fun navToDeeperPath(trekId: TrekId, step: Step) {
+        val trekPath = this.trekPath?.let { it.copy(pathId = step.id, breadcrumbs = it.breadcrumbs + step) }
+            ?: TrekPath(trekId, pathId = step.id, breadcrumbs = listOf(step))
+        navToTrekPath(trekPath, true)
     }
 }
 

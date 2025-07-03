@@ -40,7 +40,7 @@ fun LazyItemScope.TodoStepRow(
     progress: Int,
     pathSize: Int,
     setOutcome: (TrekId, Step, StepOutcome?) -> Unit,
-    navToPath: (TrekId, StepId) -> Unit,
+    navToPath: (TrekId, Step) -> Unit,
 //    branchStep: (String) -> Unit,
 ) {
     val trekId = todoStep.trekId; val step = todoStep.step
@@ -91,7 +91,7 @@ fun LazyItemScope.TodoStepRow(
                 val progressRatio = progress / pathSize.toFloat()
                 ProgressBarButton(
                     progress = progressRatio,
-                    onClick = { navToPath(trekId, step.id) }
+                    onClick = { navToPath(trekId, step) }
                 ) {
                     Row(1) {
                         Text("$progress of ${pathSize}")

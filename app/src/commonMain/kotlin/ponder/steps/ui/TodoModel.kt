@@ -1,9 +1,10 @@
 package ponder.steps.ui
 
-import ponder.steps.db.StepImgUrl
+import androidx.compose.runtime.Stable
 import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTrekRepository
+import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.TrekId
 import pondui.ui.core.StateModel
@@ -19,45 +20,43 @@ class TodoModel(
 
     fun navToPath(trekPath: TrekPath?, isDeeper: Boolean) {
         if (trekPath == null) {
-            setState { it.copy(stackIndex = null, stack = emptyList(), trekId = null) }
+            setState { it.copy(pageIndex = null) }
         } else {
-            val (trekId, stepId) = trekPath
-            val indexOfStepId = stateNow.stack.indexOfFirst { it == stepId }
-            val currentIndex = stateNow.stackIndex
+            val (trekId, pathId) = trekPath
+            val indexOfStepId = stateNow.pageStack.indexOfFirst { it.pathId == pathId }
+            val currentIndex = stateNow.pageIndex
             if (indexOfStepId >= 0) {
-                setState { it.copy(stackIndex = indexOfStepId, trekId = trekId) }
+                setState { it.copy(pageIndex = indexOfStepId, trekPath = trekPath) }
             } else if (isDeeper && currentIndex != null) {
-                val stack = stateNow.stack.subList(0, currentIndex + 1) + stepId
-                setState { it.copy(stack = stack, stackIndex = currentIndex + 1, trekId = trekId) }
+                val stack = stateNow.pageStack.subList(0, currentIndex + 1) + trekPath
+                setState { it.copy(pageStack = stack, pageIndex = currentIndex + 1, trekPath = trekPath) }
             } else {
-                setState { it.copy(stack = listOf(stepId), stackIndex = 0, trekId = trekId) }
-            }
-        }
-        refreshBreadcrumbs()
-    }
-
-    private fun refreshBreadcrumbs() {
-        val index = stateNow.stackIndex
-        if (index == null) {
-            setState { it.copy(breadcrumbUrls = emptyList()) }
-        } else {
-            ioLaunch {
-                val urls = stepRepo.readThumbnails(stateNow.stack.subList(0, index + 1))
-                    .sortedBy { t -> stateNow.stack.indexOfFirst { it == t.stepId } }
-                setState { it.copy(breadcrumbUrls = urls) }
+                setState { it.copy(pageStack = listOf(trekPath), pageIndex = 0, trekPath = trekPath) }
             }
         }
     }
 }
 
 data class TodoState(
-    val trekId: TrekId? = null,
-    val stack: List<StepId> = emptyList(),
-    val stackIndex: Int? = null,
-    val breadcrumbUrls: List<StepImgUrl> = emptyList(),
+    val trekPath: TrekPath? = null,
+    val pageStack: List<TrekPath> = emptyList(),
+    val pageIndex: Int? = null,
 )
 
+@Stable
 data class TrekPath(
     val trekId: TrekId,
     val pathId: StepId,
-)
+    val breadcrumbs: List<Step>,
+) {
+    val key get() = trekId + pathId
+
+    fun toSubPath(stepId: StepId): TrekPath {
+        val index = breadcrumbs.indexOfFirst { it.id == stepId }
+        require(index >= 0)
+        return this.copy(
+            pathId = stepId,
+            breadcrumbs = breadcrumbs.subList(0, index + 1)
+        )
+    }
+}

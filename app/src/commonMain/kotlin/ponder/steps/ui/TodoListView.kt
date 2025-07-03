@@ -51,7 +51,7 @@ fun TodoListView(
                 itemContent = { question ->
                     QuestionRow(step.label, question) { answerText ->
                         if (log != null && answerText != null)
-                            viewModel.answerQuestion(trekId, log, question, answerText)
+                            viewModel.answerQuestion(trekId, step, log, question, answerText)
                     }
                 },
                 isVisibleInit = true,
@@ -66,7 +66,7 @@ fun TodoListView(
                     progress = progress,
                     pathSize = step.pathSize,
                     setOutcome = viewModel::setOutcome,
-                    navToPath = viewModel::navToPath,
+                    navToPath = viewModel::navToDeeperPath,
                 )
             }
         }
