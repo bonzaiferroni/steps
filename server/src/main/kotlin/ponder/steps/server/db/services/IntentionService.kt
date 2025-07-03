@@ -52,7 +52,6 @@ class IntentionService: DbService() {
             it[this.scheduledAt] = newIntent.scheduledAt?.toLocalDateTimeUtc()
         }.value
 
-        syncIntentsWithTreks(userId)
         intentId.toString()
     }
 
@@ -73,48 +72,8 @@ class IntentionService: DbService() {
     }
 }
 
-fun syncIntentsWithTreks(userId: String) {
-    // read active intents
-    val activeIntentIds = IntentTable.readColumn(IntentTable.id) {
-        IntentTable.userId.eq(userId) and IntentTable.completedAt.isNull()
-    }.map { it.value.toStringId() }
-
-    // read active treks
-    val trekIntentIds = TrekTable.readColumn(TrekTable.intentId) {
-        TrekTable.userId.eq(userId) and TrekTable.finishedAt.isNull()
-    }.map { it.value.toStringId() }
-
-    for (intentId in activeIntentIds - trekIntentIds) {
-        val intent = IntentTable.readById(intentId.fromStringId()).toIntent()
-        val availableAt = intent.scheduledAt ?: resolveAvailableAtFromLastTrek(intent) ?: Clock.System.now()
-
-        TrekTable.insert {
-            it[this.userId] = userId.fromStringId()
-            it[this.intentId] = intent.id.fromStringId()
-            it[this.rootId] = intent.rootId.fromStringId()
-            it[this.progress] = 0
-            it[this.availableAt] = availableAt.toLocalDateTimeUtc()
-            it[this.progressAt] = Clock.nowToLocalDateTimeUtc()
-            it[this.startedAt] = null
-            it[this.finishedAt] = null
-            it[this.expectedAt] = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes }?.toLocalDateTimeUtc()
-        }
-    }
-}
-
 fun readStepCount(pathIds: List<String>): Int {
     if (pathIds.isEmpty()) return 1
     val stepCount = PathStepTable.readCount { PathStepTable.pathId.inList(pathIds.map { it.fromStringId() }) }
     return stepCount
-}
-
-fun resolveAvailableAtFromLastTrek(intent: Intent): Instant? {
-    val repeatMins = intent.repeatMins ?: return null
-
-    val lastAvailableAt = TrekTable.select(TrekTable.availableAt)
-        .where { TrekTable.intentId.eq(intent.id) and TrekTable.finishedAt.isNotNull() }
-        .orderBy(TrekTable.startedAt, SortOrder.DESC_NULLS_LAST)
-        .firstOrNull()?.let { it[TrekTable.availableAt] }?.toInstantFromUtc() ?: return null
-
-    return lastAvailableAt + repeatMins.minutes
 }

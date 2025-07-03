@@ -1,42 +1,36 @@
 package ponder.steps.ui
 
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import ponder.steps.db.TrekImgUrl
+import ponder.steps.db.StepImgUrl
+import ponder.steps.io.LocalIntentRepository
+import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTrekRepository
-import ponder.steps.io.TrekRepository
+import ponder.steps.model.data.StepId
 import ponder.steps.model.data.TrekId
 import pondui.ui.core.StateModel
-import kotlin.time.Duration.Companion.minutes
 
 class TodoModel(
-    private val trekRepo: LocalTrekRepository = LocalTrekRepository()
+    private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
+    private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
+    private val stepRepo: LocalStepRepository = LocalStepRepository()
+
 ): StateModel<TodoState>(TodoState()) {
 
-    init {
-        ioLaunch {
-            while (true) {
-                trekRepo.syncTreksWithIntents()
-                delay(1.minutes)
-            }
-        }
-    }
+    val trekStarter = TrekStarter(this)
 
-    fun loadTrek(trekId: TrekId?, isDeeper: Boolean) {
-        if (trekId == null) {
-            setState { it.copy(stackIndex = null) }
+    fun navToPath(trekPath: TrekPath?, isDeeper: Boolean) {
+        if (trekPath == null) {
+            setState { it.copy(stackIndex = null, stack = emptyList(), trekId = null) }
         } else {
-            val indexOfTrekId = stateNow.stack.indexOfFirst { it == trekId }
+            val (trekId, stepId) = trekPath
+            val indexOfStepId = stateNow.stack.indexOfFirst { it == stepId }
             val currentIndex = stateNow.stackIndex
-            if (indexOfTrekId >= 0) {
-                setState { it.copy(stackIndex = indexOfTrekId) }
+            if (indexOfStepId >= 0) {
+                setState { it.copy(stackIndex = indexOfStepId, trekId = trekId) }
             } else if (isDeeper && currentIndex != null) {
-                val stack = stateNow.stack.subList(0, currentIndex + 1) + trekId
-                setState { it.copy(stack = stack, stackIndex = currentIndex + 1) }
+                val stack = stateNow.stack.subList(0, currentIndex + 1) + stepId
+                setState { it.copy(stack = stack, stackIndex = currentIndex + 1, trekId = trekId) }
             } else {
-                setState { it.copy(stack = listOf(trekId), stackIndex = 0) }
+                setState { it.copy(stack = listOf(stepId), stackIndex = 0, trekId = trekId) }
             }
         }
         refreshBreadcrumbs()
@@ -48,8 +42,8 @@ class TodoModel(
             setState { it.copy(breadcrumbUrls = emptyList()) }
         } else {
             ioLaunch {
-                val urls = trekRepo.readTrekThumbnails(stateNow.stack.subList(0, index + 1))
-                    .sortedBy { t -> stateNow.stack.indexOfFirst { it == t.trekId } }
+                val urls = stepRepo.readThumbnails(stateNow.stack.subList(0, index + 1))
+                    .sortedBy { t -> stateNow.stack.indexOfFirst { it == t.stepId } }
                 setState { it.copy(breadcrumbUrls = urls) }
             }
         }
@@ -57,7 +51,13 @@ class TodoModel(
 }
 
 data class TodoState(
-    val stack: List<TrekId> = emptyList(),
+    val trekId: TrekId? = null,
+    val stack: List<StepId> = emptyList(),
     val stackIndex: Int? = null,
-    val breadcrumbUrls: List<TrekImgUrl> = emptyList(),
+    val breadcrumbUrls: List<StepImgUrl> = emptyList(),
+)
+
+data class TrekPath(
+    val trekId: TrekId,
+    val pathId: StepId,
 )

@@ -3,14 +3,15 @@ package ponder.steps.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
+import ponder.steps.model.data.IntentId
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Trek
 import ponder.steps.model.data.TrekId
-import ponder.steps.model.data.TrekItem
-import ponder.steps.model.data.TrekStep
 
 @Dao
 interface TrekDao {
@@ -34,14 +35,6 @@ interface TrekDao {
     suspend fun readActiveTrekIntentIds(): List<String>
 
     @Query(
-        "SELECT availableAt FROM TrekEntity " +
-                "WHERE intentId = :intentId " +
-                "ORDER BY availableAt DESC " +
-                "LIMIT 1"
-    )
-    suspend fun readLastAvailableAt(intentId: String): Instant?
-
-    @Query(
         "SELECT finishedAt FROM TrekEntity " +
                 "WHERE intentId = :intentId " +
                 "ORDER BY finishedAt DESC " +
@@ -52,55 +45,47 @@ interface TrekDao {
     @Query("SELECT finishedAt IS NOT NULL AS isFinished FROM TrekEntity WHERE id = :trekId")
     suspend fun isFinished(trekId: String): Boolean
 
-    @Query("SELECT * FROM TrekEntity WHERE superId = :superId")
-    fun flowSubTreks(superId: String): Flow<List<Trek>>
-
-    @Query("SELECT * FROM TrekEntity WHERE superId IS NULL AND availableAt > :start AND availableAt < :end")
-    fun flowAvailableRootTreks(start: Instant, end: Instant): Flow<List<Trek>>
+    @Query(
+        "SELECT t1.intentId, t1.finishedAt FROM TrekEntity t1 " +
+                "WHERE t1.intentId IN (:intentIds) " +
+                "AND t1.finishedAt = (SELECT MAX(t2.finishedAt) FROM TrekEntity t2 WHERE t2.intentId = t1.intentId)"
+    )
+    suspend fun readTrekFinishedAt(intentIds: List<IntentId>): List<TrekFinishedAt>
 
     @Query(
-        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
-                "s.id stepId, " +
-                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, t.superId, " +
-                "i.label intentLabel, i.priority, i.expectedMins intentMins " +
-                "FROM TrekEntity AS t " +
-                "JOIN StepEntity AS s ON t.rootId = s.id " +
-                "JOIN IntentEntity AS i ON t.intentId = i.id " +
-                "WHERE t.id = :trekId"
+        "SELECT t1.* FROM TrekEntity t1 " +
+                "WHERE t1.intentId IN (:intentIds) " +
+                "AND t1.startedAt = (SELECT MAX(t2.startedAt) FROM TrekEntity t2 WHERE t2.intentId = t1.intentId)"
     )
-    fun flowTrekStepById(trekId: String): Flow<TrekStep>
+    suspend fun readTreksLastStartedAt(intentIds: List<IntentId>): List<Trek>
 
-    @Query(
-        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
-                "s.id stepId, " +
-                "t.id trekId, t.progress, t.pathStepId, t.availableAt, t.startedAt, t.finishedAt, t.pathStepId, " +
-                "i.label intentLabel, i.priority, i.expectedMins intentMins " +
-                "FROM TrekEntity AS t " +
-                "JOIN StepEntity AS s ON t.rootId = s.id " +
-                "JOIN IntentEntity AS i ON t.intentId = i.id " +
-                "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
-    )
-    fun flowRootTrekSteps(start: Instant, end: Instant): Flow<List<TrekStep>>
+    @Query("SELECT id FROM TrekEntity WHERE intentId = :intentId AND NOT isComplete")
+    suspend fun readActiveTrekId(intentId: IntentId): TrekId?
 
-    @Query(
-        "SELECT s.label stepLabel, s.pathSize, s.imgUrl, s.thumbUrl, s.description, s.audioLabelUrl, s.audioFullUrl, " +
-                "s.id stepId, " +
-                "t.id trekId, t.progress, t.availableAt, t.startedAt, t.finishedAt, " +
-                "p.position, p.id pathStepId, " +
-                "st.id superId " +
-                "FROM TrekEntity AS st " +
-                "JOIN PathStepEntity AS p ON st.rootId = p.pathId " +
-                "JOIN StepEntity AS s ON p.stepId = s.id " +
-                "LEFT JOIN TrekEntity AS t ON p.id = t.pathStepId AND st.id = t.superId " +
-                "WHERE st.id = :superId"
-    )
-    fun flowTrekStepsBySuperId(superId: String): Flow<List<TrekStep>>
+    @Query("SELECT t.id trekId, t.startedAt, s.* FROM TrekEntity AS t " +
+            "JOIN StepEntity AS s ON s.id = t.rootId " +
+            "WHERE t.startedAt >= :start OR NOT t.isComplete ")
+    fun flowRootTodoSteps(start: Instant): Flow<List<TodoStep>>
 
-    @Query("SELECT t.id trekId, s.thumbUrl url FROM TrekEntity AS t JOIN StepEntity AS s ON s.id = t.rootId WHERE t.id IN (:trekIds)")
-    suspend fun readTrekThumbnails(trekIds: List<TrekId>): List<TrekImgUrl>
+    @Query("SELECT * FROM TrekEntity WHERE startedAt > :start OR NOT isComplete")
+    fun flowActiveTreks(start: Instant): Flow<List<Trek>>
+
+    @Query("SELECT COUNT(*) cnt, t.id trekId FROM TrekEntity AS t " +
+            "JOIN PathStepEntity AS ps ON t.rootId = ps.pathId " +
+            "JOIN StepLogEntity AS l ON l.pathStepId = ps.id AND l.trekId = t.id " +
+            "WHERE t.startedAt > :start OR NOT t.isComplete " +
+            "GROUP BY trekId ")
+    fun flowRootProgresses(start: Instant): Flow<Map<@MapColumn("trekId") TrekId, @MapColumn("cnt") Int>>
+
+    @Query("SELECT COUNT(*) cnt, ps1.id pathStepId FROM PathStepEntity AS ps1 " +
+            "JOIN PathStepEntity AS ps2 ON ps1.stepId = ps2.pathId " +
+            "JOIN StepLogEntity AS l on ps2.id = l.pathStepId " +
+            "WHERE ps1.pathId = :pathId AND l.trekId = :trekId " +
+            "GROUP BY ps1.id")
+    fun flowPathProgresses(pathId: StepId, trekId: TrekId): Flow<Map<@MapColumn("pathStepId") PathStepId, @MapColumn("cnt") Int>>
 }
 
-data class TrekImgUrl(
-    val trekId: TrekId,
-    val url: String,
+data class TrekFinishedAt(
+    val intentId: IntentId,
+    val finishedAt: Instant?
 )

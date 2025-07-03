@@ -9,6 +9,7 @@ import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.Step
 
 @Dao
 interface PathStepDao {
@@ -48,11 +49,11 @@ interface PathStepDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
-        "SELECT PathStepEntity.*, StepEntity.*, PathStepEntity.id AS pathStepId FROM PathStepEntity " +
-                "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
-                "WHERE PathStepEntity.pathId = :pathId"
+        "SELECT s.*, ps.id pathStepId, ps.position, ps.pathId FROM PathStepEntity AS ps " +
+                "JOIN StepEntity AS s ON ps.stepId = s.id " +
+                "WHERE ps.pathId = :pathId"
     )
-    fun flowJoinedSteps(pathId: String): Flow<List<StepJoin>>
+    fun flowJoinedSteps(pathId: String): Flow<List<Step>>
 
     @Query(
         "SELECT COUNT(*) " +

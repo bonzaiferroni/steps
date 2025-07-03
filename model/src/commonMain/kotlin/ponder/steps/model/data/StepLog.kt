@@ -11,12 +11,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class StepLog(
     val id: StepLogId,
-    val stepId: StepId,
     val trekId: TrekId?,
+    val stepId: StepId,
     val pathStepId: PathStepId?,
     val outcome: StepOutcome,
     val createdAt: Instant = Instant.DISTANT_FUTURE,
     val updatedAt: Instant = Instant.DISTANT_PAST,
+
+    val pathId: StepId? = null
 )
 
 data class NewStepLog(

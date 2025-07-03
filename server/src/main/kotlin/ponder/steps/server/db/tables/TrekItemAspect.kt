@@ -16,7 +16,6 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val stepId = add(StepTable.id)
     val stepLabel = add(StepTable.label)
     val stepPathSize = add(StepTable.pathSize)
-    val progress = add(TrekTable.progress)
     val stepImgUrl = add(StepTable.imgUrl)
     val stepThumbUrl = add(StepTable.thumbUrl)
     val stepDescription = add(StepTable.description)
@@ -25,7 +24,6 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val intentLabel = add(IntentTable.label)
     val intentPriority = add(IntentTable.priority)
     val expectedMinutes = add(IntentTable.expectedMins)
-    val availableAt = add(TrekTable.availableAt)
     val startedAt = add(TrekTable.startedAt)
     val finishedAt = add(TrekTable.finishedAt)
 }
@@ -35,7 +33,6 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     stepId = this[TrekItemAspect.stepId].value.toStringId(),
     stepLabel = this[TrekItemAspect.stepLabel],
     pathSize = this[TrekItemAspect.stepPathSize],
-    progress = this[TrekItemAspect.progress],
     imgUrl = this[TrekItemAspect.stepImgUrl],
     thumbUrl = this[TrekItemAspect.stepThumbUrl],
     description = this[TrekItemAspect.stepDescription],
@@ -44,7 +41,6 @@ internal fun ResultRow.toTrekItem() = TrekItem(
     intentLabel = this[TrekItemAspect.intentLabel],
     priority = this[TrekItemAspect.intentPriority],
     expectedMinutes = this[TrekItemAspect.expectedMinutes],
-    availableAt = this[TrekItemAspect.availableAt].toInstantFromUtc(),
     startedAt = this[TrekItemAspect.startedAt]?.toInstantFromUtc(),
     finishedAt = this[TrekItemAspect.finishedAt]?.toInstantFromUtc(),
 )

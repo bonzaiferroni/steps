@@ -41,14 +41,18 @@ interface QuestionDao {
 
     @Query(
         "SELECT DISTINCT q.* FROM TrekEntity AS t " +
-                "JOIN StepEntity AS s ON t.rootId = s.id " +
-                "JOIN QuestionEntity AS q ON s.id = q.stepId " +
-                "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
+                "JOIN QuestionEntity AS q ON t.rootId = q.stepId " +
+                "WHERE t.startedAt >= :start OR NOT t.isComplete "
     )
-    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
+    fun flowRootQuestions(start: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 
     @Query("SELECT DISTINCT * FROM QuestionEntity WHERE stepId IN (:stepIds)")
     fun flowQuestionsByStepIds(stepIds: List<StepId>): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
+
+    @Query("SELECT q.* FROM PathStepEntity AS ps " +
+            "JOIN QuestionEntity AS q ON ps.stepId = q.stepId " +
+            "WHERE ps.pathId = :pathId ")
+    fun flowPathQuestions(pathId: StepId): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 }
 
 typealias StepId = String

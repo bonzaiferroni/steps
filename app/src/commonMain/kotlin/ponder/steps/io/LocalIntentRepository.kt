@@ -25,7 +25,6 @@ class LocalIntentRepository(
                 repeatMins = intent.repeatMins,
                 expectedMins = intent.expectedMins,
                 priority = intent.priority,
-                timing = intent.timing,
                 completedAt = null,
                 scheduledAt = intent.scheduledAt,
                 pathIds = intent.pathIds,

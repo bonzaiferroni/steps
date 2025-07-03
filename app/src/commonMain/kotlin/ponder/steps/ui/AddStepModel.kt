@@ -15,7 +15,6 @@ import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.IntentPriority
-import ponder.steps.model.data.IntentTiming
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
@@ -110,12 +109,10 @@ class AddStepModel(
                 label = label,
                 repeatMins = stateNow.repeatMinutes,
                 priority = stateNow.intentPriority,
-                timing = stateNow.intentTiming,
                 scheduledAt = stateNow.intentScheduledAt,
                 pathIds = pathIds
             )
         )
-        trekRepo.syncTreksWithIntents()
     }
 
     fun setIntentTiming(value: IntentTiming) {
@@ -149,7 +146,7 @@ data class AddIntentState(
     val intentTiming: IntentTiming = IntentTiming.Once,
     val intentRepeatValue: Int = 1,
     val intentRepeatUnit: TimeUnit = TimeUnit.Hour,
-    val intentScheduledAt: Instant = Clock.System.now() + 1.hours,
+    val intentScheduledAt: Instant = Clock.System.now(),
     val intentPriority: IntentPriority = IntentPriority.Default,
     val existingStep: Step? = null,
     val createIntent: Boolean = false,

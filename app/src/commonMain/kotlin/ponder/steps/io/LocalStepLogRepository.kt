@@ -2,7 +2,6 @@ package ponder.steps.io
 
 import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
@@ -10,8 +9,6 @@ import ponder.steps.db.StepId
 import ponder.steps.db.StepLogDao
 import ponder.steps.db.TimeUnit
 import ponder.steps.db.toEntity
-import ponder.steps.db.toStepLog
-import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekId
@@ -53,14 +50,14 @@ class LocalStepLogRepository(
 
     override suspend fun deleteTrekStepLog(trekId: String, stepId: String, pathStepId: String?): Boolean {
         return if (pathStepId != null)
-            stepLogDao.delete(trekId, stepId, pathStepId) == 1
+            stepLogDao.deletePathStepLog(trekId, stepId, pathStepId) == 1
         else
-            stepLogDao.deleteIfNullPathStepId(trekId, stepId) == 1
+            stepLogDao.deletePathLog(trekId, stepId) == 1
     }
 
-    override fun flowPathLogsByTrekId(trekId: String) = stepLogDao.flowPathLogsByTrekId(trekId)
+    fun flowPathLogsByTrekId(pathId: StepId, trekId: TrekId) = stepLogDao.flowPathLogsByTrekId(pathId, trekId)
 
-    override fun flowRootLogs(start: Instant, end: Instant) = stepLogDao.flowRootLogs(start, end)
+    fun flowRootLogs(start: Instant) = stepLogDao.flowRootLogs(start)
 
     override fun flowStepLogsByStepId(stepId: StepId) = stepLogDao.flowStepLogsByStepId(stepId)
 
@@ -70,4 +67,5 @@ class LocalStepLogRepository(
     override suspend fun readEarliestLogTimeByStepId(stepId: StepId) = stepLogDao.readEarliestLogTimeByStepId(stepId)
 
     fun flowLogsByTrekIds(trekIds: List<TrekId>) = stepLogDao.flowLogsByTrekIds(trekIds)
+
 }

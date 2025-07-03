@@ -7,52 +7,62 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.datetime.Clock
+import ponder.steps.io.LocalAnswerRepository
+import ponder.steps.io.LocalQuestionRepository
+import ponder.steps.io.LocalStepLogRepository
+import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.LocalTrekRepository
-import ponder.steps.io.TrekRepository
-import ponder.steps.model.data.StepId
-import ponder.steps.model.data.Tag
-import ponder.steps.model.data.TrekId
-import ponder.steps.model.data.TrekStep
+import ponder.steps.model.data.*
 import pondui.ui.core.StateModel
-import kotlin.time.Duration.Companion.days
 
 class TodoRootModel(
-    loadTrek: (TrekId?, Boolean) -> Unit,
+    navToTrekPath: (TrekPath?, Boolean) -> Unit,
     private val tagRepo: LocalTagRepository = LocalTagRepository(),
-    private val trekRepo: TrekRepository = LocalTrekRepository(),
-): StateModel<TodoRootState>(TodoRootState()) {
+    private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
+    private val stepRepo: LocalStepRepository = LocalStepRepository(),
+    private val questionRepo: LocalQuestionRepository = LocalQuestionRepository(),
+    private val answerRepo: LocalAnswerRepository = LocalAnswerRepository(),
+    private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
+) : StateModel<TodoRootState>(TodoRootState()) {
 
-    val treks = TrekStepListModel(this, loadTrek)
+    val todoList = TodoListModel(
+        viewModel = this,
+        navToTrekPath = navToTrekPath,
+        breadcrumbs = emptyList()
+    )
 
     init {
         val start = Clock.startOfDay()
-        val end = start + 1.days
-        trekRepo.flowRootTrekSteps(start, end).launchCollect { trekSteps ->
-            treks.setTrekSteps(trekSteps.sortedByDescending { trek -> trek.availableAt })
-            flowTags(trekSteps)
-        }
+
+        todoList.setFlows(
+            stepFlow = trekRepo.flowRootTodoSteps(start),
+            stepLogFlow = stepLogRepo.flowRootLogs(start),
+            questionFlow = questionRepo.flowRootQuestions(start),
+            answerFlow = answerRepo.flowRootAnswers(start),
+            progressFlow = trekRepo.flowRootProgress(start)
+        )
     }
 
     private var tagJob: Job? = null
 
-    private fun flowTags(trekSteps: List<TrekStep>) {
-        tagJob?.cancel()
-        tagJob = tagRepo.flowTagsByStepIds(trekSteps.map { it.stepId }).launchCollect { tags ->
-            val tagSet = tags.values.flatten().toImmutableList()
-            setState { it.copy(tags = tags, tagSet = tagSet) }
-        }
-    }
+//    private fun flowTags(trekSteps: List<TrekStep>) {
+//        tagJob?.cancel()
+//        tagJob = tagRepo.flowTagsByStepIds(trekSteps.map { it.stepId }).launchCollect { tags ->
+//            val tagSet = tags.values.flatten().toImmutableList()
+//            setState { it.copy(tags = tags, tagSet = tagSet) }
+//        }
+//    }
 
     fun clickTag(tag: Tag) {
         if (tag != stateNow.selectedTag) {
-            treks.setFilter {
-                val tags = stateNow.tags[it.stepId] ?: return@setFilter false
+            todoList.setFilter {
+                val tags = stateNow.tags[it.step.id] ?: return@setFilter false
                 tags.contains(tag)
             }
             setState { it.copy(selectedTag = tag) }
         } else {
-            treks.setFilter(null)
+            todoList.setFilter(null)
             setState { it.copy(selectedTag = null) }
         }
     }

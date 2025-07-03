@@ -12,21 +12,18 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
-import compose.icons.tablericons.Plus
-import kabinet.utils.startOfDay
-import kotlinx.datetime.Clock
 import ponder.steps.StepProfileRoute
-import ponder.steps.model.data.PathStepId
+import ponder.steps.db.TodoStep
+import ponder.steps.model.data.Step
+import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekId
-import ponder.steps.model.data.TrekStep
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.ContentButton
 import pondui.ui.controls.Icon
-import pondui.ui.controls.IconButton
 import pondui.ui.controls.Label
 import pondui.ui.controls.ProgressBarButton
 import pondui.ui.controls.Row
@@ -35,18 +32,19 @@ import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 
 @Composable
-fun LazyItemScope.TrekStepRow(
-    trekStep: TrekStep,
+fun LazyItemScope.TodoStepRow(
+    todoStep: TodoStep,
     isFinished: Boolean,
     isDeeper: Boolean,
     questionCount: Int,
-    setOutcome: (TrekStep, StepOutcome?) -> Unit,
-    loadTrek: (TrekId?, TrekId?, PathStepId?) -> Unit,
+    progress: Int,
+    pathSize: Int,
+    setOutcome: (TrekId, Step, StepOutcome?) -> Unit,
+    navToPath: (TrekId, StepId) -> Unit,
 //    branchStep: (String) -> Unit,
 ) {
+    val trekId = todoStep.trekId; val step = todoStep.step
     val nav = LocalNav.current
-    val progress = trekStep.progress ?: 0
-    val trekId = trekStep.trekId
     val isFinishedAnimated by animateFloatAsState(if (isFinished) 1f else 0f)
 
     Row(
@@ -60,10 +58,10 @@ fun LazyItemScope.TrekStepRow(
             modifier = Modifier.graphicsLayer { alpha = (1f - isFinishedAnimated) * .5f + .5f }
         ) {
             ContentButton(
-                onClick = { nav.go(StepProfileRoute(trekStep.stepId)) },
+                onClick = { nav.go(StepProfileRoute(step.id)) },
                 shape = CircleShape
             ) {
-                MagicItem(trekStep.thumbUrl, rotationX = 90) { url ->
+                MagicItem(step.thumbUrl, rotationX = 90) { url ->
                     StepImage(
                         url = url,
                         modifier = Modifier.fillMaxHeight()
@@ -71,49 +69,38 @@ fun LazyItemScope.TrekStepRow(
                 }
             }
             Row(1, modifier = Modifier.weight(1f)) {
-                trekStep.position?.let { Label("${it + 1}.", Pond.typo.bodyLarge) }
+                step.position?.let { Label("${it + 1}.", Pond.typo.bodyLarge) }
                 Column(0) {
                     Text(
-                        text = trekStep.stepLabel,
+                        text = step.label,
                         style = Pond.typo.bodyLarge,
                         maxLines = 2,
                     )
                     if (questionCount > 0) {
                         Label("$questionCount questions")
                     }
-                    val intentLabel = trekStep.intentLabel
-                    if (intentLabel != null && intentLabel != trekStep.stepLabel) {
-                        Row(1) {
-                            Label("Path:")
-                            Text(intentLabel)
-                        }
-                    }
-                    val startOfDay = Clock.startOfDay()
-                    val availableAt = trekStep.availableAt
-                    if (availableAt != null && startOfDay > availableAt) {
-                        Label("From ${(startOfDay - availableAt).inWholeDays + 1} days ago")
-                    }
+//                    val startOfDay = Clock.startOfDay()
+//                    val availableAt = availableAt
+//                    if (availableAt != null && startOfDay > availableAt) {
+//                        Label("From ${(startOfDay - availableAt).inWholeDays + 1} days ago")
+//                    }
                 }
             }
-//            val pathStepId = trekStep.pathStepId
-//            if (trekStep.trekId == null && pathStepId != null) {
-//                IconButton(TablerIcons.Plus) { branchStep(pathStepId) }
-//            }
 
-            if (trekStep.pathSize > 0) {
-                val progressRatio = progress / trekStep.pathSize.toFloat()
+            if (pathSize > 0) {
+                val progressRatio = progress / pathSize.toFloat()
                 ProgressBarButton(
                     progress = progressRatio,
-                    onClick = { loadTrek(trekStep.trekId, trekStep.superId, trekStep.pathStepId) }
+                    onClick = { navToPath(trekId, step.id) }
                 ) {
                     Row(1) {
-                        Text("$progress of ${trekStep.pathSize}")
+                        Text("$progress of ${pathSize}")
                         Icon(TablerIcons.ArrowRight)
                     }
                 }
             } else {
                 Checkbox(isFinished) {
-                    setOutcome(trekStep, if (isFinished) null else StepOutcome.Completed)
+                    setOutcome(trekId, step, if (isFinished) null else StepOutcome.Completed)
                 }
             }
         }

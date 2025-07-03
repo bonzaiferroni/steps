@@ -19,8 +19,8 @@ import ponder.steps.model.data.StepOutcome
 data class StepLogEntity(
     @PrimaryKey
     val id: String,
-    val stepId: String,
     val trekId: String?,
+    val stepId: String,
     val pathStepId: String?,
     val outcome: StepOutcome,
     val updatedAt: Instant,
@@ -29,8 +29,8 @@ data class StepLogEntity(
 
 fun StepLogEntity.toStepLog() = StepLog(
     id = id,
-    stepId = stepId,
     trekId = trekId,
+    stepId = stepId,
     pathStepId = pathStepId,
     outcome = outcome,
     updatedAt = updatedAt,
@@ -39,8 +39,8 @@ fun StepLogEntity.toStepLog() = StepLog(
 
 fun StepLog.toEntity() = StepLogEntity(
     id = id,
-    stepId = stepId,
     trekId = trekId,
+    stepId = stepId,
     pathStepId = pathStepId,
     outcome = outcome,
     updatedAt = updatedAt,

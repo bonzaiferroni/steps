@@ -5,10 +5,8 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
-import kotlinx.serialization.Serializable
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentPriority
-import ponder.steps.model.data.IntentTiming
 
 @Entity(
     foreignKeys = [
@@ -32,7 +30,6 @@ data class IntentEntity(
     val repeatMins: Int?,
     val expectedMins: Int?,
     val priority: IntentPriority,
-    val timing: IntentTiming,
     val pathIds: List<String>,
     val completedAt: Instant?,
     val scheduledAt: Instant?,
@@ -47,7 +44,6 @@ fun Intent.toEntity() = IntentEntity(
     repeatMins = repeatMins,
     expectedMins = expectedMins,
     priority = priority,
-    timing = timing,
     pathIds = pathIds,
     completedAt = completedAt,
     scheduledAt = scheduledAt,

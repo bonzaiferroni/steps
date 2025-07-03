@@ -43,19 +43,12 @@ interface AnswerDao {
     fun flowAnswersByLogId(logId: String): Flow<List<Answer>>
 
     @Query(
-        "SELECT a.*, l.pathStepId FROM StepLogEntity AS l " +
-                "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
-                "WHERE l.trekId = :trekId"
-    )
-    fun flowPathAnswersByTrekId(trekId: String): Flow<Map<@MapColumn("pathStepId") PathStepId, List<Answer>>>
-
-    @Query(
-        "SELECT a.*, l.trekId FROM TrekEntity AS t " +
+        "SELECT a.* FROM TrekEntity AS t " +
                 "JOIN StepLogEntity AS l ON t.id = l.trekId " +
                 "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
-                "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
+                "WHERE t.startedAt > :start OR NOT t.isComplete "
     )
-    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<@MapColumn("trekId") TrekId, List<Answer>>>
+    fun flowRootAnswers(start: Instant): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
 
     @Query("SELECT a.* FROM StepLogEntity AS l " +
             "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
@@ -108,4 +101,10 @@ interface AnswerDao {
                 "ORDER BY intervalStart"
     )
     suspend fun readIntegerSumsByQuestionId(questionId: String, startAt: Instant, interval: TimeUnit): List<IntBucket>
+
+    @Query("SELECT a.* FROM PathStepEntity AS ps " +
+            "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +
+            "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
+            "WHERE ps.pathId = :pathId AND l.trekId = :trekId")
+    fun flowPathAnswersByTrekId(pathId: StepId, trekId: TrekId): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
 }

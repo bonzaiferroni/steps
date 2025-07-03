@@ -39,7 +39,7 @@ voyagerVersion = "1.0.0"
 material3Android = "1.2.1"
 composeIcons = "1.1.1"
 
-room = "2.7.1"
+room = "2.7.2"
 ksp = "2.2.0-RC-2.0.1"
 sqlite = "2.5.1"
 

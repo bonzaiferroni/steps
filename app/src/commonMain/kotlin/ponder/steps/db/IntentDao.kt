@@ -39,5 +39,4 @@ interface IntentDao  {
 
     @Query("UPDATE IntentEntity SET completedAt = :completedAt WHERE id = :intentId")
     suspend fun completeIntent(intentId: IntentId, completedAt: Instant): Int
-
 }

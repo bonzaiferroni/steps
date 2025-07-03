@@ -12,7 +12,6 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentPriority
-import ponder.steps.model.data.IntentTiming
 
 internal object IntentTable: UUIDTable("intent") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
@@ -21,7 +20,6 @@ internal object IntentTable: UUIDTable("intent") {
     val repeatMins = integer("repeat_mins").nullable()
     val expectedMins = integer("expected_mins").nullable()
     val priority = enumeration<IntentPriority>("priority").default(IntentPriority.Default)
-    val timing = enumeration<IntentTiming>("timing")
     val pathIds = array<String>("path_ids")
     val completedAt = datetime("completed_at").nullable()
     val scheduledAt = datetime("scheduled_at").nullable()
@@ -36,7 +34,6 @@ fun ResultRow.toIntent() = Intent(
     repeatMins = this[IntentTable.repeatMins],
     expectedMins = this[IntentTable.expectedMins],
     priority = this[IntentTable.priority],
-    timing = this[IntentTable.timing],
     pathIds = this[IntentTable.pathIds],
     completedAt = this[IntentTable.completedAt]?.toInstantFromUtc(),
     scheduledAt = this[IntentTable.scheduledAt]?.toInstantFromUtc(),
@@ -51,7 +48,6 @@ fun upsertIntent(userId: String): BatchUpsertStatement.(Intent) -> Unit = { inte
     this[IntentTable.repeatMins] = intent.repeatMins
     this[IntentTable.expectedMins] = intent.expectedMins
     this[IntentTable.priority] = intent.priority
-    this[IntentTable.timing] = intent.timing
     this[IntentTable.pathIds] = intent.pathIds
     this[IntentTable.completedAt] = intent.completedAt?.toLocalDateTimeUtc()
     this[IntentTable.scheduledAt] = intent.scheduledAt?.toLocalDateTimeUtc()

@@ -28,9 +28,7 @@ class LocalAnswerRepository(
 
     override fun flowAnswersByLogId(logId: String) = answerDao.flowAnswersByLogId(logId)
 
-    override fun flowPathQuestionsByTrekId(trekId: String) = answerDao.flowPathAnswersByTrekId(trekId)
-
-    override fun flowRootAnswers(start: Instant, end: Instant) = answerDao.flowRootAnswers(start, end)
+    fun flowRootAnswers(start: Instant) = answerDao.flowRootAnswers(start)
 
     override fun flowAnswersByStepId(stepId: StepId) = answerDao.flowAnswersByStepId(stepId)
 
@@ -41,4 +39,6 @@ class LocalAnswerRepository(
         answerDao.readIntegerSumsByQuestionId(questionId, startAt, interval)
 
     fun flowAnswersByTrekIds(trekIds: List<TrekId>) = answerDao.flowAnswersByTrekIds(trekIds)
+
+    fun flowPathAnswersByTrekId(pathId: StepId, trekId: TrekId) = answerDao.flowPathAnswersByTrekId(pathId, trekId)
 }

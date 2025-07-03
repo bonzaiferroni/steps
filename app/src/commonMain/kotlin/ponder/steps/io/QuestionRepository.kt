@@ -21,6 +21,4 @@ interface QuestionRepository {
      * @return A Flow emitting a map where the key is the pathStep ID and the value is a list of questions associated with that step.
      */
     fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<StepId, List<Question>>>
-
-    fun flowRootQuestions(start: Instant, end: Instant): Flow<Map<StepId, List<Question>>>
 }

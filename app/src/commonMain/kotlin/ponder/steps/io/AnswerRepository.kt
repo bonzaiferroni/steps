@@ -20,16 +20,6 @@ interface AnswerRepository {
     suspend fun deleteAnswer(answer: Answer): Boolean
     fun flowAnswersByLogId(logId: String): Flow<List<Answer>>
 
-    /**
-     * Observes the questions grouped by their corresponding path for a given trek.
-     *
-     * @param trekId The ID of the trek for which to retrieve the grouped questions.
-     * @return A Flow emitting a map where the keys are pathStep IDs and the values are lists of questions associated with each path.
-     */
-    fun flowPathQuestionsByTrekId(trekId: String): Flow<Map<PathStepId, List<Answer>>>
-
-    fun flowRootAnswers(start: Instant, end: Instant): Flow<Map<TrekId, List<Answer>>>
-
     fun flowAnswersByStepId(stepId: StepId): Flow<Map<StepLog, List<Answer>>>
 
     fun flowIntegerSumsByQuestionId(questionId: String, interval: Duration): Flow<List<IntBucket>>

@@ -27,6 +27,7 @@ import kotlin.math.absoluteValue
 fun TodoScreen() {
     val viewModel = viewModel { TodoModel() }
     val state by viewModel.state.collectAsState()
+    val activity by viewModel.trekStarter.state.collectAsState()
 
     val pagerState = rememberPagerState(pageCount = {
         10
@@ -53,7 +54,7 @@ fun TodoScreen() {
                 modifier = Modifier.size(thumbUrlSize)
                     .selected(isRootSelected, radius = thumbUrlSize / 2)
                     .clip(CircleShape)
-                    .actionable(isEnabled = !isRootSelected) { viewModel.loadTrek(null, false) }
+                    .actionable(isEnabled = !isRootSelected) { viewModel.navToPath(null, false) }
             )
             state.breadcrumbUrls.forEachIndexed { i, trekImageUrl ->
                 val isCrumbSelected = state.breadcrumbUrls.size - 1 == i
@@ -62,7 +63,10 @@ fun TodoScreen() {
                     modifier = Modifier.size(thumbUrlSize)
                         .selected(isCrumbSelected, radius = thumbUrlSize / 2)
                         .clip(CircleShape)
-                        .actionable(isEnabled = !isCrumbSelected) { viewModel.loadTrek(trekImageUrl.trekId, false) }
+                        .actionable(isEnabled = !isCrumbSelected) {
+                            val trekId = state.trekId ?: return@actionable
+                            viewModel.navToPath(TrekPath(trekId, trekImageUrl.stepId), false)
+                        }
                 )
             }
         }
@@ -85,12 +89,19 @@ fun TodoScreen() {
                 rotationY = rotation
             }) {
                 if (page == 0) {
-                    TodoRootView(viewModel::loadTrek)
+                    TodoRootView(viewModel::navToPath)
                 } else {
-                    val stackIndex = page - 1
-                    if (state.stack.size > stackIndex) {
-                        val trekId = state.stack[stackIndex]
-                        TrekFocusView(trekId, viewModel::loadTrek)
+                    val pageIndex = page - 1
+                    val trekId = state.trekId
+                    if (trekId != null && state.stack.size > pageIndex) {
+                        val pathId = state.stack[pageIndex]
+                        TodoPathView(
+                            trekId = trekId,
+                            pathId = pathId,
+                            isActive = pageIndex == state.stackIndex,
+                            breadcrumbs = state.stack,
+                            navToPath = viewModel::navToPath
+                        )
                     }
                 }
             }

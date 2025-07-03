@@ -1,6 +1,5 @@
 package ponder.steps.db
 
-import androidx.compose.ui.graphics.Interval
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -9,7 +8,6 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.CountBucket
-import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekId
@@ -27,10 +25,13 @@ interface StepLogDao {
     suspend fun delete(stepLog: StepLogEntity): Int
 
     @Query("DELETE FROM StepLogEntity WHERE trekId = :trekId AND stepId = :stepId AND pathStepId = :pathStepId")
-    suspend fun delete(trekId: String, stepId: String, pathStepId: String): Int
+    suspend fun deletePathStepLog(trekId: String, stepId: String, pathStepId: String): Int
 
-    @Query("DELETE FROM StepLogEntity WHERE trekId = :trekId AND stepId = :stepId AND pathStepId IS NULL")
-    suspend fun deleteIfNullPathStepId(trekId: String, stepId: String): Int
+    @Query("DELETE FROM StepLogEntity WHERE trekId = :trekId AND stepId = :pathId AND pathStepId IS NULL")
+    suspend fun deletePathLog(trekId: String, pathId: StepId): Int
+
+    @Query("DELETE FROM StepLogEntity WHERE trekId = :trekId AND stepId IN (:pathIds) AND pathStepId IS NULL")
+    suspend fun deletePathLogs(trekId: String, pathIds: List<StepId>): Int
 
     @Query("DELETE FROM StepLogEntity WHERE id = :id")
     suspend fun deleteStepLogById(id: String): Int
@@ -50,9 +51,6 @@ interface StepLogDao {
     @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
     suspend fun readStepLogsByStepId(stepId: String): List<StepLog>
 
-    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
-    suspend fun readStepLogsByTrekId(trekId: String): List<StepLog>
-
     @Query("SELECT * FROM StepLogEntity WHERE outcome = :outcome")
     suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog>
 
@@ -62,15 +60,12 @@ interface StepLogDao {
     @Query("SELECT * FROM StepLogEntity WHERE updatedAt > :lastSyncAt")
     suspend fun readStepLogsUpdatedAfter(lastSyncAt: Instant): List<StepLog>
 
-    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
-    fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>
-
     @Query(
         "SELECT l.* FROM TrekEntity AS t " +
                 "JOIN StepLogEntity AS l ON t.id = l.trekId " +
-                "WHERE t.superId IS NULL AND ((t.availableAt >= :start AND t.availableAt < :end) OR (t.availableAt < :start AND NOT t.isComplete)) "
+                "WHERE l.pathStepId IS NULL AND (t.startedAt >= :start OR NOT t.isComplete) "
     )
-    fun flowRootLogs(start: Instant, end: Instant): Flow<List<StepLog>>
+    fun flowRootLogs(start: Instant): Flow<List<StepLog>>
 
     @Query(
         "SELECT l.* FROM TrekEntity AS t " +
@@ -109,4 +104,14 @@ interface StepLogDao {
 
     @Query("SELECT MIN(createdAt) FROM StepLogEntity WHERE stepId = :stepId")
     suspend fun readEarliestLogTimeByStepId(stepId: StepId): Instant
+
+    @Query("SELECT l.* FROM PathStepEntity AS ps " +
+            "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +
+            "WHERE ps.pathId = :pathId AND l.trekId = :trekId")
+    fun flowPathLogsByTrekId(pathId: StepId, trekId: TrekId): Flow<List<StepLog>>
+
+    @Query("SELECT l.* FROM PathStepEntity AS ps " +
+            "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +
+            "WHERE l.trekId = :trekId AND ps.pathId = :pathId")
+    suspend fun readTrekLogsByPathId(trekId: TrekId, pathId: StepId): List<StepLog>
 }

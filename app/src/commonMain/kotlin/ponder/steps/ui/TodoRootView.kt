@@ -9,8 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.collections.immutable.ImmutableList
-import ponder.steps.model.data.Tag
-import ponder.steps.model.data.TrekId
+import ponder.steps.model.data.*
 import pondui.ui.behavior.selected
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
@@ -23,10 +22,10 @@ import pondui.ui.theme.Pond
 
 @Composable
 fun TodoRootView(
-    loadTrek: (TrekId?, Boolean) -> Unit,
+    navToPath: (TrekPath?, Boolean) -> Unit,
 ) {
-    val viewModel = viewModel { TodoRootModel(loadTrek) }
-    val trekStepsStae by viewModel.treks.state.collectAsState()
+    val viewModel = viewModel { TodoRootModel(navToPath) }
+    val trekStepsStae by viewModel.todoList.state.collectAsState()
     val state by viewModel.state.collectAsState()
 
     Column(1) {
@@ -37,14 +36,14 @@ fun TodoRootView(
                     progress = trekStepsStae.progressRatio,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("${trekStepsStae.totalProgress} of ${trekStepsStae.totalSteps}")
+                    Text("${trekStepsStae.progress} of ${trekStepsStae.totalSteps}")
                 }
             }
         }
 
         TagSetRow(state.selectedTag, state.tagSet, viewModel::clickTag)
 
-        TrekStepListView(viewModel.treks, null)
+        TodoListView(viewModel.todoList, null)
     }
 }
 

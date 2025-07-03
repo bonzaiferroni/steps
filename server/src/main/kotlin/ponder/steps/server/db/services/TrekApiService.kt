@@ -22,7 +22,6 @@ import ponder.steps.server.db.tables.toTrek
 class TrekApiService: DbService() {
 
     suspend fun readUserTreks(userId: String) = dbQuery {
-        syncIntentsWithTreks(userId) // temporary
         TrekItemAspect.read { TrekTable.userId.eq(userId) }
     }
 

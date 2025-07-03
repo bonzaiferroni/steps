@@ -15,6 +15,7 @@ import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
+import ponder.steps.model.data.StepId
 import kotlin.uuid.ExperimentalUuidApi
 
 class LocalStepRepository(
@@ -112,11 +113,11 @@ class LocalStepRepository(
 
     override suspend fun readStep(stepId: String) = stepDao.readStepOrNull(stepId)?.toStep()
 
-    override fun flowStep(stepId: String) = stepDao.flowStep(stepId).map { it.toStep() }
+    override fun flowStep(stepId: String) = stepDao.flowStep(stepId)
 
     override suspend fun readPathSteps(pathId: String) = pathStepDao.readJoinedPathSteps(pathId = pathId).map { it.toStep() }
 
-    override fun flowPathSteps(pathId: String) = pathStepDao.flowJoinedSteps(pathId).map { list -> list.map { it.toStep() } }
+    override fun flowPathSteps(pathId: StepId) = pathStepDao.flowJoinedSteps(pathId)
 
     override suspend fun readRootSteps(limit: Int) = stepDao.readRootSteps(limit).map { it.toStep() }
 
@@ -140,4 +141,8 @@ class LocalStepRepository(
     override suspend fun readSearch(text: String, limit: Int) = stepDao.searchSteps(text, limit).map { it.toStep() }
 
     override fun flowSearch(text: String, limit: Int) = stepDao.flowSearch(text, limit).map { list -> list.map { it.toStep() } }
+
+    fun flowByIds(stepIds: List<StepId>) = stepDao.flowByIds(stepIds)
+
+    suspend fun readThumbnails(stepIds: List<StepId>) = stepDao.readThumbnails(stepIds)
 }

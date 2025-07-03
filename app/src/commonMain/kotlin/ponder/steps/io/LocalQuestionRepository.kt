@@ -24,8 +24,10 @@ class LocalQuestionRepository(
 
     override fun flowPathQuestionsByTrekId(trekId: String) = questionDao.flowPathQuestionsByTrekId(trekId)
 
-    override fun flowRootQuestions(start: Instant, end: Instant) = questionDao.flowRootQuestions(start, end)
+    fun flowRootQuestions(start: Instant) = questionDao.flowRootQuestions(start)
 
     fun flowQuestionsByStepIds(stepIds: List<StepId>) = questionDao.flowQuestionsByStepIds(stepIds)
+
+    fun flowPathQuestions(pathId: StepId) = questionDao.flowPathQuestions(pathId)
 }
 

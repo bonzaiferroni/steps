@@ -7,8 +7,8 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import ponder.steps.model.data.Step
+import ponder.steps.model.data.TrekId
 
 @Dao
 interface StepDao {
@@ -35,7 +35,7 @@ interface StepDao {
     suspend fun readStepOrNull(stepId: String): StepEntity?
 
     @Query("SELECT * FROM StepEntity WHERE id = :stepId")
-    fun flowStep(stepId: String): Flow<StepEntity>
+    fun flowStep(stepId: String): Flow<Step>
 
     suspend fun readStep(stepId: String) = readStepOrNull(stepId) ?: error("stepId missing: $stepId")
 
@@ -94,4 +94,15 @@ interface StepDao {
 
     @Query("SELECT pathId FROM pathstepentity WHERE stepId IN (:stepIds)")
     suspend fun readPathIds(stepIds: List<String>): List<String>
+
+    @Query("SELECT * FROM StepEntity WHERE id IN (:stepIds)")
+    fun flowByIds(stepIds: List<StepId>): Flow<List<Step>>
+
+    @Query("SELECT id stepId, thumbUrl url FROM StepEntity WHERE id IN (:stepIds)")
+    suspend fun readThumbnails(stepIds: List<StepId>): List<StepImgUrl>
 }
+
+data class StepImgUrl(
+    val stepId: TrekId,
+    val url: String,
+)

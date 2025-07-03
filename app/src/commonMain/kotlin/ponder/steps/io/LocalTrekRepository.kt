@@ -16,12 +16,11 @@ import ponder.steps.db.StepDao
 import ponder.steps.db.TrekDao
 import ponder.steps.db.TrekEntity
 import ponder.steps.db.toEntity
-import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Intent
-import ponder.steps.model.data.IntentTiming
+import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.PathStep
-import ponder.steps.model.data.PathStepId
+import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepLogId
@@ -52,49 +51,34 @@ class LocalTrekRepository(
         return trekDao.update(trek.toEntity()) == 1
     }
 
-    override suspend fun syncTreksWithIntents() {
-        val activeIntentIds = intentDao.readActiveIntentIds()
-        val trekIntentIds = trekDao.readActiveTrekIntentIds()
+//    override suspend fun syncTreksWithIntents() {
+//        val activeIntentIds = intentDao.readActiveIntentIds()
+//        val trekIntentIds = trekDao.readActiveTrekIntentIds()
+//
+//        for (intentId in activeIntentIds - trekIntentIds) {
+//            val intent = intentDao.readIntentById(intentId)
+//            val repeatMins = intent.repeatMins
+//            val lastAvailableAt = trekDao.readLastAvailableAt(intent.id)
+//            val lastFinishedAt = trekDao.readLastFinishedAt(intent.id)
+//            if (lastAvailableAt != null && intent.isRepeating != IntentTiming.Repeat) continue
+//            val now = Clock.System.now()
+//            val scheduledAt = intent.scheduledAt ?: Instant.DISTANT_FUTURE
+//            if (intent.isRepeating == IntentTiming.Schedule && scheduledAt > now) continue
+//
+//            val availableAt = if (intent.isRepeating != IntentTiming.Repeat || repeatMins == null || lastFinishedAt == null)
+//                (intent.scheduledAt ?: now) else lastFinishedAt + repeatMins.minutes
+//
+//            val id = randomUuidStringId()
+//
+//
+//        }
+//    }
 
-        for (intentId in activeIntentIds - trekIntentIds) {
-            val intent = intentDao.readIntentById(intentId)
-            val repeatMins = intent.repeatMins
-            val lastAvailableAt = trekDao.readLastAvailableAt(intent.id)
-            val lastFinishedAt = trekDao.readLastFinishedAt(intent.id)
-            if (lastAvailableAt != null && intent.timing != IntentTiming.Repeat) continue
-            val now = Clock.System.now()
-            val scheduledAt = intent.scheduledAt ?: Instant.DISTANT_FUTURE
-            if (intent.timing == IntentTiming.Schedule && scheduledAt > now) continue
-
-            val availableAt = if (intent.timing != IntentTiming.Repeat || repeatMins == null || lastFinishedAt == null)
-                (intent.scheduledAt ?: now) else lastFinishedAt + repeatMins.minutes
-
-            val id = randomUuidStringId()
-
-            trekDao.create(
-                TrekEntity(
-                    id = id,
-                    userId = appUserId,
-                    intentId = intentId,
-                    superId = null,
-                    pathStepId = null,
-                    rootId = intent.rootId,
-                    progress = 0,
-                    isComplete = false,
-                    availableAt = availableAt,
-                    startedAt = null,
-                    finishedAt = null,
-                    expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes },
-                    updatedAt = now
-                ))
-        }
-    }
-
-    override suspend fun setOutcome(
+    suspend fun setOutcome(
         trekId: TrekId,
-        stepId: StepId,
-        pathStepId: PathStepId?,
-        outcome: StepOutcome?
+        step: Step,
+        outcome: StepOutcome?,
+        breadcrumbs: List<StepId>
     ): StepLogId? {
         val now = Clock.System.now()
         val logId = if (outcome != null) {
@@ -102,9 +86,9 @@ class LocalTrekRepository(
             stepLogDao.insert(
                 StepLogEntity(
                     id = logId,
-                    stepId = stepId,
+                    stepId = step.id,
                     trekId = trekId,
-                    pathStepId = pathStepId,
+                    pathStepId = step.pathStepId,
                     outcome = outcome,
                     updatedAt = now,
                     createdAt = now
@@ -112,153 +96,116 @@ class LocalTrekRepository(
             )
             logId
         } else {
+            val pathStepId = step.pathStepId
             if (pathStepId != null) {
-                stepLogDao.delete(trekId, stepId, pathStepId)
+                stepLogDao.deletePathStepLog(trekId, step.id, pathStepId)
             } else {
-                stepLogDao.deleteIfNullPathStepId(trekId, stepId)
+                stepLogDao.deletePathLog(trekId, step.id)
             }
             null
         }
 
-        setProgress(trekId)
+        setPathOutcomes(
+            trekId = trekId,
+            stepId = step.id,
+            breadcrumbs = breadcrumbs,
+            outcome = outcome
+        )
 
         return logId
     }
 
-    override suspend fun createSubTrek(trekId: String, pathStepId: String): String {
-        val trek = trekDao.readTrekById(trekId) ?: error("No trek with id: $trekId")
-        val pathStep = pathStepDao.readPathStep(pathStepId) ?: error("No pathstep with id: $pathStepId")
-        val id = randomUuidStringId()
-        val rootId = pathStep.stepId
-        val subTrek = Trek(
-            id = id,
-            userId = appUserId,
-            intentId = trek.intentId,
-            superId = trek.id,
-            pathStepId = pathStepId,
-            rootId = rootId,
-            progress = 0,
-            isComplete = false,
-            availableAt = trek.availableAt,
-            startedAt = null,
-            finishedAt = null,
-            expectedAt = null,
-            updatedAt = Clock.System.now()
-        )
+    suspend fun isFinished(trekId: String) = trekDao.isFinished(trekId)
 
-        trekDao.create(subTrek.toEntity())
-        return id
-    }
+    suspend fun setPathOutcomes(trekId: TrekId, stepId: StepId, breadcrumbs: List<StepId>, outcome: StepOutcome?) {
+        val trek = trekDao.readTrekById(trekId) ?: error("trekId not found")
 
-    override suspend fun completeTrek(trekId: String): Boolean {
-        var trek = trekDao.readTrekById(trekId) ?: return false
-        val intent = intentDao.readIntentById(trek.intentId)
-        if (intent.repeatMins == null) {
-            intentDao.update(
-                intent.copy(
-                    completedAt = trek.finishedAt
-                ).toEntity()
-            )
+        println(breadcrumbs)
+
+        val breadcrumbs = breadcrumbs.takeIf { it.isNotEmpty() } ?: listOf(stepId)
+
+        var status: StepStatus = StepStatus.Unfinished
+        if (outcome == null) {
+            // mark as incomplete down the chain of breadcrumbs
+            stepLogDao.deletePathLogs(trekId, breadcrumbs)
+        } else {
+            // mark as complete up the chain of breadcrumbs
+            for (pathId in breadcrumbs.reversed()) {
+                val pathSteps = pathStepDao.readPathStepsByPathId(pathId)
+                val logs = stepLogDao.readTrekLogsByPathId(trekId, pathId)
+                status = getStatus(trek, pathSteps, logs)
+                println("eyyy $status")
+                if (status != StepStatus.Completed) break
+                if (pathSteps.isNotEmpty()) {
+                    val logId = randomUuidStringId()
+                    val now = Clock.System.now()
+                    stepLogDao.insert(
+                        StepLogEntity(
+                            id = logId,
+                            stepId = pathId,
+                            trekId = trekId,
+                            pathStepId = null,
+                            outcome = outcome,
+                            updatedAt = now,
+                            createdAt = now
+                        )
+                    )
+                }
+            }
         }
-        return trekDao.update(
-            trek.copy(
-                isComplete = true
-            ).toEntity()
-        ) == 1
-    }
-
-    override suspend fun isFinished(trekId: String) = trekDao.isFinished(trekId)
-
-    private suspend fun resolveAvailableAtFromLastTrek(intent: Intent): Instant? {
-        val repeatMins = intent.repeatMins ?: return null
-        val lastAvailableAt = trekDao.readLastAvailableAt(intent.id) ?: return null
-        return lastAvailableAt + repeatMins.minutes
-    }
-
-    override fun flowTrekStepById(trekId: String) = trekDao.flowTrekStepById(trekId)
-
-    override fun flowTrekStepsBySuperId(superId: String) = trekDao.flowTrekStepsBySuperId(superId)
-
-    override fun flowRootTrekSteps(start: Instant, end: Instant) = trekDao.flowRootTrekSteps(start, end)
-
-    suspend fun setProgress(trekId: TrekId?) {
-        val trekId = trekId ?: return
-        val trek = trekDao.readTrekById(trekId) ?: return
-        val pathSteps = pathStepDao.readPathStepsByPathId(trek.rootId)
-        val logs = stepLogDao.readStepLogsByTrekId(trekId)
-        val status = getStatus(trek, pathSteps, logs)
 
         trekDao.update(
             when (status) {
-                TrekStatus.Unfinished -> trek.copy(
-                    progress = logs.size,
+                StepStatus.Unfinished -> trek.copy(
                     isComplete = false,
                     finishedAt = null
                 )
 
-                TrekStatus.Finished -> trek.copy(
-                    progress = logs.size,
+                StepStatus.Finished -> trek.copy(
                     isComplete = false,
                     finishedAt = trek.finishedAt ?: Clock.System.now()
                 )
 
-                TrekStatus.Completed -> trek.copy(
-                    progress = logs.size,
+                StepStatus.Completed -> trek.copy(
                     isComplete = true,
                     finishedAt = trek.finishedAt ?: Clock.System.now()
                 )
             }.toEntity()
         )
-
-        val pathStepId = trek.pathStepId
-        val superId = trek.superId
-        if (superId != null && pathStepId != null) {
-            if (status == TrekStatus.Unfinished) {
-                stepLogDao.delete(superId, trek.rootId, pathStepId)
-            } else {
-                val logId = randomUuidStringId()
-                val now = Clock.System.now()
-                stepLogDao.insert(
-                    StepLogEntity(
-                        id = logId,
-                        stepId = trek.rootId,
-                        trekId = superId,
-                        pathStepId = pathStepId,
-                        outcome = StepOutcome.Completed,
-                        updatedAt = now,
-                        createdAt = now
-                    )
-                )
-            }
-        }
-
-        setProgress(trek.superId) // recursion
     }
 
     private suspend fun getStatus(
         trek: Trek,
         pathSteps: List<PathStep>,
         logs: List<StepLog>,
-    ): TrekStatus {
+    ): StepStatus {
         if (pathSteps.isEmpty()) {
-            val trekStepLog = logs.firstOrNull { it.stepId == trek.rootId } ?: return TrekStatus.Unfinished
-            if (trekStepLog.outcome == StepOutcome.Skipped) return TrekStatus.Completed
+            // no log found for single-step trek
+            val trekStepLog = logs.firstOrNull { it.stepId == trek.rootId } ?: return StepStatus.Unfinished
+            // single log found is skipped (not expecting answers)
+            if (trekStepLog.outcome == StepOutcome.Skipped) return StepStatus.Completed
             val questions = questionDao.readQuestionsByStepId(trek.rootId)
-            if (questions.isEmpty()) return TrekStatus.Completed
+            // no step questions (not expecting answers)
+            if (questions.isEmpty()) return StepStatus.Completed
             val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
-            if (answers.any { it.stepLogId == trekStepLog.id }) return TrekStatus.Completed
-            else return TrekStatus.Finished
+            // all questions answered or skipped
+            if (answers.any { it.stepLogId == trekStepLog.id }) return StepStatus.Completed
+            // still expecting answers
+            else return StepStatus.Finished
         }
-        if (pathSteps.any { ps -> logs.all { l -> l.pathStepId != ps.id } }) return TrekStatus.Unfinished
+        // there's a pathstep without a log
+        if (pathSteps.any { ps -> logs.all { l -> l.pathStepId != ps.id } }) return StepStatus.Unfinished
         val unskippedStepIds =
             pathSteps.mapNotNull { ps -> if (logs.all { l -> l.outcome != StepOutcome.Skipped }) ps.stepId else null }
         val questions = questionDao.readQuestionsByStepIds(unskippedStepIds)
         val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
-        if (questions.all { q -> answers.any { a -> a.questionId == q.id } }) return TrekStatus.Completed
-        else return TrekStatus.Finished
+        // all questions answered or skipped
+        if (questions.all { q -> answers.any { a -> a.questionId == q.id } }) return StepStatus.Completed
+        // still expecting answers
+        else return StepStatus.Finished
     }
 
-    override suspend fun createAnswer(trekId: TrekId, answer: NewAnswer): Boolean {
+    suspend fun createAnswer(trekId: TrekId, stepId: StepId, answer: NewAnswer, breadcrumbs: List<StepId>): Boolean {
         val id = randomUuidStringId()
         val answer = AnswerEntity(
             id = id,
@@ -270,15 +217,47 @@ class LocalTrekRepository(
         )
         val isSuccess = answerDao.insert(answer) != -1L
         if (isSuccess) {
-            setProgress(trekId)
+            setPathOutcomes(trekId, stepId, breadcrumbs, StepOutcome.Completed)
         }
         return isSuccess
     }
 
-    suspend fun readTrekThumbnails(trekIds: List<TrekId>) = trekDao.readTrekThumbnails(trekIds)
+    suspend fun readTrekFinishedAt(intentIds: List<IntentId>) = trekDao.readTrekFinishedAt(intentIds)
+
+    suspend fun readTreksLastStartedAt(intentIds: List<IntentId>) = trekDao.readTreksLastStartedAt(intentIds)
+
+    suspend fun createTrekFromIntent(intent: Intent): TrekId {
+        val id = randomUuidStringId()
+        val now = Clock.System.now()
+
+        trekDao.create(
+            TrekEntity(
+                id = id,
+                userId = appUserId,
+                intentId = intent.id,
+                rootId = intent.rootId,
+                isComplete = false,
+                startedAt = now,
+                finishedAt = null,
+                expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes },
+                updatedAt = now
+            ))
+
+        return id
+    }
+
+    suspend fun readTrekById(trekId: TrekId) = trekDao.readTrekById(trekId)
+
+    fun flowRootTodoSteps(start: Instant) = trekDao.flowRootTodoSteps(start)
+
+    fun flowActiveTreks(start: Instant) = trekDao.flowActiveTreks(start)
+
+    fun flowRootProgress(start: Instant) = trekDao.flowRootProgresses(start)
+
+    fun flowPathProgresses(pathId: StepId, trekId: TrekId) = trekDao.flowPathProgresses(pathId, trekId)
 }
 
-private enum class TrekStatus {
+private enum class StepStatus {
     Unfinished, // some steps incomplete
     Finished, // all steps completed
     Completed, // all questions answered

@@ -20,8 +20,8 @@ import pondui.ui.controls.Button
 import pondui.ui.controls.LazyColumn
 
 @Composable
-fun TrekStepListView(
-    viewModel: TrekStepListModel,
+fun TodoListView(
+    viewModel: TodoListModel,
     pathId: StepId?,
 //    branchStep: ((PathStepId?) -> Unit)?,
 ) {
@@ -36,35 +36,37 @@ fun TrekStepListView(
     )
 
     LazyColumn(1) {
-        items(state.trekSteps, key = { it.pathStepId ?: it.trekId ?: it.stepId }) { trekStep ->
-            val log = state.getLog(trekStep)
+        items(state.todoSteps, key = { it.key }) { todoStep ->
+            val trekId = todoStep.trekId; val step = todoStep.step
+            val log = state.getLog(step)
+            val progress = state.progresses[todoStep.key] ?: 0
             val questions = if (log?.outcome == StepOutcome.Completed)
-                state.questions[trekStep.stepId] ?: emptyList() else emptyList()
+                state.questions[step.id] ?: emptyList() else emptyList()
             val answers = log?.let { state.getAnswers(it.id) } ?: emptyList()
             val question = questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } }
-            val canDragLeft = trekStep.trekId != null && trekStep.pathSize > 0 && question == null
 
             MagicItem(
                 item = question,
                 offsetX = 50.dp,
                 itemContent = { question ->
-                    QuestionRow(trekStep.stepLabel, question) { answerText ->
+                    QuestionRow(step.label, question) { answerText ->
                         if (log != null && answerText != null)
-                            viewModel.answerQuestion(trekStep, log, question, answerText)
+                            viewModel.answerQuestion(trekId, log, question, answerText)
                     }
                 },
                 isVisibleInit = true,
                 modifier = Modifier.height(72.dp)
                     .animateItem()
             ) {
-                TrekStepRow(
-                    trekStep = trekStep,
-                    isFinished = trekStep.finishedAt != null || log != null,
+                TodoStepRow(
+                    todoStep = todoStep,
+                    isFinished = log != null,
                     isDeeper = true,
-                    setOutcome = viewModel::setOutcome,
                     questionCount = questions.size,
-                    loadTrek = viewModel::loadDeeperTrek,
-//                    branchStep = branchStep
+                    progress = progress,
+                    pathSize = step.pathSize,
+                    setOutcome = viewModel::setOutcome,
+                    navToPath = viewModel::navToPath,
                 )
             }
         }

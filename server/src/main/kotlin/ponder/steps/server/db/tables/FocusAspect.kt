@@ -16,7 +16,6 @@ object FocusAspect: Aspect<FocusAspect, Focus>(
     val intentLabel = add(IntentTable.label)
     // val stepId = add(TrekTable.nextId)
     val stepLabel = add(StepTable.label)
-    val stepIndex = add(TrekTable.progress)
     val stepPathSize = add(StepTable.pathSize)
     val imgUrl = add(StepTable.imgUrl)
     val startedAt = add(TrekTable.startedAt)
@@ -27,7 +26,6 @@ fun ResultRow.toFocus() = Focus(
     // stepId = this[FocusAspect.stepId].value.toStringId(),
     intentLabel = this[FocusAspect.intentLabel],
     stepLabel = this[FocusAspect.stepLabel],
-    stepIndex = this[FocusAspect.stepIndex],
     stepPathSize = this[FocusAspect.stepPathSize],
     imgUrl = this[FocusAspect.imgUrl],
     startedAt = this[FocusAspect.startedAt]?.toInstantFromUtc()

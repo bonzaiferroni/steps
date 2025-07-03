@@ -9,7 +9,6 @@ data class Focus(
     val intentLabel: String,
     // val stepId: String,
     val stepLabel: String,
-    val stepIndex: Int,
     val stepPathSize: Int,
     val imgUrl: String?,
     val startedAt: Instant?,

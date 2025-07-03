@@ -49,15 +49,6 @@ interface StepLogRepository {
 
     suspend fun deleteTrekStepLog(trekId: String, stepId: String, pathStepId: String?): Boolean
 
-    /**
-     * Get a flow of all step logs for a trek
-     * @param trekId The ID of the trek
-     * @return Flow of list of step logs for the trek
-     */
-    fun flowPathLogsByTrekId(trekId: String): Flow<List<StepLog>>
-
-    fun flowRootLogs(start: Instant, end: Instant): Flow<List<StepLog>>
-
     fun flowStepLogsByStepId(stepId: StepId): Flow<List<StepLog>>
 
     suspend fun readLogCountsByStepId(stepId: StepId, startAt: Instant, interval: TimeUnit): List<CountBucket>

@@ -21,9 +21,9 @@ data class Step(
     val updatedAt: Instant,
     val createdAt: Instant,
 
-    val pathId: String?,
-    val pathStepId: String?,
-    val position: Int?
+    val pathId: String? = null,
+    val pathStepId: String? = null,
+    val position: Int? = null,
 )
 
 typealias StepId = String
