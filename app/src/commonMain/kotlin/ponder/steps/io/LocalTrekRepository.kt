@@ -39,41 +39,6 @@ class LocalTrekRepository(
     private val answerDao: AnswerDao = appDb.getAnswerDao(),
 ) : TrekRepository {
 
-    suspend fun startTrek(trekId: String): Boolean {
-        var trek = trekDao.readTrekById(trekId) ?: return false
-        trek = trek.copy(startedAt = Clock.System.now())
-        return trekDao.update(trek.toEntity()) == 1
-    }
-
-    suspend fun pauseTrek(trekId: String): Boolean {
-        var trek = trekDao.readTrekById(trekId) ?: return false
-        trek = trek.copy(startedAt = null)
-        return trekDao.update(trek.toEntity()) == 1
-    }
-
-//    override suspend fun syncTreksWithIntents() {
-//        val activeIntentIds = intentDao.readActiveIntentIds()
-//        val trekIntentIds = trekDao.readActiveTrekIntentIds()
-//
-//        for (intentId in activeIntentIds - trekIntentIds) {
-//            val intent = intentDao.readIntentById(intentId)
-//            val repeatMins = intent.repeatMins
-//            val lastAvailableAt = trekDao.readLastAvailableAt(intent.id)
-//            val lastFinishedAt = trekDao.readLastFinishedAt(intent.id)
-//            if (lastAvailableAt != null && intent.isRepeating != IntentTiming.Repeat) continue
-//            val now = Clock.System.now()
-//            val scheduledAt = intent.scheduledAt ?: Instant.DISTANT_FUTURE
-//            if (intent.isRepeating == IntentTiming.Schedule && scheduledAt > now) continue
-//
-//            val availableAt = if (intent.isRepeating != IntentTiming.Repeat || repeatMins == null || lastFinishedAt == null)
-//                (intent.scheduledAt ?: now) else lastFinishedAt + repeatMins.minutes
-//
-//            val id = randomUuidStringId()
-//
-//
-//        }
-//    }
-
     suspend fun setOutcome(
         trekId: TrekId,
         step: Step,
@@ -115,8 +80,6 @@ class LocalTrekRepository(
         return logId
     }
 
-    suspend fun isFinished(trekId: String) = trekDao.isFinished(trekId)
-
     suspend fun setPathOutcomes(
         trekId: TrekId,
         step: Step,
@@ -138,7 +101,6 @@ class LocalTrekRepository(
                 val pathSteps = pathStepDao.readPathStepsByPathId(pathId)
                 val logs = stepLogDao.readTrekLogsByPathId(trekId, pathId)
                 status = getStatus(trek, pathSteps, logs)
-                println("eyyy $status")
                 if (status != StepStatus.Completed) break
                 if (pathSteps.isNotEmpty()) {
                     val logId = randomUuidStringId()

@@ -2,6 +2,7 @@ package ponder.steps.io
 
 import kabinet.utils.randomUuidStringId
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.steps.appDb
 import ponder.steps.db.StepId
 import ponder.steps.db.StepTagDao
@@ -34,4 +35,6 @@ class LocalTagRepository(
     fun flowTopTagCounts(limit: Int = 10) = tagDao.flowTopTagCounts(limit)
 
     fun flowTagsByStepIds(stepIds: List<StepId>) = tagDao.flowTagsByStepIds(stepIds)
+
+    fun flowRootTags(start: Instant) = tagDao.flowRootTags(start)
 }

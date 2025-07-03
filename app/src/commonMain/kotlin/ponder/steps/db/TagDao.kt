@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 import ponder.steps.model.data.Tag
 import ponder.steps.model.data.TagId
 
@@ -50,6 +51,12 @@ interface TagDao {
             "JOIN TagEntity AS t ON st.tagId = t.id " +
             "WHERE st.stepId IN (:stepIds)")
     fun flowTagsByStepIds(stepIds: List<StepId>): Flow<Map<@MapColumn("stepId") StepId, List<Tag>>>
+
+    @Query("SELECT tag.*, st.stepId FROM TagEntity AS tag " +
+            "JOIN StepTagEntity AS st ON tag.id = st.tagId " +
+            "JOIN TrekEntity AS t ON t.rootId = st.stepId " +
+            "WHERE t.startedAt > :start OR NOT t.isComplete")
+    fun flowRootTags(start: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Tag>>>
 }
 
 data class TagCount(

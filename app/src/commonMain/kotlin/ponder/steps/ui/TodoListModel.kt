@@ -93,7 +93,6 @@ data class TodoListState(
 ) {
     fun getLog(step: Step) = stepLogs.firstOrNull { it.stepId == step.id && it.pathStepId == step.pathStepId }
     fun getAnswers(stepLogId: StepLogId) = answers[stepLogId] ?: emptyList()
-    fun getProgress(step: Step) = stepLogs.count { it.pathId == step.id }
 
     val progress get() = stepLogs.size
     val totalSteps get() = todoSteps.size

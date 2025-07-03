@@ -42,17 +42,14 @@ class TodoRootModel(
             answerFlow = answerRepo.flowRootAnswers(start),
             progressFlow = trekRepo.flowRootProgress(start)
         )
+
+        tagRepo.flowRootTags(start).launchCollect { tags ->
+            val tagSet = tags.values.flatten().toImmutableList()
+            setState { it.copy(tags = tags, tagSet = tagSet) }
+        }
     }
 
     private var tagJob: Job? = null
-
-//    private fun flowTags(trekSteps: List<TrekStep>) {
-//        tagJob?.cancel()
-//        tagJob = tagRepo.flowTagsByStepIds(trekSteps.map { it.stepId }).launchCollect { tags ->
-//            val tagSet = tags.values.flatten().toImmutableList()
-//            setState { it.copy(tags = tags, tagSet = tagSet) }
-//        }
-//    }
 
     fun clickTag(tag: Tag) {
         if (tag != stateNow.selectedTag) {
