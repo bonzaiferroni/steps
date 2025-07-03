@@ -37,5 +37,7 @@ fun PlanScreen() {
             }
         }
         Button("Add", onClick = viewModel::toggleAddItem)
+
+        BottomBarSpacer()
     }
 }

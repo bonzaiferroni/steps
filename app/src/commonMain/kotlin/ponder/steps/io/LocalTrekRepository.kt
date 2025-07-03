@@ -88,6 +88,7 @@ class LocalTrekRepository(
     ) {
         val trek = trekDao.readTrekById(trekId) ?: error("trekId not found")
 
+        val isTopLevel = breadcrumbs == null
         val breadcrumbs = breadcrumbs ?: listOf(step)
 
         var status: StepStatus = StepStatus.Unfinished
@@ -99,7 +100,8 @@ class LocalTrekRepository(
             for (step in breadcrumbs.reversed()) {
                 val pathId = step.id
                 val pathSteps = pathStepDao.readPathStepsByPathId(pathId)
-                val logs = stepLogDao.readTrekLogsByPathId(trekId, pathId)
+                val logs = if (isTopLevel) stepLogDao.readTopLevelLog(trekId, step.id)
+                    else stepLogDao.readTrekLogsByPathId(trekId, pathId)
                 status = getStatus(trek, pathSteps, logs)
                 if (status != StepStatus.Completed) break
                 if (pathSteps.isNotEmpty()) {

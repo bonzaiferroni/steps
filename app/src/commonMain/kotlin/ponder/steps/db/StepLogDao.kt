@@ -114,4 +114,7 @@ interface StepLogDao {
             "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +
             "WHERE l.trekId = :trekId AND ps.pathId = :pathId")
     suspend fun readTrekLogsByPathId(trekId: TrekId, pathId: StepId): List<StepLog>
+
+    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId AND stepId = :stepId AND pathStepId IS NULL")
+    suspend fun readTopLevelLog(trekId: TrekId, stepId: StepId): List<StepLog>
 }

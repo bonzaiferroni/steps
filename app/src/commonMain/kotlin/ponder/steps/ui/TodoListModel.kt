@@ -22,7 +22,7 @@ class TodoListModel(
     private val trekPath: TrekPath?,
     private val navToTrekPath: (TrekPath?, Boolean) -> Unit,
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
-) : SubModel<TodoListState>(TodoListState(), viewModel) {
+) : SubModel<TodoListState>(TodoListState(trekPath == null), viewModel) {
 
     private var allSteps: List<TodoStep> = emptyList()
     var stepFilter: ((TodoStep) -> Boolean)? = null
@@ -84,6 +84,7 @@ class TodoListModel(
 
 @Stable
 data class TodoListState(
+    val isRoot: Boolean,
     val todoSteps: List<TodoStep> = emptyList(),
     val stepLogs: List<StepLog> = emptyList(),
     val questions: Map<StepId, List<Question>> = emptyMap(),
@@ -91,7 +92,11 @@ data class TodoListState(
     val progresses: Map<String, Int> = emptyMap(),
     val isAddingItem: Boolean = false,
 ) {
-    fun getLog(step: Step) = stepLogs.firstOrNull { it.stepId == step.id && it.pathStepId == step.pathStepId }
+    fun getLog(todoStep: TodoStep) = stepLogs.firstOrNull {
+        if (isRoot) it.trekId == todoStep.trekId
+        else it.pathStepId == todoStep.step.pathStepId
+    }
+
     fun getAnswers(stepLogId: StepLogId) = answers[stepLogId] ?: emptyList()
 
     val progress get() = stepLogs.size

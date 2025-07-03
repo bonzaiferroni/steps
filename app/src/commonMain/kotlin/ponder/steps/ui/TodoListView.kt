@@ -38,7 +38,7 @@ fun TodoListView(
     LazyColumn(1) {
         items(state.todoSteps, key = { it.key }) { todoStep ->
             val trekId = todoStep.trekId; val step = todoStep.step
-            val log = state.getLog(step)
+            val log = state.getLog(todoStep)
             val progress = state.progresses[todoStep.key] ?: 0
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[step.id] ?: emptyList() else emptyList()

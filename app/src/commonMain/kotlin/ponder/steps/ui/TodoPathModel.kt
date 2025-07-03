@@ -40,7 +40,7 @@ class TodoPathModel(
 
         todoList.clearJobs()
         todoList.setFlows(
-            stepFlow = stepRepo.flowPathSteps(pathId).map { it.map { TodoStep(trekId, null, it) } },
+            stepFlow = stepRepo.flowPathSteps(pathId).map { it.map { step -> TodoStep(trekId, step) } },
             stepLogFlow = stepLogRepo.flowPathLogsByTrekId(pathId, trekId),
             questionFlow = questionsRepo.flowPathQuestions(pathId),
             answerFlow = answersRepo.flowPathAnswersByTrekId(pathId, trekId),

@@ -1,17 +1,22 @@
 package ponder.steps.db
 
 import androidx.room.Embedded
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.TrekId
 
 data class TodoStep(
     val trekId: TrekId,
-    val startedAt: Instant? = null,
     @Embedded
-    val step: Step
+    val step: Step,
+    val startedAt: Instant? = null,
+    val finishedAt: Instant? = null,
+    val isComplete: Boolean? = null,
 ) {
     val key: String get() = step.pathStepId ?: trekId
-    val sortValue: Long get() = step.position?.toLong() ?: startedAt?.epochSeconds ?: 0
+    val sortValue: Long get() = step.position?.toLong()
+        ?: finishedAt?.takeIf { isComplete == true }?.let { -it.epochSeconds / 10 }
+        ?: startedAt?.let { -it.epochSeconds }
+        ?: Long.MAX_VALUE
 }

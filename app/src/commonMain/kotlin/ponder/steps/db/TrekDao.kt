@@ -62,7 +62,7 @@ interface TrekDao {
     @Query("SELECT id FROM TrekEntity WHERE intentId = :intentId AND NOT isComplete")
     suspend fun readActiveTrekId(intentId: IntentId): TrekId?
 
-    @Query("SELECT t.id trekId, t.startedAt, s.* FROM TrekEntity AS t " +
+    @Query("SELECT t.id trekId, t.startedAt, t.isComplete, t.finishedAt, s.* FROM TrekEntity AS t " +
             "JOIN StepEntity AS s ON s.id = t.rootId " +
             "WHERE t.startedAt >= :start OR NOT t.isComplete ")
     fun flowRootTodoSteps(start: Instant): Flow<List<TodoStep>>

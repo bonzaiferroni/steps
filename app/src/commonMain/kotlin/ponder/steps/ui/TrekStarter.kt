@@ -38,7 +38,6 @@ class TrekStarter(
                 val now = Clock.System.now()
                 var nextRefresh = end
 
-                val activeTreks = mutableListOf<Trek>()
                 val activeIntents = mutableListOf<Intent>()
 
                 val ids = intents.map { it.id }
@@ -47,6 +46,7 @@ class TrekStarter(
                 for (intent in intents) {
                     val scheduledAt = intent.scheduledAt
                     val trek = treks.firstOrNull { it.intentId == intent.id }
+                    var createTrek = trek == null
 
                     if (scheduledAt != null && scheduledAt > now) {
                         nextRefresh = minOf(nextRefresh, scheduledAt)
@@ -56,12 +56,16 @@ class TrekStarter(
                     val repeatMins = intent.repeatMins
                     if (repeatMins != null) {
                         val finishedAt = trek?.finishedAt
-                        if (finishedAt != null && finishedAt + repeatMins.minutes > now) {
+                        val repeatTime = finishedAt?.let { it + repeatMins.minutes } ?: (now + repeatMins.minutes)
+                        if (repeatTime > now) {
+                            nextRefresh = minOf(nextRefresh, repeatTime)
                             continue
+                        } else {
+                            createTrek = true
                         }
                     }
 
-                    if (trek == null) {
+                    if (createTrek) {
                         trekRepo.createTrekFromIntent(intent)
                     }
                     activeIntents.add(intent)
