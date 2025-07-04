@@ -3,6 +3,7 @@ package ponder.steps.db
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.datetime.Instant
@@ -36,10 +37,10 @@ interface SyncDao {
     @Upsert
     suspend fun upsert(vararg intents: IntentEntity): LongArray
 
-    @Upsert
-    suspend fun upsert(vararg treks: TrekEntity): LongArray
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(vararg treks: TrekEntity)
 
-    @Upsert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(vararg stepLogs: StepLogEntity): LongArray
 
     @Upsert

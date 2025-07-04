@@ -6,7 +6,9 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
+import ponder.steps.db.TodoStep
 import ponder.steps.io.LocalAnswerRepository
 import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepLogRepository
@@ -36,7 +38,12 @@ class TodoRootModel(
         val start = Clock.startOfDay()
 
         todoList.setFlows(
-            stepFlow = trekRepo.flowRootTodoSteps(start),
+            stepFlow = trekRepo.flowRootTodoSteps(start).map { todoSteps ->
+                todoSteps.sortedWith(
+                    compareBy<TodoStep> { if (it.isComplete != true) 0 else 1 }
+                        .thenBy { it.startedAt }
+                )
+            },
             stepLogFlow = stepLogRepo.flowRootLogs(start),
             questionFlow = questionRepo.flowRootQuestions(start),
             answerFlow = answerRepo.flowRootAnswers(start),

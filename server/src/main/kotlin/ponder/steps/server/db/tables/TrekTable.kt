@@ -5,6 +5,7 @@ import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
 import klutch.utils.toStringId
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -22,6 +23,7 @@ internal object TrekTable : UUIDTable("trek") {
     val finishedAt = datetime("finished_at").nullable()
     val expectedAt = datetime("expected_at").nullable()
     val updatedAt = datetime("updated_at")
+    val syncAt = datetime("sync_at").nullable()
 }
 
 fun ResultRow.toTrek() = Trek(
@@ -36,7 +38,7 @@ fun ResultRow.toTrek() = Trek(
     updatedAt = this[TrekTable.updatedAt].toInstantFromUtc(),
 )
 
-fun upsertTrek(userId: String): BatchUpsertStatement.(Trek) -> Unit = { trek ->
+fun syncTrek(userId: String, syncAt: Instant): BatchUpsertStatement.(Trek) -> Unit = { trek ->
     this[TrekTable.id] = trek.id.fromStringId()
     this[TrekTable.userId] = userId.fromStringId()
     this[TrekTable.rootId] = trek.rootId.fromStringId()
@@ -46,4 +48,5 @@ fun upsertTrek(userId: String): BatchUpsertStatement.(Trek) -> Unit = { trek ->
     this[TrekTable.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
     this[TrekTable.expectedAt] = trek.expectedAt?.toLocalDateTimeUtc()
     this[TrekTable.updatedAt] = trek.updatedAt.toLocalDateTimeUtc()
+    this[TrekTable.syncAt] = syncAt.toLocalDateTimeUtc()
 }

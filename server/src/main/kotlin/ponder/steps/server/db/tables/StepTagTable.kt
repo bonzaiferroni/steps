@@ -5,6 +5,7 @@ import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
 import klutch.utils.toStringId
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -17,6 +18,7 @@ object StepTagTable: UUIDTable("step_tag") {
     val stepId = reference("step_id", StepTable.id, onDelete = ReferenceOption.CASCADE)
     val tagId = reference("tag_id", TagTable.id, onDelete = ReferenceOption.CASCADE)
     val updatedAt = datetime("updated_at")
+    val syncAt = datetime("sync_at").nullable()
 }
 
 fun ResultRow.toStepTag() = StepTag(
@@ -26,10 +28,11 @@ fun ResultRow.toStepTag() = StepTag(
     updatedAt = this[StepTagTable.updatedAt].toInstantFromUtc()
 )
 
-fun upsertStepTag(userId: String): BatchUpsertStatement.(StepTag) -> Unit = { stepTag ->
+fun syncStepTag(userId: String, syncAt: Instant): BatchUpsertStatement.(StepTag) -> Unit = { stepTag ->
     this[StepTagTable.id] = stepTag.id.fromStringId()
     this[StepTagTable.userId] = userId.fromStringId()
     this[StepTagTable.stepId] = stepTag.stepId.fromStringId()
     this[StepTagTable.tagId] = stepTag.tagId.fromStringId()
     this[StepTagTable.updatedAt] = stepTag.updatedAt.toLocalDateTimeUtc()
+    this[StepTagTable.syncAt] = syncAt.toLocalDateTimeUtc()
 }

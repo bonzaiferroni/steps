@@ -21,7 +21,7 @@ class TodoPathModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
     private val questionsRepo: LocalQuestionRepository = LocalQuestionRepository(),
     private val answersRepo: LocalAnswerRepository = LocalAnswerRepository(),
-): StateModel<TodoPathState>(TodoPathState()) {
+) : StateModel<TodoPathState>(TodoPathState()) {
 
     val todoList = TodoListModel(
         viewModel = this,
@@ -32,7 +32,8 @@ class TodoPathModel(
     private var stepFlowJob: Job? = null
 
     fun activate() {
-        val pathId = trekPath.pathId; val trekId = trekPath.trekId
+        val pathId = trekPath.pathId;
+        val trekId = trekPath.trekId
         stepFlowJob?.cancel()
         stepFlowJob = stepRepo.flowStep(pathId).launchCollect { step ->
             setState { it.copy(step = step) }
@@ -40,7 +41,10 @@ class TodoPathModel(
 
         todoList.clearJobs()
         todoList.setFlows(
-            stepFlow = stepRepo.flowPathSteps(pathId).map { it.map { step -> TodoStep(trekId, step) } },
+            stepFlow = stepRepo.flowPathSteps(pathId).map { steps ->
+                steps.map { step -> TodoStep(trekId, step) }
+                    .sortedBy { it.step.position }
+            },
             stepLogFlow = stepLogRepo.flowPathLogsByTrekId(pathId, trekId),
             questionFlow = questionsRepo.flowPathQuestions(pathId),
             answerFlow = answersRepo.flowPathAnswersByTrekId(pathId, trekId),

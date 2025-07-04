@@ -7,14 +7,15 @@ import klutch.db.readColumn
 import klutch.utils.eq
 import klutch.utils.fromStringId
 import klutch.utils.greater
+import klutch.utils.greaterNullable
 import klutch.utils.lessEq
+import klutch.utils.lessEqNullable
 import klutch.utils.toStringId
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchUpsert
@@ -33,7 +34,7 @@ import ponder.steps.server.db.tables.TagTable
 import ponder.steps.server.db.tables.TrekTable
 import ponder.steps.server.db.tables.toAnswer
 import ponder.steps.server.db.tables.toIntent
-import ponder.steps.server.db.tables.upsertStep
+import ponder.steps.server.db.tables.syncStep
 import ponder.steps.server.db.tables.toPathStep
 import ponder.steps.server.db.tables.toQuestion
 import ponder.steps.server.db.tables.toStep
@@ -41,14 +42,14 @@ import ponder.steps.server.db.tables.toStepLog
 import ponder.steps.server.db.tables.toStepTag
 import ponder.steps.server.db.tables.toTag
 import ponder.steps.server.db.tables.toTrek
-import ponder.steps.server.db.tables.upsertAnswer
-import ponder.steps.server.db.tables.upsertIntent
-import ponder.steps.server.db.tables.upsertPathStep
-import ponder.steps.server.db.tables.upsertQuestion
-import ponder.steps.server.db.tables.upsertStepLog
-import ponder.steps.server.db.tables.upsertStepTag
-import ponder.steps.server.db.tables.upsertTag
-import ponder.steps.server.db.tables.upsertTrek
+import ponder.steps.server.db.tables.syncAnswer
+import ponder.steps.server.db.tables.syncIntent
+import ponder.steps.server.db.tables.syncPathStep
+import ponder.steps.server.db.tables.syncQuestion
+import ponder.steps.server.db.tables.syncStepLog
+import ponder.steps.server.db.tables.syncStepTag
+import ponder.steps.server.db.tables.syncTag
+import ponder.steps.server.db.tables.syncTrek
 import java.util.UUID
 
 class SyncApiService : DbService() {
@@ -58,15 +59,18 @@ class SyncApiService : DbService() {
         fun syncTable(userIdColumn: Column<EntityID<UUID>>, updatedAtColumn: Column<LocalDateTime>) =
             userIdColumn.eq(userId) and updatedAtColumn.greater(startSyncAt) and updatedAtColumn.lessEq(endSyncAt)
 
-        val steps = StepTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toStep() }
-        val pathSteps = PathStepTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toPathStep() }
-        val questions = QuestionTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toQuestion() }
-        val intents = IntentTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toIntent() }
-        val treks = TrekTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toTrek() }
-        val stepLogs = StepLogTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toStepLog() }
-        val answers = AnswerTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toAnswer() }
-        val tags = TagTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toTag() }
-        val stepTags = StepTagTable.read { syncTable(it.userId, it.updatedAt) }.map { it.toStepTag() }
+        fun syncTableNullable(userIdColumn: Column<EntityID<UUID>>, updatedAtColumn: Column<LocalDateTime?>) =
+            userIdColumn.eq(userId) and updatedAtColumn.greaterNullable(startSyncAt) and updatedAtColumn.lessEqNullable(endSyncAt)
+
+        val steps = StepTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toStep() }
+        val pathSteps = PathStepTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toPathStep() }
+        val questions = QuestionTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toQuestion() }
+        val intents = IntentTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toIntent() }
+        val treks = TrekTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toTrek() }
+        val stepLogs = StepLogTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toStepLog() }
+        val answers = AnswerTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toAnswer() }
+        val tags = TagTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toTag() }
+        val stepTags = StepTagTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toStepTag() }
 
         val deletions = DeletionTable.readColumn(DeletionTable.id) { syncTable(it.userId, it.recordedAt) }
             .map { it.value.toStringId() }.toSet()
@@ -88,60 +92,61 @@ class SyncApiService : DbService() {
     }
 
     suspend fun writeSync(data: SyncData, userId: String) = dbQuery {
+
         try {
             // handle updates
             StepTable.batchUpsert(
                 data = data.steps,
                 where = { StepTable.userId.eq(userId) and StepTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertStep(userId)
+                body = syncStep(userId, data.endSyncAt)
             )
 
             PathStepTable.batchUpsert(
                 data = data.pathSteps,
                 where = { PathStepTable.userId.eq(userId) and PathStepTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertPathStep(userId)
+                body = syncPathStep(userId, data.endSyncAt)
             )
 
             QuestionTable.batchUpsert(
                 data = data.questions,
                 where = { QuestionTable.userId.eq(userId) and QuestionTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertQuestion(userId)
+                body = syncQuestion(userId, data.endSyncAt)
             )
 
             IntentTable.batchUpsert(
                 data = data.intents,
                 where = { IntentTable.userId.eq(userId) and IntentTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertIntent(userId)
+                body = syncIntent(userId, data.endSyncAt)
             )
 
             TrekTable.batchUpsert(
                 data = data.treks,
                 where = { TrekTable.userId.eq(userId) and TrekTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertTrek(userId)
+                body = syncTrek(userId, data.endSyncAt)
             )
 
             StepLogTable.batchUpsert(
                 data = data.stepLogs,
                 where = { StepLogTable.userId.eq(userId) and StepLogTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertStepLog(userId)
+                body = syncStepLog(userId, data.endSyncAt)
             )
 
             AnswerTable.batchUpsert(
                 data = data.answers,
                 where = { AnswerTable.userId.eq(userId) and AnswerTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertAnswer(userId)
+                body = syncAnswer(userId, data.endSyncAt)
             )
 
             TagTable.batchUpsert(
                 data = data.tags,
                 where = { TagTable.userId.eq(userId) and TagTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertTag(userId)
+                body = syncTag(userId, data.endSyncAt)
             )
 
             StepTagTable.batchUpsert(
                 data = data.stepTags,
                 where = { StepTagTable.userId.eq(userId) and StepTagTable.updatedAt.lessEq(data.endSyncAt) },
-                body = upsertStepTag(userId)
+                body = syncStepTag(userId, data.endSyncAt)
             )
 
             // handle deletions

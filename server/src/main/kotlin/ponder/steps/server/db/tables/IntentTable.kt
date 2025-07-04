@@ -5,6 +5,7 @@ import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
 import klutch.utils.toStringId
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -24,6 +25,7 @@ internal object IntentTable: UUIDTable("intent") {
     val completedAt = datetime("completed_at").nullable()
     val scheduledAt = datetime("scheduled_at").nullable()
     val updatedAt = datetime("updated_at")
+    val syncAt = datetime("sync_at").nullable()
 }
 
 fun ResultRow.toIntent() = Intent(
@@ -40,7 +42,7 @@ fun ResultRow.toIntent() = Intent(
     updatedAt = this[IntentTable.updatedAt].toInstantFromUtc(),
 )
 
-fun upsertIntent(userId: String): BatchUpsertStatement.(Intent) -> Unit = { intent ->
+fun syncIntent(userId: String, syncAt: Instant): BatchUpsertStatement.(Intent) -> Unit = { intent ->
     this[IntentTable.id] = intent.id.fromStringId()
     this[IntentTable.userId] = userId.fromStringId()
     this[IntentTable.rootId] = intent.rootId.fromStringId()
@@ -52,4 +54,5 @@ fun upsertIntent(userId: String): BatchUpsertStatement.(Intent) -> Unit = { inte
     this[IntentTable.completedAt] = intent.completedAt?.toLocalDateTimeUtc()
     this[IntentTable.scheduledAt] = intent.scheduledAt?.toLocalDateTimeUtc()
     this[IntentTable.updatedAt] = intent.updatedAt.toLocalDateTimeUtc()
+    this[IntentTable.syncAt] = syncAt.toLocalDateTimeUtc()
 }

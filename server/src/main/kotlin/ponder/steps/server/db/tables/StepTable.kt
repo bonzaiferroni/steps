@@ -3,6 +3,7 @@ package ponder.steps.server.db.tables
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
@@ -23,9 +24,10 @@ internal object StepTable : UUIDTable("step") {
     val pathSize = integer("path_size")
     val updatedAt = datetime("updated_at")
     val createdAt = datetime("created_at")
+    val syncAt = datetime("sync_at").nullable()
 }
 
-fun upsertStep(userId: String): BatchUpsertStatement.(Step) -> Unit = { step ->
+fun syncStep(userId: String, syncAt: Instant): BatchUpsertStatement.(Step) -> Unit = { step ->
     this[StepTable.id] = step.id.fromStringId()
     this[StepTable.userId] = userId.fromStringId()
     this[StepTable.label] = step.label
@@ -40,4 +42,5 @@ fun upsertStep(userId: String): BatchUpsertStatement.(Step) -> Unit = { step ->
     this[StepTable.pathSize] = step.pathSize
     this[StepTable.updatedAt] = step.updatedAt.toLocalDateTimeUtc()
     this[StepTable.createdAt] = step.createdAt.toLocalDateTimeUtc()
+    this[StepTable.syncAt] = syncAt.toLocalDateTimeUtc()
 }

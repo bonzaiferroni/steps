@@ -15,8 +15,4 @@ data class TodoStep(
     val isComplete: Boolean? = null,
 ) {
     val key: String get() = step.pathStepId ?: trekId
-    val sortValue: Long get() = step.position?.toLong()
-        ?: finishedAt?.takeIf { isComplete == true }?.let { -it.epochSeconds / 10 }
-        ?: startedAt?.let { -it.epochSeconds }
-        ?: Long.MAX_VALUE
 }

@@ -60,6 +60,17 @@ class LocalSyncRepository(
         dao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.questions.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.intents.map { it.toEntity() }.toTypedArray())
+//        val trekDao = appDb.getTrekDao()
+//        for (trek in data.treks) {
+//            println("trek: ${trek.toEntity()}")
+//            val existingTrek = trekDao.readTrekById(trek.id)
+//            if (existingTrek != null) {
+//                trekDao.update(trek.toEntity())
+//            } else {
+//                trekDao.create(trek.toEntity())
+//            }
+//
+//        }
         dao.upsert(*data.treks.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.stepLogs.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.answers.map { it.toEntity() }.toTypedArray())

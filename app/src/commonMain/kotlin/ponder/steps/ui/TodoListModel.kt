@@ -35,7 +35,7 @@ class TodoListModel(
         progressFlow: Flow<Map<String, Int>>,
     ) {
         stepFlow.launchCollect { steps ->
-            allSteps = steps.sortedBy { it.sortValue }
+            allSteps = steps
             refreshSteps()
         }
         stepLogFlow.launchCollect { stepLogs -> setState { it.copy(stepLogs = stepLogs) } }

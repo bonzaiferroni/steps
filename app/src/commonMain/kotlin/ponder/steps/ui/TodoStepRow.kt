@@ -51,7 +51,6 @@ fun LazyItemScope.TodoStepRow(
         spacingUnits = 1,
         modifier = Modifier.fillMaxWidth()
             .animateItem()
-            .magic(offsetX = if (isDeeper) 30.dp else (-30).dp)
     ) {
         Row(
             spacingUnits = 1,

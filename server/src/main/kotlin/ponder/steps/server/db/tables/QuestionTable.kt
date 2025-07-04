@@ -5,6 +5,7 @@ import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
 import klutch.utils.toStringId
+import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
@@ -22,6 +23,7 @@ object QuestionTable: UUIDTable("question") {
     val maxValue = integer("max_value").nullable()
     val audioUrl = text("audio_url").nullable()
     val updatedAt = datetime("updated_at")
+    val syncAt = datetime("sync_at").nullable()
 }
 
 fun ResultRow.toQuestion() = Question(
@@ -35,7 +37,7 @@ fun ResultRow.toQuestion() = Question(
     updatedAt = this[QuestionTable.updatedAt].toInstantFromUtc()
 )
 
-fun upsertQuestion(userId: String): BatchUpsertStatement.(Question) -> Unit = { question ->
+fun syncQuestion(userId: String, syncAt: Instant): BatchUpsertStatement.(Question) -> Unit = { question ->
     this[QuestionTable.id] = question.id.fromStringId()
     this[QuestionTable.userId] = userId.fromStringId()
     this[QuestionTable.stepId] = question.stepId.fromStringId()
@@ -45,5 +47,6 @@ fun upsertQuestion(userId: String): BatchUpsertStatement.(Question) -> Unit = { 
     this[QuestionTable.maxValue] = question.maxValue
     this[QuestionTable.audioUrl] = question.audioUrl
     this[QuestionTable.updatedAt] = question.updatedAt.toLocalDateTimeUtc()
+    this[QuestionTable.syncAt] = syncAt.toLocalDateTimeUtc()
 }
 
