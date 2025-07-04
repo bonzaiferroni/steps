@@ -1,9 +1,8 @@
 package ponder.steps.io
 
-import kotlinx.datetime.Clock
+import androidx.sqlite.SQLiteException
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import ponder.steps.appDb
@@ -11,7 +10,9 @@ import ponder.steps.db.SyncDao
 import ponder.steps.db.SyncRecord
 import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
+import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.SyncData
+import ponder.steps.model.data.Trek
 
 class LocalSyncRepository(
     private val dao: SyncDao = appDb.getSyncDao(),
@@ -60,19 +61,12 @@ class LocalSyncRepository(
         dao.upsert(*data.pathSteps.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.questions.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.intents.map { it.toEntity() }.toTypedArray())
-//        val trekDao = appDb.getTrekDao()
-//        for (trek in data.treks) {
-//            println("trek: ${trek.toEntity()}")
-//            val existingTrek = trekDao.readTrekById(trek.id)
-//            if (existingTrek != null) {
-//                trekDao.update(trek.toEntity())
-//            } else {
-//                trekDao.create(trek.toEntity())
-//            }
-//
-//        }
-        dao.upsert(*data.treks.map { it.toEntity() }.toTypedArray())
-        dao.upsert(*data.stepLogs.map { it.toEntity() }.toTypedArray())
+        val stepLogs = writeTreks(data.treks, data.stepLogs)
+        try {
+            dao.upsert(*stepLogs.map { it.toEntity() }.toTypedArray())
+        } catch (e: SQLiteException) {
+            println("failed writing ${stepLogs.size} logs: ${e.message}")
+        }
         dao.upsert(*data.answers.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.tags.map { it.toEntity() }.toTypedArray())
         dao.upsert(*data.stepTags.map { it.toEntity() }.toTypedArray())
@@ -94,6 +88,31 @@ class LocalSyncRepository(
     suspend fun cleanSync(endSyncAt: Instant): Boolean {
         dao.deleteDeletionsBefore(endSyncAt)
         return true
+    }
+
+    suspend fun writeTreks(treks: List<Trek>, stepLogs: List<StepLog>): List<StepLog> {
+        var stepLogs = stepLogs
+        for (remoteTrek in treks) {
+            if (remoteTrek.isComplete) {
+                dao.upsert(remoteTrek.toEntity())
+                continue
+            }
+            val localTrek = dao.readActiveTrekByIntentId(remoteTrek.intentId)
+            if (localTrek == null) {
+                dao.upsert(remoteTrek.toEntity())
+                continue
+            }
+            if (localTrek.createdAt < remoteTrek.createdAt) {
+                println("trek conflict resolved using local data")
+                // associate incoming steplogs with local active trek
+                stepLogs = stepLogs.map { if (it.trekId == remoteTrek.id) it.copy(trekId = localTrek.id) else it }
+            } else {
+                println("trek conflict resolved using remote data")
+                dao.upsert(remoteTrek.toEntity())
+                dao.replaceStepLogTrekId(localTrek.id, remoteTrek.id)
+            }
+        }
+        return stepLogs
     }
 }
 

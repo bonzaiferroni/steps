@@ -205,7 +205,7 @@ class LocalTrekRepository(
                 intentId = intent.id,
                 rootId = intent.rootId,
                 isComplete = false,
-                startedAt = now,
+                createdAt = now,
                 finishedAt = null,
                 expectedAt = intent.expectedMins?.let { mins -> Clock.System.now() + mins.minutes },
                 updatedAt = now

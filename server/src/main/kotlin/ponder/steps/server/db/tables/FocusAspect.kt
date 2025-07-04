@@ -18,7 +18,7 @@ object FocusAspect: Aspect<FocusAspect, Focus>(
     val stepLabel = add(StepTable.label)
     val stepPathSize = add(StepTable.pathSize)
     val imgUrl = add(StepTable.imgUrl)
-    val startedAt = add(TrekTable.startedAt)
+    val startedAt = add(TrekTable.createdAt)
 }
 
 fun ResultRow.toFocus() = Focus(

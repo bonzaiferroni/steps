@@ -1,14 +1,11 @@
 package ponder.steps.server.db.services
 
 import kabinet.utils.nowToLocalDateTimeUtc
-import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.readSingle
 import klutch.db.readSingleOrNull
 import klutch.db.readValue
-import klutch.db.updateById
 import klutch.utils.eq
-import klutch.utils.fromStringId
 import klutch.utils.toStringId
 import kotlinx.datetime.Clock
 import org.jetbrains.exposed.sql.*
@@ -16,25 +13,11 @@ import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepTable
 import ponder.steps.server.db.tables.TrekItemAspect
 import ponder.steps.server.db.tables.TrekTable
-import ponder.steps.server.db.tables.toPathStep
-import ponder.steps.server.db.tables.toTrek
 
 class TrekApiService: DbService() {
 
     suspend fun readUserTreks(userId: String) = dbQuery {
         TrekItemAspect.read { TrekTable.userId.eq(userId) }
-    }
-
-    suspend fun startTrek(trekId: String, userId: String) = dbQuery {
-        TrekTable.update(where = { TrekTable.id.eq(trekId) and TrekTable.userId.eq(userId)}) {
-            it[this.startedAt] = Clock.nowToLocalDateTimeUtc()
-        } == 1
-    }
-
-    suspend fun pauseTrek(trekId: String, userId: String) = dbQuery {
-        TrekTable.update(where = { TrekTable.id.eq(trekId) and TrekTable.userId.eq(userId)}) {
-            it[this.startedAt] = null
-        } == 1
     }
 
     suspend fun completeStep(trekId: String, userId: String) = dbQuery {

@@ -63,7 +63,7 @@ interface StepLogDao {
     @Query(
         "SELECT l.* FROM TrekEntity AS t " +
                 "JOIN StepLogEntity AS l ON t.id = l.trekId " +
-                "WHERE l.pathStepId IS NULL AND (t.startedAt >= :start OR NOT t.isComplete) "
+                "WHERE l.pathStepId IS NULL AND (t.createdAt >= :start OR NOT t.isComplete) "
     )
     fun flowRootLogs(start: Instant): Flow<List<StepLog>>
 

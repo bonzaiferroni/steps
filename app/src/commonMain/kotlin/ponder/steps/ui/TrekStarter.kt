@@ -6,8 +6,10 @@ import kabinet.utils.startOfDay
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import ponder.steps.io.DataMerger
 import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.Intent
@@ -32,7 +34,11 @@ class TrekStarter(
     private fun refreshIntents(intents: List<Intent>) {
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
-            while (true) {
+            while (isActive) {
+                while (DataMerger.syncInProgress) {
+                    println("delaying trekStarter for sync")
+                    delay(1000)
+                }
                 val start = Clock.startOfDay()
                 val end = start + 1.days
                 val now = Clock.System.now()
@@ -65,7 +71,8 @@ class TrekStarter(
                         }
                     }
 
-                    if (createTrek) {
+                    if (createTrek && isActive) {
+                        println("creating trek for intent: ${intent.label}")
                         trekRepo.createTrekFromIntent(intent)
                     }
                     activeIntents.add(intent)

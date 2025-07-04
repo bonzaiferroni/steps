@@ -11,7 +11,7 @@ data class Trek(
     val intentId: IntentId,
     val rootId: StepId,
     val isComplete: Boolean,
-    val startedAt: Instant?,
+    val createdAt: Instant,
     val finishedAt: Instant?,
     val expectedAt: Instant?,
     val updatedAt: Instant,

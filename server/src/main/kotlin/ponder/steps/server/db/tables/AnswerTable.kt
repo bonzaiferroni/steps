@@ -1,10 +1,12 @@
 package ponder.steps.server.db.tables
 
+import kabinet.utils.nowToLocalDateTimeUtc
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
 import klutch.utils.toStringId
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
@@ -21,7 +23,7 @@ object AnswerTable: UUIDTable("answer") {
     val value = text("value")
     val type = enumeration<DataType>("type")
     val updatedAt = datetime("updated_at")
-    val syncAt = datetime("sync_at").nullable()
+    val syncAt = datetime("sync_at").default(Clock.nowToLocalDateTimeUtc())
 }
 
 fun ResultRow.toAnswer() = Answer(

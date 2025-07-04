@@ -9,6 +9,7 @@ import androidx.room.Upsert
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Intent
+import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
@@ -120,4 +121,10 @@ interface SyncDao {
 
     @Query("SELECT * FROM StepTagEntity WHERE updatedAt > :syncStartAt AND :syncEndAt > updatedAt")
     suspend fun readStepTagsUpdated(syncStartAt: Instant, syncEndAt: Instant): List<StepTag>
+
+    @Query("SELECT * FROM TrekEntity WHERE intentId = :intentId AND NOT isComplete")
+    suspend fun readActiveTrekByIntentId(intentId: IntentId): Trek?
+
+    @Query("UPDATE StepLogEntity SET trekId = :newTrekId WHERE trekId = :oldTrekId")
+    suspend fun replaceStepLogTrekId(oldTrekId: String, newTrekId: String): Int
 }

@@ -22,16 +22,6 @@ fun Routing.serveJourney(
             service.completeStep(trekId, userId)
         }
 
-        post(Api.Journey.StartTrek) { trekId, endpoint ->
-            val userId = call.getUserId()
-            service.startTrek(trekId, userId)
-        }
-
-        post(Api.Journey.PauseTrek) { trekId, endpoint ->
-            val userId = call.getUserId()
-            service.pauseTrek(trekId, userId)
-        }
-
         post(Api.Journey.StepIntoPath) { trekId, endpoint ->
             val userId = call.getUserId()
             service.stepIntoPath(trekId, userId)

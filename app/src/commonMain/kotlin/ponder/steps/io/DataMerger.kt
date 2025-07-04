@@ -20,6 +20,7 @@ class DataMerger(
         scope.launch(Dispatchers.IO) {
             while (true) {
                 try {
+                    syncInProgress = true
                     val startSyncAt = localRepo.readSyncStartAt()
                     val endSyncAt = Clock.System.now()
 
@@ -41,6 +42,7 @@ class DataMerger(
 
                     localRepo.cleanSync(endSyncAt)
                     localRepo.logSync(startSyncAt, endSyncAt)
+                    syncInProgress = false
                 } catch (e: Exception) {
                     println("Error with sync: ${e.message}\n${e.stackTraceToString()}")
                 }
@@ -48,6 +50,11 @@ class DataMerger(
                 delay(interval)
             }
         }
+    }
+
+    companion object {
+        var syncInProgress: Boolean = false
+            private set
     }
 }
 

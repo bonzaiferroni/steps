@@ -56,21 +56,18 @@ class SyncApiService : DbService() {
 
     suspend fun readSync(startSyncAt: Instant, endSyncAt: Instant, userId: String) = dbQuery {
 
-        fun syncTable(userIdColumn: Column<EntityID<UUID>>, updatedAtColumn: Column<LocalDateTime>) =
-            userIdColumn.eq(userId) and updatedAtColumn.greater(startSyncAt) and updatedAtColumn.lessEq(endSyncAt)
+        fun syncTable(userIdColumn: Column<EntityID<UUID>>, syncColumn: Column<LocalDateTime>) =
+            userIdColumn.eq(userId) and syncColumn.greater(startSyncAt) and syncColumn.lessEq(endSyncAt)
 
-        fun syncTableNullable(userIdColumn: Column<EntityID<UUID>>, updatedAtColumn: Column<LocalDateTime?>) =
-            userIdColumn.eq(userId) and updatedAtColumn.greaterNullable(startSyncAt) and updatedAtColumn.lessEqNullable(endSyncAt)
-
-        val steps = StepTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toStep() }
-        val pathSteps = PathStepTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toPathStep() }
-        val questions = QuestionTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toQuestion() }
-        val intents = IntentTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toIntent() }
-        val treks = TrekTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toTrek() }
-        val stepLogs = StepLogTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toStepLog() }
-        val answers = AnswerTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toAnswer() }
-        val tags = TagTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toTag() }
-        val stepTags = StepTagTable.read { syncTableNullable(it.userId, it.syncAt) }.map { it.toStepTag() }
+        val steps = StepTable.read { syncTable(it.userId, it.syncAt) }.map { it.toStep() }
+        val pathSteps = PathStepTable.read { syncTable(it.userId, it.syncAt) }.map { it.toPathStep() }
+        val questions = QuestionTable.read { syncTable(it.userId, it.syncAt) }.map { it.toQuestion() }
+        val intents = IntentTable.read { syncTable(it.userId, it.syncAt) }.map { it.toIntent() }
+        val treks = TrekTable.read { syncTable(it.userId, it.syncAt) }.map { it.toTrek() }
+        val stepLogs = StepLogTable.read { syncTable(it.userId, it.syncAt) }.map { it.toStepLog() }
+        val answers = AnswerTable.read { syncTable(it.userId, it.syncAt) }.map { it.toAnswer() }
+        val tags = TagTable.read { syncTable(it.userId, it.syncAt) }.map { it.toTag() }
+        val stepTags = StepTagTable.read { syncTable(it.userId, it.syncAt) }.map { it.toStepTag() }
 
         val deletions = DeletionTable.readColumn(DeletionTable.id) { syncTable(it.userId, it.recordedAt) }
             .map { it.value.toStringId() }.toSet()

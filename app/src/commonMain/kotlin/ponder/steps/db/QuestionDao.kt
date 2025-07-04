@@ -42,7 +42,7 @@ interface QuestionDao {
     @Query(
         "SELECT DISTINCT q.* FROM TrekEntity AS t " +
                 "JOIN QuestionEntity AS q ON t.rootId = q.stepId " +
-                "WHERE t.startedAt >= :start OR NOT t.isComplete "
+                "WHERE t.createdAt >= :start OR NOT t.isComplete "
     )
     fun flowRootQuestions(start: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
 

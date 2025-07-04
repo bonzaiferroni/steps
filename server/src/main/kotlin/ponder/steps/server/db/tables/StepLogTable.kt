@@ -1,10 +1,12 @@
 package ponder.steps.server.db.tables
 
+import kabinet.utils.nowToLocalDateTimeUtc
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
 import klutch.utils.fromStringId
 import klutch.utils.toStringId
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -25,7 +27,7 @@ object StepLogTable : UUIDTable("step_log") {
     val outcome = enumeration<StepOutcome>("outcome")
     val createdAt = datetime("created_at")
     val updatedAt = datetime("updated_at")
-    val syncAt = datetime("sync_at").nullable()
+    val syncAt = datetime("sync_at").default(Clock.nowToLocalDateTimeUtc())
 }
 
 fun ResultRow.toStepLog() = StepLog(

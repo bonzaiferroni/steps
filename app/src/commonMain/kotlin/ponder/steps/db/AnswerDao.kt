@@ -46,7 +46,7 @@ interface AnswerDao {
         "SELECT a.* FROM TrekEntity AS t " +
                 "JOIN StepLogEntity AS l ON t.id = l.trekId " +
                 "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
-                "WHERE t.startedAt > :start OR NOT t.isComplete "
+                "WHERE t.createdAt > :start OR NOT t.isComplete "
     )
     fun flowRootAnswers(start: Instant): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
 

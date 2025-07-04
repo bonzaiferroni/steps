@@ -24,7 +24,7 @@ internal object TrekItemAspect: Aspect<TrekItemAspect, TrekItem>(
     val intentLabel = add(IntentTable.label)
     val intentPriority = add(IntentTable.priority)
     val expectedMinutes = add(IntentTable.expectedMins)
-    val startedAt = add(TrekTable.startedAt)
+    val startedAt = add(TrekTable.createdAt)
     val finishedAt = add(TrekTable.finishedAt)
 }
 

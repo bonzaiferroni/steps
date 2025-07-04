@@ -55,7 +55,8 @@ interface TagDao {
     @Query("SELECT tag.*, st.stepId FROM TagEntity AS tag " +
             "JOIN StepTagEntity AS st ON tag.id = st.tagId " +
             "JOIN TrekEntity AS t ON t.rootId = st.stepId " +
-            "WHERE t.startedAt > :start OR NOT t.isComplete")
+            "WHERE t.createdAt > :start OR NOT t.isComplete"
+    )
     fun flowRootTags(start: Instant): Flow<Map<@MapColumn("stepId") StepId, List<Tag>>>
 }
 

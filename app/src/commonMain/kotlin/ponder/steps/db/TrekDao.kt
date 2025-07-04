@@ -55,25 +55,27 @@ interface TrekDao {
     @Query(
         "SELECT t1.* FROM TrekEntity t1 " +
                 "WHERE t1.intentId IN (:intentIds) " +
-                "AND t1.startedAt = (SELECT MAX(t2.startedAt) FROM TrekEntity t2 WHERE t2.intentId = t1.intentId)"
+                "AND t1.createdAt = (SELECT MAX(t2.createdAt) FROM TrekEntity t2 WHERE t2.intentId = t1.intentId)"
     )
     suspend fun readTreksLastStartedAt(intentIds: List<IntentId>): List<Trek>
 
     @Query("SELECT id FROM TrekEntity WHERE intentId = :intentId AND NOT isComplete")
     suspend fun readActiveTrekId(intentId: IntentId): TrekId?
 
-    @Query("SELECT t.id trekId, t.startedAt, t.isComplete, t.finishedAt, s.* FROM TrekEntity AS t " +
+    @Query(
+        "SELECT t.id trekId, t.createdAt, t.isComplete, t.finishedAt, s.* FROM TrekEntity AS t " +
             "JOIN StepEntity AS s ON s.id = t.rootId " +
-            "WHERE t.startedAt >= :start OR NOT t.isComplete ")
+                "WHERE t.createdAt >= :start OR NOT t.isComplete "
+    )
     fun flowRootTodoSteps(start: Instant): Flow<List<TodoStep>>
 
-    @Query("SELECT * FROM TrekEntity WHERE startedAt > :start OR NOT isComplete")
+    @Query("SELECT * FROM TrekEntity WHERE createdAt > :start OR NOT isComplete")
     fun flowActiveTreks(start: Instant): Flow<List<Trek>>
 
     @Query("SELECT COUNT(*) cnt, t.id trekId FROM TrekEntity AS t " +
             "JOIN PathStepEntity AS ps ON t.rootId = ps.pathId " +
             "JOIN StepLogEntity AS l ON l.pathStepId = ps.id AND l.trekId = t.id " +
-            "WHERE t.startedAt > :start OR NOT t.isComplete " +
+            "WHERE t.createdAt > :start OR NOT t.isComplete " +
             "GROUP BY trekId ")
     fun flowRootProgresses(start: Instant): Flow<Map<@MapColumn("trekId") TrekId, @MapColumn("cnt") Int>>
 

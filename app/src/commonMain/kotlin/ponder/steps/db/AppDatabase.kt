@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.milliseconds
         StepLogEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncRecord::class,
         TagEntity::class, StepTagEntity::class,
-    ], version = 40
+    ], version = 42
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
