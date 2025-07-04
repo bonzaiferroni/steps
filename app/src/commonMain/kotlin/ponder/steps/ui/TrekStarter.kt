@@ -56,7 +56,6 @@ class TrekStarter(
 
                     if (scheduledAt != null && scheduledAt > now) {
                         nextRefresh = minOf(nextRefresh, scheduledAt)
-                        continue
                     }
 
                     val repeatMins = intent.repeatMins
@@ -65,7 +64,6 @@ class TrekStarter(
                         val repeatTime = finishedAt?.let { it + repeatMins.minutes } ?: (now + repeatMins.minutes)
                         if (repeatTime > now) {
                             nextRefresh = minOf(nextRefresh, repeatTime)
-                            continue
                         } else {
                             createTrek = true
                         }

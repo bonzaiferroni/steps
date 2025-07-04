@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import ponder.steps.appDb
+import ponder.steps.appOrigin
 import ponder.steps.db.SyncDao
 import ponder.steps.db.SyncRecord
 import ponder.steps.db.toEntity
@@ -38,6 +39,7 @@ class LocalSyncRepository(
         val stepTags = dao.readStepTagsUpdated(syncStartAt, syncEndAt)
 
         return SyncData(
+            origin = appOrigin,
             startSyncAt = syncStartAt,
             endSyncAt = syncEndAt,
             deletions = deletions,
@@ -53,6 +55,7 @@ class LocalSyncRepository(
         )
     }
 
+    @Suppress("DuplicatedCode")
     override suspend fun writeSync(data: SyncData): Boolean {
         val deletions = data.deletions.toList()
 
@@ -110,6 +113,7 @@ class LocalSyncRepository(
                 println("trek conflict resolved using remote data")
                 dao.upsert(remoteTrek.toEntity())
                 dao.replaceStepLogTrekId(localTrek.id, remoteTrek.id)
+                dao.delete(localTrek.toEntity())
             }
         }
         return stepLogs

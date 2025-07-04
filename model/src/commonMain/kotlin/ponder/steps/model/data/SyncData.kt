@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SyncData(
+    val origin: String,
     val startSyncAt: Instant,
     val endSyncAt: Instant,
     val deletions: Set<String>,

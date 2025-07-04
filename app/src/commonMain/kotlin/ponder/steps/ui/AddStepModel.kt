@@ -181,7 +181,7 @@ data class AddIntentState(
         }
 }
 
-private val repeatMinuteValues = (1..24).map { it * 5 }.toImmutableList()
+private val repeatMinuteValues = ((1..4) + (1..60).map { it * 5 }).toImmutableList()
 private val repeatHourValues = (1..48).toImmutableList()
 private val repeatDayValues = (1..60).toImmutableList()
 private val repeatWeekValues = (1..8).toImmutableList()

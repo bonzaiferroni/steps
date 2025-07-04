@@ -53,6 +53,9 @@ interface SyncDao {
     @Upsert
     suspend fun upsert(vararg stepTags: StepTagEntity): LongArray
 
+    @Delete
+    suspend fun delete(trek: TrekEntity)
+
     @Query("DELETE FROM StepEntity WHERE id IN (:deletions)")
     suspend fun deleteStepsInList(deletions: List<String>)
 

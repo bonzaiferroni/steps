@@ -24,6 +24,8 @@ private fun toTrigger(tableName: String) = """
         VALUES (
             OLD.id,
             CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)
-        );
+        )
+        ON CONFLICT(id) DO UPDATE
+          SET recordedAt = excluded.recordedAt;
     END;
 """.trimIndent()

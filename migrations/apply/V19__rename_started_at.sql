@@ -1,0 +1,2 @@
+ALTER TABLE trek ADD created_at TIMESTAMP NOT NULL;
+ALTER TABLE trek DROP COLUMN started_at;

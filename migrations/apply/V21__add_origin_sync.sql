@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS origin_sync (id BIGSERIAL PRIMARY KEY, user_id uuid NOT NULL, "label" TEXT NOT NULL, sync_at TIMESTAMP NOT NULL, CONSTRAINT fk_origin_sync_user_id__id FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE ON UPDATE RESTRICT);
+ALTER TABLE origin_sync ADD CONSTRAINT origin_sync_user_id_label_unique UNIQUE (user_id, "label");
+CREATE SEQUENCE IF NOT EXISTS origin_sync_id_seq START WITH 1 MINVALUE 1 MAXVALUE 9223372036854775807;
+ALTER TABLE step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE path_step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE intent ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE trek ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE question ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE step_log ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE answer ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;
+ALTER TABLE step_tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-04 18:01:03'::timestamp without time zone;

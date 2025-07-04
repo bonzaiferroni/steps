@@ -11,6 +11,7 @@ import ponder.steps.server.db.tables.AnswerTable
 import ponder.steps.server.db.tables.DeletionTable
 import ponder.steps.server.db.tables.ExampleTable
 import ponder.steps.server.db.tables.IntentTable
+import ponder.steps.server.db.tables.OriginSyncTable
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.QuestionTable
 import ponder.steps.server.db.tables.StepLogTable
@@ -49,6 +50,7 @@ val dbTables = listOf(
     AnswerTable,
     TagTable,
     StepTagTable,
+    OriginSyncTable,
 )
 
 //CREATE DATABASE example_db;

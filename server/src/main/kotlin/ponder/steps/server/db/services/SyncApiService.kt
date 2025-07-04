@@ -7,9 +7,7 @@ import klutch.db.readColumn
 import klutch.utils.eq
 import klutch.utils.fromStringId
 import klutch.utils.greater
-import klutch.utils.greaterNullable
 import klutch.utils.lessEq
-import klutch.utils.lessEqNullable
 import klutch.utils.toStringId
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -21,10 +19,12 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.upsert
 import ponder.steps.model.data.SyncData
 import ponder.steps.server.db.tables.AnswerTable
 import ponder.steps.server.db.tables.DeletionTable
 import ponder.steps.server.db.tables.IntentTable
+import ponder.steps.server.db.tables.OriginSyncTable
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.QuestionTable
 import ponder.steps.server.db.tables.StepLogTable
@@ -56,23 +56,24 @@ class SyncApiService : DbService() {
 
     suspend fun readSync(startSyncAt: Instant, endSyncAt: Instant, userId: String) = dbQuery {
 
-        fun syncTable(userIdColumn: Column<EntityID<UUID>>, syncColumn: Column<LocalDateTime>) =
+        fun readSyncData(userIdColumn: Column<EntityID<UUID>>, syncColumn: Column<LocalDateTime>) =
             userIdColumn.eq(userId) and syncColumn.greater(startSyncAt) and syncColumn.lessEq(endSyncAt)
 
-        val steps = StepTable.read { syncTable(it.userId, it.syncAt) }.map { it.toStep() }
-        val pathSteps = PathStepTable.read { syncTable(it.userId, it.syncAt) }.map { it.toPathStep() }
-        val questions = QuestionTable.read { syncTable(it.userId, it.syncAt) }.map { it.toQuestion() }
-        val intents = IntentTable.read { syncTable(it.userId, it.syncAt) }.map { it.toIntent() }
-        val treks = TrekTable.read { syncTable(it.userId, it.syncAt) }.map { it.toTrek() }
-        val stepLogs = StepLogTable.read { syncTable(it.userId, it.syncAt) }.map { it.toStepLog() }
-        val answers = AnswerTable.read { syncTable(it.userId, it.syncAt) }.map { it.toAnswer() }
-        val tags = TagTable.read { syncTable(it.userId, it.syncAt) }.map { it.toTag() }
-        val stepTags = StepTagTable.read { syncTable(it.userId, it.syncAt) }.map { it.toStepTag() }
+        val steps = StepTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toStep() }
+        val pathSteps = PathStepTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toPathStep() }
+        val questions = QuestionTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toQuestion() }
+        val intents = IntentTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toIntent() }
+        val treks = TrekTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toTrek() }
+        val stepLogs = StepLogTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toStepLog() }
+        val answers = AnswerTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toAnswer() }
+        val tags = TagTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toTag() }
+        val stepTags = StepTagTable.read { readSyncData(it.userId, it.syncAt) }.map { it.toStepTag() }
 
-        val deletions = DeletionTable.readColumn(DeletionTable.id) { syncTable(it.userId, it.recordedAt) }
+        val deletions = DeletionTable.readColumn(DeletionTable.id) { readSyncData(it.userId, it.recordedAt) }
             .map { it.value.toStringId() }.toSet()
 
         SyncData(
+            origin = "Server",
             startSyncAt = startSyncAt,
             endSyncAt = endSyncAt,
             deletions = deletions,
@@ -89,7 +90,6 @@ class SyncApiService : DbService() {
     }
 
     suspend fun writeSync(data: SyncData, userId: String) = dbQuery {
-
         try {
             // handle updates
             StepTable.batchUpsert(
@@ -166,8 +166,23 @@ class SyncApiService : DbService() {
                 }
             }
 
-            // proto garbage collection, needs to use device id
-            DeletionTable.deleteWhere { this.userId.eq(userId) and this.recordedAt.lessEq(data.endSyncAt) }
+            val isTrailingOrigin = OriginSyncTable.select(OriginSyncTable.label)
+                .where { OriginSyncTable.userId.eq(userId) }
+                .orderBy(OriginSyncTable.syncAt).limit(1)
+                .firstOrNull()?.let { it[OriginSyncTable.label] } == data.origin
+
+            if (isTrailingOrigin) {
+                println("sync gc: ${data.origin}")
+                DeletionTable.deleteWhere { this.userId.eq(userId) and this.recordedAt.lessEq(data.endSyncAt) }
+            }
+
+            OriginSyncTable.upsert(
+                OriginSyncTable.label, OriginSyncTable.userId
+            ) {
+                it[OriginSyncTable.label] = data.origin
+                it[OriginSyncTable.userId] = userId.fromStringId()
+                it[OriginSyncTable.syncAt] = data.endSyncAt.toLocalDateTimeUtc()
+            }
 
             true
         } catch (e: ExposedSQLException) {

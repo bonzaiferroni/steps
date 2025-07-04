@@ -44,5 +44,7 @@ fun App(
 
 var _db: AppDatabase? = null
 val appDb: AppDatabase get() = _db ?: error("You must initialize the database")
-
+val appOrigin = getOrigin()
 val appUserId = "wombat7"
+
+expect fun getOrigin(): String
