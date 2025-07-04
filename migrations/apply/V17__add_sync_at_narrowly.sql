@@ -1,0 +1,1 @@
+ALTER TABLE step_log ADD sync_at TIMESTAMP NULL;
