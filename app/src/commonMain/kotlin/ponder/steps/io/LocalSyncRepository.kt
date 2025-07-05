@@ -120,4 +120,4 @@ class LocalSyncRepository(
     }
 }
 
-private val defaultStartSyncAt = LocalDate.parse("2017-03-20").atStartOfDayIn(TimeZone.UTC)
+val defaultStartSyncAt = LocalDate.parse("2017-03-20").atStartOfDayIn(TimeZone.UTC)

@@ -11,9 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import ponder.steps.RecordDeletionTrigger
 import ponder.steps.RecordUpdatedTrigger
-import ponder.steps.db.TimeUnit
 import ponder.steps.model.db.synchronizedData
-import java.util.concurrent.Executors
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -36,7 +34,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getIntentDao(): IntentDao
     abstract fun getTrekDao(): TrekDao
     abstract fun getQuestionDao(): QuestionDao
-    abstract fun getLogDao(): StepLogDao
+    abstract fun getStepLogDao(): StepLogDao
     abstract fun getAnswerDao(): AnswerDao
     abstract fun getSyncDao(): SyncDao
     abstract fun getTagDao(): TagDao

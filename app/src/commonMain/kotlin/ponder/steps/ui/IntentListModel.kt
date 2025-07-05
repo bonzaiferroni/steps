@@ -15,7 +15,7 @@ class IntentListModel(
 ) : StateModel<IntentionState>(IntentionState()) {
 
     init {
-        intentRepo.readActiveIntentsFlow().launchCollect { intents ->
+        intentRepo.flowActiveIntents().launchCollect { intents ->
             setState { it.copy(intents = intents) }
         }
     }

@@ -34,7 +34,7 @@ class LocalTrekRepository(
     private val stepDao: StepDao = appDb.getStepDao(),
     private val pathStepDao: PathStepDao = appDb.getPathStepDao(),
     private val intentDao: IntentDao = appDb.getIntentDao(),
-    private val stepLogDao: StepLogDao = appDb.getLogDao(),
+    private val stepLogDao: StepLogDao = appDb.getStepLogDao(),
     private val questionDao: QuestionDao = appDb.getQuestionDao(),
     private val answerDao: AnswerDao = appDb.getAnswerDao(),
 ) : TrekRepository {
@@ -190,8 +190,6 @@ class LocalTrekRepository(
         return isSuccess
     }
 
-    suspend fun readTrekFinishedAt(intentIds: List<IntentId>) = trekDao.readTrekFinishedAt(intentIds)
-
     suspend fun readTreksLastStartedAt(intentIds: List<IntentId>) = trekDao.readTreksLastStartedAt(intentIds)
 
     suspend fun createTrekFromIntent(intent: Intent): TrekId {
@@ -217,8 +215,6 @@ class LocalTrekRepository(
     suspend fun readTrekById(trekId: TrekId) = trekDao.readTrekById(trekId)
 
     fun flowRootTodoSteps(start: Instant) = trekDao.flowRootTodoSteps(start)
-
-    fun flowActiveTreks(start: Instant) = trekDao.flowActiveTreks(start)
 
     fun flowRootProgress(start: Instant) = trekDao.flowRootProgresses(start)
 

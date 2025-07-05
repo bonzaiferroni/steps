@@ -13,7 +13,6 @@ import ponder.steps.io.DataMerger
 import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.Intent
-import ponder.steps.model.data.Trek
 import pondui.ui.core.SubModel
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -26,7 +25,7 @@ class TrekStarter(
 ) : SubModel<TrekStarterState>(TrekStarterState(), viewModel) {
 
     init {
-        intentRepo.readActiveIntentsFlow().launchCollect { intents -> refreshIntents(intents) }
+        intentRepo.flowActiveIntents().launchCollect { intents -> refreshIntents(intents) }
     }
 
     private var refreshJob: Job? = null

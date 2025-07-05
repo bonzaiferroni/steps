@@ -19,7 +19,7 @@ data class StepLog(
     val updatedAt: Instant = Instant.DISTANT_PAST,
 
     val pathId: StepId? = null
-)
+): SyncRecord
 
 data class NewStepLog(
     val stepId: StepId,

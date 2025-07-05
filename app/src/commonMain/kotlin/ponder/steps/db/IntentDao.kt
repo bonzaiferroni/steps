@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
-import ponder.steps.model.data.IntentState
 
 @Dao
 interface IntentDao  {
@@ -20,7 +19,7 @@ interface IntentDao  {
     suspend fun readAllIntents(): List<Intent>
 
     @Query("SELECT * FROM IntentEntity WHERE completedAt IS NULL")
-    fun readActiveIntentsFlow(): Flow<List<Intent>>
+    fun flowActiveIntents(): Flow<List<Intent>>
 
     @Query("SELECT id FROM IntentEntity WHERE completedAt IS NULL")
     suspend fun readActiveIntentIds(): List<String>

@@ -24,6 +24,6 @@ data class Step(
     val pathId: String? = null,
     val pathStepId: String? = null,
     val position: Int? = null,
-)
+): SyncRecord
 
 typealias StepId = String

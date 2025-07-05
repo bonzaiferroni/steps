@@ -59,6 +59,12 @@ interface TrekDao {
     )
     suspend fun readTreksLastStartedAt(intentIds: List<IntentId>): List<Trek>
 
+    @Query(
+        "SELECT t.* FROM TrekEntity t " +
+                "WHERE t.intentId IN (:intentIds) AND (t.createdAt > :start OR NOT t.isComplete)"
+    )
+    fun flowActiveTreks(intentIds: List<IntentId>, start: Instant): Flow<List<Trek>>
+
     @Query("SELECT id FROM TrekEntity WHERE intentId = :intentId AND NOT isComplete")
     suspend fun readActiveTrekId(intentId: IntentId): TrekId?
 

@@ -6,19 +6,15 @@ import io.ktor.server.routing.routing
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.pingPeriod
-import io.ktor.server.websocket.timeout
 import io.ktor.server.websocket.webSocket
-import io.ktor.websocket.CloseReason
 import io.ktor.websocket.Frame
-import io.ktor.websocket.close
 import io.ktor.websocket.readBytes
-import io.ktor.websocket.readText
 import kabinet.utils.toFrame
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.datetime.Clock
 import ponder.steps.model.data.ChatMessage
+import ponder.steps.model.data.toSyncPacketOrNull
 import kotlin.time.Duration.Companion.seconds
 
 fun Application.configureWebSockets() {
@@ -30,19 +26,19 @@ fun Application.configureWebSockets() {
 
     routing {
 
-        val clients = mutableSetOf<DefaultWebSocketServerSession>()
-        val lock = Mutex()
+        val chatClients = mutableSetOf<DefaultWebSocketServerSession>()
+        val chatLock = Mutex()
 
         webSocket("/chat") {
             send(ChatMessage("Server", "Ahoy!").toFrame())
-            lock.withLock { clients += this }
+            chatLock.withLock { chatClients += this }
             try {
                 incoming.consumeEach { frame ->
                     when (frame) {
                         is Frame.Binary -> {
                             val bytes = frame.readBytes()
-                            lock.withLock {
-                                clients.forEach { session ->
+                            chatLock.withLock {
+                                chatClients.forEach { session ->
                                     session.send(bytes.toFrame())
                                 }
                             }
@@ -54,7 +50,34 @@ fun Application.configureWebSockets() {
                 }
             } finally {
                 // remove on disconnect
-                lock.withLock { clients -= this }
+                chatLock.withLock { chatClients -= this }
+            }
+        }
+
+        val syncClients = mutableSetOf<DefaultWebSocketServerSession>()
+        val syncLock = Mutex()
+
+        webSocket("/sync") {
+            syncLock.withLock { chatClients += this }
+
+            try {
+                incoming.consumeEach { frame ->
+                    when (frame) {
+                        is Frame.Binary -> {
+                            val bytes = frame.readBytes()
+                            val packet = bytes.toSyncPacketOrNull() ?: return@consumeEach
+                            for (record in packet.records) {
+                                println(record)
+                            }
+                        }
+                        else -> {
+                            println("unknown frame: $frame")
+                        }
+                    }
+                }
+            } finally {
+                // remove on disconnect
+                syncLock.withLock { chatClients -= this }
             }
         }
     }

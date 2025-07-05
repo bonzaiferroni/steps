@@ -5,6 +5,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
@@ -13,6 +15,7 @@ import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepTag
 import ponder.steps.model.data.Tag
 import ponder.steps.model.data.Trek
@@ -130,4 +133,16 @@ interface SyncDao {
 
     @Query("UPDATE StepLogEntity SET trekId = :newTrekId WHERE trekId = :oldTrekId")
     suspend fun replaceStepLogTrekId(oldTrekId: String, newTrekId: String): Int
+
+    @Query("SELECT * FROM StepLogEntity WHERE updatedAt > :start")
+    suspend fun readLogsUpdatedSince(start: Instant): List<StepLog>
+
+    @Query("SELECT * FROM StepLogEntity WHERE id = :stepLogId")
+    suspend fun readStepLogById(stepLogId: StepLogId): StepLog?
+
+    @Insert
+    suspend fun insertStepLog(stepLog: StepLogEntity)
+
+    @Update
+    suspend fun updateStepLog(stepLog: StepLogEntity)
 }

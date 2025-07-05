@@ -14,7 +14,7 @@ import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekId
 
 class LocalStepLogRepository(
-    private val stepLogDao: StepLogDao = appDb.getLogDao()
+    private val stepLogDao: StepLogDao = appDb.getStepLogDao()
 ) : StepLogRepository {
 
     override suspend fun readStepLog(stepLogId: String): StepLog? {

@@ -1,12 +1,14 @@
 package ponder.steps
 
 import androidx.compose.runtime.*
+import kotlinx.datetime.Instant
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
+import ponder.steps.db.streamUpdates
 import ponder.steps.io.DataMerger
+import ponder.steps.io.LocalDataSync
 import ponder.steps.io.LocalSyncRepository
 import ponder.steps.io.RemoteSyncRepository
-import pondui.LocalValueRepository
 import pondui.ProvideWavePlayer
 
 import pondui.io.ProvideUserContext
@@ -30,6 +32,7 @@ fun App(
                         remoteRepo = RemoteSyncRepository(),
                     )
                     sync.init(scope)
+                    LocalDataSync(appOrigin, appDb)
                 }
 
                 PondApp(

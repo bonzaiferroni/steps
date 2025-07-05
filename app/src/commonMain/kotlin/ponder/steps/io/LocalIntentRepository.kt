@@ -12,7 +12,7 @@ import ponder.steps.model.data.IntentId
 class LocalIntentRepository(
     private val intentDao: IntentDao = appDb.getIntentDao(),
 ): IntentRepository {
-    fun readActiveIntentsFlow() = intentDao.readActiveIntentsFlow()
+    fun flowActiveIntents() = intentDao.flowActiveIntents()
 
     override suspend fun createIntent(intent: NewIntent) {
         val id = randomUuidStringId()
