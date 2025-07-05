@@ -38,10 +38,10 @@ interface SyncDao {
     @Upsert
     suspend fun upsert(vararg intents: IntentEntity): LongArray
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsert(vararg treks: TrekEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun upsert(vararg stepLogs: StepLogEntity): LongArray
 
     @Upsert

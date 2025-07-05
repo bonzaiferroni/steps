@@ -8,7 +8,11 @@ import io.ktor.server.http.content.staticFiles
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
 import klutch.server.*
+import kotlinx.coroutines.channels.consumeEach
 import ponder.steps.model.apiPrefix
 import ponder.steps.server.routes.*
 import java.io.File

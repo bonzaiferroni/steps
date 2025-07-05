@@ -8,5 +8,6 @@ import kotlinx.datetime.Instant
 data class DeletionEntity(
     @PrimaryKey
     val id: String,
-    val recordedAt: Instant
+    val recordedAt: Instant,
+    val entity: String,
 )

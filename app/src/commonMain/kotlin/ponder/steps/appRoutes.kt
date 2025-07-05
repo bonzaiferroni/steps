@@ -27,6 +27,9 @@ data class StepProfileRoute(val stepId: String) : IdRoute<String>(TITLE, stepId)
 }
 
 @Serializable
+object ChatRoute : AppRoute("Chat")
+
+@Serializable
 object GeminiRoute : AppRoute("Gemini")
 
 @Serializable
