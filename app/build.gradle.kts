@@ -140,3 +140,9 @@ compose.desktop {
         }
     }
 }
+
+tasks.register<Exec>("clearDb") {
+    group = "dev"
+    description = "Wipe app data on device"
+    commandLine("adb", "shell", "pm", "clear", "ponder.steps")
+}
