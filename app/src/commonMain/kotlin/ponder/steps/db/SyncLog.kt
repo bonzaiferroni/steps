@@ -7,6 +7,6 @@ import kotlinx.datetime.Instant
 @Entity
 data class SyncLog(
     @PrimaryKey
-    val id: Long = 0,
+    val id: Long = 1,
     val lastSyncAt: Instant,
 )

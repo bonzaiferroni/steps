@@ -12,6 +12,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.db.AppDatabase
 import ponder.steps.db.DeletionEntity
+import ponder.steps.db.StepLogEntity
 import ponder.steps.db.SyncDao
 import ponder.steps.db.SyncLog
 import ponder.steps.db.toEntity
@@ -28,6 +29,11 @@ class SyncAgent(
     private var lastSyncAt: Instant = PAST_MOMENT
     private val sentPackets = MutableSharedFlow<SyncPacket>()
 
+    companion object {
+        var syncInProgress = false
+            private set
+    }
+
     fun startSync() {
         CoroutineScope(Dispatchers.IO).launch {
             var syncLog = syncDao.readSyncLog() ?: SyncLog(lastSyncAt = PAST_MOMENT)
@@ -40,9 +46,11 @@ class SyncAgent(
 
             launch {
                 socket.receivedPackets.collect { packet ->
+                    syncInProgress = true
                     for (record in packet.records) {
                         integrateRecord(packet.origin, record)
                     }
+                    syncInProgress = false
                 }
             }
 
@@ -68,7 +76,8 @@ class SyncAgent(
     }
 
     private suspend fun integrateRecord(origin: String, record: SyncRecord) {
-        // remoteIds.add(record.id)
+        remoteIds.add(record.id)
+        // println("record from $origin: ${record::class.nameOrError}")
         when (record) {
             is Deletion -> integrateDeletion(record)
             is Trek -> integrateTrek(record)
@@ -111,7 +120,7 @@ class SyncAgent(
                 record = record,
                 provideEntity = { it.toEntity(false) },
                 readRecord = syncDao::readStepLogById,
-                insertEntity = syncDao::insertStepLog,
+                insertEntity = ::insertStepLog,
                 updateEntity = syncDao::updateStepLog,
             )
             is StepTag -> integrateRecord(
@@ -131,6 +140,17 @@ class SyncAgent(
         }
     }
 
+    private suspend fun insertStepLog(stepLog: StepLogEntity) {
+        val trekId = stepLog.trekId
+        if (trekId == null) {
+            syncDao.insertStepLog(stepLog)
+            return
+        }
+        val isLocalTrek = syncDao.readTrekById(trekId) != null
+        val stepLog = if (!isLocalTrek) stepLog.copy(trekId = null) else stepLog
+        syncDao.insertStepLog(stepLog)
+    }
+
     private suspend fun integrateTrek(remote: Trek) {
         val writeRemoteTrek = suspend {
             integrateRecord(
@@ -147,7 +167,7 @@ class SyncAgent(
             return
         }
         val local = syncDao.readTrekByIntentId(remote.intentId)
-        if (local == null) {
+        if (local == null || local.id == remote.id) {
             writeRemoteTrek()
             return
         }
@@ -172,9 +192,13 @@ class SyncAgent(
         var lastSeen = lastSyncAt
         val tableName = SyncType.fromClass(recordClass).entityName
         db.invalidationTracker.createFlow(tableName).collect {
-            val records = readUpdates(lastSeen)
+            val records = readUpdates(lastSeen).filter {
+                val isRemoteId = remoteIds.contains(it.id)
+                if (isRemoteId) remoteIds.remove(it.id)
+                !isRemoteId
+            }
             if (records.isNotEmpty()) {
-                println("sending ${records.size} ${recordClass.nameOrError}")
+                // println("sending ${records.size} ${recordClass.nameOrError}")
                 val latestUpdatedAt = records.maxOf { it.updatedAt }
                 val packet = SyncPacket(origin, latestUpdatedAt, records)
                 sentPackets.emit(packet)
@@ -191,10 +215,11 @@ class SyncAgent(
             val deletions = syncDao.readDeletions().filter {
                 val isRemoteDeletion = remoteIds.contains(it.recordId)
                 remoteIds.remove(it.recordId)
-                isRemoteDeletion
+                !isRemoteDeletion
             }
             if (deletions.isNotEmpty()) {
                 val packet = SyncPacket(origin, Clock.System.now(), deletions)
+                // println("sending ${deletions.size} deletions")
                 sentPackets.emit(packet)
             }
         }
@@ -202,6 +227,7 @@ class SyncAgent(
 
     suspend fun integrateDeletion(deletion: Deletion) {
         remoteIds.add(deletion.recordId)
+        // println("receiving deletion")
         val syncType = SyncType.fromEntityName(deletion.entity)
         when (syncType) {
             SyncType.StepRecord -> syncDao.deleteStepById(deletion.recordId)

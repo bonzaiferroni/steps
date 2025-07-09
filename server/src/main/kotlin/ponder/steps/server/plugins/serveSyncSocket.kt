@@ -4,12 +4,14 @@ import io.ktor.server.routing.Routing
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import io.ktor.websocket.readBytes
 import klutch.server.authenticateJwt
 import klutch.utils.getUserId
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.io.IOException
 import ponder.steps.model.Api
 import ponder.steps.model.data.SyncHandshake
 import ponder.steps.model.data.SyncPacket
@@ -41,6 +43,11 @@ fun Routing.serveSyncSocket(service: SyncApiService = SyncApiService()) {
                                 }
                                 is SyncPacket -> {
                                     service.writeSync(syncFrame, userId)
+
+                                    for (client in syncClients) {
+                                        if (client == this) continue
+                                        client.send(Frame.Binary(true, bytes))
+                                    }
                                 }
                             }
                         }

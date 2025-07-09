@@ -9,11 +9,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalTrekRepository
+import ponder.steps.io.SyncAgent
 import ponder.steps.model.data.Intent
 import pondui.ui.core.SubModel
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
@@ -24,20 +27,30 @@ class TrekStarter(
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
 ) : SubModel<TrekStarterState>(TrekStarterState(), viewModel) {
 
+    private var intents: List<Intent> = emptyList()
+    private var nextRefresh = Instant.DISTANT_PAST
+
     init {
         intentRepo.flowActiveIntents().launchCollect { intents -> refreshIntents(intents) }
+        startTreks()
     }
 
-    private var refreshJob: Job? = null
-
     private fun refreshIntents(intents: List<Intent>) {
-        refreshJob?.cancel()
-        refreshJob = viewModelScope.launch {
+        this.intents = intents
+        nextRefresh = Clock.System.now()
+    }
+
+    private fun startTreks() {
+        viewModelScope.launch {
             while (isActive) {
+                while (isActive && nextRefresh > Clock.System.now() || SyncAgent.syncInProgress) {
+                    delay(1000)
+                }
+
+                println("checking treks")
                 val start = Clock.startOfDay()
-                val end = start + 1.days
                 val now = Clock.System.now()
-                var nextRefresh = end
+                nextRefresh = now + 1.hours
 
                 val activeIntents = mutableListOf<Intent>()
 
@@ -72,8 +85,6 @@ class TrekStarter(
                 }
 
                 setState { it.copy(intents = activeIntents) }
-
-                delay(nextRefresh - Clock.System.now())
             }
         }
     }

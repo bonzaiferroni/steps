@@ -1,6 +1,7 @@
 package ponder.steps.server.db.services
 
 import kabinet.model.UserId
+import kabinet.utils.nameOrError
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.read
@@ -95,17 +96,21 @@ class SyncApiService : DbService() {
 
         // integrate records
         for (record in packet.records) {
-            when (record) {
-                is Deletion -> DeletionTable.integrateDeletion(record, userId)
-                is Answer -> AnswerTable.integrateAnswer(record, userId, packet.lastSyncAt)
-                is Intent -> IntentTable.integrateIntent(record, userId, packet.lastSyncAt)
-                is PathStep -> PathStepTable.integratePathStep(record, userId, packet.lastSyncAt)
-                is Question -> QuestionTable.integrateQuestion(record, userId, packet.lastSyncAt)
-                is Step -> StepTable.integrateStep(record, userId, packet.lastSyncAt)
-                is StepLog -> StepLogTable.integrateStepLog(record, userId, packet.lastSyncAt)
-                is StepTag -> StepTagTable.integrateStepTag(record, userId, packet.lastSyncAt)
-                is Tag -> TagTable.integrateTag(record, userId, packet.lastSyncAt)
-                is Trek -> TrekTable.integrateTrek(record, userId, packet.lastSyncAt)
+            try {
+                when (record) {
+                    is Deletion -> DeletionTable.integrateDeletion(record, userId)
+                    is Answer -> AnswerTable.integrateAnswer(record, userId, packet.lastSyncAt)
+                    is Intent -> IntentTable.integrateIntent(record, userId, packet.lastSyncAt)
+                    is PathStep -> PathStepTable.integratePathStep(record, userId, packet.lastSyncAt)
+                    is Question -> QuestionTable.integrateQuestion(record, userId, packet.lastSyncAt)
+                    is Step -> StepTable.integrateStep(record, userId, packet.lastSyncAt)
+                    is StepLog -> StepLogTable.integrateStepLog(record, userId, packet.lastSyncAt)
+                    is StepTag -> StepTagTable.integrateStepTag(record, userId, packet.lastSyncAt)
+                    is Tag -> TagTable.integrateTag(record, userId, packet.lastSyncAt)
+                    is Trek -> TrekTable.integrateTrek(record, userId, packet.lastSyncAt)
+                }
+            } catch (e: Exception) {
+                println("${record::class.nameOrError} sync error:\n${e.message}")
             }
         }
 
@@ -116,7 +121,6 @@ class SyncApiService : DbService() {
             .firstOrNull()?.let { it[OriginSyncTable.label] } == packet.origin
 
         if (isTrailingOrigin) {
-            println("sync gc: ${packet.origin}")
             DeletionTable.deleteWhere { this.userId.eq(userId) and this.deletedAt.lessEq(packet.lastSyncAt) }
         }
     }
