@@ -2,6 +2,7 @@ package ponder.steps.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import ponder.steps.model.data.Tag
@@ -15,8 +16,8 @@ data class TagEntity(
     val updatedAt: Instant,
 )
 
-fun Tag.toEntity() = TagEntity(
+fun Tag.toEntity(isUpdated: Boolean = true) = TagEntity(
     id = id,
     label = label,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

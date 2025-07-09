@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Intent(
-    val id: IntentId,
+    override val id: IntentId,
     val userId: UserId,
     val rootId: StepId,
     val label: String,
@@ -17,8 +17,8 @@ data class Intent(
     val pathIds: List<String>,
     val completedAt: Instant?,
     val scheduledAt: Instant?,
-    val updatedAt: Instant,
-)
+    override val updatedAt: Instant,
+): SyncRecord
 
 typealias IntentId = String
 

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.AnswerId
@@ -28,11 +29,11 @@ data class AnswerEntity(
     val updatedAt: Instant,
 )
 
-fun Answer.toEntity() = AnswerEntity(
+fun Answer.toEntity(isUpdated: Boolean = true) = AnswerEntity(
     id = id,
     stepLogId = stepLogId,
     questionId = questionId,
     value = value,
     type = type,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

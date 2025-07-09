@@ -4,7 +4,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SyncData(
+data class FullSync(
     val origin: String,
     val startSyncAt: Instant,
     val endSyncAt: Instant,

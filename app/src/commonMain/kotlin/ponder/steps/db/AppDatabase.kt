@@ -10,8 +10,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import ponder.steps.RecordDeletionTrigger
-import ponder.steps.RecordUpdatedTrigger
-import ponder.steps.model.db.synchronizedData
+import ponder.steps.model.data.SyncType
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -21,9 +20,9 @@ import kotlin.time.Duration.Companion.milliseconds
         StepEntity::class, PathStepEntity::class,
         IntentEntity::class, TrekEntity::class,
         StepLogEntity::class, AnswerEntity::class, QuestionEntity::class,
-        DeletionEntity::class, SyncRecord::class,
+        DeletionEntity::class, SyncLog::class,
         TagEntity::class, StepTagEntity::class,
-    ], version = 46
+    ], version = 52
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -73,7 +72,7 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .addCallback(RecordUpdatedTrigger(synchronizedEntities))
+        // .addCallback(RecordUpdatedTrigger(synchronizedEntities))
         .addCallback(RecordDeletionTrigger(synchronizedEntities))
         // .addMigrations(MIGRATIONS)
         .fallbackToDestructiveMigration(true)
@@ -83,4 +82,4 @@ fun getRoomDatabase(
         .build()
 }
 
-private val synchronizedEntities = synchronizedData.map { "${it.simpleName!!}Entity" }
+private val synchronizedEntities = SyncType.entries.map { it.entityName }

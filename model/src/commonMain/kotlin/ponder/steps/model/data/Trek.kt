@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Trek(
-    val id: TrekId,
+    override val id: TrekId,
     val userId: UserId,
     val intentId: IntentId,
     val rootId: StepId,
@@ -14,7 +14,7 @@ data class Trek(
     val createdAt: Instant,
     val finishedAt: Instant?,
     val expectedAt: Instant?,
-    val updatedAt: Instant,
-)
+    override val updatedAt: Instant,
+): SyncRecord
 
 typealias TrekId = String

@@ -9,12 +9,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import ponder.steps.io.DataMerger
 import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.Intent
 import pondui.ui.core.SubModel
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -34,10 +34,6 @@ class TrekStarter(
         refreshJob?.cancel()
         refreshJob = viewModelScope.launch {
             while (isActive) {
-                while (DataMerger.syncInProgress) {
-                    println("delaying trekStarter for sync")
-                    delay(1000)
-                }
                 val start = Clock.startOfDay()
                 val end = start + 1.days
                 val now = Clock.System.now()

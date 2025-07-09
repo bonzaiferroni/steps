@@ -20,15 +20,15 @@ private fun toTrigger(tableName: String) = """
     AFTER DELETE ON $tableName
     FOR EACH ROW
     BEGIN
-        INSERT INTO DeletionEntity (id, recordedAt, entity)
+        INSERT INTO DeletionEntity (id, entity, deletedAt)
         VALUES (
             OLD.id,
-            CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER),
-            '$tableName'
+            '$tableName',
+            CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)
         )
         ON CONFLICT(id) DO UPDATE
-          SET
-            recordedAt = excluded.recordedAt,
-            entity     = excluded.entity;
+            SET
+                entity     = excluded.entity,
+                deletedAt  = excluded.deletedAt;
     END;
 """.trimIndent()

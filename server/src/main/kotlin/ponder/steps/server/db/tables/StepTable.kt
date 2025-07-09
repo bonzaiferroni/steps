@@ -1,5 +1,6 @@
 package ponder.steps.server.db.tables
 
+import kabinet.model.UserId
 import kabinet.utils.nowToLocalDateTimeUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
@@ -9,7 +10,7 @@ import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.Step
 
 internal object StepTable : UUIDTable("step") {
@@ -27,22 +28,4 @@ internal object StepTable : UUIDTable("step") {
     val updatedAt = datetime("updated_at")
     val createdAt = datetime("created_at")
     val syncAt = datetime("sync_at").default(Clock.nowToLocalDateTimeUtc())
-}
-
-fun syncStep(userId: String, syncAt: Instant): BatchUpsertStatement.(Step) -> Unit = { step ->
-    this[StepTable.id] = step.id.fromStringId()
-    this[StepTable.userId] = userId.fromStringId()
-    this[StepTable.label] = step.label
-    this[StepTable.description] = step.description
-    this[StepTable.theme] = step.theme
-    this[StepTable.expectedMins] = step.expectedMins
-    this[StepTable.imgUrl] = step.imgUrl
-    this[StepTable.thumbUrl] = step.thumbUrl
-    this[StepTable.audioLabelUrl] = step.audioLabelUrl
-    this[StepTable.audioFullUrl] = step.audioFullUrl
-    this[StepTable.isPublic] = step.isPublic
-    this[StepTable.pathSize] = step.pathSize
-    this[StepTable.updatedAt] = step.updatedAt.toLocalDateTimeUtc()
-    this[StepTable.createdAt] = step.createdAt.toLocalDateTimeUtc()
-    this[StepTable.syncAt] = syncAt.toLocalDateTimeUtc()
 }

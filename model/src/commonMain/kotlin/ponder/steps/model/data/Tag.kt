@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Tag(
-    val id: TagId,
+    override val id: TagId,
     val label: String,
-    val updatedAt: Instant
-)
+    override val updatedAt: Instant
+): SyncRecord
 
 typealias TagId = String

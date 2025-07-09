@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import ponder.steps.model.data.DataType
@@ -27,7 +28,7 @@ data class QuestionEntity(
     val updatedAt: Instant,
 )
 
-fun Question.toEntity() = QuestionEntity(
+fun Question.toEntity(isUpdated: Boolean = true) = QuestionEntity(
     id = id,
     stepId = stepId,
     text = text,
@@ -35,5 +36,5 @@ fun Question.toEntity() = QuestionEntity(
     minValue = minValue,
     maxValue = maxValue,
     audioUrl = audioUrl,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

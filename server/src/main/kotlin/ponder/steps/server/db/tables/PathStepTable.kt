@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.PathStep
 
 object PathStepTable: UUIDTable("path_step") {
@@ -35,13 +36,3 @@ fun ResultRow.toPathStep() = PathStep(
     position = this[PathStepTable.position],
     updatedAt = this[PathStepTable.updatedAt].toInstantFromUtc()
 )
-
-fun syncPathStep(userId: String, syncAt: Instant): BatchUpsertStatement.(PathStep) -> Unit = { pathStep ->
-    this[PathStepTable.id] = pathStep.id.fromStringId()
-    this[PathStepTable.userId] = userId.fromStringId()
-    this[PathStepTable.stepId] = pathStep.stepId.fromStringId()
-    this[PathStepTable.pathId] = pathStep.pathId.fromStringId()
-    this[PathStepTable.position] = pathStep.position
-    this[PathStepTable.updatedAt] = pathStep.updatedAt.toLocalDateTimeUtc()
-    this[PathStepTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}

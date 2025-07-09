@@ -2,7 +2,6 @@ package ponder.steps.model
 
 import kabinet.api.*
 import kabinet.clients.GeminiMessage
-import kotlinx.datetime.Instant
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.Focus
 import ponder.steps.model.data.ImageUrls
@@ -16,7 +15,7 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepSuggestResponse
-import ponder.steps.model.data.SyncData
+import ponder.steps.model.data.FullSync
 import ponder.steps.model.data.TrekItem
 
 object Api: ParentEndpoint(null, apiPrefix) {
@@ -49,8 +48,8 @@ object Api: ParentEndpoint(null, apiPrefix) {
     }
 
     object Sync: ParentEndpoint(this, "/sync") {
-        object Read: PostEndpoint<ReadSyncRequest, SyncData>(this, "/read")
-        object Write: PostEndpoint<SyncData, Boolean>(this, "/write")
+//        object Read: PostEndpoint<ReadSyncRequest, FullSync>(this, "/read")
+//        object Write: PostEndpoint<FullSync, Boolean>(this, "/write")
     }
 
     object Intents: GetByIdEndpoint<Intent>(this, "/intent") {

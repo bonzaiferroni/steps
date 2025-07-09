@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StepTag(
-    val id: StepTagId,
+    override val id: StepTagId,
     val stepId: StepId,
     val tagId: TagId,
-    val updatedAt: Instant,
-)
+    override val updatedAt: Instant,
+): SyncRecord
 
 typealias StepTagId = String

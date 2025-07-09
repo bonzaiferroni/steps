@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepTag
@@ -38,9 +39,9 @@ data class StepTagEntity(
     val updatedAt: Instant,
 )
 
-fun StepTag.toEntity() = StepTagEntity(
+fun StepTag.toEntity(isUpdated: Boolean = true) = StepTagEntity(
     id = id,
     stepId = stepId,
     tagId = tagId,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

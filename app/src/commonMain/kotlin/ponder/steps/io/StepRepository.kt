@@ -1,10 +1,8 @@
 package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.SyncData
 
 interface StepRepository {
 

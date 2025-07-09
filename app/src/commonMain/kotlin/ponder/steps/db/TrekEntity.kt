@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Trek
 
@@ -30,7 +31,7 @@ data class TrekEntity(
     val updatedAt: Instant,
 )
 
-fun Trek.toEntity() = TrekEntity(
+fun Trek.toEntity(isUpdated: Boolean = true) = TrekEntity(
     id = id,
     userId = userId,
     intentId = intentId,
@@ -39,5 +40,5 @@ fun Trek.toEntity() = TrekEntity(
     createdAt = createdAt,
     finishedAt = finishedAt,
     expectedAt = expectedAt,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

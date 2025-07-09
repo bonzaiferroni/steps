@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.StepTag
 
 object StepTagTable: UUIDTable("step_tag") {
@@ -29,12 +30,3 @@ fun ResultRow.toStepTag() = StepTag(
     tagId = this[StepTagTable.tagId].value.toStringId(),
     updatedAt = this[StepTagTable.updatedAt].toInstantFromUtc()
 )
-
-fun syncStepTag(userId: String, syncAt: Instant): BatchUpsertStatement.(StepTag) -> Unit = { stepTag ->
-    this[StepTagTable.id] = stepTag.id.fromStringId()
-    this[StepTagTable.userId] = userId.fromStringId()
-    this[StepTagTable.stepId] = stepTag.stepId.fromStringId()
-    this[StepTagTable.tagId] = stepTag.tagId.fromStringId()
-    this[StepTagTable.updatedAt] = stepTag.updatedAt.toLocalDateTimeUtc()
-    this[StepTagTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}

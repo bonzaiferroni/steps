@@ -1,18 +1,24 @@
 package ponder.steps.server.db.tables
 
+import kabinet.model.UserId
 import kabinet.utils.nowToLocalDateTimeUtc
 import kabinet.utils.toInstantFromUtc
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.tables.UserTable
+import klutch.utils.eq
 import klutch.utils.fromStringId
+import klutch.utils.less
 import klutch.utils.toStringId
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
+import org.jetbrains.exposed.sql.upsert
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.DataType
 
@@ -34,14 +40,3 @@ fun ResultRow.toAnswer() = Answer(
     type = this[AnswerTable.type],
     updatedAt = this[AnswerTable.updatedAt].toInstantFromUtc()
 )
-
-fun syncAnswer(userId: String, syncAt: Instant): BatchUpsertStatement.(Answer) -> Unit = { answer ->
-    this[AnswerTable.id] = answer.id.fromStringId()
-    this[AnswerTable.userId] = userId.fromStringId()
-    this[AnswerTable.stepLogId] = answer.stepLogId.fromStringId()
-    this[AnswerTable.questionId] = answer.questionId.fromStringId()
-    this[AnswerTable.value] = answer.value
-    this[AnswerTable.type] = answer.type
-    this[AnswerTable.updatedAt] = answer.updatedAt.toLocalDateTimeUtc()
-    this[AnswerTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}

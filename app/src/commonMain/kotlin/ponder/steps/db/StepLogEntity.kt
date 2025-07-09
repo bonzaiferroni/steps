@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
@@ -23,8 +24,8 @@ data class StepLogEntity(
     val stepId: String,
     val pathStepId: String?,
     val outcome: StepOutcome,
-    val updatedAt: Instant,
     val createdAt: Instant,
+    val updatedAt: Instant,
 )
 
 fun StepLogEntity.toStepLog() = StepLog(
@@ -33,16 +34,16 @@ fun StepLogEntity.toStepLog() = StepLog(
     stepId = stepId,
     pathStepId = pathStepId,
     outcome = outcome,
-    updatedAt = updatedAt,
-    createdAt = createdAt
+    createdAt = createdAt,
+    updatedAt = updatedAt
 )
 
-fun StepLog.toEntity() = StepLogEntity(
+fun StepLog.toEntity(isUpdated: Boolean = true) = StepLogEntity(
     id = id,
     trekId = trekId,
     stepId = stepId,
     pathStepId = pathStepId,
     outcome = outcome,
-    updatedAt = updatedAt,
-    createdAt = createdAt
+    createdAt = createdAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

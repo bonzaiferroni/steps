@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentPriority
@@ -36,7 +37,7 @@ data class IntentEntity(
     val updatedAt: Instant
 )
 
-fun Intent.toEntity() = IntentEntity(
+fun Intent.toEntity(isUpdated: Boolean = true) = IntentEntity(
     id = id,
     userId = userId,
     rootId = rootId,
@@ -47,5 +48,5 @@ fun Intent.toEntity() = IntentEntity(
     pathIds = pathIds,
     completedAt = completedAt,
     scheduledAt = scheduledAt,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

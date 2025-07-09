@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentPriority
 
@@ -43,18 +44,3 @@ fun ResultRow.toIntent() = Intent(
     scheduledAt = this[IntentTable.scheduledAt]?.toInstantFromUtc(),
     updatedAt = this[IntentTable.updatedAt].toInstantFromUtc(),
 )
-
-fun syncIntent(userId: String, syncAt: Instant): BatchUpsertStatement.(Intent) -> Unit = { intent ->
-    this[IntentTable.id] = intent.id.fromStringId()
-    this[IntentTable.userId] = userId.fromStringId()
-    this[IntentTable.rootId] = intent.rootId.fromStringId()
-    this[IntentTable.label] = intent.label
-    this[IntentTable.repeatMins] = intent.repeatMins
-    this[IntentTable.expectedMins] = intent.expectedMins
-    this[IntentTable.priority] = intent.priority
-    this[IntentTable.pathIds] = intent.pathIds
-    this[IntentTable.completedAt] = intent.completedAt?.toLocalDateTimeUtc()
-    this[IntentTable.scheduledAt] = intent.scheduledAt?.toLocalDateTimeUtc()
-    this[IntentTable.updatedAt] = intent.updatedAt.toLocalDateTimeUtc()
-    this[IntentTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}

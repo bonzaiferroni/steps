@@ -12,7 +12,7 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
-import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
 
@@ -38,17 +38,3 @@ fun ResultRow.toQuestion() = Question(
     audioUrl = this[QuestionTable.audioUrl],
     updatedAt = this[QuestionTable.updatedAt].toInstantFromUtc()
 )
-
-fun syncQuestion(userId: String, syncAt: Instant): BatchUpsertStatement.(Question) -> Unit = { question ->
-    this[QuestionTable.id] = question.id.fromStringId()
-    this[QuestionTable.userId] = userId.fromStringId()
-    this[QuestionTable.stepId] = question.stepId.fromStringId()
-    this[QuestionTable.text] = question.text
-    this[QuestionTable.type] = question.type
-    this[QuestionTable.minValue] = question.minValue
-    this[QuestionTable.maxValue] = question.maxValue
-    this[QuestionTable.audioUrl] = question.audioUrl
-    this[QuestionTable.updatedAt] = question.updatedAt.toLocalDateTimeUtc()
-    this[QuestionTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}
-

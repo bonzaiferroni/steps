@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Step(
-    val id: StepId,
+    override val id: StepId,
     val userId: UserId,
     val label: String,
     val description: String?,
@@ -18,8 +18,8 @@ data class Step(
     val audioFullUrl: String?,
     val isPublic: Boolean,
     val pathSize: Int,
-    val updatedAt: Instant,
     val createdAt: Instant,
+    override val updatedAt: Instant,
 
     val pathId: String? = null,
     val pathStepId: String? = null,

@@ -5,9 +5,8 @@ import androidx.room.PrimaryKey
 import kotlinx.datetime.Instant
 
 @Entity
-data class SyncRecord(
+data class SyncLog(
     @PrimaryKey
     val id: Long = 0,
-    val startSyncAt: Instant,
-    val endSyncAt: Instant,
+    val lastSyncAt: Instant,
 )

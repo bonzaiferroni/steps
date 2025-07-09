@@ -38,10 +38,10 @@ data class PathStepEntity(
     val updatedAt: Instant = Clock.System.now(),
 )
 
-fun PathStep.toEntity() = PathStepEntity(
+fun PathStep.toEntity(isUpdated: Boolean = true) = PathStepEntity(
     id = id,
     stepId = stepId,
     pathId = pathId,
     position = position,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

@@ -1,34 +1,25 @@
 package ponder.steps.server.db.services
 
 import kabinet.utils.nowToLocalDateTimeUtc
-import kabinet.utils.toInstantFromUtc
-import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.read
 import klutch.db.readColumn
 import klutch.db.readCount
 import klutch.utils.eq
 import klutch.utils.fromStringId
-import klutch.utils.greater
-import klutch.utils.less
 import klutch.utils.toStringId
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.upsert
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
-import ponder.steps.model.data.SyncData
 import ponder.steps.server.db.tables.PathStepTable
 import ponder.steps.server.db.tables.StepAspect
 import ponder.steps.server.db.tables.StepTable
-import ponder.steps.server.db.tables.toPathStep
 import ponder.steps.server.db.tables.toStep
 
 class PathService : DbService(1) {

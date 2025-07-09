@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.Trek
 
 internal object TrekTable : UUIDTable("trek") {
@@ -39,16 +40,3 @@ fun ResultRow.toTrek() = Trek(
     expectedAt = this[TrekTable.expectedAt]?.toInstantFromUtc(),
     updatedAt = this[TrekTable.updatedAt].toInstantFromUtc(),
 )
-
-fun syncTrek(userId: String, syncAt: Instant): BatchUpsertStatement.(Trek) -> Unit = { trek ->
-    this[TrekTable.id] = trek.id.fromStringId()
-    this[TrekTable.userId] = userId.fromStringId()
-    this[TrekTable.rootId] = trek.rootId.fromStringId()
-    this[TrekTable.intentId] = trek.intentId.fromStringId()
-    this[TrekTable.isComplete] = trek.isComplete
-    this[TrekTable.createdAt] = trek.createdAt.toLocalDateTimeUtc()
-    this[TrekTable.finishedAt] = trek.finishedAt?.toLocalDateTimeUtc()
-    this[TrekTable.expectedAt] = trek.expectedAt?.toLocalDateTimeUtc()
-    this[TrekTable.updatedAt] = trek.updatedAt.toLocalDateTimeUtc()
-    this[TrekTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}

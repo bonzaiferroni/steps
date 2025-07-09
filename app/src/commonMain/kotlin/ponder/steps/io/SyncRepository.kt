@@ -1,7 +1,7 @@
 package ponder.steps.io
 
 import kotlinx.datetime.Instant
-import ponder.steps.model.data.SyncData
+import ponder.steps.model.data.FullSync
 
 interface SyncRepository {
     /**
@@ -11,7 +11,7 @@ interface SyncRepository {
      * @param syncEndAt The end time of the synchronization period
      * @return A SyncResponse containing the results of the synchronization
      */
-    suspend fun readSync(syncStartAt: Instant, syncEndAt: Instant): SyncData
+    suspend fun readSync(syncStartAt: Instant, syncEndAt: Instant): FullSync
 
     /**
      * Write synchronization data to the server.
@@ -19,5 +19,5 @@ interface SyncRepository {
      * @param data The SyncData to write
      * @return The number of steps written
      */
-    suspend fun writeSync(data: SyncData): Boolean
+    suspend fun writeSync(data: FullSync): Boolean
 }

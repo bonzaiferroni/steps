@@ -65,7 +65,7 @@ fun StepEntity.toStep() = Step(
     position = null,
 )
 
-fun Step.toEntity() = StepEntity(
+fun Step.toEntity(isUpdated: Boolean = true) = StepEntity(
     id = id,
     userId = userId,
     label = label,
@@ -78,6 +78,6 @@ fun Step.toEntity() = StepEntity(
     audioFullUrl = audioFullUrl,
     isPublic = isPublic,
     pathSize = pathSize,
-    updatedAt = updatedAt,
+    updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
     createdAt = createdAt,
 )

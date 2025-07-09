@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.BatchUpsertStatement
+import org.jetbrains.exposed.sql.statements.UpsertStatement
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepOutcome
 import kotlin.time.Duration.Companion.days
@@ -39,17 +40,5 @@ fun ResultRow.toStepLog() = StepLog(
     createdAt = this[StepLogTable.createdAt].toInstantFromUtc(),
     updatedAt = this[StepLogTable.updatedAt].toInstantFromUtc()
 )
-
-fun syncStepLog(userId: String, syncAt: Instant): BatchUpsertStatement.(StepLog) -> Unit = { stepLog ->
-    this[StepLogTable.id] = stepLog.id.fromStringId()
-    this[StepLogTable.userId] = userId.fromStringId()
-    this[StepLogTable.stepId] = stepLog.stepId.fromStringId()
-    this[StepLogTable.trekId] = stepLog.trekId?.fromStringId()
-    this[StepLogTable.pathStepId] = stepLog.pathStepId?.fromStringId()
-    this[StepLogTable.outcome] = stepLog.outcome
-    this[StepLogTable.createdAt] = stepLog.createdAt.toLocalDateTimeUtc()
-    this[StepLogTable.updatedAt] = stepLog.updatedAt.toLocalDateTimeUtc()
-    this[StepLogTable.syncAt] = syncAt.toLocalDateTimeUtc()
-}
 
 val defaultLocalDateTime = (Instant.DISTANT_PAST + 1.days).toLocalDateTime(TimeZone.UTC)

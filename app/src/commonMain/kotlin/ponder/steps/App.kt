@@ -1,15 +1,11 @@
 package ponder.steps
 
 import androidx.compose.runtime.*
-import kotlinx.datetime.Instant
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
-import ponder.steps.db.streamUpdates
-import ponder.steps.io.DataMerger
-import ponder.steps.io.LocalDataSync
-import ponder.steps.io.LocalSyncRepository
-import ponder.steps.io.RemoteSyncRepository
+import ponder.steps.io.SyncAgent
 import pondui.ProvideWavePlayer
+import pondui.io.LocalUserContext
 
 import pondui.io.ProvideUserContext
 import pondui.ui.core.PondApp
@@ -25,14 +21,15 @@ fun App(
     ProvideTheme {
         ProvideWavePlayer {
             ProvideUserContext {
-                val scope = rememberCoroutineScope()
-                remember {
-                    val sync = DataMerger(
-                        localRepo = LocalSyncRepository(),
-                        remoteRepo = RemoteSyncRepository(),
-                    )
-                    sync.init(scope)
-                    LocalDataSync(appOrigin, appDb)
+                val userContext = LocalUserContext.current
+                if (userContext != null) {
+                    val state by userContext.state.collectAsState()
+                    LaunchedEffect(state.isLoggedIn) {
+                        val syncAgent = SyncAgent(appOrigin, appDb)
+                        if (state.isLoggedIn) {
+                            syncAgent.startSync()
+                        }
+                    }
                 }
 
                 PondApp(

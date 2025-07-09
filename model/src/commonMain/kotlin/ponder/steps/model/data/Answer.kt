@@ -5,13 +5,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Answer(
-    val id: AnswerId,
+    override val id: AnswerId,
     val stepLogId: StepLogId,
     val questionId: QuestionId,
     val value: String,
     val type: DataType,
-    val updatedAt: Instant,
-)
+    override val updatedAt: Instant,
+): SyncRecord
 
 data class NewAnswer(
     val stepLogId: StepLogId,

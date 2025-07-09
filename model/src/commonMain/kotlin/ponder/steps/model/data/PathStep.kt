@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PathStep(
-    val id: PathStepId,
+    override val id: PathStepId,
     val stepId: StepId,
     val pathId: StepId,
     val position: Int,
-    val updatedAt: Instant,
-)
+    override val updatedAt: Instant,
+): SyncRecord
 
 typealias PathStepId = String
