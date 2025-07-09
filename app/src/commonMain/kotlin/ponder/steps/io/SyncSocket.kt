@@ -3,6 +3,7 @@ package ponder.steps.io
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.pingInterval
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.Instant
 import ponder.steps.model.Api
 import ponder.steps.model.data.SyncHandshake
@@ -23,14 +25,16 @@ import ponder.steps.model.data.toSyncFrameOrNull
 import pondui.io.ApiClient
 import pondui.io.UserContext
 import pondui.io.globalApiClient
+import kotlin.time.Duration.Companion.seconds
 
 class SyncSocket(
     private val origin: String,
-    private val apiClient: ApiClient = globalApiClient
 ) {
 
     val client = HttpClient(CIO) {
-        install(WebSockets)
+        install(WebSockets) {
+            pingInterval = 15.seconds
+        }
     }
 
     private val _receivedPackets = MutableSharedFlow<SyncPacket>()

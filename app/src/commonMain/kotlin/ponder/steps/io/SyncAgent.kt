@@ -39,10 +39,10 @@ class SyncAgent(
             var syncLog = syncDao.readSyncLog() ?: SyncLog(lastSyncAt = PAST_MOMENT)
             lastSyncAt = syncLog.lastSyncAt
 
-            socket.startSync(coroutineScope = this, lastSyncAt = lastSyncAt, syncFlow = sentPackets)
+            val syncJob = socket.startSync(coroutineScope = this, lastSyncAt = lastSyncAt, syncFlow = sentPackets)
 
             emitDeletions()
-            emitRecords()
+            emitRecords() 
 
             launch {
                 socket.receivedPackets.collect { packet ->
@@ -55,10 +55,14 @@ class SyncAgent(
             }
 
             val syncWindow = 1.minutes
-            while (isActive) {
+            while (isActive && syncJob.isActive) {
                 delay(syncWindow)
-                syncLog = syncLog.copy(lastSyncAt = Clock.System.now() - syncWindow)
-                syncDao.upsert(syncLog)
+                if (syncJob.isActive) {
+                    syncLog = syncLog.copy(lastSyncAt = Clock.System.now() - syncWindow)
+                    syncDao.upsert(syncLog)
+                } else {
+                    println("Sync job disconnected")
+                }
             }
         }
     }
