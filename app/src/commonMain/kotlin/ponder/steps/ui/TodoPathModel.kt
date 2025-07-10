@@ -39,9 +39,8 @@ class TodoPathModel(
 
         todoList.clearJobs()
         todoList.setFlows(
-            stepFlow = stepRepo.flowPathSteps(pathId).map { steps ->
-                steps.map { step -> TodoStep(trekPointId, step) }
-                    .sortedBy { it.step.position }
+            stepFlow = trekRepo.flowPathTodoSteps(trekPath.trekPointId, pathId).map { todoSteps ->
+                todoSteps.sortedBy { it.step.position }
             },
             stepLogFlow = stepLogRepo.flowPathLogsByTrekPointId(pathId, trekPointId),
             questionFlow = questionsRepo.flowPathQuestions(pathId),

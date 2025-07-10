@@ -5,11 +5,13 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.PathStepId
+import ponder.steps.model.data.Step
 import ponder.steps.model.data.Trek
 import ponder.steps.model.data.TrekId
 
@@ -69,6 +71,17 @@ interface TrekDao {
                 "WHERE t.id IS NULL OR t.createdAt >= :start OR NOT t.isComplete "
     )
     fun flowRootTodoSteps(start: Instant): Flow<List<TodoStep>>
+
+    @Query(
+        "SELECT tp.id trekPointId, t.id trekId, t.createdAt startedAt, t.finishedAt, t.isComplete, " +
+                "s.*, ps.id pathStepId, ps.position, ps.pathId " +
+                "FROM PathStepEntity AS ps " +
+                "JOIN StepEntity AS s ON ps.stepId = s.id " +
+                "JOIN TrekPoint AS tp ON tp.id = :trekPointId " +
+                "LEFT JOIN TrekEntity AS t ON tp.trekId = t.id " +
+                "WHERE ps.pathId = :pathId"
+    )
+    fun flowPathTodoSteps(trekPointId: TrekPointId, pathId: String): Flow<List<TodoStep>>
 
     @Query("SELECT * FROM TrekEntity WHERE createdAt > :start OR NOT isComplete")
     fun flowActiveTreks(start: Instant): Flow<List<Trek>>

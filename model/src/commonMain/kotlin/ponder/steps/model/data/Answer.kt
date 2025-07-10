@@ -8,7 +8,7 @@ data class Answer(
     override val id: AnswerId,
     val stepLogId: StepLogId,
     val questionId: QuestionId,
-    val value: String,
+    val value: String?,
     val type: DataType,
     override val updatedAt: Instant,
 ): SyncRecord
@@ -16,7 +16,7 @@ data class Answer(
 data class NewAnswer(
     val stepLogId: StepLogId,
     val questionId: QuestionId,
-    val value: String,
+    val value: String?,
     val type: DataType,
 )
 

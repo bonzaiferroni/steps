@@ -230,9 +230,13 @@ class LocalTrekRepository(
 
     fun flowRootTodoSteps(start: Instant) = trekDao.flowRootTodoSteps(start)
 
+    fun flowPathTodoSteps(trekPointId: TrekPointId, pathId: StepId) = trekDao.flowPathTodoSteps(trekPointId, pathId)
+
     fun flowRootProgress(start: Instant) = trekDao.flowRootProgresses(start)
 
     fun flowPathProgresses(pathId: StepId, trekPointId: TrekPointId) = trekDao.flowPathProgresses(pathId, trekPointId)
+
+    suspend fun readTrekIdByTrekPointId(trekPointId: TrekPointId) = trekDao.readTrekIdByTrekPointId(trekPointId)
 }
 
 private enum class StepStatus {

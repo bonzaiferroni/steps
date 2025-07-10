@@ -60,7 +60,7 @@ class TodoListModel(
         }
     }
 
-    fun answerQuestion(trekId: TrekId, step: Step, stepLog: StepLog, question: Question, answerText: String) {
+    fun answerQuestion(trekId: TrekId, step: Step, stepLog: StepLog, question: Question, answerText: String?) {
         ioLaunch {
             trekRepo.createAnswer(
                 trekId = trekId,

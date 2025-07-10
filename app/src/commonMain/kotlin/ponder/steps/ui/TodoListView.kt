@@ -51,13 +51,12 @@ fun TodoListView(
                 itemContent = { question ->
                     QuestionRow(step.label, question) { answerText ->
                         val trekId = todoStep.trekId
-                        if (trekId != null && log != null && answerText != null)
+                        if (trekId != null && log != null)
                             viewModel.answerQuestion(trekId, step, log, question, answerText)
                     }
                 },
                 isVisibleInit = true,
-                modifier = Modifier.height(72.dp)
-                    .animateItem()
+                modifier = Modifier.animateItem()
             ) {
                 TodoStepRow(
                     todoStep = todoStep,

@@ -24,7 +24,7 @@ data class AnswerEntity(
     val id: AnswerId,
     val stepLogId: StepLogId,
     val questionId: QuestionId,
-    val value: String,
+    val value: String?,
     val type: DataType,
     val updatedAt: Instant,
 )

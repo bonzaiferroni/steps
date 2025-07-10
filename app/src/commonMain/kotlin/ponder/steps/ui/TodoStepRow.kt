@@ -1,12 +1,17 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
@@ -19,6 +24,7 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.TrekId
+import ponder.steps.model.data.module
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
 import pondui.ui.controls.Checkbox
@@ -48,7 +54,8 @@ fun LazyItemScope.TodoStepRow(
 
     Row(
         spacingUnits = 1,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.height(72.dp)
+            .fillMaxWidth()
             .animateItem()
     ) {
         Row(
@@ -97,7 +104,7 @@ fun LazyItemScope.TodoStepRow(
                     }
                 }
             } else {
-                Checkbox(isFinished) {
+                Checkbox(isFinished, modifier = Modifier.padding(end = 10.dp)) {
                     setOutcome(trekPointId, step, if (isFinished) null else StepOutcome.Completed)
                 }
             }
