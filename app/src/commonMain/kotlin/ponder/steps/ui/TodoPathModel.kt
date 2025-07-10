@@ -9,8 +9,6 @@ import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepId
-import ponder.steps.model.data.TrekId
 import pondui.ui.core.StateModel
 
 class TodoPathModel(
@@ -33,7 +31,7 @@ class TodoPathModel(
 
     fun activate() {
         val pathId = trekPath.pathId;
-        val trekId = trekPath.trekId
+        val trekPointId = trekPath.trekPointId
         stepFlowJob?.cancel()
         stepFlowJob = stepRepo.flowStep(pathId).launchCollect { step ->
             setState { it.copy(step = step) }
@@ -42,13 +40,13 @@ class TodoPathModel(
         todoList.clearJobs()
         todoList.setFlows(
             stepFlow = stepRepo.flowPathSteps(pathId).map { steps ->
-                steps.map { step -> TodoStep(trekId, step) }
+                steps.map { step -> TodoStep(trekPointId, step) }
                     .sortedBy { it.step.position }
             },
-            stepLogFlow = stepLogRepo.flowPathLogsByTrekId(pathId, trekId),
+            stepLogFlow = stepLogRepo.flowPathLogsByTrekPointId(pathId, trekPointId),
             questionFlow = questionsRepo.flowPathQuestions(pathId),
-            answerFlow = answersRepo.flowPathAnswersByTrekId(pathId, trekId),
-            progressFlow = trekRepo.flowPathProgresses(pathId, trekId)
+            answerFlow = answersRepo.flowPathAnswersByTrekId(pathId, trekPointId),
+            progressFlow = trekRepo.flowPathProgresses(pathId, trekPointId)
         )
     }
 

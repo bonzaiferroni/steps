@@ -9,7 +9,6 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Answer
-import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.IntBucket
@@ -105,6 +104,7 @@ interface AnswerDao {
     @Query("SELECT a.* FROM PathStepEntity AS ps " +
             "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +
             "JOIN AnswerEntity AS a ON l.id = a.stepLogId " +
-            "WHERE ps.pathId = :pathId AND l.trekId = :trekId")
-    fun flowPathAnswersByTrekId(pathId: StepId, trekId: TrekId): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
+            "JOIN TrekPoint AS tp ON l.trekId = tp.trekId " +
+            "WHERE ps.pathId = :pathId AND tp.id = :trekPointId")
+    fun flowPathAnswersByTrekPointId(pathId: StepId, trekPointId: Long): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
 }

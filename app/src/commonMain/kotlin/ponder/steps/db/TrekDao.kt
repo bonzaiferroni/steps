@@ -46,13 +46,6 @@ interface TrekDao {
     suspend fun isFinished(trekId: String): Boolean
 
     @Query(
-        "SELECT t1.intentId, t1.finishedAt FROM TrekEntity t1 " +
-                "WHERE t1.intentId IN (:intentIds) " +
-                "AND t1.finishedAt = (SELECT MAX(t2.finishedAt) FROM TrekEntity t2 WHERE t2.intentId = t1.intentId)"
-    )
-    suspend fun readTrekFinishedAt(intentIds: List<IntentId>): List<TrekFinishedAt>
-
-    @Query(
         "SELECT t1.* FROM TrekEntity t1 " +
                 "WHERE t1.intentId IN (:intentIds) " +
                 "AND t1.createdAt = (SELECT MAX(t2.createdAt) FROM TrekEntity t2 WHERE t2.intentId = t1.intentId)"
@@ -69,9 +62,11 @@ interface TrekDao {
     suspend fun readActiveTrekId(intentId: IntentId): TrekId?
 
     @Query(
-        "SELECT t.id trekId, t.createdAt, t.isComplete, t.finishedAt, s.* FROM TrekEntity AS t " +
-            "JOIN StepEntity AS s ON s.id = t.rootId " +
-                "WHERE t.createdAt >= :start OR NOT t.isComplete "
+        "SELECT tp.id trekPointId, t.id trekId, t.createdAt startedAt, t.finishedAt, t.isComplete, s.* FROM TrekPoint AS tp " +
+                "JOIN IntentEntity AS i ON tp.intentId = i.id " +
+                "JOIN StepEntity AS s ON s.id = i.rootId " +
+                "LEFT JOIN TrekEntity AS t ON t.id = tp.trekId " +
+                "WHERE t.id IS NULL OR t.createdAt >= :start OR NOT t.isComplete "
     )
     fun flowRootTodoSteps(start: Instant): Flow<List<TodoStep>>
 
@@ -88,12 +83,11 @@ interface TrekDao {
     @Query("SELECT COUNT(*) cnt, ps1.id pathStepId FROM PathStepEntity AS ps1 " +
             "JOIN PathStepEntity AS ps2 ON ps1.stepId = ps2.pathId " +
             "JOIN StepLogEntity AS l on ps2.id = l.pathStepId " +
-            "WHERE ps1.pathId = :pathId AND l.trekId = :trekId " +
+            "JOIN TrekPoint AS tp ON l.trekId = tp.trekId " +
+            "WHERE ps1.pathId = :pathId AND tp.id = :trekPointId " +
             "GROUP BY ps1.id")
-    fun flowPathProgresses(pathId: StepId, trekId: TrekId): Flow<Map<@MapColumn("pathStepId") PathStepId, @MapColumn("cnt") Int>>
-}
+    fun flowPathProgresses(pathId: StepId, trekPointId: TrekPointId): Flow<Map<@MapColumn("pathStepId") PathStepId, @MapColumn("cnt") Int>>
 
-data class TrekFinishedAt(
-    val intentId: IntentId,
-    val finishedAt: Instant?
-)
+    @Query("SELECT trekId FROM TrekPoint WHERE id = :trekPointId")
+    suspend fun readTrekIdByTrekPointId(trekPointId: TrekPointId): TrekId?
+}

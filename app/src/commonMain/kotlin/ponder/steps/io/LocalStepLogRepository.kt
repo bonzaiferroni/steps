@@ -55,7 +55,7 @@ class LocalStepLogRepository(
             stepLogDao.deletePathLog(trekId, stepId) == 1
     }
 
-    fun flowPathLogsByTrekId(pathId: StepId, trekId: TrekId) = stepLogDao.flowPathLogsByTrekId(pathId, trekId)
+    fun flowPathLogsByTrekPointId(pathId: StepId, trekPointId: Long) = stepLogDao.flowPathLogsByTrekPointId(pathId, trekPointId)
 
     fun flowRootLogs(start: Instant) = stepLogDao.flowRootLogs(start)
 

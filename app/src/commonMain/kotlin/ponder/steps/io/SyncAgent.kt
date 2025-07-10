@@ -15,6 +15,7 @@ import ponder.steps.db.DeletionEntity
 import ponder.steps.db.StepLogEntity
 import ponder.steps.db.SyncDao
 import ponder.steps.db.SyncLog
+import ponder.steps.db.TrekPoint
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.*
 import kotlin.reflect.KClass
@@ -166,26 +167,26 @@ class SyncAgent(
             )
         }
 
+        val insertTrekPointIfMissing = suspend {
+            if (syncDao.readTrekPointIdByTrekId(remote.id) == null) {
+                println("TrekPoint created by remote trek")
+                syncDao.insertTrekPoint(TrekPoint(intentId = remote.intentId, trekId = remote.id))
+            }
+        }
+
         if (remote.isComplete) {
             writeRemoteTrek()
+            insertTrekPointIfMissing()
             return
         }
-        val local = syncDao.readTrekByIntentId(remote.intentId)
-        if (local == null || local.id == remote.id) {
-            writeRemoteTrek()
-            return
-        }
-        val keepRemote = when {
-            remote.createdAt < local.createdAt -> true
-            remote.createdAt > local.createdAt -> false
-            else -> remote.id < local.id   // string compare tiebreaker
-        }
-        if (keepRemote) {
-            println("integrate remote trek")
-            syncDao.deleteTrekById(local.id)
-            writeRemoteTrek()
+
+        writeRemoteTrek()
+        val trekPoint = syncDao.readActiveTrekPointByIntentId(remote.intentId)
+        if (trekPoint != null) {
+            println("Local TrekPoint absorbs remote trek")
+            syncDao.updateTrekPoint(trekPoint.copy(trekId = remote.id))
         } else {
-            println("preserve local trek")
+            insertTrekPointIfMissing()
         }
     }
 

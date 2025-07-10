@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.db.StepId
 import ponder.steps.db.TodoStep
+import ponder.steps.db.TrekPointId
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.NewAnswer
@@ -53,9 +54,9 @@ class TodoListModel(
         setState { it.copy(isAddingItem = !it.isAddingItem) }
     }
 
-    fun setOutcome(trekId: TrekId, step: Step, outcome: StepOutcome? = null) {
+    fun setOutcome(trekPointId: TrekPointId, step: Step, outcome: StepOutcome? = null) {
         ioLaunch {
-            trekRepo.setOutcome(trekId, step, outcome, trekPath?.breadcrumbs)
+            trekRepo.setOutcome(trekPointId, step, outcome, trekPath?.breadcrumbs)
         }
     }
 
@@ -75,9 +76,9 @@ class TodoListModel(
         refreshSteps()
     }
 
-    fun navToDeeperPath(trekId: TrekId, step: Step) {
+    fun navToDeeperPath(trekPointId: TrekPointId, step: Step) {
         val trekPath = this.trekPath?.let { it.copy(pathId = step.id, breadcrumbs = it.breadcrumbs + step) }
-            ?: TrekPath(trekId, pathId = step.id, breadcrumbs = listOf(step))
+            ?: TrekPath(trekPointId, pathId = step.id, breadcrumbs = listOf(step))
         navToTrekPath(trekPath, true)
     }
 }
@@ -92,9 +93,9 @@ data class TodoListState(
     val progresses: Map<String, Int> = emptyMap(),
     val isAddingItem: Boolean = false,
 ) {
-    fun getLog(todoStep: TodoStep) = stepLogs.firstOrNull {
-        if (isRoot) it.trekId == todoStep.trekId
-        else it.pathStepId == todoStep.step.pathStepId
+    fun getLog(todoStep: TodoStep) = when (isRoot) {
+        true -> todoStep.trekId?.let { trekId -> stepLogs.firstOrNull { it.trekId == trekId  } }
+        false -> stepLogs.firstOrNull { it.pathStepId == todoStep.step.pathStepId }
     }
 
     fun getAnswers(stepLogId: StepLogId) = answers[stepLogId] ?: emptyList()

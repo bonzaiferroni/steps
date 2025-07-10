@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 60,
-    "identityHash": "664cdeabcf67a50f4dbae3a738713995",
+    "identityHash": "4c77a65ec8d9513c0d97bf9aca063a16",
     "entities": [
       {
         "tableName": "Sprite",
@@ -408,6 +408,79 @@
             "onUpdate": "NO ACTION",
             "columns": [
               "rootId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "TrekPoint",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `intentId` TEXT NOT NULL, `trekId` TEXT, FOREIGN KEY(`intentId`) REFERENCES `IntentEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`trekId`) REFERENCES `TrekEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intentId",
+            "columnName": "intentId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trekId",
+            "columnName": "trekId",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_TrekPoint_trekId",
+            "unique": false,
+            "columnNames": [
+              "trekId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekPoint_trekId` ON `${TABLE_NAME}` (`trekId`)"
+          },
+          {
+            "name": "index_TrekPoint_intentId",
+            "unique": false,
+            "columnNames": [
+              "intentId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TrekPoint_intentId` ON `${TABLE_NAME}` (`intentId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "IntentEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "intentId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "TrekEntity",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "trekId"
             ],
             "referencedColumns": [
               "id"
@@ -871,7 +944,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '664cdeabcf67a50f4dbae3a738713995')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4c77a65ec8d9513c0d97bf9aca063a16')"
     ]
   }
 }

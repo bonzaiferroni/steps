@@ -36,10 +36,10 @@ fun TodoListView(
     )
 
     LazyColumn(1) {
-        items(state.todoSteps, key = { it.key }) { todoStep ->
-            val trekId = todoStep.trekId; val step = todoStep.step
+        items(state.todoSteps, key = { it.vmKey }) { todoStep ->
+            val step = todoStep.step
             val log = state.getLog(todoStep)
-            val progress = state.progresses[todoStep.key] ?: 0
+            val progress = state.progresses[todoStep.progressKey] ?: 0
             val questions = if (log?.outcome == StepOutcome.Completed)
                 state.questions[step.id] ?: emptyList() else emptyList()
             val answers = log?.let { state.getAnswers(it.id) } ?: emptyList()
@@ -50,7 +50,8 @@ fun TodoListView(
                 offsetX = 50.dp,
                 itemContent = { question ->
                     QuestionRow(step.label, question) { answerText ->
-                        if (log != null && answerText != null)
+                        val trekId = todoStep.trekId
+                        if (trekId != null && log != null && answerText != null)
                             viewModel.answerQuestion(trekId, step, log, question, answerText)
                     }
                 },
@@ -61,7 +62,6 @@ fun TodoListView(
                 TodoStepRow(
                     todoStep = todoStep,
                     isFinished = log != null,
-                    isDeeper = true,
                     questionCount = questions.size,
                     progress = progress,
                     pathSize = step.pathSize,

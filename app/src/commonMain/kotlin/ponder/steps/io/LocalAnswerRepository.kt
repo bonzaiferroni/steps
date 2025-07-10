@@ -7,7 +7,6 @@ import ponder.steps.db.StepId
 import ponder.steps.model.data.Answer
 import ponder.steps.db.TimeUnit
 import ponder.steps.db.toEntity
-import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.TrekId
 import kotlin.time.Duration
 
@@ -40,5 +39,5 @@ class LocalAnswerRepository(
 
     fun flowAnswersByTrekIds(trekIds: List<TrekId>) = answerDao.flowAnswersByTrekIds(trekIds)
 
-    fun flowPathAnswersByTrekId(pathId: StepId, trekId: TrekId) = answerDao.flowPathAnswersByTrekId(pathId, trekId)
+    fun flowPathAnswersByTrekId(pathId: StepId, trekPointId: Long) = answerDao.flowPathAnswersByTrekPointId(pathId, trekPointId)
 }

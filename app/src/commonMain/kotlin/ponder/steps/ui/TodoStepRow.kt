@@ -14,6 +14,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
 import ponder.steps.StepProfileRoute
 import ponder.steps.db.TodoStep
+import ponder.steps.db.TrekPointId
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepOutcome
@@ -35,15 +36,13 @@ import pondui.ui.theme.Pond
 fun LazyItemScope.TodoStepRow(
     todoStep: TodoStep,
     isFinished: Boolean,
-    isDeeper: Boolean,
     questionCount: Int,
     progress: Int,
     pathSize: Int,
-    setOutcome: (TrekId, Step, StepOutcome?) -> Unit,
-    navToPath: (TrekId, Step) -> Unit,
-//    branchStep: (String) -> Unit,
+    setOutcome: (TrekPointId, Step, StepOutcome?) -> Unit,
+    navToPath: (TrekPointId, Step) -> Unit,
 ) {
-    val trekId = todoStep.trekId; val step = todoStep.step
+    val trekPointId = todoStep.trekPointId; val step = todoStep.step
     val nav = LocalNav.current
     val isFinishedAnimated by animateFloatAsState(if (isFinished) 1f else 0f)
 
@@ -90,16 +89,16 @@ fun LazyItemScope.TodoStepRow(
                 val progressRatio = progress / pathSize.toFloat()
                 ProgressBarButton(
                     progress = progressRatio,
-                    onClick = { navToPath(trekId, step) }
+                    onClick = { navToPath(trekPointId, step) }
                 ) {
                     Row(1) {
-                        Text("$progress of ${pathSize}")
+                        Text("$progress of $pathSize")
                         Icon(TablerIcons.ArrowRight)
                     }
                 }
             } else {
                 Checkbox(isFinished) {
-                    setOutcome(trekId, step, if (isFinished) null else StepOutcome.Completed)
+                    setOutcome(trekPointId, step, if (isFinished) null else StepOutcome.Completed)
                 }
             }
         }

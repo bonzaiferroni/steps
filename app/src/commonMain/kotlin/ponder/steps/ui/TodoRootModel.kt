@@ -45,7 +45,7 @@ class TodoRootModel(
             stepFlow = trekRepo.flowRootTodoSteps(start).map { todoSteps ->
                 todoSteps.sortedWith(
                     compareBy<TodoStep> { if (it.isComplete != true) 0 else 1 }
-                        .thenBy { it.startedAt }
+                        .thenByDescending { it.trekPointId }
                 )
             },
             stepLogFlow = stepLogRepo.flowRootLogs(start),

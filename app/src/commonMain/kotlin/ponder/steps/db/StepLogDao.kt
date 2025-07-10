@@ -107,8 +107,9 @@ interface StepLogDao {
 
     @Query("SELECT l.* FROM PathStepEntity AS ps " +
             "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +
-            "WHERE ps.pathId = :pathId AND l.trekId = :trekId")
-    fun flowPathLogsByTrekId(pathId: StepId, trekId: TrekId): Flow<List<StepLog>>
+            "JOIN TrekPoint AS tp ON l.trekId = tp.trekId " +
+            "WHERE ps.pathId = :pathId AND tp.id = :trekPointId")
+    fun flowPathLogsByTrekPointId(pathId: StepId, trekPointId: Long): Flow<List<StepLog>>
 
     @Query("SELECT l.* FROM PathStepEntity AS ps " +
             "JOIN StepLogEntity AS l ON ps.id = l.pathStepId " +

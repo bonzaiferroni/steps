@@ -13,7 +13,6 @@ class TodoModel(
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository()
-
 ): StateModel<TodoState>(TodoState()) {
 
     val trekStarter = TrekStarter(this)
@@ -22,7 +21,7 @@ class TodoModel(
         if (trekPath == null) {
             setState { it.copy(pageIndex = null) }
         } else {
-            val (trekId, pathId) = trekPath
+            val pathId = trekPath.pathId
             val indexOfStepId = stateNow.pageStack.indexOfFirst { it.pathId == pathId }
             val currentIndex = stateNow.pageIndex
             if (indexOfStepId >= 0) {
@@ -45,11 +44,11 @@ data class TodoState(
 
 @Stable
 data class TrekPath(
-    val trekId: TrekId,
+    val trekPointId: Long,
     val pathId: StepId,
     val breadcrumbs: List<Step>,
 ) {
-    val key get() = trekId + pathId
+    val key get() = trekPointId.toString() + pathId
 
     fun toSubPath(stepId: StepId): TrekPath {
         val index = breadcrumbs.indexOfFirst { it.id == stepId }

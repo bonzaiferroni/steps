@@ -15,6 +15,8 @@ import ponder.steps.db.QuestionDao
 import ponder.steps.db.StepDao
 import ponder.steps.db.TrekDao
 import ponder.steps.db.TrekEntity
+import ponder.steps.db.TrekPointDao
+import ponder.steps.db.TrekPointId
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
@@ -37,14 +39,16 @@ class LocalTrekRepository(
     private val stepLogDao: StepLogDao = appDb.getStepLogDao(),
     private val questionDao: QuestionDao = appDb.getQuestionDao(),
     private val answerDao: AnswerDao = appDb.getAnswerDao(),
+    private val trekPointDao: TrekPointDao = appDb.getTrekPointDao(),
 ) : TrekRepository {
 
     suspend fun setOutcome(
-        trekId: TrekId,
+        trekPointId: TrekPointId,
         step: Step,
         outcome: StepOutcome?,
         breadcrumbs: List<Step>?
     ): StepLogId? {
+        val trekId = readOrCreateTrekId(trekPointId)
         val now = Clock.System.now()
         val logId = if (outcome != null) {
             val logId = randomUuidStringId()
@@ -78,6 +82,16 @@ class LocalTrekRepository(
         )
 
         return logId
+    }
+
+    private suspend fun readOrCreateTrekId(trekPointId: TrekPointId): TrekId {
+        var trekId = trekDao.readTrekIdByTrekPointId(trekPointId)
+        if (trekId != null) return trekId
+
+        val intent = intentDao.readIntentByTrekPointId(trekPointId)
+        trekId = createTrekFromIntent(intent)
+        trekPointDao.updateTrekPointWithTrekId(trekPointId, trekId)
+        return trekId
     }
 
     suspend fun setPathOutcomes(
@@ -192,7 +206,7 @@ class LocalTrekRepository(
 
     suspend fun readTreksLastStartedAt(intentIds: List<IntentId>) = trekDao.readTreksLastStartedAt(intentIds)
 
-    suspend fun createTrekFromIntent(intent: Intent): TrekId {
+    private suspend fun createTrekFromIntent(intent: Intent): TrekId {
         val id = randomUuidStringId()
         val now = Clock.System.now()
 
@@ -218,7 +232,7 @@ class LocalTrekRepository(
 
     fun flowRootProgress(start: Instant) = trekDao.flowRootProgresses(start)
 
-    fun flowPathProgresses(pathId: StepId, trekId: TrekId) = trekDao.flowPathProgresses(pathId, trekId)
+    fun flowPathProgresses(pathId: StepId, trekPointId: TrekPointId) = trekDao.flowPathProgresses(pathId, trekPointId)
 }
 
 private enum class StepStatus {

@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import androidx.room.Upsert
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.*
 
@@ -99,6 +98,9 @@ interface SyncDao {
     @Query("DELETE FROM IntentEntity WHERE id = :intentId")
     suspend fun deleteIntentById(intentId: IntentId)
 
+    @Query("SELECT id FROM TrekPoint WHERE trekId = :trekId")
+    suspend fun readTrekPointIdByTrekId(trekId: TrekId): Long?
+
     // Trek 🧗
     @Query("SELECT * FROM TrekEntity WHERE updatedAt > :start")
     suspend fun readUpdatedTreks(start: Instant): List<Trek>
@@ -109,11 +111,20 @@ interface SyncDao {
     @Query("SELECT * FROM TrekEntity WHERE intentId = :intentId")
     suspend fun readTrekByIntentId(intentId: IntentId): Trek?
 
+    @Query("SELECT * FROM TrekPoint WHERE intentId = :intentId AND trekId IS NULL")
+    suspend fun readActiveTrekPointByIntentId(intentId: IntentId): TrekPoint?
+
     @Insert
     suspend fun insertTrek(trek: TrekEntity)
 
     @Update
     suspend fun updateTrek(trek: TrekEntity)
+
+    @Update
+    suspend fun updateTrekPoint(trekPoint: TrekPoint)
+
+    @Insert
+    suspend fun insertTrekPoint(trekPoint: TrekPoint)
 
     @Query("DELETE FROM TrekEntity WHERE id = :trekId")
     suspend fun deleteTrekById(trekId: TrekId)

@@ -25,7 +25,7 @@ fun TodoRootView(
     navToPath: (TrekPath?, Boolean) -> Unit,
 ) {
     val viewModel = viewModel { TodoRootModel(navToPath) }
-    val trekStepsStae by viewModel.todoList.state.collectAsState()
+    val todoListState by viewModel.todoList.state.collectAsState()
     val state by viewModel.state.collectAsState()
 
     Column(1) {
@@ -33,10 +33,10 @@ fun TodoRootView(
             Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
                 H1("Today's Journey")
                 ProgressBar(
-                    progress = trekStepsStae.progressRatio,
+                    progress = todoListState.progressRatio,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("${trekStepsStae.progress} of ${trekStepsStae.totalSteps}")
+                    Text("${todoListState.progress} of ${todoListState.totalSteps}")
                 }
             }
         }
