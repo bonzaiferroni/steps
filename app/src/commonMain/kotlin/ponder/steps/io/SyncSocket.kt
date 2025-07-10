@@ -15,16 +15,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.Instant
 import ponder.steps.model.Api
+import ponder.steps.model.data.SyncFrame
 import ponder.steps.model.data.SyncHandshake
 import ponder.steps.model.data.SyncPacket
 import ponder.steps.model.data.toBytes
 import ponder.steps.model.data.toSyncFrameOrNull
 import pondui.io.ApiClient
-import pondui.io.UserContext
-import pondui.io.globalApiClient
 import kotlin.time.Duration.Companion.seconds
 
 class SyncSocket(
@@ -37,8 +35,8 @@ class SyncSocket(
         }
     }
 
-    private val _receivedPackets = MutableSharedFlow<SyncPacket>()
-    val receivedPackets: SharedFlow<SyncPacket> = _receivedPackets
+    private val _receivedPackets = MutableSharedFlow<SyncFrame>()
+    val receivedFrames: SharedFlow<SyncFrame> = _receivedPackets
 
     fun startSync(
         coroutineScope: CoroutineScope,
@@ -59,6 +57,7 @@ class SyncSocket(
 
             launch {
                 syncFlow.collect { packet ->
+                    println("sending packet")
                     val bytes = packet.toBytes()
                     send(Frame.Binary(true, bytes))
                 }
@@ -67,10 +66,7 @@ class SyncSocket(
             for (frame in incoming) {
                 if (frame is Frame.Binary){
                     val packet = frame.readBytes().toSyncFrameOrNull() ?: continue
-                    when (packet) {
-                        is SyncHandshake -> continue
-                        is SyncPacket -> _receivedPackets.emit(packet)
-                    }
+                    _receivedPackets.emit(packet)
                 } else {
                     println("unexpected frame: $frame")
                 }

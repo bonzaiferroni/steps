@@ -12,10 +12,10 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlin.reflect.KClass
 import kabinet.utils.toSnakeCase
-import kotlinx.serialization.cbor.CborConfiguration
 
 @Serializable
 data class SyncPacket(
+    val id: String,
     val origin: String,
     val lastSyncAt: Instant,
     val records: List<SyncRecord>
@@ -25,6 +25,12 @@ data class SyncPacket(
 data class SyncHandshake(
     val origin: String,
     val lastSyncAt: Instant,
+): SyncFrame
+
+@Serializable
+data class SyncReceipt(
+    val id: String,
+    val isSuccess: Boolean,
 ): SyncFrame
 
 sealed interface SyncRecord {
@@ -49,19 +55,20 @@ val module = SerializersModule {
     polymorphic(SyncFrame::class) {
         subclass(SyncPacket::class, SyncPacket.serializer())
         subclass(SyncHandshake::class, SyncHandshake.serializer())
+        subclass(SyncReceipt::class, SyncReceipt.serializer())
     }
 }
 
-enum class SyncType(val kClass: KClass<*>, val serializer: KSerializer<*>) {
-    StepRecord(Step::class, Step.serializer()),
-    PathStepRecord(PathStep::class, PathStep.serializer()),
-    QuestionRecord(Question::class, Question.serializer()),
-    IntentRecord(Intent::class, Intent.serializer()),
-    TrekRecord(Trek::class, Trek.serializer()),
-    StepLogRecord(StepLog::class, StepLog.serializer()),
-    AnswerRecord(Answer::class, Answer.serializer()),
-    TagRecord(Tag::class, Tag.serializer()),
-    StepTagRecord(StepTag::class, StepTag.serializer());
+enum class SyncType(val kClass: KClass<*>) {
+    StepRecord(Step::class),
+    PathStepRecord(PathStep::class),
+    QuestionRecord(Question::class),
+    IntentRecord(Intent::class),
+    TrekRecord(Trek::class),
+    StepLogRecord(StepLog::class),
+    AnswerRecord(Answer::class),
+    TagRecord(Tag::class),
+    StepTagRecord(StepTag::class);
     // DeletionRecord(Deletion::class, Deletion.serializer()),
 
     val className get() = kClass.nameOrError

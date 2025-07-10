@@ -26,7 +26,7 @@ object AnswerTable: UUIDTable("answer") {
     val userId = reference("user_id", UserTable.id, onDelete = ReferenceOption.CASCADE)
     val stepLogId = reference("step_log_id", StepLogTable.id, onDelete = ReferenceOption.CASCADE)
     val questionId = reference("question_id", QuestionTable.id, onDelete = ReferenceOption.CASCADE)
-    val value = text("value")
+    val value = text("value").nullable()
     val type = enumeration<DataType>("type")
     val updatedAt = datetime("updated_at")
     val syncAt = datetime("sync_at").default(Clock.nowToLocalDateTimeUtc())

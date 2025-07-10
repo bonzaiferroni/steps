@@ -2,13 +2,12 @@ package ponder.steps.io
 
 import kabinet.PAST_MOMENT
 import kabinet.utils.nameOrError
+import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.db.AppDatabase
 import ponder.steps.db.DeletionEntity
@@ -19,7 +18,6 @@ import ponder.steps.db.TrekPoint
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.*
 import kotlin.reflect.KClass
-import kotlin.time.Duration.Companion.minutes
 
 class SyncAgent(
     private val origin: String,
@@ -28,7 +26,7 @@ class SyncAgent(
     private val socket: SyncSocket = SyncSocket(origin)
 ) {
     private var lastSyncAt: Instant = PAST_MOMENT
-    private val sentPackets = MutableSharedFlow<SyncPacket>()
+    private val sentPackets = Channel<SyncPacket>(Channel.RENDEZVOUS)
 
     companion object {
         var syncInProgress = false
@@ -37,38 +35,54 @@ class SyncAgent(
 
     fun startSync() {
         CoroutineScope(Dispatchers.IO).launch {
-            var syncLog = syncDao.readSyncLog() ?: SyncLog(lastSyncAt = PAST_MOMENT)
+            val syncLog = syncDao.readSyncLog() ?: SyncLog(lastSyncAt = PAST_MOMENT)
             lastSyncAt = syncLog.lastSyncAt
 
-            val syncJob = socket.startSync(coroutineScope = this, lastSyncAt = lastSyncAt, syncFlow = sentPackets)
+            socket.startSync(coroutineScope = this, lastSyncAt = lastSyncAt, syncFlow = sentPackets.receiveAsFlow())
 
             emitDeletions()
-            emitRecords() 
+            sendPacket()
 
             launch {
-                socket.receivedPackets.collect { packet ->
-                    syncInProgress = true
-                    for (record in packet.records) {
-                        integrateRecord(packet.origin, record)
+                socket.receivedFrames.collect { frame ->
+                    when (frame) {
+                        is SyncHandshake -> error("client never learned how to shake hands")
+                        is SyncPacket -> syncPackets(frame)
+                        is SyncReceipt -> checkReceipt(frame, syncLog)
                     }
-                    syncInProgress = false
-                }
-            }
-
-            val syncWindow = 1.minutes
-            while (isActive && syncJob.isActive) {
-                delay(syncWindow)
-                if (syncJob.isActive) {
-                    syncLog = syncLog.copy(lastSyncAt = Clock.System.now() - syncWindow)
-                    syncDao.upsert(syncLog)
-                } else {
-                    println("Sync job disconnected")
                 }
             }
         }
     }
 
-    private fun CoroutineScope.emitRecords() {
+    // frame depot 📤 📥
+    private val frameIds = mutableMapOf<String, Instant>()
+
+    private suspend fun sendPacket(records: List<SyncRecord>, updatedAt: Instant) {
+        val id = randomUuidStringId()
+        frameIds[id] = updatedAt
+        val packet = SyncPacket(id, origin, updatedAt, records)
+        sentPackets.send(packet)
+    }
+
+    private suspend fun checkReceipt(frame: SyncReceipt, syncLog: SyncLog) {
+        val updatedAt = frameIds.remove(frame.id) ?: error("Took frame receipt with unknown id")
+        println(frameIds.size)
+        if (frameIds.isEmpty()) {
+            println("sync complete")
+            syncDao.upsert(syncLog.copy(lastSyncAt = updatedAt))
+        }
+    }
+
+    private suspend fun syncPackets(frame: SyncPacket) {
+        syncInProgress = true
+        for (record in frame.records) {
+            integrateRecord(frame.origin, record)
+        }
+        syncInProgress = false
+    }
+
+    private fun CoroutineScope.sendPacket() {
         emitUpdatedRecords(StepLog::class, syncDao::readUpdatedStepLogs)
         emitUpdatedRecords(Step::class, syncDao::readUpdatedSteps)
         emitUpdatedRecords(PathStep::class, syncDao::readUpdatedPathSteps)
@@ -93,6 +107,7 @@ class SyncAgent(
                 insertEntity = syncDao::insertAnswer,
                 updateEntity = syncDao::updateAnswer,
             )
+
             is Intent -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -100,6 +115,7 @@ class SyncAgent(
                 insertEntity = syncDao::insertIntent,
                 updateEntity = syncDao::updateIntent,
             )
+
             is PathStep -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -107,6 +123,7 @@ class SyncAgent(
                 insertEntity = syncDao::insertPathStep,
                 updateEntity = syncDao::updatePathStep,
             )
+
             is Question -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -114,6 +131,7 @@ class SyncAgent(
                 insertEntity = syncDao::insertQuestion,
                 updateEntity = syncDao::updateQuestion,
             )
+
             is Step -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -121,6 +139,7 @@ class SyncAgent(
                 insertEntity = syncDao::insertStep,
                 updateEntity = syncDao::updateStep,
             )
+
             is StepLog -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -128,6 +147,7 @@ class SyncAgent(
                 insertEntity = ::insertStepLog,
                 updateEntity = syncDao::updateStepLog,
             )
+
             is StepTag -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -135,6 +155,7 @@ class SyncAgent(
                 insertEntity = syncDao::insertStepTag,
                 updateEntity = syncDao::updateStepTag,
             )
+
             is Tag -> integrateRecord(
                 record = record,
                 provideEntity = { it.toEntity(false) },
@@ -190,7 +211,7 @@ class SyncAgent(
         }
     }
 
-    private fun <Data: SyncRecord> CoroutineScope.emitUpdatedRecords(
+    private fun <Data : SyncRecord> CoroutineScope.emitUpdatedRecords(
         recordClass: KClass<Data>,
         readUpdates: suspend (Instant) -> List<Data>,
     ) = launch {
@@ -203,10 +224,9 @@ class SyncAgent(
                 !isRemoteId
             }
             if (records.isNotEmpty()) {
-                // println("sending ${records.size} ${recordClass.nameOrError}")
                 val latestUpdatedAt = records.maxOf { it.updatedAt }
-                val packet = SyncPacket(origin, latestUpdatedAt, records)
-                sentPackets.emit(packet)
+                println("emitting ${records.size} ${recordClass.nameOrError}")
+                sendPacket(records, latestUpdatedAt)
                 lastSeen = maxOf(lastSeen, latestUpdatedAt)
             }
         }
@@ -223,9 +243,9 @@ class SyncAgent(
                 !isRemoteDeletion
             }
             if (deletions.isNotEmpty()) {
-                val packet = SyncPacket(origin, Clock.System.now(), deletions)
-                // println("sending ${deletions.size} deletions")
-                sentPackets.emit(packet)
+                val updatedAt = deletions.maxOf { it.deletedAt }
+                println("emitting ${deletions.size} deletions")
+                sendPacket(deletions, updatedAt)
             }
         }
     }
@@ -248,7 +268,7 @@ class SyncAgent(
     }
 }
 
-private suspend fun <Data: SyncRecord, Entity> integrateRecord(
+private suspend fun <Data : SyncRecord, Entity> integrateRecord(
     record: Data,
     provideEntity: (Data) -> Entity,
     readRecord: suspend (String) -> Data?,

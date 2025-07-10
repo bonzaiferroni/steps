@@ -2,6 +2,7 @@ package ponder.steps.server.db.services
 
 import kabinet.model.UserId
 import kabinet.utils.nameOrError
+import kabinet.utils.randomUuidStringId
 import kabinet.utils.toLocalDateTimeUtc
 import klutch.db.DbService
 import klutch.db.read
@@ -89,13 +90,16 @@ class SyncApiService : DbService() {
         StepTagTable.read { readSyncData(it.userId, it.syncAt) }.forEach { records.add(it.toStepTag()) }
         DeletionTable.read { readSyncData(it.userId, it.deletedAt) }.forEach { records.add(it.toDeletion()) }
 
-        SyncPacket(SYNC_SERVER_ORIGIN_LABEL, Clock.System.now(), records)
+        val id = randomUuidStringId()
+        SyncPacket(id, SYNC_SERVER_ORIGIN_LABEL, Clock.System.now(), records)
     }
 
     suspend fun writeSync(packet: SyncPacket, userId: UserId) = dbQuery {
+        var isSuccess = true
 
         // integrate records
         for (record in packet.records) {
+            println("integrating ${record::class.nameOrError}")
             try {
                 when (record) {
                     is Deletion -> DeletionTable.integrateDeletion(record, userId)
@@ -111,17 +115,23 @@ class SyncApiService : DbService() {
                 }
             } catch (e: Exception) {
                 println("${record::class.nameOrError} sync error:\n${e.message}")
+                isSuccess = false
+                break
             }
         }
 
-        // deletion gc 🗑
-        val isTrailingOrigin = OriginSyncTable.select(OriginSyncTable.label)
-            .where { OriginSyncTable.userId.eq(userId) }
-            .orderBy(OriginSyncTable.syncAt).limit(1)
-            .firstOrNull()?.let { it[OriginSyncTable.label] } == packet.origin
+        if (isSuccess) {
+            // deletion gc 🗑
+            val isTrailingOrigin = OriginSyncTable.select(OriginSyncTable.label)
+                .where { OriginSyncTable.userId.eq(userId) }
+                .orderBy(OriginSyncTable.syncAt).limit(1)
+                .firstOrNull()?.let { it[OriginSyncTable.label] } == packet.origin
 
-        if (isTrailingOrigin) {
-            DeletionTable.deleteWhere { this.userId.eq(userId) and this.deletedAt.lessEq(packet.lastSyncAt) }
+            if (isTrailingOrigin) {
+                DeletionTable.deleteWhere { this.userId.eq(userId) and this.deletedAt.lessEq(packet.lastSyncAt) }
+            }
         }
+
+        isSuccess
     }
 }
