@@ -44,7 +44,7 @@ class TrekStarter(
         viewModelScope.launch {
             while (isActive) {
                 while (isActive && nextRefresh > Clock.System.now() || SyncAgent.syncInProgress) {
-                    delay(1000)
+                    delay(100)
                 }
 
                 println("checking treks")

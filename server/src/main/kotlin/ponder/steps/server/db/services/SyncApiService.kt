@@ -99,7 +99,7 @@ class SyncApiService : DbService() {
 
         // integrate records
         for (record in packet.records) {
-            println("integrating ${record::class.nameOrError}")
+            // println("integrating ${record::class.nameOrError}")
             try {
                 when (record) {
                     is Deletion -> DeletionTable.integrateDeletion(record, userId)

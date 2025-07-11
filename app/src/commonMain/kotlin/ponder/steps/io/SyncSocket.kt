@@ -57,7 +57,6 @@ class SyncSocket(
 
             launch {
                 syncFlow.collect { packet ->
-                    println("sending packet")
                     val bytes = packet.toBytes()
                     send(Frame.Binary(true, bytes))
                 }

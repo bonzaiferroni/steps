@@ -6,8 +6,10 @@ import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import kotlinx.datetime.Instant
 import ponder.steps.db.AppDatabase
 import ponder.steps.db.DeletionEntity
@@ -67,7 +69,6 @@ class SyncAgent(
 
     private suspend fun checkReceipt(frame: SyncReceipt, syncLog: SyncLog) {
         val updatedAt = frameIds.remove(frame.id) ?: error("Took frame receipt with unknown id")
-        println(frameIds.size)
         if (frameIds.isEmpty()) {
             println("sync complete")
             syncDao.upsert(syncLog.copy(lastSyncAt = updatedAt))
@@ -218,6 +219,7 @@ class SyncAgent(
         var lastSeen = lastSyncAt
         val tableName = SyncType.fromClass(recordClass).entityName
         db.invalidationTracker.createFlow(tableName).collect {
+            delay(100)
             val records = readUpdates(lastSeen).filter {
                 val isRemoteId = remoteIds.contains(it.id)
                 if (isRemoteId) remoteIds.remove(it.id)
@@ -225,7 +227,7 @@ class SyncAgent(
             }
             if (records.isNotEmpty()) {
                 val latestUpdatedAt = records.maxOf { it.updatedAt }
-                println("emitting ${records.size} ${recordClass.nameOrError}")
+                // println("emitting ${records.size} ${recordClass.nameOrError}")
                 sendPacket(records, latestUpdatedAt)
                 lastSeen = maxOf(lastSeen, latestUpdatedAt)
             }
@@ -237,6 +239,7 @@ class SyncAgent(
 
     private fun CoroutineScope.emitDeletions() = launch {
         db.invalidationTracker.createFlow(DeletionEntity::class.nameOrError).collect {
+            delay(100)
             val deletions = syncDao.readDeletions().filter {
                 val isRemoteDeletion = remoteIds.contains(it.recordId)
                 remoteIds.remove(it.recordId)
@@ -244,7 +247,7 @@ class SyncAgent(
             }
             if (deletions.isNotEmpty()) {
                 val updatedAt = deletions.maxOf { it.deletedAt }
-                println("emitting ${deletions.size} deletions")
+                // println("emitting ${deletions.size} deletions")
                 sendPacket(deletions, updatedAt)
             }
         }
