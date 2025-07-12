@@ -27,3 +27,4 @@ captures
 /server/img
 /server/wav
 /app/my_room.*
+/app/image_cache

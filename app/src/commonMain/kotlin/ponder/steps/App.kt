@@ -3,6 +3,7 @@ package ponder.steps
 import androidx.compose.runtime.*
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
+import ponder.steps.io.ProvideImageSource
 import ponder.steps.io.SyncAgent
 import pondui.ProvideWavePlayer
 import pondui.io.LocalUserContext
@@ -32,11 +33,13 @@ fun App(
                     }
                 }
 
-                PondApp(
-                    config = appConfig,
-                    changeRoute = changeRoute,
-                    exitApp = exitApp
-                )
+                ProvideImageSource {
+                    PondApp(
+                        config = appConfig,
+                        changeRoute = changeRoute,
+                        exitApp = exitApp
+                    )
+                }
             }
         }
     }
