@@ -1,10 +1,12 @@
 package ponder.steps.server.plugins
 
-class RecordDeletionPgTrigger(val tableNames: List<String>) {
+import ponder.steps.model.data.SyncType
+
+class RecordDeletionPgTrigger() {
     fun buildSql() = buildString {
         appendLine(recordDeletionFunction)
-        for (tableName in tableNames) {
-            appendLine(toTrigger(tableName))
+        for (syncType in SyncType.entries) {
+            appendLine(toTrigger(syncType))
         }
     }
 }
@@ -12,20 +14,24 @@ class RecordDeletionPgTrigger(val tableNames: List<String>) {
 private val recordDeletionFunction = """
     CREATE OR REPLACE FUNCTION record_deletion()
         RETURNS TRIGGER AS $$
+    DECLARE
+        entity_name text := TG_ARGV[0];
     BEGIN
-        INSERT INTO deletion (id, user_id, recorded_at)
-        VALUES (OLD.id, OLD.user_id, now()::timestamp);
+        INSERT INTO deletion (id, user_id, entity_name, deleted_at)
+        VALUES (OLD.id, OLD.user_id, entity_name, now()::timestamp)
+        ON CONFLICT (id) DO UPDATE
+            SET deleted_at = EXCLUDED.deleted_at;
         RETURN OLD;
     END;
     $$ LANGUAGE plpgsql;
 """.trimIndent()
 
-private fun toTrigger(tableName: String) = """
-    DROP TRIGGER IF EXISTS trg_record_deletion_$tableName
-        ON $tableName;
+private fun toTrigger(syncType: SyncType) = """
+    DROP TRIGGER IF EXISTS trg_record_deletion_${syncType.snakeName}
+        ON ${syncType.snakeName};
     
-    CREATE TRIGGER trg_record_deletion_$tableName
-        AFTER DELETE ON $tableName
+    CREATE TRIGGER trg_record_deletion_${syncType.snakeName}
+        AFTER DELETE ON ${syncType.snakeName}
         FOR EACH ROW
-        EXECUTE FUNCTION record_deletion();
+        EXECUTE FUNCTION record_deletion('${syncType.className}');
 """.trimIndent()

@@ -66,7 +66,7 @@ fun LazyItemScope.TodoStepRow(
                 onClick = { nav.go(StepProfileRoute(step.id)) },
                 shape = CircleShape
             ) {
-                MagicItem(step.thumbUrl, rotationX = 90, isVisibleInit = true) { url ->
+                MagicItem(step.thumbUrl, rotationX = 90, isVisibleInit = false) { url ->
                     StepImage(
                         url = url,
                         modifier = Modifier.fillMaxHeight()

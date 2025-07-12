@@ -35,5 +35,5 @@ class LocalIntentRepository(
 
     override suspend fun deleteIntent(intentId: IntentId) = intentDao.deleteIntent(intentId) == 1
 
-    override suspend fun completeIntent(intentId: IntentId) = intentDao.completeIntent(intentId, Clock.System.now()) == 1
+    override suspend fun completeIntent(intentId: IntentId) = intentDao.updateCompletedAt(intentId, Clock.System.now()) == 1
 }

@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS deletion (id uuid PRIMARY KEY, user_id uuid NOT NULL, entity_name TEXT NOT NULL, deleted_at TIMESTAMP NOT NULL, CONSTRAINT fk_deletion_user_id__id FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE ON UPDATE RESTRICT);
+ALTER TABLE step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE path_step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE intent ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE trek ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE question ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE step_log ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE answer ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;
+ALTER TABLE step_tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-12 18:40:15'::timestamp without time zone;

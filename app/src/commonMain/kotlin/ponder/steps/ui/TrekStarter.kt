@@ -54,33 +54,27 @@ class TrekStarter(
                 val activeIntents = mutableListOf<Intent>()
 
                 val ids = intents.map { it.id }
-                val trekPoints = trekPointDao.readActiveTrekPoints(ids)
+                val trekPoints = trekPointDao.readLastTrekPoints(ids)
 
                 for (intent in intents) {
-                    val scheduledAt = intent.scheduledAt
                     val trekPoint = trekPoints.firstOrNull { it.intentId == intent.id }
-                    var createTrek = trekPoint == null
 
-                    if (scheduledAt != null && scheduledAt > now) {
-                        nextRefresh = minOf(nextRefresh, scheduledAt)
+                    val repeatAt = intent.repeatMins?.let { trekPoint?.finishedAt?.plus(it.minutes) }
+                    val activeAt = intent.scheduledAt ?: repeatAt ?: now
+
+                    val nextPossibleAt = repeatAt ?: intent.repeatMins?.let { now.plus(it.minutes) } ?: activeAt
+                    nextRefresh = minOf(nextRefresh, nextPossibleAt)
+
+                    if (activeAt > now) {
+                        println("ay not active yet")
                         continue
                     }
 
-                    val repeatMins = intent.repeatMins
-                    if (repeatMins != null) {
-                        val finishedAt = trekPoint?.finishedAt
-                        val repeatTime = finishedAt?.let { it + repeatMins.minutes } ?: (now + repeatMins.minutes)
-                        if (repeatTime > now) {
-                            nextRefresh = minOf(nextRefresh, repeatTime)
-                            continue
-                        } else {
-                            createTrek = true
-                        }
-                    }
+                    println(trekPoint?.finishedAt)
 
-                    if (createTrek && isActive) {
+                    val repeatDue = repeatAt != null && now > repeatAt
+                    if ((trekPoint == null || repeatDue) && isActive) {
                         println("creating trek point for intent: ${intent.label}")
-                        // trekRepo.createTrekFromIntent(intent)
                         trekPointDao.createTrekPoint(TrekPoint(intentId = intent.id))
                     }
                     activeIntents.add(intent)

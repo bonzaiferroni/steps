@@ -119,7 +119,7 @@ class AddStepModel(
         setState { it.copy(intentTiming = value) }
     }
 
-    fun setIntentRepeat(value: Int) {
+    fun setIntentRepeat(value: Int?) {
         setState { it.copy(intentRepeatValue = value) }
     }
 
@@ -144,9 +144,9 @@ data class AddIntentState(
     val searchedSteps: List<Step> = emptyList(),
     val intentLabel: String = "",
     val intentTiming: IntentTiming = IntentTiming.Once,
-    val intentRepeatValue: Int = 1,
+    val intentRepeatValue: Int? = null,
     val intentRepeatUnit: TimeUnit = TimeUnit.Hour,
-    val intentScheduledAt: Instant = Clock.System.now(),
+    val intentScheduledAt: Instant? = null,
     val intentPriority: IntentPriority = IntentPriority.Default,
     val existingStep: Step? = null,
     val createIntent: Boolean = false,
@@ -164,20 +164,22 @@ data class AddIntentState(
         }
 
     val repeatMinutes
-        get() = if (intentTiming != IntentTiming.Repeat) null else when (intentRepeatUnit) {
-            TimeUnit.Minute -> intentRepeatValue
-            TimeUnit.Hour -> intentRepeatValue * 60
-            TimeUnit.Day -> intentRepeatValue * 60 * 24
-            TimeUnit.Week -> intentRepeatValue * 60 * 24 * 7
-            TimeUnit.Month -> intentRepeatValue * 60 * 24 * 30
-            TimeUnit.Year -> intentRepeatValue * 60 * 24 * 365
+        get() = intentRepeatValue?.let {
+            when (intentRepeatUnit) {
+                TimeUnit.Minute -> intentRepeatValue
+                TimeUnit.Hour -> intentRepeatValue * 60
+                TimeUnit.Day -> intentRepeatValue * 60 * 24
+                TimeUnit.Week -> intentRepeatValue * 60 * 24 * 7
+                TimeUnit.Month -> intentRepeatValue * 60 * 24 * 30
+                TimeUnit.Year -> intentRepeatValue * 60 * 24 * 365
+            }
         }
 
     val scheduleDescription
-        get() = when (intentTiming) {
-            IntentTiming.Schedule -> intentScheduledAt.toRelativeTimeFormat()
-            IntentTiming.Once -> "Once"
-            IntentTiming.Repeat -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
+        get() = when {
+            intentScheduledAt != null -> intentScheduledAt.toRelativeTimeFormat()
+            intentRepeatValue != null -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
+            else -> "Once"
         }
 }
 

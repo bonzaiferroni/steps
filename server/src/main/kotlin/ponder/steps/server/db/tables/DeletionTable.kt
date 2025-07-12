@@ -14,15 +14,14 @@ import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import ponder.steps.model.data.Deletion
 
-object DeletionTable: LongIdTable("deletion") {
+object DeletionTable: UUIDTable("deletion") {
     val userId = reference("user_id", UserTable.id, ReferenceOption.CASCADE)
-    val recordId = text("record_id")
-    val entity = text("entity")
+    val entity = text("entity_name")
     val deletedAt = datetime("deleted_at")
 }
 
 fun ResultRow.toDeletion() = Deletion(
-    id = this[DeletionTable.recordId],
+    id = this[DeletionTable.id].value.toStringId(),
     entity = this[DeletionTable.entity],
     deletedAt = this[DeletionTable.deletedAt].toInstantFromUtc()
 )

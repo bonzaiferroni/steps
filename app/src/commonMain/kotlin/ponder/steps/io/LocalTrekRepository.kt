@@ -136,24 +136,42 @@ class LocalTrekRepository(
             }
         }
 
-        trekDao.update(
-            when (status) {
-                StepStatus.Unfinished -> trek.copy(
+        val updatedTrek = when (status) {
+            StepStatus.Unfinished -> when {
+                trek.isComplete || trek.finishedAt != null -> trek.copy(
                     isComplete = false,
                     finishedAt = null
                 )
+                else -> null
+            }
 
-                StepStatus.Finished -> trek.copy(
+            StepStatus.Finished -> when {
+                trek.isComplete || trek.finishedAt == null -> trek.copy(
                     isComplete = false,
                     finishedAt = trek.finishedAt ?: Clock.System.now()
                 )
+                else -> null
+            }
 
-                StepStatus.Completed -> trek.copy(
+            StepStatus.Completed -> when {
+                !trek.isComplete || trek.finishedAt == null -> trek.copy(
                     isComplete = true,
                     finishedAt = trek.finishedAt ?: Clock.System.now()
                 )
-            }.toEntity()
-        )
+                else -> null
+            }
+        }
+
+        updatedTrek?.let {
+            trekDao.update(it.toEntity())
+
+            if (trek.isComplete != updatedTrek.isComplete) {
+                val intent = intentDao.readIntentById(trek.intentId)
+                if (intent.repeatMins == null) {
+                    intentDao.updateCompletedAt(trek.intentId, updatedTrek.finishedAt)
+                }
+            }
+        }
     }
 
     private suspend fun getStatus(

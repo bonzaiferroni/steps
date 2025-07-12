@@ -74,7 +74,7 @@ fun getRoomDatabase(
 ): AppDatabase {
     return builder
         // .addCallback(RecordUpdatedTrigger(synchronizedEntities))
-        .addCallback(RecordDeletionTrigger(synchronizedEntities))
+        .addCallback(RecordDeletionTrigger())
         // .addMigrations(MIGRATIONS)
         .fallbackToDestructiveMigration(true)
         // .fallbackToDestructiveMigrationOnDowngrade(true)
@@ -83,4 +83,3 @@ fun getRoomDatabase(
         .build()
 }
 
-private val synchronizedEntities = SyncType.entries.map { it.entityName }

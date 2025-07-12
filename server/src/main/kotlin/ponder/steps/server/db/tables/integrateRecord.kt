@@ -14,12 +14,12 @@ import ponder.steps.model.data.*
 
 internal fun DeletionTable.integrateDeletion(deletion: Deletion, userId: UserId) {
     DeletionTable.insert {
+        it[this.id] = deletion.recordId.fromStringId()
         it[this.userId] = userId.fromStringId()
-        it[this.recordId] = deletion.recordId
         it[this.entity] = deletion.entity
         it[this.deletedAt] = deletion.deletedAt.toLocalDateTimeUtc()
     }
-    val syncType = SyncType.fromEntityName(deletion.entity)
+    val syncType = SyncType.fromClassName(deletion.entity)
     when (syncType) {
         SyncType.StepRecord -> StepTable.deleteWhere {
             StepTable.id.eq(deletion.recordId) and StepTable.userId.eq(userId)

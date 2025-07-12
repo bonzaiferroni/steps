@@ -14,14 +14,13 @@ fun PlanScreen() {
     val viewModel = viewModel { IntentListModel() }
     val state by viewModel.state.collectAsState()
 
-    TitleCloud("New Intention", state.isAddingItem, viewModel::toggleAddItem) {
-        TextField(state.searchPathText, onTextChange = viewModel::setSearchPathText)
-        LazyColumn(1) {
-            items(state.searchPaths) { step ->
-                Button(step.label) { viewModel.createIntent(step) }
-            }
-        }
-    }
+    AddStepCloud(
+        title = "Add step",
+        isVisible = state.isAddingItem,
+        createIntent = true,
+        pathId = null,
+        dismiss = viewModel::toggleAddItem
+    )
 
     Column(1) {
 

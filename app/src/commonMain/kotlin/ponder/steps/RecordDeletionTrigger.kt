@@ -3,27 +3,26 @@ package ponder.steps
 import androidx.room.RoomDatabase
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
+import ponder.steps.model.data.SyncType
 
-class RecordDeletionTrigger(
-    val tableNames: List<String>
-) : RoomDatabase.Callback() {
+class RecordDeletionTrigger() : RoomDatabase.Callback() {
     override fun onOpen(connection: SQLiteConnection) {
         super.onOpen(connection)
-        for (tableName in tableNames) {
-            connection.execSQL(toTrigger(tableName))
+        for (syncType in SyncType.entries) {
+            connection.execSQL(toTrigger(syncType))
         }
     }
 }
 
-private fun toTrigger(tableName: String) = """
-    CREATE TRIGGER IF NOT EXISTS record_deletion_$tableName
-    AFTER DELETE ON $tableName
+private fun toTrigger(syncType: SyncType) = """
+    CREATE TRIGGER IF NOT EXISTS record_deletion_${syncType.entityName}
+    AFTER DELETE ON ${syncType.entityName}
     FOR EACH ROW
     BEGIN
         INSERT INTO DeletionEntity (id, entity, deletedAt)
         VALUES (
             OLD.id,
-            '$tableName',
+            '${syncType.className}',
             CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER)
         )
         ON CONFLICT(id) DO UPDATE

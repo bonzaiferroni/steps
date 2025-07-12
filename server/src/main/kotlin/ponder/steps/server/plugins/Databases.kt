@@ -12,7 +12,7 @@ import ponder.steps.server.db.tables.*
 fun Application.configureDatabases() {
     initDb(env, dbTables) {
         // exec(RecordUpdatedPgTrigger(synchronizedTables).buildSql())
-        // exec(RecordDeletionPgTrigger(synchronizedTables).buildSql())
+        exec(RecordDeletionPgTrigger().buildSql())
         exec("""
             ALTER TABLE path_step DROP CONSTRAINT path_step_path_id_position_unique;
             ALTER TABLE path_step
@@ -45,5 +45,3 @@ val dbTables = listOf(
 //CREATE DATABASE example_db;
 //CREATE USER example_user WITH PASSWORD 'hunter2';
 //ALTER DATABASE example_db OWNER TO example_user;
-
-private val synchronizedTables = SyncType.entries.map { it.snakeName }

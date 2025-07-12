@@ -3,7 +3,6 @@ package ponder.steps.model.data
 import kabinet.utils.nameOrError
 import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.decodeFromByteArray
@@ -76,7 +75,7 @@ enum class SyncType(val kClass: KClass<*>) {
     val snakeName get() = kClass.nameOrError.toSnakeCase()
 
     companion object {
-        fun fromEntityName(entityName: String) = entries.firstOrNull() { it.entityName == entityName }
+        fun fromClassName(className: String) = entries.firstOrNull() { it.className == className }
             ?: error("Invalid entity name")
 
         fun fromClass(kClass: KClass<*>) = entries.firstOrNull { it.kClass == kClass }

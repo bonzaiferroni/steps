@@ -21,6 +21,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.X
 import kabinet.utils.pluralize
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.datetime.Clock
 import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.IntentPriority
 import ponder.steps.model.data.StepId
@@ -173,7 +174,7 @@ fun AddStepCloud(
                                         ) {
                                             Label("at")
                                             TimeWheel(
-                                                instant = state.intentScheduledAt,
+                                                instant = state.intentScheduledAt ?: Clock.System.now(),
                                                 onChangeInstant = viewModel::setScheduleAt,
                                             )
                                         }
@@ -183,7 +184,7 @@ fun AddStepCloud(
                                     Row(1) {
                                         Label("at")
                                         DateTimeWheel(
-                                            state.intentScheduledAt,
+                                            state.intentScheduledAt ?: Clock.System.now(),
                                             onChangeInstant = viewModel::setScheduleAt
                                         )
                                     }

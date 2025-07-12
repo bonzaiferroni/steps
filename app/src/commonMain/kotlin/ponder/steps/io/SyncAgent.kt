@@ -9,7 +9,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
 import kotlinx.datetime.Instant
 import ponder.steps.db.AppDatabase
 import ponder.steps.db.DeletionEntity
@@ -256,7 +255,7 @@ class SyncAgent(
     suspend fun integrateDeletion(deletion: Deletion) {
         remoteIds.add(deletion.recordId)
         // println("receiving deletion")
-        val syncType = SyncType.fromEntityName(deletion.entity)
+        val syncType = SyncType.fromClassName(deletion.entity)
         when (syncType) {
             SyncType.StepRecord -> syncDao.deleteStepById(deletion.recordId)
             SyncType.PathStepRecord -> syncDao.deletePathStepById(deletion.recordId)
