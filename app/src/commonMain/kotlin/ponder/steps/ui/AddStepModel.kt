@@ -1,12 +1,8 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kabinet.utils.toRelativeTimeFormat
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import ponder.steps.io.AiClient
 import ponder.steps.io.IntentRepository
 import ponder.steps.io.LocalIntentRepository
@@ -14,15 +10,12 @@ import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.io.TrekRepository
-import ponder.steps.model.data.IntentPriority
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
-import ponder.steps.db.TimeUnit
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
-import kotlin.time.Duration.Companion.hours
 
 class AddStepModel(
     private val dismiss: () -> Unit,
@@ -32,6 +25,8 @@ class AddStepModel(
     private val valueRepo: ValueRepository = LocalValueRepository(),
     private val aiClient: AiClient = AiClient(),
 ) : StateModel<AddIntentState>(AddIntentState()) {
+
+    val adjustIntent = EditIntentModel(this)
 
     init {
         setNewStepLabel("")
@@ -62,7 +57,7 @@ class AddStepModel(
             val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
             if (defaultTheme.isNotEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val step = stepRepo.readStep(stepId)
+                    val step = stepRepo.readStepById(stepId)
                         ?: error("unable to read step for image creation: ${stateNow.intentLabel}")
                     val url = aiClient.generateImage(step, null, defaultTheme)
                     stepRepo.updateStep(step.copy(imgUrl = url.url, thumbUrl = url.thumbUrl))
@@ -101,38 +96,18 @@ class AddStepModel(
     }
 
     private suspend fun addIntent(stepId: String, label: String) {
-        val step = stepRepo.readStep(stepId) ?: error("No step with id: $stepId")
+        val step = stepRepo.readStepById(stepId) ?: error("No step with id: $stepId")
         val pathIds = if (step.pathSize > 0) listOf(stepId) else emptyList()
         intentRepo.createIntent(
             NewIntent(
                 rootId = stepId,
                 label = label,
-                repeatMins = stateNow.repeatMinutes,
-                priority = stateNow.intentPriority,
-                scheduledAt = stateNow.intentScheduledAt,
+                repeatMins = adjustIntent.stateNow.repeatMinutes,
+                priority = adjustIntent.stateNow.priority,
+                scheduledAt = adjustIntent.stateNow.scheduledAt,
                 pathIds = pathIds
             )
         )
-    }
-
-    fun setIntentTiming(value: IntentTiming) {
-        setState { it.copy(intentTiming = value) }
-    }
-
-    fun setIntentRepeat(value: Int?) {
-        setState { it.copy(intentRepeatValue = value) }
-    }
-
-    fun setIntentRepeatUnit(value: TimeUnit) {
-        setState { it.copy(intentRepeatUnit = value) }
-    }
-
-    fun setScheduleAt(time: Instant) {
-        setState { it.copy(intentScheduledAt = time) }
-    }
-
-    fun setIntentPriority(priority: IntentPriority) {
-        setState { it.copy(intentPriority = priority) }
     }
 
     fun setIntentStep(step: Step?) {
@@ -143,49 +118,9 @@ class AddStepModel(
 data class AddIntentState(
     val searchedSteps: List<Step> = emptyList(),
     val intentLabel: String = "",
-    val intentTiming: IntentTiming = IntentTiming.Once,
-    val intentRepeatValue: Int? = null,
-    val intentRepeatUnit: TimeUnit = TimeUnit.Hour,
-    val intentScheduledAt: Instant? = null,
-    val intentPriority: IntentPriority = IntentPriority.Default,
     val existingStep: Step? = null,
     val createIntent: Boolean = false,
     val pathId: String? = null,
 ) {
     val isValidNewStep get() = intentLabel.isNotEmpty()
-    val repeatValues
-        get() = when (intentRepeatUnit) {
-            TimeUnit.Minute -> repeatMinuteValues
-            TimeUnit.Hour -> repeatHourValues
-            TimeUnit.Day -> repeatDayValues
-            TimeUnit.Week -> repeatWeekValues
-            TimeUnit.Month -> repeatMonth
-            TimeUnit.Year -> repeatYears
-        }
-
-    val repeatMinutes
-        get() = intentRepeatValue?.let {
-            when (intentRepeatUnit) {
-                TimeUnit.Minute -> intentRepeatValue
-                TimeUnit.Hour -> intentRepeatValue * 60
-                TimeUnit.Day -> intentRepeatValue * 60 * 24
-                TimeUnit.Week -> intentRepeatValue * 60 * 24 * 7
-                TimeUnit.Month -> intentRepeatValue * 60 * 24 * 30
-                TimeUnit.Year -> intentRepeatValue * 60 * 24 * 365
-            }
-        }
-
-    val scheduleDescription
-        get() = when {
-            intentScheduledAt != null -> intentScheduledAt.toRelativeTimeFormat()
-            intentRepeatValue != null -> "Every ${intentRepeatUnit.toRepeatFormat(intentRepeatValue)}"
-            else -> "Once"
-        }
 }
-
-private val repeatMinuteValues = ((1..4) + (1..60).map { it * 5 }).toImmutableList()
-private val repeatHourValues = (1..48).toImmutableList()
-private val repeatDayValues = (1..60).toImmutableList()
-private val repeatWeekValues = (1..8).toImmutableList()
-private val repeatMonth = (1..24).toImmutableList()
-private val repeatYears = (1..100).toImmutableList()

@@ -100,7 +100,7 @@ class LocalStepRepository(
     private suspend fun updatePathSize(pathId: String) {
         val pathSize = pathStepDao.readPathStepCount(pathId)
         val path = stepDao.readStep(pathId).copy(pathSize = pathSize)
-        stepDao.update(path)
+        stepDao.update(path.toEntity())
     }
 
     private suspend fun orderPathSteps(pathId: String) {
@@ -111,7 +111,7 @@ class LocalStepRepository(
         pathStepDao.update(*pathSteps.toTypedArray())
     }
 
-    override suspend fun readStep(stepId: String) = stepDao.readStepOrNull(stepId)?.toStep()
+    override suspend fun readStepById(stepId: String) = stepDao.readStepById(stepId)
 
     override fun flowStep(stepId: String) = stepDao.flowStep(stepId)
 

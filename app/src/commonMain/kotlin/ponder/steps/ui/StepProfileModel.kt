@@ -1,12 +1,8 @@
 package ponder.steps.ui
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
 import ponder.steps.io.LocalQuestionRepository
@@ -114,7 +110,7 @@ class StepProfileModel(
         val theme = path.theme ?: valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
         if (theme.isNotEmpty()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val step = stepRepo.readStep(stepId)
+                val step = stepRepo.readStepById(stepId)
                 if (step != null) {
                     val defaultTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
                     val url = aiClient.generateImage(step, path, defaultTheme)

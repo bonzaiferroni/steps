@@ -26,7 +26,7 @@ class RemoteStepRepository(private val client: ApiClient = globalApiClient): Ste
 
     override suspend fun deleteStep(stepId: String) = client.delete(Api.Steps.Delete, stepId)
 
-    override suspend fun readStep(stepId: String) = client.get(Api.Steps, stepId)
+    override suspend fun readStepById(stepId: String) = client.get(Api.Steps, stepId)
     override fun flowStep(stepId: String): Flow<Step> {
         TODO("Not yet implemented")
     }

@@ -2,7 +2,6 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -20,12 +18,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.X
 import kabinet.utils.pluralize
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.datetime.Clock
-import ponder.steps.db.TimeUnit
-import ponder.steps.model.data.IntentPriority
 import ponder.steps.model.data.StepId
-import pondui.ui.behavior.Magic
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
@@ -33,17 +26,14 @@ import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.Column
 import pondui.ui.controls.ControlSet
 import pondui.ui.controls.ControlSetButton
-import pondui.ui.controls.DateTimeWheel
 import pondui.ui.controls.FlowRow
 import pondui.ui.controls.Label
 import pondui.ui.controls.LazyColumn
-import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.Row
 import pondui.ui.controls.Tab
 import pondui.ui.controls.Tabs
 import pondui.ui.controls.Text
 import pondui.ui.controls.TextField
-import pondui.ui.controls.TimeWheel
 import pondui.ui.controls.TitleCloud
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
@@ -58,6 +48,7 @@ fun AddStepCloud(
 ) {
     val viewModel = viewModel { AddStepModel(dismiss) }
     val state by viewModel.state.collectAsState()
+    val adjustIntentState by viewModel.adjustIntent.state.collectAsState()
 
     LaunchedEffect(createIntent, pathId) {
         viewModel.setParameters(createIntent, pathId)
@@ -122,11 +113,11 @@ fun AddStepCloud(
                 ) {
                     Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
                         Label("Priority:")
-                        Text(state.intentPriority.name)
+                        Text(adjustIntentState.priority.name)
                     }
                     Row(1, modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing)) {
                         Label("Happens:")
-                        Text(state.scheduleDescription)
+                        Text(adjustIntentState.scheduleDescription)
                     }
                 }
             }
@@ -144,61 +135,7 @@ fun AddStepCloud(
                     }
                 }
                 Tab("Adjust", state.createIntent) {
-                    Column(1, modifier = Modifier.fillMaxWidth()) {
-                        Label("Schedule")
-                        Row(1) {
-                            MenuWheel(
-                                selectedItem = state.intentTiming,
-                                options = IntentTiming.entries.toImmutableList(),
-                                onSelect = viewModel::setIntentTiming,
-                            )
-                            Box {
-                                Magic(state.intentTiming == IntentTiming.Repeat, offsetX = 40.dp) {
-                                    Row(1) {
-                                        Label("every")
-                                        MenuWheel(
-                                            selectedItem = state.intentRepeatValue,
-                                            options = state.repeatValues,
-                                            onSelect = viewModel::setIntentRepeat,
-                                        )
-                                        MenuWheel(
-                                            selectedItem = state.intentRepeatUnit,
-                                            options = TimeUnit.entries.toImmutableList(),
-                                            onSelect = viewModel::setIntentRepeatUnit,
-                                            itemAlignment = Alignment.Start
-                                        )
-                                        val canSChedule = state.intentRepeatUnit > TimeUnit.Hour
-                                        Row(
-                                            spacingUnits = 1,
-                                            modifier = Modifier.magic(canSChedule, offsetX = 40.dp)
-                                        ) {
-                                            Label("at")
-                                            TimeWheel(
-                                                instant = state.intentScheduledAt ?: Clock.System.now(),
-                                                onChangeInstant = viewModel::setScheduleAt,
-                                            )
-                                        }
-                                    }
-                                }
-                                Magic(state.intentTiming == IntentTiming.Schedule, offsetX = 40.dp) {
-                                    Row(1) {
-                                        Label("at")
-                                        DateTimeWheel(
-                                            state.intentScheduledAt ?: Clock.System.now(),
-                                            onChangeInstant = viewModel::setScheduleAt
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Label("Priority")
-                        MenuWheel(
-                            selectedItem = state.intentPriority,
-                            options = IntentPriority.entries.toImmutableList(),
-                            onSelect = viewModel::setIntentPriority,
-                            itemAlignment = Alignment.CenterHorizontally,
-                        )
-                    }
+                    EditIntentView(viewModel.adjustIntent)
                 }
             }
         }

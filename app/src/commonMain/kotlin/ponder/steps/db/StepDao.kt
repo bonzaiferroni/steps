@@ -32,12 +32,12 @@ interface StepDao {
     fun getAllStepsAsFlow(): Flow<List<StepEntity>>
 
     @Query("SELECT * FROM StepEntity WHERE id = :stepId")
-    suspend fun readStepOrNull(stepId: String): StepEntity?
+    suspend fun readStepById(stepId: String): Step?
 
     @Query("SELECT * FROM StepEntity WHERE id = :stepId")
     fun flowStep(stepId: String): Flow<Step>
 
-    suspend fun readStep(stepId: String) = readStepOrNull(stepId) ?: error("stepId missing: $stepId")
+    suspend fun readStep(stepId: String) = readStepById(stepId) ?: error("stepId missing: $stepId")
 
 //    @Query(
 //        "SELECT * FROM StepEntity " +

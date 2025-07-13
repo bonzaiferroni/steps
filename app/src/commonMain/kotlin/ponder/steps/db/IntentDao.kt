@@ -13,7 +13,7 @@ import ponder.steps.model.data.IntentId
 @Dao
 interface IntentDao  {
     @Query("SELECT * FROM IntentEntity WHERE id = :intentId")
-    suspend fun readIntentById(intentId: String): Intent
+    suspend fun readIntentById(intentId: String): Intent?
 
     @Query("SELECT * FROM IntentEntity")
     suspend fun readAllIntents(): List<Intent>

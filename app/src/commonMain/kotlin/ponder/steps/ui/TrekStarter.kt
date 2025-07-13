@@ -62,15 +62,15 @@ class TrekStarter(
                     val repeatAt = intent.repeatMins?.let { trekPoint?.finishedAt?.plus(it.minutes) }
                     val activeAt = intent.scheduledAt ?: repeatAt ?: now
 
-                    val nextPossibleAt = repeatAt ?: intent.repeatMins?.let { now.plus(it.minutes) } ?: activeAt
-                    nextRefresh = minOf(nextRefresh, nextPossibleAt)
+                    val nextPossibleAt = intent.scheduledAt ?: repeatAt ?: intent.repeatMins?.let { now.plus(it.minutes) }
+                    if (nextPossibleAt != null && nextPossibleAt > now) {
+                        nextRefresh = minOf(nextRefresh, nextPossibleAt)
+                    }
 
                     if (activeAt > now) {
                         println("ay not active yet")
                         continue
                     }
-
-                    println(trekPoint?.finishedAt)
 
                     val repeatDue = repeatAt != null && now > repeatAt
                     if ((trekPoint == null || repeatDue) && isActive) {

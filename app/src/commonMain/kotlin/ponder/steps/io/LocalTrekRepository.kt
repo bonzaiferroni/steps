@@ -166,7 +166,7 @@ class LocalTrekRepository(
             trekDao.update(it.toEntity())
 
             if (trek.isComplete != updatedTrek.isComplete) {
-                val intent = intentDao.readIntentById(trek.intentId)
+                val intent = intentDao.readIntentById(trek.intentId) ?: error("missing intent by id")
                 if (intent.repeatMins == null) {
                     intentDao.updateCompletedAt(trek.intentId, updatedTrek.finishedAt)
                 }

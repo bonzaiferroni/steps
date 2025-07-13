@@ -7,6 +7,8 @@ import kabinet.utils.randomUuidStringId
 import kotlinx.datetime.Clock
 import ponder.steps.appUserId
 import ponder.steps.db.IntentEntity
+import ponder.steps.db.toEntity
+import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
 
 class LocalIntentRepository(
@@ -36,4 +38,8 @@ class LocalIntentRepository(
     override suspend fun deleteIntent(intentId: IntentId) = intentDao.deleteIntent(intentId) == 1
 
     override suspend fun completeIntent(intentId: IntentId) = intentDao.updateCompletedAt(intentId, Clock.System.now()) == 1
+
+    suspend fun readIntentById(intentId: IntentId) = intentDao.readIntentById(intentId)
+
+    suspend fun updateIntent(intent: Intent) = intentDao.update(intent.toEntity()) == 1
 }

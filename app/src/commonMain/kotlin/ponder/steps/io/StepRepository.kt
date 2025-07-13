@@ -66,7 +66,7 @@ interface StepRepository {
      * @param stepId The id of the Step to read
      * @return The Step with the given id, or null if not found
      */
-    suspend fun readStep(stepId: String): Step?
+    suspend fun readStepById(stepId: String): Step?
 
     /**
      * Flow a step by id
