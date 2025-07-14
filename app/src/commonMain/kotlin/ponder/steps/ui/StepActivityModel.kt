@@ -52,7 +52,6 @@ class StepActivityModel(
     fun refreshData() {
         viewModelScope.launch {
             val startAt = Clock.System.now() - stateNow.interval * CHART_MAX_BARS
-            println(Clock.System.now() - startAt)
             val countBuckets = stepLogRepo.readLogCountsByStepId(stepId, startAt, stateNow.timeUnit)
             val intQuestionBuckets = mutableListOf<QuestionBuckets<IntBucket>>()
             for (question in stateNow.questions) {

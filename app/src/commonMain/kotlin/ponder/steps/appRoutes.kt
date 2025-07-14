@@ -42,6 +42,9 @@ object PlanRoute : AppRoute("Plan")
 object SettingsRoute : AppRoute("Settings")
 
 @Serializable
+object LogRoute : AppRoute("Log")
+
+@Serializable
 data class ExampleProfileRoute(val exampleId: Long) : IdRoute<Long>(TITLE, exampleId) {
     companion object {
         const val TITLE = "Example"

@@ -50,13 +50,14 @@ class TrekStarter(
                 println("checking treks")
                 val now = Clock.System.now()
                 nextRefresh = now + 1.hours
+                val currentIntents = intents
 
                 val activeIntents = mutableListOf<Intent>()
 
-                val ids = intents.map { it.id }
+                val ids = currentIntents.map { it.id }
                 val trekPoints = trekPointDao.readLastTrekPoints(ids)
 
-                for (intent in intents) {
+                for (intent in currentIntents) {
                     val trekPoint = trekPoints.firstOrNull { it.intentId == intent.id }
 
                     val repeatAt = intent.repeatMins?.let { trekPoint?.finishedAt?.plus(it.minutes) }
