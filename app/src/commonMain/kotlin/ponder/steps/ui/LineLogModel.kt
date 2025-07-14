@@ -37,7 +37,7 @@ class LineLogModel(
                 val trekStart = ts.startedAt ?: now
                 val trekEnd = ts.finishedAt ?: now
                 val trekDuration = (trekEnd - trekStart)
-                val minMinutes = stateNow.minPerPx * LOG_LANE_WIDTH
+                val minMinutes = stateNow.minPerDp * LOG_LANE_WIDTH
                 val lineMinutes = maxOf(minMinutes.toLong(), trekDuration.inWholeMinutes)
                 val lineStart = trekEnd - lineMinutes.minutes
                 val lineEnd = trekEnd
@@ -56,7 +56,7 @@ class LineLogModel(
                 LogLine(
                     lane = lane,
                     trekPointId = ts.trekPointId,
-                    startAt = lineStart,
+                    startAt = ts.startedAt,
                     endAt = ts.finishedAt,
                     imgUrl = ts.step.thumbUrl,
                     isComplete = ts.isComplete ?: false
@@ -73,14 +73,14 @@ class LineLogModel(
 data class LineLogState(
     val start: Instant = Instant.DISTANT_PAST,
     val end: Instant = Instant.DISTANT_PAST,
-    val minPerPx: Float = 1f,
+    val minPerDp: Float = 1f,
     val lines: List<LogLine> = emptyList()
 )
 
 data class LogLine(
     val lane: Int,
     val trekPointId: TrekPointId,
-    val startAt: Instant,
+    val startAt: Instant?,
     val endAt: Instant?,
     val imgUrl: String?,
     val isComplete: Boolean,
