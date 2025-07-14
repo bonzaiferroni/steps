@@ -1,5 +1,6 @@
 package ponder.steps.ui
 
+import androidx.compose.runtime.Stable
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.db.TodoStep
@@ -13,7 +14,7 @@ import kotlin.time.Duration.Companion.minutes
 class LineLogModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
-): StateModel<LineLogState>(LineLogState()) {
+) : StateModel<LineLogState>(LineLogState()) {
 
     fun setParameters(start: Instant, end: Instant) {
         setState { it.copy(start = start, end = end) }
@@ -53,12 +54,12 @@ class LineLogModel(
                 heap.add(lineEnd to lane)
 
                 LogLine(
-                    lane      = lane,
-                    trekPointId    = ts.trekPointId,
-                    startAt   = lineStart,
-                    endAt     = lineEnd,
-                    imgUrl    = ts.step.thumbUrl,
-                    isComplete= ts.isComplete ?: false
+                    lane = lane,
+                    trekPointId = ts.trekPointId,
+                    startAt = lineStart,
+                    endAt = ts.finishedAt,
+                    imgUrl = ts.step.thumbUrl,
+                    isComplete = ts.isComplete ?: false
                 )
             }
 
@@ -68,6 +69,7 @@ class LineLogModel(
     }
 }
 
+@Stable
 data class LineLogState(
     val start: Instant = Instant.DISTANT_PAST,
     val end: Instant = Instant.DISTANT_PAST,
@@ -79,7 +81,7 @@ data class LogLine(
     val lane: Int,
     val trekPointId: TrekPointId,
     val startAt: Instant,
-    val endAt: Instant,
+    val endAt: Instant?,
     val imgUrl: String?,
     val isComplete: Boolean,
 )
