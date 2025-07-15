@@ -2,6 +2,7 @@ package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -15,17 +16,17 @@ import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.SyncAgent
 import ponder.steps.model.data.Intent
+import pondui.ui.core.StateModel
 import pondui.ui.core.SubModel
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TrekStarter(
-    viewModel: ViewModel,
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
     private val trekPointDao: TrekPointDao = appDb.getTrekPointDao()
-) : SubModel<TrekStarterState>(TrekStarterState(), viewModel) {
+): StateModel<TrekStarterState>(TrekStarterState()) {
 
     private var intents: List<Intent> = emptyList()
     private var nextRefresh = Instant.DISTANT_PAST
@@ -41,14 +42,15 @@ class TrekStarter(
     }
 
     private fun startTreks() {
+        println("starting trekStarter")
         viewModelScope.launch {
             while (isActive) {
                 while (isActive && nextRefresh > Clock.System.now() || SyncAgent.syncInProgress) {
                     delay(100)
                 }
 
-                println("checking treks")
                 val now = Clock.System.now()
+                println("checking treks: $now")
                 nextRefresh = now + 1.hours
                 val currentIntents = intents
 

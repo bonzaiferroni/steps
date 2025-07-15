@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -21,13 +22,13 @@ import pondui.ui.controls.Column
 import pondui.ui.controls.Row
 import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
+import pondui.ui.theme.Pond
 import kotlin.math.absoluteValue
 
 @Composable
 fun TodoScreen() {
     val viewModel = viewModel { TodoModel() }
     val state by viewModel.state.collectAsState()
-    val activity by viewModel.trekStarter.state.collectAsState()
 
     val pagerState = rememberPagerState(pageCount = {
         10
@@ -46,14 +47,15 @@ fun TodoScreen() {
 
         TopBarSpacer()
 
-        Row(0, modifier = Modifier.animateContentSize()) {
+        Row(0, modifier = Modifier.animateContentSize().padding(Pond.ruler.halfPadding)) {
             val trekPath = state.trekPath
             val pathSteps = trekPath?.breadcrumbs
-            val thumbUrlSize = 60.dp
+            val thumbUrlSize = 70.dp
             val isRootSelected = state.pageIndex == null
             StepImage(
                 url = null,
                 modifier = Modifier.size(thumbUrlSize)
+                    .padding(Pond.ruler.halfPadding)
                     .selected(isRootSelected, radius = thumbUrlSize / 2)
                     .clip(CircleShape)
                     .actionable(isEnabled = !isRootSelected) { viewModel.navToPath(null, false) }
@@ -66,6 +68,7 @@ fun TodoScreen() {
                     StepImage(
                         url = step.thumbUrl,
                         modifier = Modifier.size(thumbUrlSize)
+                            .padding(Pond.ruler.halfPadding)
                             .selected(isSelected, radius = thumbUrlSize / 2)
                             .clip(CircleShape)
                             .actionable(isEnabled = !isSelected) {

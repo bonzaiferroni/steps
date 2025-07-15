@@ -38,11 +38,11 @@ interface PathStepDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Query(
-        "SELECT PathStepEntity.*, StepEntity.*, PathStepEntity.id AS pathStepId FROM PathStepEntity " +
-                "JOIN StepEntity ON PathStepEntity.stepId = StepEntity.id " +
-                "WHERE PathStepEntity.pathId = :pathId"
+        "SELECT s.*, ps.id pathStepId, ps.pathId, ps.position FROM PathStepEntity AS ps " +
+                "JOIN StepEntity AS s ON ps.stepId = s.id " +
+                "WHERE ps.pathId = :pathId"
     )
-    suspend fun readJoinedPathSteps(pathId: String): List<StepJoin>
+    suspend fun readJoinedPathSteps(pathId: String): List<Step>
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId")
     suspend fun readPathStepEntities(pathId: String): List<PathStepEntity>

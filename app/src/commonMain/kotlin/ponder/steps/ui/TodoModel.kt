@@ -15,8 +15,6 @@ class TodoModel(
     private val stepRepo: LocalStepRepository = LocalStepRepository()
 ): StateModel<TodoState>(TodoState()) {
 
-    val trekStarter = TrekStarter(this)
-
     fun navToPath(trekPath: TrekPath?, isDeeper: Boolean) {
         if (trekPath == null) {
             setState { it.copy(pageIndex = null) }

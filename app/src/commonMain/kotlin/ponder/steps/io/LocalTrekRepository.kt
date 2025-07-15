@@ -29,6 +29,7 @@ import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepOutcome
 import ponder.steps.model.data.Trek
 import ponder.steps.model.data.TrekId
+import ponder.steps.ui.TrekPath
 import kotlin.time.Duration.Companion.minutes
 
 class LocalTrekRepository(
@@ -255,7 +256,40 @@ class LocalTrekRepository(
     fun flowPathProgresses(pathId: StepId, trekPointId: TrekPointId) = trekDao.flowPathProgresses(pathId, trekPointId)
 
     suspend fun readTrekIdByTrekPointId(trekPointId: TrekPointId) = trekDao.readTrekIdByTrekPointId(trekPointId)
+
+    suspend fun readNextStep(trekPointId: TrekPointId): NextStep? {
+        val trekPoint = trekPointDao.readTrekPointById(trekPointId) ?: error("TrekPoint missing: $trekPointId")
+        val intent = intentDao.readIntentById(trekPoint.intentId) ?: error("Intent missing: ${trekPoint.intentId}")
+        val trek = trekPoint.trekId?.let { trekDao.readTrekById(it) }
+        if (trek?.isComplete == true) return null
+
+        val logs = trekPoint.trekId?.let { stepLogDao.readTrekLogsById(it) } ?: emptyList()
+        val rootLog = logs.firstOrNull { it.stepId == intent.rootId && it.pathStepId == null }
+        var nextStep = stepDao.readStepById(intent.rootId) ?: error("Step missing: ${intent.rootId}")
+        if (rootLog != null) {
+            return NextStep(trekPointId, nextStep, null)
+        }
+
+        val breadcrumbs = mutableListOf<Step>()
+        var exploreStep: Step? = nextStep
+        while (exploreStep != null) {
+            breadcrumbs.add(exploreStep)
+            val pathSteps = pathStepDao.readJoinedPathSteps(exploreStep.id).sortedBy { it.position }
+            exploreStep = pathSteps.firstOrNull { step -> logs.all { it.stepId != step.id } }
+            if (exploreStep != null) {
+                nextStep = exploreStep
+            }
+        }
+
+        return NextStep(trekPointId, nextStep, breadcrumbs.takeIf { it.isNotEmpty() })
+    }
 }
+
+data class NextStep(
+    val trekPointId: Long,
+    val step: Step,
+    val breadcrumbs: List<Step>?
+)
 
 private enum class StepStatus {
     Unfinished, // some steps incomplete

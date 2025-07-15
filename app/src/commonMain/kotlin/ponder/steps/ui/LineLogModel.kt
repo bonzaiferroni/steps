@@ -1,12 +1,17 @@
 package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.db.TodoStep
 import ponder.steps.db.TrekPointId
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalTrekRepository
+import ponder.steps.io.NextStep
+import ponder.steps.model.data.StepOutcome
 import pondui.ui.core.StateModel
 import java.util.PriorityQueue
 import kotlin.time.Duration.Companion.minutes
@@ -67,6 +72,23 @@ class LineLogModel(
             it.copy(lines = logLines)
         }
     }
+
+    fun setOpenMenuId(value: TrekPointId?) {
+        setState { it.copy(openMenuId = value, nextStep = null) }
+        if (value == null) return
+        viewModelScope.launch {
+            val nextStep = trekRepo.readNextStep(value)
+            setState { it.copy(nextStep = nextStep) }
+        }
+    }
+
+    fun setComplete(nextStep: NextStep) {
+        viewModelScope.launch {
+            trekRepo.setOutcome(nextStep.trekPointId, nextStep.step, StepOutcome.Completed, nextStep.breadcrumbs)
+            val nextStep = trekRepo.readNextStep(nextStep.trekPointId)
+            setState { it.copy(nextStep = nextStep) }
+        }
+    }
 }
 
 @Stable
@@ -74,7 +96,9 @@ data class LineLogState(
     val start: Instant = Instant.DISTANT_PAST,
     val end: Instant = Instant.DISTANT_PAST,
     val minPerDp: Float = 1f,
-    val lines: List<LogLine> = emptyList()
+    val lines: List<LogLine> = emptyList(),
+    val openMenuId: TrekPointId? = null,
+    val nextStep: NextStep? = null,
 )
 
 data class LogLine(

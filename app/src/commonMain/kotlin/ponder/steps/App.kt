@@ -1,10 +1,12 @@
 package ponder.steps
 
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.db.AppDatabase
 import ponder.steps.io.ProvideImageSource
 import ponder.steps.io.SyncAgent
+import ponder.steps.ui.TrekStarter
 import pondui.ProvideWavePlayer
 import pondui.io.LocalUserContext
 
@@ -32,6 +34,7 @@ fun App(
                         }
                     }
                 }
+                viewModel { TrekStarter() }
 
                 ProvideImageSource {
                     PondApp(

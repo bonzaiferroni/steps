@@ -39,7 +39,7 @@ import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 
 @Composable
-fun LazyItemScope.TodoStepRow(
+fun TodoStepRow(
     todoStep: TodoStep,
     isFinished: Boolean,
     questionCount: Int,
@@ -56,7 +56,6 @@ fun LazyItemScope.TodoStepRow(
         spacingUnits = 1,
         modifier = Modifier.height(72.dp)
             .fillMaxWidth()
-            .animateItem()
     ) {
         Row(
             spacingUnits = 1,

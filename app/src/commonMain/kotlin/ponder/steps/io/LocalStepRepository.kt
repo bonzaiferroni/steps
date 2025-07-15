@@ -115,7 +115,7 @@ class LocalStepRepository(
 
     override fun flowStep(stepId: String) = stepDao.flowStep(stepId)
 
-    override suspend fun readPathSteps(pathId: String) = pathStepDao.readJoinedPathSteps(pathId = pathId).map { it.toStep() }
+    override suspend fun readPathSteps(pathId: String) = pathStepDao.readJoinedPathSteps(pathId = pathId)
 
     override fun flowPathSteps(pathId: StepId) = pathStepDao.flowJoinedSteps(pathId)
 

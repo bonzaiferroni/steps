@@ -1,5 +1,7 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
@@ -28,22 +30,26 @@ fun TodoRootView(
     val todoListState by viewModel.todoList.state.collectAsState()
     val state by viewModel.state.collectAsState()
 
-    Column(1) {
-        Section {
-            Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
-                H1("Today's Journey")
-                ProgressBar(
-                    progress = todoListState.progressRatio,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("${todoListState.progress} of ${todoListState.totalSteps}")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(1) {
+            Section {
+                Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
+                    H1("Today's Journey")
+                    ProgressBar(
+                        progress = todoListState.progressRatio,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("${todoListState.progress} of ${todoListState.totalSteps}")
+                    }
                 }
             }
+
+            TagSetRow(state.selectedTag, state.tagSet, viewModel::clickTag)
+
+            TodoListView(viewModel.todoList, null)
         }
 
-        TagSetRow(state.selectedTag, state.tagSet, viewModel::clickTag)
 
-        TodoListView(viewModel.todoList, null)
     }
 }
 

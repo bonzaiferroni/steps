@@ -21,6 +21,9 @@ interface TrekPointDao {
 
     @Query("UPDATE TrekPoint SET trekId = :trekId WHERE id = :trekPointId")
     suspend fun updateTrekPointWithTrekId(trekPointId: TrekPointId, trekId: TrekId)
+
+    @Query("SELECT * FROM TrekPoint WHERE id = :trekPointId")
+    suspend fun readTrekPointById(trekPointId: TrekPointId): TrekPoint?
 }
 
 data class ActiveTrekPoint(

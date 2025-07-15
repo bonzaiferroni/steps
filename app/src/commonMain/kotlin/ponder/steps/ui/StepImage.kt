@@ -23,7 +23,7 @@ fun StepImage(
     val placeholder = defaultImage ?: imageResource(Res.drawable.horse).also { defaultImage = it }
     val bitmapState = remember { mutableStateOf(placeholder) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(url) {
         if (url != null) {
             bitmapState.value = imageSource.provideImageBitmap(url)
         }
