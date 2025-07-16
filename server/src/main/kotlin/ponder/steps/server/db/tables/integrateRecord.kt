@@ -141,7 +141,7 @@ internal fun StepLogTable.integrateStepLog(stepLog: StepLog, userId: UserId, las
         it[this.stepId] = stepLog.stepId.fromStringId()
         it[this.trekId] = stepLog.trekId?.fromStringId()
         it[this.pathStepId] = stepLog.pathStepId?.fromStringId()
-        it[this.outcome] = stepLog.outcome
+        it[this.outcome] = stepLog.status
         it[this.createdAt] = stepLog.createdAt.toLocalDateTimeUtc()
         it[this.updatedAt] = stepLog.updatedAt.toLocalDateTimeUtc()
         it[this.syncAt] = lastSyncAt.toLocalDateTimeUtc()

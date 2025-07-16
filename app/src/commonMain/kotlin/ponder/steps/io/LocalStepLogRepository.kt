@@ -10,7 +10,7 @@ import ponder.steps.db.StepLogDao
 import ponder.steps.db.TimeUnit
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.StepLog
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 import ponder.steps.model.data.TrekId
 
 class LocalStepLogRepository(
@@ -29,7 +29,7 @@ class LocalStepLogRepository(
         return stepLogDao.readStepLogsByStepId(stepId)
     }
 
-    override suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog> {
+    override suspend fun readStepLogsByOutcome(outcome: StepStatus): List<StepLog> {
         return stepLogDao.readStepLogsByOutcome(outcome)
     }
 

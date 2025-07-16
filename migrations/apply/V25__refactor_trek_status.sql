@@ -1,0 +1,9 @@
+ALTER TABLE step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE path_step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE intent ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE trek ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE question ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE step_log ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE answer ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;
+ALTER TABLE step_tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-15 23:10:06'::timestamp without time zone;

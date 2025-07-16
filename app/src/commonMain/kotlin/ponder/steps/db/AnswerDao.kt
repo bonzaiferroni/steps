@@ -107,4 +107,7 @@ interface AnswerDao {
             "JOIN TrekPoint AS tp ON l.trekId = tp.trekId " +
             "WHERE ps.pathId = :pathId AND tp.id = :trekPointId")
     fun flowPathAnswersByTrekPointId(pathId: StepId, trekPointId: Long): Flow<Map<@MapColumn("stepLogId") StepLogId, List<Answer>>>
+
+    @Query("SELECT COUNT(*) FROM AnswerEntity WHERE stepLogId = :stepLogId")
+    suspend fun countAnswersByStepLogId(stepLogId: StepLogId): Int
 }

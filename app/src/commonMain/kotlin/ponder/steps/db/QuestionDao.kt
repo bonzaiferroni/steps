@@ -53,6 +53,9 @@ interface QuestionDao {
             "JOIN QuestionEntity AS q ON ps.stepId = q.stepId " +
             "WHERE ps.pathId = :pathId ")
     fun flowPathQuestions(pathId: StepId): Flow<Map<@MapColumn("stepId") StepId, List<Question>>>
+
+    @Query("SELECT COUNT(*) FROM QuestionEntity WHERE stepId = :stepId")
+    suspend fun countQuestionsByStepId(stepId: StepId): Int
 }
 
 typealias StepId = String

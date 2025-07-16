@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.StepLog
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 
 @Entity(
     foreignKeys = [
@@ -23,7 +23,7 @@ data class StepLogEntity(
     val trekId: String?,
     val stepId: String,
     val pathStepId: String?,
-    val outcome: StepOutcome,
+    val status: StepStatus,
     val createdAt: Instant,
     val updatedAt: Instant,
 )
@@ -33,7 +33,7 @@ fun StepLogEntity.toStepLog() = StepLog(
     trekId = trekId,
     stepId = stepId,
     pathStepId = pathStepId,
-    outcome = outcome,
+    status = status,
     createdAt = createdAt,
     updatedAt = updatedAt
 )
@@ -43,7 +43,7 @@ fun StepLog.toEntity(isUpdated: Boolean = true) = StepLogEntity(
     trekId = trekId,
     stepId = stepId,
     pathStepId = pathStepId,
-    outcome = outcome,
+    status = status,
     createdAt = createdAt,
     updatedAt = if (isUpdated) Clock.System.now() else updatedAt,
 )

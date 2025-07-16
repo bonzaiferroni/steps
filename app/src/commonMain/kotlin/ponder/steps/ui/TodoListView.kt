@@ -3,7 +3,6 @@ package ponder.steps.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -13,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
 import ponder.steps.model.data.StepId
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
@@ -40,7 +39,7 @@ fun TodoListView(
             val step = todoStep.step
             val log = state.getLog(todoStep)
             val progress = state.progresses[todoStep.progressKey] ?: 0
-            val questions = if (log?.outcome == StepOutcome.Completed)
+            val questions = if (log?.status == StepStatus.AskedQuestion)
                 state.questions[step.id] ?: emptyList() else emptyList()
             val answers = log?.let { state.getAnswers(it.id) } ?: emptyList()
             val question = questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } }
@@ -60,7 +59,7 @@ fun TodoListView(
             ) {
                 TodoStepRow(
                     todoStep = todoStep,
-                    isFinished = log != null,
+                    isCompleted = log?.status == StepStatus.Completed,
                     questionCount = questions.size,
                     progress = progress,
                     pathSize = step.pathSize,

@@ -7,13 +7,14 @@ import ponder.steps.db.StepId
 import ponder.steps.db.TodoStep
 import ponder.steps.db.TrekPointId
 import ponder.steps.io.LocalTrekRepository
+import ponder.steps.io.StepOutcome
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepLogId
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 import ponder.steps.model.data.TrekId
 import pondui.ui.core.SubModel
 
@@ -56,7 +57,7 @@ class TodoListModel(
 
     fun setOutcome(trekPointId: TrekPointId, step: Step, outcome: StepOutcome? = null) {
         ioLaunch {
-            trekRepo.setOutcome(trekPointId, step, outcome, trekPath?.breadcrumbs)
+            trekRepo.setFinished(trekPointId, step, outcome, trekPath?.breadcrumbs)
         }
     }
 

@@ -14,18 +14,23 @@ data class StepLog(
     val trekId: TrekId?,
     val stepId: StepId,
     val pathStepId: PathStepId?,
-    val outcome: StepOutcome,
+    val status: StepStatus,
     val createdAt: Instant = Instant.DISTANT_FUTURE,
     override val updatedAt: Instant = Instant.DISTANT_PAST,
 
     val pathId: StepId? = null
-): SyncRecord
+): SyncRecord {
+    val isCompleted get() = when(status) {
+        StepStatus.Skipped, StepStatus.Completed -> true
+        else -> false
+    }
+}
 
 data class NewStepLog(
     val stepId: StepId,
     val trekId: TrekId?,
     val pathStepId: PathStepId?,
-    val outcome: StepOutcome,
+    val outcome: StepStatus,
 )
 
 typealias StepLogId = String

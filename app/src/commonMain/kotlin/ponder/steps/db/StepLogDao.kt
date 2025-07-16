@@ -8,8 +8,9 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.CountBucket
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 import ponder.steps.model.data.TrekId
 
 @Dao
@@ -48,11 +49,20 @@ interface StepLogDao {
     suspend fun readStepLog(stepLogId: String) =
         readStepLogOrNull(stepLogId) ?: error("stepLogId missing: $stepLogId")
 
+    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId AND pathStepId = :pathStepId")
+    suspend fun readTrekLogByPathStepId(trekId: TrekId, pathStepId: PathStepId): StepLog?
+
+    @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId AND pathStepId IS NULL")
+    suspend fun readRootTrekLog(trekId: TrekId,): StepLog?
+
+    suspend fun readTrekLog(trekId: TrekId, pathStepId: PathStepId?) =
+        pathStepId?.let { readTrekLogByPathStepId(trekId, it) } ?: readRootTrekLog(trekId)
+
     @Query("SELECT * FROM StepLogEntity WHERE stepId = :stepId")
     suspend fun readStepLogsByStepId(stepId: String): List<StepLog>
 
-    @Query("SELECT * FROM StepLogEntity WHERE outcome = :outcome")
-    suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog>
+    @Query("SELECT * FROM StepLogEntity WHERE status = :outcome")
+    suspend fun readStepLogsByOutcome(outcome: StepStatus): List<StepLog>
 
     @Query("SELECT * FROM StepLogEntity WHERE createdAt > :startTime AND createdAt < :endTime")
     suspend fun readStepLogsInTimeRange(startTime: Instant, endTime: Instant): List<StepLog>
@@ -121,4 +131,7 @@ interface StepLogDao {
 
     @Query("SELECT * FROM StepLogEntity WHERE trekId = :trekId")
     suspend fun readTrekLogsById(trekId: TrekId): List<StepLog>
+
+    @Query("UPDATE StepLogEntity SET status = :status WHERE id = :stepLogId")
+    suspend fun updateStepLogStatus(stepLogId: String, status: StepStatus): Int
 }

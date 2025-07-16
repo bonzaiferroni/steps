@@ -2,7 +2,6 @@ package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -11,7 +10,9 @@ import ponder.steps.db.TrekPointId
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.NextStep
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.io.StepOutcome
+import ponder.steps.model.data.NewAnswer
+import ponder.steps.model.data.StepStatus
 import pondui.ui.core.StateModel
 import java.util.PriorityQueue
 import kotlin.time.Duration.Companion.minutes
@@ -84,7 +85,28 @@ class LineLogModel(
 
     fun setComplete(nextStep: NextStep) {
         viewModelScope.launch {
-            trekRepo.setOutcome(nextStep.trekPointId, nextStep.step, StepOutcome.Completed, nextStep.breadcrumbs)
+            trekRepo.setFinished(nextStep.trekPointId, nextStep.step, StepOutcome.Finished, nextStep.breadcrumbs)
+            val nextStep = trekRepo.readNextStep(nextStep.trekPointId)
+            setState { it.copy(nextStep = nextStep) }
+        }
+    }
+
+    fun answerQuestion(nextStep: NextStep, answerText: String?) {
+        val trekId = nextStep.trek?.id ?: error("Missing trek")
+        val logId = nextStep.stepLog?.id ?: error("Missing stepLog")
+        val question = nextStep.question ?: error("Missing question")
+        viewModelScope.launch {
+            trekRepo.createAnswer(
+                trekId = trekId,
+                step = nextStep.step,
+                answer = NewAnswer(
+                    stepLogId = logId,
+                    questionId = question.id,
+                    value = answerText,
+                    type = question.type
+                ),
+                breadcrumbs = nextStep.breadcrumbs
+            )
             val nextStep = trekRepo.readNextStep(nextStep.trekPointId)
             setState { it.copy(nextStep = nextStep) }
         }

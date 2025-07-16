@@ -6,7 +6,7 @@ import ponder.steps.db.StepId
 import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.StepLog
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 
 interface StepLogRepository {
     /**
@@ -35,7 +35,7 @@ interface StepLogRepository {
      * @param outcome The outcome to filter by
      * @return List of step logs with the specified outcome
      */
-    suspend fun readStepLogsByOutcome(outcome: StepOutcome): List<StepLog>
+    suspend fun readStepLogsByOutcome(outcome: StepStatus): List<StepLog>
 
     /**
      * Get all step logs in a time range

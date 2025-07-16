@@ -22,14 +22,13 @@ import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepLog
-import ponder.steps.model.data.StepLogId
-import ponder.steps.model.data.StepOutcome
+import ponder.steps.model.data.StepStatus
 import ponder.steps.model.data.Trek
 import ponder.steps.model.data.TrekId
-import ponder.steps.ui.TrekPath
 import kotlin.time.Duration.Companion.minutes
 
 class LocalTrekRepository(
@@ -43,28 +42,15 @@ class LocalTrekRepository(
     private val trekPointDao: TrekPointDao = appDb.getTrekPointDao(),
 ) : TrekRepository {
 
-    suspend fun setOutcome(
+    suspend fun setFinished(
         trekPointId: TrekPointId,
         step: Step,
         outcome: StepOutcome?,
         breadcrumbs: List<Step>?
-    ): StepLogId? {
+    ) {
         val trekId = readOrCreateTrekId(trekPointId)
-        val now = Clock.System.now()
-        val logId = if (outcome != null) {
-            val logId = randomUuidStringId()
-            stepLogDao.insert(
-                StepLogEntity(
-                    id = logId,
-                    stepId = step.id,
-                    trekId = trekId,
-                    pathStepId = step.pathStepId,
-                    outcome = outcome,
-                    updatedAt = now,
-                    createdAt = now
-                )
-            )
-            logId
+        if (outcome != null) {
+            setOutcome(trekId, step, outcome)
         } else {
             val pathStepId = step.pathStepId
             if (pathStepId != null) {
@@ -79,10 +65,29 @@ class LocalTrekRepository(
             trekId = trekId,
             step = step,
             breadcrumbs = breadcrumbs,
-            outcome = outcome
+            isFinished = outcome != null
         )
+    }
 
-        return logId
+    private suspend fun setOutcome(trekId: TrekId, step: Step, outcome: StepOutcome) {
+        val now = Clock.System.now()
+        val status = if (outcome == StepOutcome.Finished) {
+            val questionCount = questionDao.countQuestionsByStepId(step.id)
+            if (questionCount > 0) StepStatus.AskedQuestion else StepStatus.Completed
+        } else {
+            StepStatus.Skipped
+        }
+        stepLogDao.insert(
+            StepLogEntity(
+                id = randomUuidStringId(),
+                stepId = step.id,
+                trekId = trekId,
+                pathStepId = step.pathStepId,
+                status = status,
+                updatedAt = now,
+                createdAt = now
+            )
+        )
     }
 
     private suspend fun readOrCreateTrekId(trekPointId: TrekPointId): TrekId {
@@ -99,46 +104,30 @@ class LocalTrekRepository(
         trekId: TrekId,
         step: Step,
         breadcrumbs: List<Step>?,
-        outcome: StepOutcome?
+        isFinished: Boolean
     ) {
         val trek = trekDao.readTrekById(trekId) ?: error("trekId not found")
 
         val isTopLevel = breadcrumbs == null
         val breadcrumbs = breadcrumbs ?: listOf(step)
 
-        var status: StepStatus = StepStatus.Unfinished
-        if (outcome == null) {
-            // mark as incomplete down the chain of breadcrumbs
-            stepLogDao.deletePathLogs(trekId, breadcrumbs.map { it.id })
-        } else {
+        var status: PathStatus = PathStatus.Unfinished
+        if (isFinished) {
             // mark as complete up the chain of breadcrumbs
             for (step in breadcrumbs.reversed()) {
-                val pathId = step.id
-                val pathSteps = pathStepDao.readPathStepsByPathId(pathId)
-                val logs = if (isTopLevel) stepLogDao.readTopLevelLog(trekId, step.id)
-                    else stepLogDao.readTrekLogsByPathId(trekId, pathId)
-                status = getStatus(trek, pathSteps, logs)
-                if (status != StepStatus.Completed) break
-                if (pathSteps.isNotEmpty()) {
-                    val logId = randomUuidStringId()
-                    val now = Clock.System.now()
-                    stepLogDao.insert(
-                        StepLogEntity(
-                            id = logId,
-                            stepId = pathId,
-                            trekId = trekId,
-                            pathStepId = step.pathStepId,
-                            outcome = outcome,
-                            updatedAt = now,
-                            createdAt = now
-                        )
-                    )
+                status = getPathStatus(trek, step, isTopLevel)
+                if (status != PathStatus.Completed) break
+                if (step.pathSize > 0) {
+                    setOutcome(trekId, step, StepOutcome.Finished)
                 }
             }
+        } else {
+            // mark as incomplete down the chain of breadcrumbs
+            stepLogDao.deletePathLogs(trekId, breadcrumbs.map { it.id })
         }
 
         val updatedTrek = when (status) {
-            StepStatus.Unfinished -> when {
+            PathStatus.Unfinished -> when {
                 trek.isComplete || trek.finishedAt != null -> trek.copy(
                     isComplete = false,
                     finishedAt = null
@@ -146,7 +135,7 @@ class LocalTrekRepository(
                 else -> null
             }
 
-            StepStatus.Finished -> when {
+            PathStatus.Finished -> when {
                 trek.isComplete || trek.finishedAt == null -> trek.copy(
                     isComplete = false,
                     finishedAt = trek.finishedAt ?: Clock.System.now()
@@ -154,7 +143,7 @@ class LocalTrekRepository(
                 else -> null
             }
 
-            StepStatus.Completed -> when {
+            PathStatus.Completed -> when {
                 !trek.isComplete || trek.finishedAt == null -> trek.copy(
                     isComplete = true,
                     finishedAt = trek.finishedAt ?: Clock.System.now()
@@ -175,35 +164,27 @@ class LocalTrekRepository(
         }
     }
 
-    private suspend fun getStatus(
+    private suspend fun getPathStatus(
         trek: Trek,
-        pathSteps: List<PathStep>,
-        logs: List<StepLog>,
-    ): StepStatus {
+        step: Step,
+        isTopLevel: Boolean,
+    ): PathStatus {
+        val pathSteps = pathStepDao.readPathStepsByPathId(step.id)
+        val logs = if (isTopLevel) stepLogDao.readTopLevelLog(trek.id, step.id)
+        else stepLogDao.readTrekLogsByPathId(trek.id, step.id)
         if (pathSteps.isEmpty()) {
-            // no log found for single-step trek
-            val trekStepLog = logs.firstOrNull { it.stepId == trek.rootId } ?: return StepStatus.Unfinished
-            // single log found is skipped (not expecting answers)
-            if (trekStepLog.outcome == StepOutcome.Skipped) return StepStatus.Completed
-            val questions = questionDao.readQuestionsByStepId(trek.rootId)
-            // no step questions (not expecting answers)
-            if (questions.isEmpty()) return StepStatus.Completed
-            val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
-            // all questions answered or skipped
-            if (answers.any { it.stepLogId == trekStepLog.id }) return StepStatus.Completed
-            // still expecting answers
-            else return StepStatus.Finished
+            val trekStepLog = logs.firstOrNull { it.stepId == trek.rootId }
+            val status = trekStepLog?.status
+            return when {
+                status == null -> PathStatus.Unfinished
+                status == StepStatus.AskedQuestion -> PathStatus.Finished
+                else -> PathStatus.Completed
+            }
         }
-        // there's a pathstep without a log
-        if (pathSteps.any { ps -> logs.all { l -> l.pathStepId != ps.id } }) return StepStatus.Unfinished
-        val unskippedStepIds =
-            pathSteps.mapNotNull { ps -> if (logs.all { l -> l.outcome != StepOutcome.Skipped }) ps.stepId else null }
-        val questions = questionDao.readQuestionsByStepIds(unskippedStepIds)
-        val answers = answerDao.readAnswersByLogIds(logs.map { it.id })
-        // all questions answered or skipped
-        if (questions.all { q -> answers.any { a -> a.questionId == q.id } }) return StepStatus.Completed
-        // still expecting answers
-        else return StepStatus.Finished
+
+        if (pathSteps.any { ps -> logs.none { l -> l.pathStepId == ps.id } }) return PathStatus.Unfinished
+        if (logs.any { it.status == StepStatus.AskedQuestion }) return PathStatus.Finished
+        else return PathStatus.Completed
     }
 
     suspend fun createAnswer(trekId: TrekId, step: Step, answer: NewAnswer, breadcrumbs: List<Step>?): Boolean {
@@ -218,7 +199,16 @@ class LocalTrekRepository(
         )
         val isSuccess = answerDao.insert(answer) != -1L
         if (isSuccess) {
-            setPathOutcomes(trekId, step, breadcrumbs, StepOutcome.Completed)
+            val questionCount = questionDao.countQuestionsByStepId(step.id)
+            val answerCount = answerDao.countAnswersByStepLogId(answer.stepLogId)
+            val status = when {
+                questionCount == answerCount -> StepStatus.Completed
+                else -> StepStatus.AskedQuestion
+            }
+            setPathOutcomes(trekId, step, breadcrumbs, true)
+            if (status == StepStatus.Completed) {
+                stepLogDao.updateStepLogStatus(answer.stepLogId, status)
+            }
         }
         return isSuccess
     }
@@ -264,35 +254,51 @@ class LocalTrekRepository(
         if (trek?.isComplete == true) return null
 
         val logs = trekPoint.trekId?.let { stepLogDao.readTrekLogsById(it) } ?: emptyList()
-        val rootLog = logs.firstOrNull { it.stepId == intent.rootId && it.pathStepId == null }
         var nextStep = stepDao.readStepById(intent.rootId) ?: error("Step missing: ${intent.rootId}")
-        if (rootLog != null) {
-            return NextStep(trekPointId, nextStep, null)
-        }
 
         val breadcrumbs = mutableListOf<Step>()
         var exploreStep: Step? = nextStep
         while (exploreStep != null) {
-            breadcrumbs.add(exploreStep)
             val pathSteps = pathStepDao.readJoinedPathSteps(exploreStep.id).sortedBy { it.position }
-            exploreStep = pathSteps.firstOrNull { step -> logs.all { it.stepId != step.id } }
+            exploreStep = pathSteps.firstOrNull { step -> logs.none { it.stepId == step.id && it.isCompleted } }
             if (exploreStep != null) {
+                breadcrumbs.add(nextStep)
                 nextStep = exploreStep
             }
         }
 
-        return NextStep(trekPointId, nextStep, breadcrumbs.takeIf { it.isNotEmpty() })
+        val questions = questionDao.readQuestionsByStepId(nextStep.id)
+        val log = logs.firstOrNull { it.stepId == nextStep.id && it.pathStepId == nextStep.pathStepId }
+        val answers = log?.let { answerDao.readAnswersByLogId(log.id) }
+        val question = answers?.let { questions.firstOrNull { q -> answers.none { a -> a.questionId == q.id } } }
+
+        return NextStep(
+            trekPointId = trekPointId,
+            trek = trek,
+            stepLog = log,
+            step = nextStep,
+            breadcrumbs = breadcrumbs.takeIf { it.isNotEmpty() },
+            question = question
+        )
     }
 }
 
 data class NextStep(
     val trekPointId: Long,
+    val trek: Trek?,
+    val stepLog: StepLog?,
     val step: Step,
-    val breadcrumbs: List<Step>?
+    val breadcrumbs: List<Step>?,
+    val question: Question?
 )
 
-private enum class StepStatus {
+private enum class PathStatus {
     Unfinished, // some steps incomplete
     Finished, // all steps completed
     Completed, // all questions answered
+}
+
+enum class StepOutcome {
+    Skipped,
+    Finished,
 }

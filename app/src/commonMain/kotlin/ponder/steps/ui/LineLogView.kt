@@ -18,7 +18,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,20 +25,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kabinet.utils.startOfDay
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import ponder.steps.model.data.StepOutcome
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.selected
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.Divider
-import pondui.ui.controls.H2
 import pondui.ui.controls.Label
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
@@ -48,9 +44,6 @@ import pondui.ui.nav.ContextMenu
 import pondui.ui.theme.Pond
 import pondui.ui.theme.ProvideBookColors
 import pondui.utils.lighten
-import pondui.utils.mix
-import pondui.utils.mixWith
-import pondui.utils.rememberNotNull
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -183,30 +176,42 @@ fun RenderLogLines(
                         offsetX = 20.dp,
                         isVisibleInit = true,
                     ) { nextStep ->
-                        val step = nextStep?.step ?: return@MagicItem
-                        Row(
-                            spacingUnits = 1,
-                            modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing, vertical = Pond.ruler.doubleSpacing)
-                                .height(70.dp)
-                                .fillMaxWidth()
-                                .clip(Pond.ruler.pill)
-                                .background(Pond.colors.surfaceBook)
+                        val nextStep = nextStep ?: return@MagicItem
+                        val step = nextStep.step; val question = nextStep.question
+                        MagicItem(
+                            item = question,
+                            offsetX = 50.dp,
+                            itemContent = { question ->
+                                QuestionRow(step.label, question) { answerText ->
+                                    viewModel.answerQuestion(nextStep, answerText)
+                                }
+                            },
+                            isVisibleInit = true,
                         ) {
-                            StepImage(
-                                url = step.thumbUrl,
-                                modifier = Modifier.fillMaxHeight()
-                                    .clip(CircleShape),
-                            )
-                            step.position?.let { Label("${it + 1}.", Pond.typo.bodyLarge) }
-                            Column(0, modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = step.label,
-                                    style = Pond.typo.bodyLarge,
-                                    maxLines = 2,
+                            Row(
+                                spacingUnits = 1,
+                                modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing, vertical = Pond.ruler.doubleSpacing)
+                                    .height(70.dp)
+                                    .fillMaxWidth()
+                                    .clip(Pond.ruler.pill)
+                                    .background(Pond.colors.surfaceBook)
+                            ) {
+                                StepImage(
+                                    url = step.thumbUrl,
+                                    modifier = Modifier.fillMaxHeight()
+                                        .clip(CircleShape),
                                 )
-                            }
-                            Checkbox(false, modifier = Modifier.padding(end = 20.dp)) {
-                                viewModel.setComplete(nextStep)
+                                step.position?.let { Label("${it + 1}.", Pond.typo.bodyLarge) }
+                                Column(0, modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = step.label,
+                                        style = Pond.typo.bodyLarge,
+                                        maxLines = 2,
+                                    )
+                                }
+                                Checkbox(false, modifier = Modifier.padding(end = 20.dp)) {
+                                    viewModel.setComplete(nextStep)
+                                }
                             }
                         }
                     }
