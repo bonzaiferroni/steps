@@ -12,7 +12,6 @@ import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.NextStep
 import ponder.steps.io.StepOutcome
 import ponder.steps.model.data.NewAnswer
-import ponder.steps.model.data.StepStatus
 import pondui.ui.core.StateModel
 import java.util.PriorityQueue
 import kotlin.time.Duration.Companion.minutes
@@ -43,7 +42,7 @@ class LineLogModel(
                 val trekStart = ts.startedAt ?: now
                 val trekEnd = ts.finishedAt ?: now
                 val trekDuration = (trekEnd - trekStart)
-                val minMinutes = stateNow.minPerDp * LOG_LANE_WIDTH
+                val minMinutes = stateNow.dpPerHour / 60 * LOG_LANE_WIDTH
                 val lineMinutes = maxOf(minMinutes.toLong(), trekDuration.inWholeMinutes)
                 val lineStart = trekEnd - lineMinutes.minutes
                 val lineEnd = trekEnd
@@ -111,17 +110,24 @@ class LineLogModel(
             setState { it.copy(nextStep = nextStep) }
         }
     }
+
+    fun toggleIsAddingStep() {
+        setState { it.copy(isAddingStep = !it.isAddingStep) }
+    }
 }
 
 @Stable
 data class LineLogState(
     val start: Instant = Instant.DISTANT_PAST,
     val end: Instant = Instant.DISTANT_PAST,
-    val minPerDp: Float = 1f,
+    val dpPerHour: Float = 100f,
     val lines: List<LogLine> = emptyList(),
     val openMenuId: TrekPointId? = null,
     val nextStep: NextStep? = null,
-)
+    val isAddingStep: Boolean = false,
+) {
+    val minPerDp get() = 60 / dpPerHour
+}
 
 data class LogLine(
     val lane: Int,
@@ -132,5 +138,5 @@ data class LogLine(
     val isComplete: Boolean,
 )
 
-const val LOG_LANE_WIDTH = 30
+const val LOG_LANE_WIDTH = 50
 const val LOG_LANE_GAP = 5

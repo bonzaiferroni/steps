@@ -21,11 +21,16 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Plus
+import kabinet.utils.amPmLabel
+import kabinet.utils.hour12
 import kabinet.utils.startOfDay
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
@@ -33,12 +38,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.selected
+import pondui.ui.controls.BottomBarSpacer
+import pondui.ui.controls.Button
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.Divider
 import pondui.ui.controls.Label
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
+import pondui.ui.controls.TopBarSpacer
 import pondui.ui.controls.actionable
 import pondui.ui.nav.ContextMenu
 import pondui.ui.theme.Pond
@@ -56,20 +64,40 @@ fun LineLogView() {
         viewModel.setParameters(Clock.startOfDay(), Clock.startOfDay() + 1.days)
     }
 
+    AddStepCloud(
+        title = "Add Step",
+        isVisible = state.isAddingStep,
+        createIntent = true,
+        pathId = null,
+        dismiss = viewModel::toggleIsAddingStep
+    )
+
     // LazyColumn’s scroll state
     val scrollState = rememberScrollState()
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .verticalScroll(scrollState)
-    ) {
-        RenderMarkers(state)
+    Box {
+        Column(
+            spacingUnits = 1,
+            modifier = Modifier.fillMaxSize()
+                .verticalScroll(scrollState)
+        ) {
+            TopBarSpacer()
+            Box(
+            ) {
+                RenderMarkers(state)
 
-        // 2) overlay bars
-        RenderLogLines(
-            state = state,
-            viewModel = viewModel,
-        ) { scrollState.scrollTo(scrollState.value + 1) }
+                // 2) overlay bars
+                RenderLogLines(
+                    state = state,
+                    viewModel = viewModel,
+                ) { scrollState.scrollTo(scrollState.value + 1) }
+            }
+            BottomBarSpacer()
+        }
+        Column(1, modifier = Modifier.align(Alignment.BottomEnd)) {
+            Button(TablerIcons.Plus, onClick = viewModel::toggleIsAddingStep)
+            BottomBarSpacer()
+        }
     }
 }
 
@@ -77,21 +105,22 @@ fun LineLogView() {
 fun RenderMarkers(
     state: LineLogState,
 ) {
-    val hourHeightDp = (60f / state.minPerDp).dp
+    val hourHeightDp = state.dpPerHour.dp
     val tz = TimeZone.currentSystemDefault()
     // 1) draw the hour‐rows behind
     Column(Modifier.fillMaxWidth()) {
+
         val totalHours = ((state.end - state.start).inWholeHours + 1).toInt()
         for (h in 0 until totalHours) {
             val hourInstant = state.start + h.hours
-            val hourLabel = hourInstant.toLocalDateTime(tz).hour
+            val hour = hourInstant.toLocalDateTime(tz)
             Box(
                 Modifier
                     .fillMaxWidth()
                     .height(hourHeightDp)
             ) {
                 Text(
-                    text = "$hourLabel:00",
+                    text = "${hour.hour12}:00 ${hour.amPmLabel}",
                     modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).zIndex(1f)
                 )
                 Divider(
@@ -161,6 +190,7 @@ fun RenderLogLines(
                 .selected(state.openMenuId == line.trekPointId)
                 .clip(Pond.ruler.pill)
                 .background(Pond.colors.secondary.lighten(.2f))
+                .focusProperties { canFocus = false }
                 .actionable { viewModel.setOpenMenuId(line.trekPointId) }
                 .padding(2.dp),
             contentAlignment = Alignment.BottomCenter
@@ -175,22 +205,22 @@ fun RenderLogLines(
                         item = state.nextStep,
                         offsetX = 20.dp,
                         isVisibleInit = true,
+                        modifier = Modifier.padding(
+                            horizontal = Pond.ruler.unitSpacing,
+                            vertical = Pond.ruler.doubleSpacing
+                        )
                     ) { nextStep ->
                         val nextStep = nextStep ?: return@MagicItem
-                        val step = nextStep.step; val question = nextStep.question
-                        MagicItem(
-                            item = question,
-                            offsetX = 50.dp,
-                            itemContent = { question ->
-                                QuestionRow(step.label, question) { answerText ->
-                                    viewModel.answerQuestion(nextStep, answerText)
-                                }
-                            },
-                            isVisibleInit = true,
-                        ) {
+                        val step = nextStep.step;
+                        val question = nextStep.question
+                        if (question != null) {
+                            QuestionRow(step.label, question) { answerText ->
+                                viewModel.answerQuestion(nextStep, answerText)
+                            }
+                        } else {
                             Row(
                                 spacingUnits = 1,
-                                modifier = Modifier.padding(horizontal = Pond.ruler.unitSpacing, vertical = Pond.ruler.doubleSpacing)
+                                modifier = Modifier
                                     .height(70.dp)
                                     .fillMaxWidth()
                                     .clip(Pond.ruler.pill)
