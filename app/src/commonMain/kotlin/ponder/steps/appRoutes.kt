@@ -1,6 +1,7 @@
 package ponder.steps
 
 import kotlinx.serialization.Serializable
+import ponder.steps.model.data.StepId
 import pondui.ui.nav.AppRoute
 import pondui.ui.nav.IdRoute
 import pondui.ui.nav.matchLongIdRoute
@@ -23,6 +24,14 @@ data class StepProfileRoute(val stepId: String) : IdRoute<String>(TITLE, stepId)
     companion object {
         const val TITLE = "Steps"
         fun matchRoute(path: String) = matchStringIdRoute(path, TITLE) { StepProfileRoute(it) }
+    }
+}
+
+@Serializable
+data class PathEditorRoute(val pathId: String) : IdRoute<StepId>(TITLE, pathId) {
+    companion object {
+        const val TITLE = "PathEditor"
+        fun matchRoute(path: String) = matchStringIdRoute(path, TITLE) { PathEditorRoute(it) }
     }
 }
 

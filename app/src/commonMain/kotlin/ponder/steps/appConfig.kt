@@ -32,7 +32,8 @@ val appConfig = PondConfig(
         RouteConfig(SpriteRoute::matchRoute) { defaultScreen<SpriteRoute> { SpriteScreen() }},
         RouteConfig(SettingsRoute::matchRoute) { defaultScreen<SettingsRoute> { SettingsScreen() } },
         RouteConfig(ChatRoute::matchRoute) { defaultScreen<ChatRoute> { ChatScreen() }},
-        RouteConfig(LogRoute::matchRoute) { defaultScreen<LogRoute> { LineLogView() }}
+        RouteConfig(LogRoute::matchRoute) { defaultScreen<LogRoute> { LineLogView() }},
+        RouteConfig(PathEditorRoute::matchRoute) { defaultScreen<PathEditorRoute> { PathEditorScreen(it) }}
     ),
     doors = persistentListOf(
         // PortalDoor(TablerIcons.Home, StartRoute),

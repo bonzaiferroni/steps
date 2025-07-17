@@ -72,7 +72,7 @@ class StepProfileModel(
         setState { it.copy(selectedStepId = stepId) }
     }
 
-    fun remoteStepFromPath(step: Step) {
+    fun removeStepFromPath(step: Step) {
         val path = stateNow.step ?: return
         val position = step.position ?: return
         viewModelScope.launch {
