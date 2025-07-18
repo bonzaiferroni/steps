@@ -1,5 +1,6 @@
 package ponder.steps.ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -61,6 +64,7 @@ import pondui.ui.controls.TextButton
 import pondui.ui.controls.actionable
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
+import pondui.ui.theme.PondColors
 import pondui.utils.addShadow
 import pondui.utils.darken
 
@@ -138,15 +142,21 @@ fun PathEditorView(
         }
 
         itemsIndexed(state.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
+            var isHovered by remember { mutableStateOf(false) }
             val isSelected = state.selectedStepId == step.id
+            val showControls = isSelected || isHovered
             val lineColumnWidth = 72.dp
             val lineWidth = 3.dp
-            val lineColor = Pond.colors.swatches[0].darken(.2f)
+            val lineColor = Pond.colors.swatches[0]
+            val animatedLineColor by animateColorAsState(if (isHovered) lineColor else lineColor.darken(.2f))
             val isLastStep = (step.position ?: 0) == pathStep.pathSize - 1
             Column(
                 modifier = Modifier.animateItem()
                     .selected(isSelected, radius = Pond.ruler.unitCorner)
-                    .actionable { viewModel.selectStep(step.id) },
+                    .actionable(
+                        onHover = { isHovered = it },
+                        isIndicated = false,
+                    ) { viewModel.selectStep(step.id) },
             ) {
                 Row(
                     spacingUnits = 1,
@@ -164,7 +174,7 @@ fun PathEditorView(
                                     val lineWidthPx = lineWidth.toPx()
                                     val radius = size.width / 2 - lineWidthPx / 2
                                     drawCircle(
-                                        color = lineColor,
+                                        color = animatedLineColor,
                                         radius = radius,
                                         style = Stroke(width = lineWidth.toPx())
                                     )
@@ -174,7 +184,7 @@ fun PathEditorView(
                         )
                         if (!isLastStep) {
                             LineSection(
-                                color = lineColor,
+                                color = animatedLineColor,
                                 width = lineWidth,
                             )
                         }
@@ -204,16 +214,16 @@ fun PathEditorView(
                     ControlSet(
                         maxItemsInEachRow = 1,
                         modifier = Modifier.padding(end = Pond.ruler.unitSpacing)
-                            .magic(isSelected, scale = .8f)
+                            .magic(showControls, scale = .8f)
                     ) {
                         ControlSetButton(
                             imageVector = TablerIcons.ArrowUp,
-                            isEnabled = isSelected && (step.position ?: 0) > 0,
+                            isEnabled = showControls && (step.position ?: 0) > 0,
                             background = Pond.colors.secondary
                         ) { viewModel.moveStep(step, -1) }
                         ControlSetButton(
                             imageVector = TablerIcons.ArrowDown,
-                            isEnabled = isSelected && (step.position ?: 0) < state.steps.size - 1,
+                            isEnabled = showControls && (step.position ?: 0) < state.steps.size - 1,
                             background = Pond.colors.secondary
                         ) { viewModel.moveStep(step, 1) }
                     }
@@ -226,7 +236,7 @@ fun PathEditorView(
                         Box(
                             modifier = Modifier.width(lineColumnWidth)
                                 .fillMaxHeight()
-                                .branchLine(lineColor, lineWidth, isLastStep)
+                                .branchLine(animatedLineColor, lineWidth, isLastStep)
                         )
                         Text("${step.pathSize} steps")
                         IconButton(TablerIcons.ArrowRight) { nav.go(PathEditorRoute(step.id)) }
@@ -242,25 +252,25 @@ fun PathEditorView(
                             .width(lineColumnWidth)
                     ) {
                         if (!isLastStep) {
-                            LineSection(lineColor, lineWidth)
+                            LineSection(animatedLineColor, lineWidth)
                         }
                     }
                     // step controls
                     Row(
                         spacingUnits = 1,
                         modifier = Modifier.padding(bottom = Pond.ruler.unitSpacing)
-                            .magic(isSelected, scale = .8f)
+                            .magic(showControls, scale = .8f)
                     ) {
                         if (step.pathSize == 0) {
                             Button(
                                 text = "Add branch",
-                                isEnabled = isSelected,
+                                isEnabled = showControls,
                             ) { nav.go(PathEditorRoute(step.id)) }
                         }
 
                         Button(
                             imageVector = TablerIcons.Trash,
-                            isEnabled = isSelected,
+                            isEnabled = showControls,
                             background = Pond.colors.danger,
                         ) { viewModel.removeStepFromPath(step) }
                     }
