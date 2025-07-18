@@ -1,20 +1,16 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.items
@@ -29,13 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
@@ -45,7 +41,6 @@ import compose.icons.tablericons.Drone
 import compose.icons.tablericons.Plus
 import compose.icons.tablericons.Trash
 import ponder.steps.PathEditorRoute
-import ponder.steps.StepProfileRoute
 import ponder.steps.model.data.StepId
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
@@ -56,7 +51,7 @@ import pondui.ui.controls.ControlSet
 import pondui.ui.controls.ControlSetButton
 import pondui.ui.controls.EditText
 import pondui.ui.controls.Expando
-import pondui.ui.controls.Label
+import pondui.ui.controls.IconButton
 import pondui.ui.controls.LabeledPart
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.PartLabel
@@ -64,7 +59,6 @@ import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.TextButton
 import pondui.ui.controls.actionable
-import pondui.ui.nav.ContextMenu
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import pondui.utils.addShadow
@@ -145,7 +139,7 @@ fun PathEditorView(
 
         itemsIndexed(state.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
             val isSelected = state.selectedStepId == step.id
-            val leftSectionWidth = 72.dp
+            val lineColumnWidth = 72.dp
             val lineWidth = 3.dp
             val lineColor = Pond.colors.swatches[0].darken(.2f)
             val isLastStep = (step.position ?: 0) == pathStep.pathSize - 1
@@ -158,8 +152,9 @@ fun PathEditorView(
                     spacingUnits = 1,
                     modifier = Modifier.height(IntrinsicSize.Max)
                 ) {
+                    // line column
                     Column(
-                        modifier = Modifier.width(leftSectionWidth)
+                        modifier = Modifier.width(lineColumnWidth)
                             .fillMaxHeight()
                     ) {
                         StepImage(
@@ -184,6 +179,7 @@ fun PathEditorView(
                             )
                         }
                     }
+                    // text fields
                     Column(
                         spacingUnits = 1,
                         modifier = Modifier.weight(1f)
@@ -204,6 +200,7 @@ fun PathEditorView(
                         ) { viewModel.editStep(step.copy(description = it)) }
 
                     }
+                    // position controls
                     ControlSet(
                         maxItemsInEachRow = 1,
                         modifier = Modifier.padding(end = Pond.ruler.unitSpacing)
@@ -221,18 +218,34 @@ fun PathEditorView(
                         ) { viewModel.moveStep(step, 1) }
                     }
                 }
+                if (step.pathSize > 0) {
+                    Row(
+                        spacingUnits = 1,
+                        modifier = Modifier.height(IntrinsicSize.Max)
+                    ) {
+                        Box(
+                            modifier = Modifier.width(lineColumnWidth)
+                                .fillMaxHeight()
+                                .branchLine(lineColor, lineWidth, isLastStep)
+                        )
+                        Text("${step.pathSize} steps")
+                        IconButton(TablerIcons.ArrowRight) { nav.go(PathEditorRoute(step.id)) }
+                    }
+                }
                 Row(
                     spacingUnits = 1,
                     modifier = Modifier.height(IntrinsicSize.Max)
                 ) {
+                    // line column
                     Column(
                         modifier = Modifier.fillMaxHeight()
-                            .width(leftSectionWidth)
+                            .width(lineColumnWidth)
                     ) {
                         if (!isLastStep) {
                             LineSection(lineColor, lineWidth)
                         }
                     }
+                    // step controls
                     Row(
                         spacingUnits = 1,
                         modifier = Modifier.padding(bottom = Pond.ruler.unitSpacing)
@@ -240,7 +253,7 @@ fun PathEditorView(
                     ) {
                         if (step.pathSize == 0) {
                             Button(
-                                text = "Create path",
+                                text = "Add branch",
                                 isEnabled = isSelected,
                             ) { nav.go(PathEditorRoute(step.id)) }
                         }
@@ -292,5 +305,48 @@ fun ColumnScope.LineSection(
                     cap = StrokeCap.Round
                 )
             }
+    )
+}
+
+@Composable
+fun Modifier.branchLine(
+    color: Color,
+    width: Dp,
+    isLastStep: Boolean
+) = this.drawBehind {
+    val w    = size.width
+    val h    = size.height
+    val midX = w / 2f
+    val midY = h / 2f
+    val r    = midY                       // radius = half height
+    val k    = 0.55228475f                // Bézier quarter‑circle constant
+
+    val path = Path().apply {
+        moveTo(midX, 0f)                  // top‑middle
+
+        // inward bulge → right point at midX + r
+        cubicTo(
+            midX,           k * r,       // cp1 just below top toward center
+            midX + r - k*r, midY,        // cp2 just left of right‑point
+            midX + r,       midY         // end at right‑middle
+        )
+
+        if (!isLastStep) {
+            // inward bulge → bottom at midY + r
+            cubicTo(
+                midX + r - k*r, midY,        // cp1 just above right‑point
+                midX,           midY + r - k*r, // cp2 just above bottom‑point
+                midX,           midY + r     // end at bottom‑middle
+            )
+        }
+    }
+
+    drawPath(
+        path = path,
+        color = color,
+        style = Stroke(
+            width = width.toPx(),
+            cap = StrokeCap.Round
+        )
     )
 }
