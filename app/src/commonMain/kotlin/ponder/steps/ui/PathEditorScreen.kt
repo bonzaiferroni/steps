@@ -8,7 +8,5 @@ import pondui.ui.controls.Scaffold
 fun PathEditorScreen(
     route: PathEditorRoute
 ) {
-    Scaffold {
-        PathEditorView(route.pathId)
-    }
+    PathEditorView(route.pathId)
 }

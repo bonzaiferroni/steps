@@ -62,6 +62,8 @@ import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.TextButton
 import pondui.ui.controls.actionable
+import pondui.ui.controls.bottomBarSpacerItem
+import pondui.ui.controls.topBarSpacerItem
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import pondui.ui.theme.PondColors
@@ -83,6 +85,8 @@ fun PathEditorView(
     val pathStep = state.step ?: return
 
     LazyColumn(1, Alignment.CenterHorizontally) {
+        topBarSpacerItem()
+
         item("header") {
             Column(
                 spacingUnits = 2,
@@ -293,6 +297,8 @@ fun PathEditorView(
                 Expando(1)
             }
         }
+
+        bottomBarSpacerItem()
     }
 }
 
