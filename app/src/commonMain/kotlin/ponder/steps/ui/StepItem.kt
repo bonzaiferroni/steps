@@ -60,6 +60,7 @@ fun StepRow(
                 style = Pond.typo.h3,
                 isEditable = isEditable,
                 onAcceptEdit = updateLabel,
+                isContainerVisible = isEditable,
                 maxLines = 2,
             )
             if (pathSize > 0) {

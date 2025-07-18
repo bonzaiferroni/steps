@@ -33,14 +33,17 @@ class PathEditorModel(
         }
     }
 
-    fun selectStep(stepId: String) {
-        setState { it.copy(selectedStepId = stepId) }
+    fun selectStep(stepId: StepId) {
+        if (stateNow.selectedStepId == stepId) {
+            setState { it.copy(selectedStepId = null) }
+        } else {
+            setState { it.copy(selectedStepId = stepId) }
+        }
     }
 
     fun editStep(step: Step) {
         viewModelScope.launch {
             stepRepo.updateStep(step)
-            setState { it.copy(step = step) }
         }
     }
 

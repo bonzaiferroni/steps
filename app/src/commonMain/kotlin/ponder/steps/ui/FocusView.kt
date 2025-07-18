@@ -44,7 +44,7 @@ fun FocusView() {
             modifier = Modifier.clip(Pond.ruler.pill)
                 .height(400.dp)
                 .aspectRatio(1f)
-                .magic(rotationZ = 180, scale = true, durationMillis = 500)
+                .magic(rotationZ = 180, scale = .8f, durationMillis = 500)
         )
 
         H1(focus.stepLabel)
