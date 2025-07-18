@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
+import ponder.steps.io.LocalQuestionRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepSuggestRequest
@@ -21,6 +23,7 @@ class PathEditorModel(
     val stepRepo: StepRepository = LocalStepRepository(),
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
+    val questionRepo: LocalQuestionRepository = LocalQuestionRepository()
 ): StateModel<PathEditorState>(PathEditorState()) {
 
     fun setParameters(pathId: StepId) {
@@ -30,6 +33,9 @@ class PathEditorModel(
         }
         stepRepo.flowPathSteps(pathId).launchCollect { steps ->
             setState { it.copy(steps = steps.sortedBy { pStep -> pStep.position }) }
+        }
+        questionRepo.flowPathQuestions(pathId).launchCollect { questions ->
+            setState { it.copy(questions = questions) }
         }
     }
 
@@ -112,6 +118,12 @@ class PathEditorModel(
         val step = stateNow.step ?: error("missing step")
         setState { it.copy(step = step.copy(description = "")) }
     }
+
+    fun editQuestion(question: Question) {
+        viewModelScope.launch {
+            questionRepo.updateQuestion(question)
+        }
+    }
 }
 
 data class PathEditorState(
@@ -120,4 +132,5 @@ data class PathEditorState(
     val selectedStepId: String? = null,
     val suggestions: List<StepWithDescription> = emptyList(),
     val isAddingStep: Boolean = false,
+    val questions: Map<StepId, List<Question>> = emptyMap()
 )

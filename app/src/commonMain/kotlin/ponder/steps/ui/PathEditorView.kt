@@ -2,6 +2,7 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -32,6 +33,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,18 +44,22 @@ import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Drone
 import compose.icons.tablericons.Plus
+import compose.icons.tablericons.QuestionMark
 import compose.icons.tablericons.Trash
 import ponder.steps.PathEditorRoute
 import ponder.steps.model.data.StepId
 import pondui.ui.behavior.Magic
 import pondui.ui.behavior.magic
+import pondui.ui.behavior.padBottom
 import pondui.ui.behavior.selected
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.ControlSet
 import pondui.ui.controls.ControlSetButton
+import pondui.ui.controls.DropMenu
 import pondui.ui.controls.EditText
 import pondui.ui.controls.Expando
+import pondui.ui.controls.Icon
 import pondui.ui.controls.IconButton
 import pondui.ui.controls.LabeledPart
 import pondui.ui.controls.LazyColumn
@@ -154,6 +160,7 @@ fun PathEditorView(
             val lineColor = Pond.colors.swatches[0]
             val animatedLineColor by animateColorAsState(if (isHovered) lineColor else lineColor.darken(.2f))
             val isLastStep = (step.position ?: 0) == pathStep.pathSize - 1
+            val questions = state.questions[step.id]
             Column(
                 modifier = Modifier.animateItem()
                     .selected(isSelected, radius = Pond.ruler.unitCorner)
@@ -175,13 +182,7 @@ fun PathEditorView(
                             url = step.thumbUrl,
                             modifier = Modifier.fillMaxWidth()
                                 .drawBehind {
-                                    val lineWidthPx = lineWidth.toPx()
-                                    val radius = size.width / 2 - lineWidthPx / 2
-                                    drawCircle(
-                                        color = animatedLineColor,
-                                        radius = radius,
-                                        style = Stroke(width = lineWidth.toPx())
-                                    )
+                                    drawStepCircle(lineWidth, animatedLineColor)
                                 }
                                 .padding(lineWidth * 2)
                                 .clip(CircleShape)
@@ -244,6 +245,46 @@ fun PathEditorView(
                         )
                         Text("${step.pathSize} steps")
                         IconButton(TablerIcons.ArrowRight) { nav.go(PathEditorRoute(step.id)) }
+                    }
+                }
+                if (questions != null) {
+                    for (question in questions) {
+                        Row(
+                            spacingUnits = 1,
+                            modifier = Modifier.height(IntrinsicSize.Max)
+                        ) {
+                            // line column
+                            Column(
+                                modifier = Modifier.fillMaxHeight()
+                                    .width(lineColumnWidth),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .drawBehind {
+                                            drawStepCircle(lineWidth, animatedLineColor)
+                                        }
+                                        .padding(lineWidth)
+                                ) {
+                                    Icon(TablerIcons.QuestionMark)
+                                }
+                                if (!isLastStep) {
+                                    LineSection(animatedLineColor, lineWidth)
+                                }
+                            }
+                            // question controls
+                            Column(
+                                spacingUnits = 1,
+                                modifier = Modifier.padBottom(1)
+                            ) {
+                                EditText(
+                                    text = question.text,
+                                    placeholder = "Question text",
+                                    isContainerVisible = true,
+                                ) { viewModel.editQuestion(question.copy(text = it)) }
+                                DropMenu(question.type) { viewModel.editQuestion(question.copy(type = it)) }
+                            }
+                        }
                     }
                 }
                 Row(
@@ -330,29 +371,29 @@ fun Modifier.branchLine(
     width: Dp,
     isLastStep: Boolean
 ) = this.drawBehind {
-    val w    = size.width
-    val h    = size.height
+    val w = size.width
+    val h = size.height
     val midX = w / 2f
     val midY = h / 2f
-    val r    = midY                       // radius = half height
-    val k    = 0.55228475f                // Bézier quarter‑circle constant
+    val r = midY                       // radius = half height
+    val k = 0.55228475f                // Bézier quarter‑circle constant
 
     val path = Path().apply {
         moveTo(midX, 0f)                  // top‑middle
 
         // inward bulge → right point at midX + r
         cubicTo(
-            midX,           k * r,       // cp1 just below top toward center
-            midX + r - k*r, midY,        // cp2 just left of right‑point
-            midX + r,       midY         // end at right‑middle
+            midX, k * r,       // cp1 just below top toward center
+            midX + r - k * r, midY,        // cp2 just left of right‑point
+            midX + r, midY         // end at right‑middle
         )
 
         if (!isLastStep) {
             // inward bulge → bottom at midY + r
             cubicTo(
-                midX + r - k*r, midY,        // cp1 just above right‑point
-                midX,           midY + r - k*r, // cp2 just above bottom‑point
-                midX,           midY + r     // end at bottom‑middle
+                midX + r - k * r, midY,        // cp1 just above right‑point
+                midX, midY + r - k * r, // cp2 just above bottom‑point
+                midX, midY + r     // end at bottom‑middle
             )
         }
     }
@@ -364,5 +405,18 @@ fun Modifier.branchLine(
             width = width.toPx(),
             cap = StrokeCap.Round
         )
+    )
+}
+
+fun DrawScope.drawStepCircle(
+    strokeWidth: Dp,
+    color: Color,
+) {
+    val lineWidthPx = strokeWidth.toPx()
+    val radius = size.width / 2 - lineWidthPx / 2
+    drawCircle(
+        color = color,
+        radius = radius,
+        style = Stroke(width = lineWidthPx)
     )
 }
