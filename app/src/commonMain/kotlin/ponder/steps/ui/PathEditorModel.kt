@@ -24,26 +24,24 @@ class PathEditorModel(
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
     val questionRepo: LocalQuestionRepository = LocalQuestionRepository()
-): StateModel<PathEditorState>(PathEditorState()) {
+): StateModel<PathMapState>(PathMapState()) {
+
+    private val pathContext = PathContextModel(this)
+    val pathContextFlow get() = pathContext.state
+    val contextStep get() = pathContext.stateNow.step
 
     fun setParameters(pathId: StepId) {
-        clearJobs()
-        stepRepo.flowStep(pathId).launchCollect { step ->
-            setState { it.copy(step = step,) }
-        }
-        stepRepo.flowPathSteps(pathId).launchCollect { steps ->
-            setState { it.copy(steps = steps.sortedBy { pStep -> pStep.position }) }
-        }
-        questionRepo.flowPathQuestions(pathId).launchCollect { questions ->
-            setState { it.copy(questions = questions) }
-        }
+        pathContext.setParameters(pathId)
     }
 
-    fun selectStep(stepId: StepId) {
-        if (stateNow.selectedStepId == stepId) {
-            setState { it.copy(selectedStepId = null) }
-        } else {
-            setState { it.copy(selectedStepId = stepId) }
+    fun setFocus(stepId: StepId?) {
+        setState { it.copy(selectedStepId = stepId) }
+    }
+
+    fun toggleFocus(stepId: StepId) {
+        when (stepId) {
+            stateNow.selectedStepId -> setFocus(null)
+            else -> setFocus(stepId)
         }
     }
 
@@ -54,7 +52,7 @@ class PathEditorModel(
     }
 
     fun removeStepFromPath(step: Step) {
-        val path = stateNow.step ?: return
+        val path = contextStep ?: return
         val position = step.position ?: return
         viewModelScope.launch {
             stepRepo.removeStepFromPath(path.id, step.id, position)
@@ -62,19 +60,20 @@ class PathEditorModel(
     }
 
     fun moveStep(step: Step, delta: Int) {
-        val path = stateNow.step ?: return
+        val path = contextStep ?: return
         viewModelScope.launch {
             stepRepo.moveStepPosition(path.id, step.id, delta)
         }
     }
 
     fun suggestNextStep() {
-        val path = stateNow.step ?: return
+        val path = contextStep ?: return
+        val steps = pathContext.stateNow.steps
         viewModelScope.launch {
             val response = aiClient.suggestStep(StepSuggestRequest(
                 pathLabel = path.label,
                 pathDescription = path.description,
-                precedingSteps = stateNow.steps.map { StepWithDescription(it.label, it.description) }
+                precedingSteps = steps.map { StepWithDescription(it.label, it.description) }
             ))
             setState { it.copy(suggestions = response.suggestedSteps) }
         }
@@ -93,7 +92,7 @@ class PathEditorModel(
     }
 
     private suspend fun createStep(label: String, description: String? = null) {
-        val path = stateNow.step ?: return
+        val path = contextStep ?: return
         val stepId = stepRepo.createStep(NewStep(
             pathId = path.id,
             label = label,
@@ -111,12 +110,11 @@ class PathEditorModel(
                 }
             }
         }
-        setState { it.copy(step = path.copy(pathSize = path.pathSize + 1),) }
     }
 
     fun addDescription() {
-        val step = stateNow.step ?: error("missing step")
-        setState { it.copy(step = step.copy(description = "")) }
+        val step = contextStep ?: error("missing step")
+        pathContext.setState { it.copy(step = step.copy(description = "")) }
     }
 
     fun editQuestion(question: Question) {
@@ -124,13 +122,13 @@ class PathEditorModel(
             questionRepo.updateQuestion(question)
         }
     }
+
+    fun setEditQuestion(question: Question?) = setState { it.copy(editQuestion = question) }
 }
 
-data class PathEditorState(
-    val step: Step? = null,
-    val steps: List<Step> = emptyList(),
+data class PathMapState(
     val selectedStepId: String? = null,
     val suggestions: List<StepWithDescription> = emptyList(),
     val isAddingStep: Boolean = false,
-    val questions: Map<StepId, List<Question>> = emptyMap()
+    val editQuestion: Question? = null,
 )
