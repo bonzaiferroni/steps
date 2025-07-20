@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,6 +22,7 @@ import ponder.steps.model.data.Question
 import ponder.steps.model.data.QuestionId
 import pondui.LocalWavePlayer
 import pondui.ui.behavior.MagicItem
+import pondui.ui.behavior.drawLabel
 import pondui.ui.controls.Button
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
@@ -56,7 +58,7 @@ fun QuestionEditorCloud(
 fun QuestionEditorView(
     questionId: QuestionId,
     onDismiss: () -> Unit,
-    viewModel: QuestionEditorModel = viewModel (key = questionId) { QuestionEditorModel(questionId) }
+    viewModel: QuestionEditorModel = viewModel(key = questionId) { QuestionEditorModel(questionId) }
 ) {
     val state by viewModel.state.collectAsState()
     val wavePlayer = LocalWavePlayer.current
@@ -69,31 +71,36 @@ fun QuestionEditorView(
 
     Column(1) {
         TextField(
-            label = "Question text",
             text = question.text,
             placeholder = "Question text",
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .drawLabel("question text"),
             minLines = 2
         ) { dispatch(EditQuestion(question.copy(text = it))) }
         Row(1) {
-            Expando()
-            DropMenu(question.type) { dispatch(EditQuestion(question.copy(type = it))) }
+            DropMenu(
+                selected = question.type,
+                label = "question type",
+                color = Pond.colors.secondary
+            ) { dispatch(EditQuestion(question.copy(type = it))) }
         }
         if (question.type == DataType.Integer || question.type == DataType.Decimal) {
             Row(1) {
                 TextField(
-                    label = "min value",
                     text = state.minValue ?: "",
-                    onTextChanged = { dispatch(EditQuestionMinValue(it))},
+                    label = "min value",
+                    onTextChanged = { dispatch(EditQuestionMinValue(it)) },
                     placeholder = "optional",
+                    color = Pond.colors.secondary,
                     modifier = Modifier.weight(1f)
                 )
 
                 TextField(
-                    label = "max value",
                     text = state.maxValue ?: "",
-                    onTextChanged = { dispatch(EditQuestionMaxValue(it))},
+                    label = "max value",
+                    onTextChanged = { dispatch(EditQuestionMaxValue(it)) },
                     placeholder = "optional",
+                    color = Pond.colors.secondary,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -101,7 +108,11 @@ fun QuestionEditorView(
         Row(1) {
             LabeledCheckbox("Generate speech", state.generateAudio) { dispatch(ToggleQuestionAudio) }
             val audioUrl = question.audioUrl
-            Button(TablerIcons.PlayerPlay, isEnabled = audioUrl != null) { audioUrl?.let { wavePlayer.play(it) } }
+            Button(
+                imageVector = TablerIcons.PlayerPlay,
+                background = Pond.colors.secondary,
+                isEnabled = audioUrl != null
+            ) { audioUrl?.let { wavePlayer.play(it) } }
             // other toggle options
         }
         Row(1) {
