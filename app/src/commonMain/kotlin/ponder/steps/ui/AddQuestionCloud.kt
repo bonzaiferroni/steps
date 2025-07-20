@@ -40,7 +40,7 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
             Label("Question Text:")
             TextField(
                 text = state.questionText,
-                onTextChange = viewModel::setQuestionText,
+                onTextChanged = viewModel::setQuestionText,
                 placeholder = "Enter question text",
                 modifier = Modifier.fillMaxWidth()
                     .takeInitialFocus()
@@ -60,7 +60,7 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
                 Label("Min Value (optional):")
                 TextField(
                     text = state.minValue ?: "",
-                    onTextChange = viewModel::setMinValue,
+                    onTextChanged = viewModel::setMinValue,
                     placeholder = "Enter minimum value",
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -68,7 +68,7 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
                 Label("Max Value (optional):")
                 TextField(
                     text = state.maxValue ?: "",
-                    onTextChange = viewModel::setMaxValue,
+                    onTextChanged = viewModel::setMaxValue,
                     placeholder = "Enter maximum value",
                     modifier = Modifier.fillMaxWidth()
                 )

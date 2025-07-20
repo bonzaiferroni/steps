@@ -97,7 +97,7 @@ fun AddStepCloud(
                 ) {
                     TextField(
                         text = state.intentLabel,
-                        onTextChange = viewModel::setNewStepLabel,
+                        onTextChanged = viewModel::setNewStepLabel,
                         modifier = Modifier.weight(1f)
                             .takeInitialFocus()
                             .onEnterPressed(viewModel::createStep)

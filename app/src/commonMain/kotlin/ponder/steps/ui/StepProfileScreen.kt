@@ -56,7 +56,7 @@ fun StepProfileScreen(
             ControlSet(modifier = Modifier.fillMaxWidth()) {
                 TextField(
                     text = state.newStepLabel,
-                    onTextChange = viewModel::setNewStepLabel,
+                    onTextChanged = viewModel::setNewStepLabel,
                     placeholder = "Enter step name",
                     modifier = Modifier.weight(1f)
                         .takeInitialFocus()
@@ -186,7 +186,7 @@ fun StepProfileScreen(
                 ControlSet {
                     TextField(
                         text = state.newStepLabel,
-                        onTextChange = viewModel::setNewTagLabel,
+                        onTextChanged = viewModel::setNewTagLabel,
                         modifier = Modifier.onEnterPressed(viewModel::addNewTag))
                     Button("Add", onClick = viewModel::addNewTag)
                 }

@@ -22,7 +22,7 @@ fun ExampleProfileScreen(
     Scaffold {
         ControlSet {
             if (state.isEditing) {
-                TextField(state.label, onTextChange = viewModel::setLabel)
+                TextField(state.label, onTextChanged = viewModel::setLabel)
                 Expando()
                 Button("Done", onClick = viewModel::finalizeEdit)
             } else {

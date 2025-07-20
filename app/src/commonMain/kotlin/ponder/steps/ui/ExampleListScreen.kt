@@ -16,7 +16,7 @@ fun ExampleListScreen() {
 
     Cloud(state.isCreatingItem, viewModel::toggleIsCreatingItem) {
         ControlSet {
-            TextField(state.newLabel, viewModel::setLabel)
+            TextField(state.newLabel, onTextChanged = viewModel::setLabel)
             ControlSetButton("Add", onClick = viewModel::createNewItem)
         }
     }

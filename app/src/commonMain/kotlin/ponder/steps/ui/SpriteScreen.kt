@@ -41,7 +41,7 @@ fun SpriteScreen() {
     var name by remember { mutableStateOf("") }
 
     Scaffold {
-        TextField(name, onTextChange = { name = it })
+        TextField(name, onTextChanged = { name = it })
         Button("Add") {
             scope.launch {
                 dao.insert(Sprite(name = name, speed = (0..10).random()))

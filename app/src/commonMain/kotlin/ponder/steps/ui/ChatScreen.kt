@@ -1,6 +1,5 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,7 +31,7 @@ fun ChatScreen() {
         }
 
         Row(1) {
-            TextField(state.message, viewModel::setMessage, modifier = Modifier.weight(1f)
+            TextField(state.message, onTextChanged = viewModel::setMessage, modifier = Modifier.weight(1f)
                 .onEnterPressed(viewModel::sendMessage))
             Button("Send", onClick = viewModel::sendMessage)
         }

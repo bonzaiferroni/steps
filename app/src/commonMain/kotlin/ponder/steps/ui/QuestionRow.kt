@@ -1,13 +1,8 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,7 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
@@ -24,7 +18,6 @@ import pondui.ui.behavior.onEnterPressed
 import pondui.ui.controls.*
 import pondui.ui.controls.ControlSetButton
 import pondui.ui.theme.Pond
-import pondui.ui.theme.ProvideSkyColors
 import pondui.utils.lighten
 
 @Composable
@@ -103,7 +96,7 @@ fun StringAnswer(
 ) {
     TextField(
         text = answerText,
-        onTextChange = changeAnswer,
+        onTextChanged = changeAnswer,
         modifier = Modifier.onEnterPressed(onSubmit)
     )
 }
@@ -120,7 +113,7 @@ fun IntegerAnswer(
         AddToNumberButton(-1, initializedAnswer, changeAnswer)
         TextField(
             text = initializedAnswer,
-            onTextChange = changeAnswer,
+            onTextChanged = changeAnswer,
             modifier = Modifier.width(80.dp),
             maxLines = 1
         )

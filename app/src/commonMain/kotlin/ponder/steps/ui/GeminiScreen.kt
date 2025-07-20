@@ -47,7 +47,7 @@ fun GeminiScreen() {
             ControlSet {
                 TextField(
                     state.message,
-                    onTextChange = viewModel::updateMessage,
+                    onTextChanged = viewModel::updateMessage,
                     modifier = Modifier.weight(1f)
                         .onEnterPressed(viewModel::sendMessage)
                 )

@@ -2,8 +2,6 @@ package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.appDb
-import ponder.steps.db.QuestionDao
 import ponder.steps.io.QuestionSource
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.QuestionId
@@ -18,28 +16,47 @@ class QuestionEditorModel(
     private val messenger = MessengerModel(this)
     val messengerState = messenger.state
 
+    private val questionNow get() = stateNow.question ?: error("missing question")
+
     init {
         viewModelScope.launch {
             val question = questionSource.readQuestionById(questionId)
-            setState { it.copy(question = question) }
+            setState { it.copy(
+                question = question,
+                minValue = question.minValue?.toString(),
+                maxValue = question.maxValue?.toString(),
+            ) }
         }
     }
 
-    fun editQuestion(question: Question) {
-        setState { it.copy(question = question) }
+    fun dispatch(action: QuestionEditorAction) {
+        when (action) {
+            is AcceptQuestionEdit -> acceptEdit()
+            is DeleteQuestion -> deleteQuestion()
+            is EditQuestion -> editQuestion(action.question)
+            is ToggleQuestionAudio -> setState { it.copy(generateAudio = !it.generateAudio) }
+            is EditQuestionMinValue -> setState { it.copy(minValue = action.value) }
+            is EditQuestionMaxValue -> setState { it.copy(maxValue = action.value) }
+        }
     }
 
-    fun deleteQuestion() {
-        val question = stateNow.question ?: error("missing question")
+    private fun editQuestion(question: Question) {
+        setState { it.copy(
+            question = question.copy(
+                audioUrl = question.audioUrl?.takeIf { question.text == questionNow.text }
+            ),
+        ) }
+    }
+
+    private fun deleteQuestion() {
         viewModelScope.launch {
-            questionSource.deleteQuestion(question)
+            questionSource.deleteQuestion(questionNow)
             setState { it.copy(isFinished = true)}
         }
     }
 
-    fun acceptEdit() {
-        val question = stateNow.question ?: error("missing question")
-        if (question.text.isBlank()) {
+    private fun acceptEdit() {
+        if (questionNow.text.isBlank()) {
             messenger.setError("Question content is missing")
             return
         }
@@ -51,15 +68,14 @@ class QuestionEditorModel(
                 }
             }
 
-            questionSource.updateQuestion(question)
+            questionSource.updateQuestion(questionNow)
             setState { it.copy(isFinished = true)}
         }
     }
 
     private suspend fun generateAudio(): Boolean {
-        val question = stateNow.question ?: error("missing question")
-        val url = speechService.generateSpeech(question.text) ?: return false
-        setState { it.copy(question = question.copy(audioUrl = url))}
+        val url = speechService.generateSpeech(questionNow.text) ?: return false
+        setState { it.copy(question = questionNow.copy(audioUrl = url))}
         return true
     }
 }
@@ -68,4 +84,14 @@ data class QuestionEditorState(
     val question: Question? = null,
     val generateAudio: Boolean = false,
     val isFinished: Boolean = false,
+    val minValue: String? = null,
+    val maxValue: String? = null,
 )
+
+sealed interface QuestionEditorAction
+object AcceptQuestionEdit: QuestionEditorAction
+object DeleteQuestion: QuestionEditorAction
+object ToggleQuestionAudio: QuestionEditorAction
+data class EditQuestion(val question: Question): QuestionEditorAction
+data class EditQuestionMinValue(val value: String): QuestionEditorAction
+data class EditQuestionMaxValue(val value: String): QuestionEditorAction
