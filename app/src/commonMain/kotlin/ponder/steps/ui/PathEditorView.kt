@@ -51,8 +51,8 @@ fun PathEditorView(
     val pathStep = pathContextState.step ?: return
 
     QuestionEditorCloud(
-        question = editorState.editQuestion,
-        onDismiss = { viewModel.setEditQuestion(null) }
+        questionId = editorState.editQuestionId,
+        onDismiss = { viewModel.setEditQuestion(null) },
     )
 
     LazyColumn(1, Alignment.CenterHorizontally) {

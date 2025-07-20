@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ponder.steps.io.AnswerRepository
 import ponder.steps.io.LocalAnswerRepository
-import ponder.steps.io.LocalQuestionRepository
+import ponder.steps.io.QuestionSource
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.QuestionRepository
 import ponder.steps.io.StepLogRepository
@@ -24,7 +24,7 @@ class StepActivityModel(
     private val stepId: String,
     private val stepLogRepo: StepLogRepository = LocalStepLogRepository(),
     private val answerRepo: AnswerRepository = LocalAnswerRepository(),
-    private val questionRepo: QuestionRepository = LocalQuestionRepository()
+    private val questionRepo: QuestionRepository = QuestionSource()
 ): StateModel<StepActivityState>(StepActivityState()) {
 
     init {

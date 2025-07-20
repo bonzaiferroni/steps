@@ -9,6 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.QuestionId
 import ponder.steps.model.data.TrekId
 
 @Dao
@@ -21,6 +22,9 @@ interface QuestionDao {
 
     @Delete
     suspend fun delete(step: QuestionEntity): Int
+
+    @Query("SELECT * FROM QuestionEntity WHERE id = :questionId")
+    suspend fun readQuestionById(questionId: QuestionId): Question
 
     @Query("SELECT * FROM QuestionEntity WHERE stepId = :stepId")
     suspend fun readQuestionsByStepId(stepId: String): List<Question>

@@ -156,7 +156,7 @@ fun LazyItemScope.PathEditorItem(
                 ) {
                     // question controls
                     Text(question.text, modifier = Modifier.weight(1f))
-                    IconButton(TablerIcons.Edit) { viewModel.setEditQuestion(question) }
+                    IconButton(TablerIcons.Edit) { viewModel.setEditQuestion(question.id) }
                 }
             }
         }

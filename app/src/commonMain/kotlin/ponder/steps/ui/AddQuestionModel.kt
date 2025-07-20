@@ -5,7 +5,7 @@ import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ponder.steps.io.AiClient
-import ponder.steps.io.LocalQuestionRepository
+import ponder.steps.io.QuestionSource
 import ponder.steps.io.QuestionRepository
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
@@ -18,7 +18,7 @@ import pondui.ui.core.StateModel
 
 class AddQuestionModel(
     private val dismiss: () -> Unit,
-    private val questionRepo: QuestionRepository = LocalQuestionRepository(),
+    private val questionRepo: QuestionRepository = QuestionSource(),
     private val aiClient: AiClient = AiClient(),
     private val valueRepo: ValueRepository = LocalValueRepository(),
 ) : StateModel<AddQuestionState>(AddQuestionState()) {

@@ -5,11 +5,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
-import ponder.steps.io.LocalQuestionRepository
+import ponder.steps.io.QuestionSource
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.QuestionId
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepSuggestRequest
@@ -23,7 +24,7 @@ class PathEditorModel(
     val stepRepo: StepRepository = LocalStepRepository(),
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
-    val questionRepo: LocalQuestionRepository = LocalQuestionRepository()
+    val questionRepo: QuestionSource = QuestionSource()
 ): StateModel<PathMapState>(PathMapState()) {
 
     private val pathContext = PathContextModel(this)
@@ -117,18 +118,25 @@ class PathEditorModel(
         pathContext.setState { it.copy(step = step.copy(description = "")) }
     }
 
-    fun editQuestion(question: Question) {
+    fun acceptQuestionEdit(question: Question) {
         viewModelScope.launch {
             questionRepo.updateQuestion(question)
+            setEditQuestion(null)
         }
     }
 
-    fun setEditQuestion(question: Question?) = setState { it.copy(editQuestion = question) }
+    fun setEditQuestion(questionId: QuestionId?) = setState { it.copy(editQuestionId = questionId) }
+
+    fun deleteQuestion(question: Question) {
+        viewModelScope.launch {
+            questionRepo.deleteQuestion(question)
+        }
+    }
 }
 
 data class PathMapState(
     val selectedStepId: String? = null,
     val suggestions: List<StepWithDescription> = emptyList(),
     val isAddingStep: Boolean = false,
-    val editQuestion: Question? = null,
+    val editQuestionId: QuestionId? = null,
 )

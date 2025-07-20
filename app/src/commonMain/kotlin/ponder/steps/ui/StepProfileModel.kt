@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
-import ponder.steps.io.LocalQuestionRepository
+import ponder.steps.io.QuestionSource
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.QuestionRepository
@@ -26,7 +26,7 @@ import pondui.ui.core.StateModel
 class StepProfileModel(
     route: StepProfileRoute,
     val stepRepo: StepRepository = LocalStepRepository(),
-    val questionRepo: QuestionRepository = LocalQuestionRepository(),
+    val questionRepo: QuestionRepository = QuestionSource(),
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
     val tagRepo: LocalTagRepository = LocalTagRepository()

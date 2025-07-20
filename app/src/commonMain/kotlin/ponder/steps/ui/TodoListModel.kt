@@ -20,11 +20,11 @@ import pondui.ui.core.SubModel
 
 @Stable
 class TodoListModel(
-    private val viewModel: ViewModel,
+    override val viewModel: ViewModel,
     private val trekPath: TrekPath?,
     private val navToTrekPath: (TrekPath?, Boolean) -> Unit,
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
-) : SubModel<TodoListState>(TodoListState(trekPath == null), viewModel) {
+) : SubModel<TodoListState>(TodoListState(trekPath == null)) {
 
     private var allSteps: List<TodoStep> = emptyList()
     var stepFilter: ((TodoStep) -> Boolean)? = null

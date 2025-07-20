@@ -5,16 +5,11 @@ import kabinet.utils.startOfDay
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import ponder.steps.db.TodoStep
 import ponder.steps.io.LocalAnswerRepository
-import ponder.steps.io.LocalIntentRepository
-import ponder.steps.io.LocalQuestionRepository
+import ponder.steps.io.QuestionSource
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTagRepository
@@ -27,7 +22,7 @@ class TodoRootModel(
     private val tagRepo: LocalTagRepository = LocalTagRepository(),
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository(),
-    private val questionRepo: LocalQuestionRepository = LocalQuestionRepository(),
+    private val questionRepo: QuestionSource = QuestionSource(),
     private val answerRepo: LocalAnswerRepository = LocalAnswerRepository(),
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
 ) : StateModel<TodoRootState>(TodoRootState()) {

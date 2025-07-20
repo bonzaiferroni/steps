@@ -10,7 +10,9 @@ import ponder.steps.model.data.IntentPriority
 import pondui.ui.core.SubModel
 
 @Stable
-class EditIntentModel(viewModel: ViewModel): SubModel<EditIntentState>(EditIntentState(), viewModel) {
+class EditIntentModel(
+    override val viewModel: ViewModel
+): SubModel<EditIntentState>(EditIntentState()) {
 
     fun setIntentTiming(value: IntentTiming) {
         setState { it.copy(timing = value) }

@@ -7,8 +7,9 @@ import ponder.steps.db.QuestionDao
 import ponder.steps.db.StepId
 import ponder.steps.db.toEntity
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.QuestionId
 
-class LocalQuestionRepository(
+class QuestionSource(
     private val questionDao: QuestionDao = appDb.getQuestionDao(),
 ): QuestionRepository {
 
@@ -23,6 +24,8 @@ class LocalQuestionRepository(
     override fun flowQuestionsByStepId(stepId: String): Flow<List<Question>> = questionDao.flowQuestionsByStepId(stepId)
 
     override fun flowPathQuestionsByTrekId(trekId: String) = questionDao.flowPathQuestionsByTrekId(trekId)
+
+    suspend fun readQuestionById(questionId: QuestionId) = questionDao.readQuestionById(questionId)
 
     fun flowRootQuestions(start: Instant) = questionDao.flowRootQuestions(start)
 
