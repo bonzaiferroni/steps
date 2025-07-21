@@ -17,12 +17,12 @@ import kotlin.time.Duration.Companion.milliseconds
 @Database(
     entities = [
         Sprite::class,
-        StepEntity::class, PathStepEntity::class,
+        StepEntity::class, PathStepEntity::class, PathJumpEntity::class,
         IntentEntity::class, TrekEntity::class, TrekPoint::class,
         StepLogEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncLog::class,
         TagEntity::class, StepTagEntity::class,
-    ], version = 66
+    ], version = 67
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -30,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getSpriteDao(): SpriteDao
     abstract fun getStepDao(): StepDao
     abstract fun getPathStepDao(): PathStepDao
+    abstract fun getPathJumpDao(): PathJumpDao
     abstract fun getIntentDao(): IntentDao
     abstract fun getTrekDao(): TrekDao
     abstract fun getQuestionDao(): QuestionDao

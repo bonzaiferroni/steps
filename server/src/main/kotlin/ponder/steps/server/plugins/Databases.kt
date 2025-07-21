@@ -39,7 +39,8 @@ val dbTables = listOf(
     TagTable,
     StepTagTable,
     OriginSyncTable,
-    DeletionTable
+    DeletionTable,
+    PathJumpTable,
 )
 
 //CREATE DATABASE example_db;

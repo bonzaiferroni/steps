@@ -2,6 +2,7 @@ package ponder.steps.model.data
 
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
 
 @Serializable
 data class Question(

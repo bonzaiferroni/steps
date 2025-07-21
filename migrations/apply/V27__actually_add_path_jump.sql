@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS path_jump (id uuid PRIMARY KEY, from_path_step_id uuid NOT NULL, to_path_step_id uuid NOT NULL, question_id uuid NOT NULL, "value" TEXT NULL, CONSTRAINT fk_path_jump_from_path_step_id__id FOREIGN KEY (from_path_step_id) REFERENCES path_step(id) ON DELETE CASCADE ON UPDATE RESTRICT, CONSTRAINT fk_path_jump_to_path_step_id__id FOREIGN KEY (to_path_step_id) REFERENCES path_step(id) ON DELETE CASCADE ON UPDATE RESTRICT, CONSTRAINT fk_path_jump_question_id__id FOREIGN KEY (question_id) REFERENCES question(id) ON DELETE CASCADE ON UPDATE RESTRICT);
+ALTER TABLE step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE path_step ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE intent ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE trek ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE question ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE step_log ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE answer ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
+ALTER TABLE step_tag ALTER COLUMN sync_at TYPE TIMESTAMP, ALTER COLUMN sync_at SET DEFAULT '2025-07-21 20:15:47'::timestamp without time zone;
