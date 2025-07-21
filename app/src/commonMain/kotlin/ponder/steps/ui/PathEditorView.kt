@@ -1,8 +1,5 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -12,14 +9,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Drone
@@ -51,8 +40,8 @@ fun PathEditorView(
     val pathStep = pathContextState.step ?: return
 
     QuestionEditorCloud(
-        questionId = editorState.editQuestionId,
-        onDismiss = { viewModel.setEditQuestion(null) },
+        request = editorState.editQuestionRequest,
+        onDismiss = { viewModel.setEditQuestionRequest(null) },
     )
 
     LazyColumn(1, Alignment.CenterHorizontally) {
@@ -68,6 +57,7 @@ fun PathEditorView(
         itemsIndexed(pathContextState.steps, key = { index, step -> step.pathStepId ?: step.id }) { index, step ->
             PathEditorItem(
                 step = step,
+                index = index,
                 isSelected = editorState.selectedStepId == step.id,
                 isLastStep = (step.position ?: 0) == pathStep.pathSize - 1,
                 viewModel = viewModel

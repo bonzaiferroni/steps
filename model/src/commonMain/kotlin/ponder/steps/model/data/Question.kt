@@ -16,3 +16,14 @@ data class Question(
 ): SyncRecord
 
 typealias QuestionId = String
+
+fun Question.Companion.forStep(stepId: StepId) = Question(
+    id = "",
+    stepId = stepId,
+    text = "",
+    type = DataType.String,
+    minValue = null,
+    maxValue = null,
+    audioUrl = null,
+    updatedAt = Instant.DISTANT_PAST
+)

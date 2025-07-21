@@ -1,14 +1,16 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
+import kabinet.utils.randomUuidStringId
 import kotlinx.coroutines.launch
 import ponder.steps.io.QuestionSource
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.QuestionId
+import ponder.steps.model.data.StepId
+import ponder.steps.model.data.forStep
 import pondui.ui.core.StateModel
 
 class QuestionEditorModel(
-    questionId: QuestionId,
     val questionSource: QuestionSource = QuestionSource(),
     val speechService: SpeechService = SpeechService(),
 ): StateModel<QuestionEditorState>(QuestionEditorState()) {
@@ -18,15 +20,26 @@ class QuestionEditorModel(
 
     private val questionNow get() = stateNow.question ?: error("missing question")
 
-    init {
-        viewModelScope.launch {
-            val question = questionSource.readQuestionById(questionId)
-            setState { it.copy(
-                question = question,
-                minValue = question.minValue?.toString(),
-                maxValue = question.maxValue?.toString(),
-            ) }
+    fun setParameters(request: EditQuestionRequest) {
+        val questionId = request.questionId; val stepId = request.stepId
+        if (!questionId.isEmpty()) {
+            viewModelScope.launch {
+                val question = questionSource.readQuestionById(questionId)
+                initializeState(question)
+            }
+        } else {
+            initializeState(Question.forStep(stepId))
         }
+    }
+
+    private fun initializeState(question: Question) {
+        setState { it.copy(
+            question = question,
+            minValue = question.minValue?.toString(),
+            maxValue = question.maxValue?.toString(),
+            isFinished = false,
+            generateAudio = true
+        ) }
     }
 
     fun dispatch(action: QuestionEditorAction) {
@@ -68,7 +81,14 @@ class QuestionEditorModel(
                 }
             }
 
-            questionSource.updateQuestion(questionNow)
+            if (questionNow.id.isBlank()) {
+                val id = randomUuidStringId()
+                questionSource.createQuestion(questionNow.copy(
+                    id = id
+                ))
+            } else {
+                questionSource.updateQuestion(questionNow)
+            }
             setState { it.copy(isFinished = true)}
         }
     }
@@ -87,6 +107,15 @@ data class QuestionEditorState(
     val minValue: String? = null,
     val maxValue: String? = null,
 )
+
+data class EditQuestionRequest(
+    val questionId: QuestionId,
+    val stepId: StepId,
+) {
+    companion object {
+        fun newQuestionRequest(stepId: StepId) = EditQuestionRequest("", stepId)
+    }
+}
 
 sealed interface QuestionEditorAction
 object AcceptQuestionEdit: QuestionEditorAction

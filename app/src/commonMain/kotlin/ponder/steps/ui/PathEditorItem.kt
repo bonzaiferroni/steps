@@ -1,6 +1,7 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,8 @@ import compose.icons.tablericons.QuestionMark
 import compose.icons.tablericons.Trash
 import ponder.steps.PathEditorRoute
 import ponder.steps.model.data.Step
+import pondui.ui.behavior.AlignX
+import pondui.ui.behavior.drawLabel
 import pondui.ui.behavior.focusable
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.selected
@@ -44,6 +47,7 @@ import pondui.utils.darken
 @Composable
 fun LazyItemScope.PathEditorItem(
     step: Step,
+    index: Int,
     isSelected: Boolean,
     isLastStep: Boolean,
     viewModel: PathEditorModel,
@@ -57,13 +61,16 @@ fun LazyItemScope.PathEditorItem(
     val questions = pathContextState.questions[step.id]
     Column(
         modifier = Modifier.animateItem()
+            .selected(isSelected, radius = Pond.ruler.defaultCorner)
+            .clip(Pond.ruler.defaultCorners)
+            .background(Pond.colors.void.copy(.2f))
+            .padding(Pond.ruler.unitSpacing)
             .focusable { state ->
                 when (state.isFocused) {
                     true -> viewModel.setFocus(step.id)
                     false -> viewModel.setFocus(null)
                 }
             }
-            .selected(isSelected, radius = Pond.ruler.unitCorner)
             .actionable(
                 onHover = { isHovered = it },
                 isIndicated = false,
@@ -80,6 +87,7 @@ fun LazyItemScope.PathEditorItem(
                         url = step.thumbUrl,
                         modifier = Modifier.fillMaxWidth()
                             .padding(StepLineStrokeWidth * 2)
+                            .drawLabel("step ${index + 1}", alignX = AlignX.Center)
                             .clip(CircleShape)
                     )
                 }
@@ -156,7 +164,7 @@ fun LazyItemScope.PathEditorItem(
                 ) {
                     // question controls
                     Text(question.text, modifier = Modifier.weight(1f))
-                    IconButton(TablerIcons.Edit) { viewModel.setEditQuestion(question.id) }
+                    IconButton(TablerIcons.Edit) { viewModel.setEditQuestionRequest(EditQuestionRequest(question.id, step.id)) }
                 }
             }
         }
@@ -179,6 +187,11 @@ fun LazyItemScope.PathEditorItem(
                         isEnabled = showControls,
                     ) { nav.go(PathEditorRoute(step.id)) }
                 }
+
+                Button(
+                    text = "Add Question",
+                    isEnabled = showControls
+                ) { viewModel.setEditQuestionRequest(EditQuestionRequest.newQuestionRequest(step.id)) }
 
                 Button(
                     imageVector = TablerIcons.Trash,

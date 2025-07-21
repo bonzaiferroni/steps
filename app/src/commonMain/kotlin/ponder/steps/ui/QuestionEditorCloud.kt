@@ -20,6 +20,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.QuestionId
+import ponder.steps.model.data.StepId
 import pondui.LocalWavePlayer
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.drawLabel
@@ -38,17 +39,20 @@ import pondui.ui.theme.Pond
 
 @Composable
 fun QuestionEditorCloud(
-    questionId: QuestionId?,
+    request: EditQuestionRequest?,
     onDismiss: () -> Unit,
 ) {
     TitleCloud(
         title = "Edit Question",
-        isVisible = questionId != null,
+        isVisible = request != null,
         onDismiss = onDismiss
     ) {
-        MagicItem(questionId) {
-            if (questionId != null) {
-                QuestionEditorView(questionId, onDismiss)
+        MagicItem(request) {
+            if (request != null) {
+                QuestionEditorView(
+                    request = request,
+                    onDismiss = onDismiss
+                )
             }
         }
     }
@@ -56,12 +60,17 @@ fun QuestionEditorCloud(
 
 @Composable
 fun QuestionEditorView(
-    questionId: QuestionId,
+    request: EditQuestionRequest,
     onDismiss: () -> Unit,
-    viewModel: QuestionEditorModel = viewModel(key = questionId) { QuestionEditorModel(questionId) }
+    viewModel: QuestionEditorModel = viewModel { QuestionEditorModel() }
 ) {
     val state by viewModel.state.collectAsState()
     val wavePlayer = LocalWavePlayer.current
+
+    LaunchedEffect(request) {
+        viewModel.setParameters(request)
+    }
+
     val question = state.question ?: return
     val dispatch = viewModel::dispatch
 
@@ -73,8 +82,8 @@ fun QuestionEditorView(
         TextField(
             text = question.text,
             placeholder = "Question text",
-            modifier = Modifier.fillMaxWidth()
-                .drawLabel("question text"),
+            modifier = Modifier.fillMaxWidth(),
+            label = "question text",
             minLines = 2
         ) { dispatch(EditQuestion(question.copy(text = it))) }
         Row(1) {
@@ -91,7 +100,6 @@ fun QuestionEditorView(
                     label = "min value",
                     onTextChanged = { dispatch(EditQuestionMinValue(it)) },
                     placeholder = "optional",
-                    color = Pond.colors.secondary,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -100,7 +108,6 @@ fun QuestionEditorView(
                     label = "max value",
                     onTextChanged = { dispatch(EditQuestionMaxValue(it)) },
                     placeholder = "optional",
-                    color = Pond.colors.secondary,
                     modifier = Modifier.weight(1f)
                 )
             }

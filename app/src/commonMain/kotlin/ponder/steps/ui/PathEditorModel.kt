@@ -118,14 +118,7 @@ class PathEditorModel(
         pathContext.setState { it.copy(step = step.copy(description = "")) }
     }
 
-    fun acceptQuestionEdit(question: Question) {
-        viewModelScope.launch {
-            questionRepo.updateQuestion(question)
-            setEditQuestion(null)
-        }
-    }
-
-    fun setEditQuestion(questionId: QuestionId?) = setState { it.copy(editQuestionId = questionId) }
+    fun setEditQuestionRequest(request: EditQuestionRequest?) = setState { it.copy(editQuestionRequest = request) }
 
     fun deleteQuestion(question: Question) {
         viewModelScope.launch {
@@ -138,5 +131,5 @@ data class PathMapState(
     val selectedStepId: String? = null,
     val suggestions: List<StepWithDescription> = emptyList(),
     val isAddingStep: Boolean = false,
-    val editQuestionId: QuestionId? = null,
+    val editQuestionRequest: EditQuestionRequest? = null
 )
