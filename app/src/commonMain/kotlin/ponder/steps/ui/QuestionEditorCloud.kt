@@ -1,36 +1,21 @@
 package ponder.steps.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.PlayerPlay
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import ponder.steps.model.data.DataType
-import ponder.steps.model.data.Question
-import ponder.steps.model.data.QuestionId
-import ponder.steps.model.data.StepId
 import pondui.LocalWavePlayer
 import pondui.ui.behavior.MagicItem
-import pondui.ui.behavior.drawLabel
 import pondui.ui.controls.Button
-import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
 import pondui.ui.controls.DropMenu
-import pondui.ui.controls.EditText
 import pondui.ui.controls.Expando
-import pondui.ui.controls.Label
 import pondui.ui.controls.LabeledCheckbox
 import pondui.ui.controls.Row
 import pondui.ui.controls.TextField
@@ -65,7 +50,12 @@ fun QuestionEditorView(
     viewModel: QuestionEditorModel = viewModel { QuestionEditorModel() }
 ) {
     val state by viewModel.state.collectAsState()
+    val messengerState by viewModel.messengerState.collectAsState()
     val wavePlayer = LocalWavePlayer.current
+
+    LaunchedEffect(messengerState.toast) {
+
+    }
 
     LaunchedEffect(request) {
         viewModel.setParameters(request)

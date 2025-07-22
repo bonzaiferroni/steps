@@ -10,20 +10,24 @@ class MessengerModel(
 ) : SubModel<MessengerState>(MessengerState()) {
 
     fun setMessage(text: String) {
-        setState { it.copy(messageType = MessageType.Default, message = text) }
+        setState { it.copy(Toast(text, ToastType.Default)) }
     }
 
     fun setError(text: String) {
-        setState { it.copy(messageType = MessageType.Error, message = text) }
+        setState { it.copy(toast = Toast(text, ToastType.Error)) }
     }
 }
 
 data class MessengerState(
-    val messageType: MessageType = MessageType.Default,
-    val message: String? = null
+    val toast: Toast? = null
 )
 
-enum class MessageType {
+enum class ToastType {
     Default,
     Error,
 }
+
+data class Toast(
+    val content: String,
+    val type: ToastType,
+)

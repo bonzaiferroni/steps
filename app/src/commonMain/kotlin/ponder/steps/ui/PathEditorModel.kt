@@ -29,7 +29,7 @@ class PathEditorModel(
 
     private val pathContext = PathContextModel(this)
     val pathContextFlow get() = pathContext.state
-    val contextStep get() = pathContext.stateNow.step
+    private val contextStep get() = pathContext.stateNow.step
 
     fun setParameters(pathId: StepId) {
         pathContext.setParameters(pathId)
@@ -133,3 +133,5 @@ data class PathMapState(
     val isAddingStep: Boolean = false,
     val editQuestionRequest: EditQuestionRequest? = null
 )
+
+sealed interface PathEditorAction
