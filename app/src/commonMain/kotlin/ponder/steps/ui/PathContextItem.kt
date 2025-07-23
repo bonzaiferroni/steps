@@ -2,9 +2,12 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
@@ -17,14 +20,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.ArrowUp
+import compose.icons.tablericons.Circle
 import compose.icons.tablericons.Edit
+import compose.icons.tablericons.Point
 import compose.icons.tablericons.QuestionMark
 import compose.icons.tablericons.Trash
 import ponder.steps.PathEditorRoute
+import ponder.steps.StepProfileRoute
 import ponder.steps.model.data.Step
 import pondui.ui.behavior.AlignX
 import pondui.ui.behavior.drawLabel
@@ -60,8 +68,7 @@ fun LazyItemScope.PathContextItem(
     Column(
         modifier = Modifier.animateItem()
             .selected(isSelected, radius = Pond.ruler.defaultCorner)
-            .clip(Pond.ruler.defaultCorners)
-            .background(Pond.colors.void.copy(.2f))
+            // .background(Pond.colors.void.copy(.2f))
             .padding(Pond.ruler.unitSpacing)
             .focusable { state ->
                 when (state.isFocused) {
@@ -116,10 +123,23 @@ fun LazyItemScope.PathContextItem(
                     StepLineFiller(modifier = Modifier.drawBehind {
                         drawStepBranch(animatedLineColor, isLastStep)
                     })
-                }
+                },
+                spacingUnits = 0,
             ) {
-                Text("${step.pathSize} steps")
-                IconButton(TablerIcons.ArrowRight) { nav.go(PathEditorRoute(step.id)) }
+                Row(
+                    spacingUnits = 0,
+                ) {
+                   repeat(minOf(8, step.pathSize)) {
+                       Icon(
+                           imageVector = TablerIcons.Point,
+                           modifier = Modifier.drawBehind {
+                               drawStepCircle(animatedLineColor)
+                           },
+                       )
+                   }
+                }
+                // Text("${step.pathSize} steps")
+                IconButton(TablerIcons.ArrowRight) { nav.go(StepProfileRoute(step.id)) }
             }
         }
         if (questions != null) {
@@ -141,5 +161,11 @@ fun LazyItemScope.PathContextItem(
                 }
             }
         }
+        Box(
+            modifier = stepLineSegmentModifier
+                .drawBehind {
+                    drawTail(animatedLineColor, !isLastStep)
+                }
+        )
     }
 }

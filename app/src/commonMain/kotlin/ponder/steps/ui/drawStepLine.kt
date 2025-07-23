@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 val StepLineColumnWidth = 72.dp
 val StepLineStrokeWidth = 3.dp
 
-private val stepLineSegmentModifier = Modifier.width(StepLineColumnWidth)
+val stepLineSegmentModifier = Modifier.width(StepLineColumnWidth)
 
 @Composable
 fun StepLineSegment(
@@ -81,6 +81,9 @@ fun DrawScope.drawStepBranch(
             midX + r, midY                      // end at right‑middle
         )
 
+        lineTo(size.width, midY)
+        moveTo(midX + r, midY)
+
         if (!isLastStep) {
             // inward bulge → bottom at midY + r
             cubicTo(
@@ -110,5 +113,22 @@ fun DrawScope.drawStepCircle(
         color = color,
         radius = radius,
         style = Stroke(width = lineWidthPx)
+    )
+}
+
+fun DrawScope.drawTail(
+    color: Color,
+    isContinued: Boolean
+) {
+    if (!isContinued) return
+
+    val tailLength = 40f
+    val x = size.width / 2
+    drawLine(
+        color = color,
+        start = Offset(x, 0f),
+        end = Offset(x, tailLength),
+        strokeWidth = StepLineStrokeWidth.toPx(),
+        cap = StrokeCap.Round
     )
 }

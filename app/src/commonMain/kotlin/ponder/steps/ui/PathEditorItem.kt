@@ -2,6 +2,7 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,7 @@ import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.ArrowUp
 import compose.icons.tablericons.Edit
+import compose.icons.tablericons.Point
 import compose.icons.tablericons.QuestionMark
 import compose.icons.tablericons.Trash
 import ponder.steps.PathEditorRoute
@@ -63,8 +65,8 @@ fun LazyItemScope.PathEditorItem(
     Column(
         modifier = Modifier.animateItem()
             .selected(isSelected, radius = Pond.ruler.defaultCorner)
-            .clip(Pond.ruler.defaultCorners)
-            .background(Pond.colors.void.copy(.2f))
+            // .clip(Pond.ruler.defaultCorners)
+            // .background(Pond.colors.void.copy(.2f))
             .padding(Pond.ruler.unitSpacing)
             .focusable { state ->
                 when (state.isFocused) {
@@ -145,9 +147,21 @@ fun LazyItemScope.PathEditorItem(
                     StepLineFiller(modifier = Modifier.drawBehind {
                         drawStepBranch(animatedLineColor, isLastStep)
                     })
-                }
+                },
+                spacingUnits = 0
             ) {
-                Text("${step.pathSize} steps")
+                Row(
+                    spacingUnits = 0,
+                ) {
+                    repeat(minOf(8, step.pathSize)) {
+                        Icon(
+                            imageVector = TablerIcons.Point,
+                            modifier = Modifier.drawBehind {
+                                drawStepCircle(animatedLineColor)
+                            },
+                        )
+                    }
+                }
                 IconButton(TablerIcons.ArrowRight) { nav.go(PathEditorRoute(step.id)) }
             }
         }
@@ -203,5 +217,11 @@ fun LazyItemScope.PathEditorItem(
                 ) { viewModel.removeStepFromPath(step) }
             }
         }
+        Box(
+            modifier = stepLineSegmentModifier
+                .drawBehind {
+                    drawTail(animatedLineColor, !isLastStep)
+                }
+        )
     }
 }

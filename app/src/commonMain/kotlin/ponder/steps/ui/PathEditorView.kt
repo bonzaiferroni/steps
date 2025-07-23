@@ -1,5 +1,6 @@
 package ponder.steps.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -92,6 +93,7 @@ fun PathEditorView(
             } else {
                 NewQuestionRow(
                     newStepLabel = state.newStepLabel,
+                    isLastPosition = state.newStepPosition == null,
                     viewModel = viewModel
                 )
             }
@@ -121,10 +123,12 @@ fun PathEditorView(
 @Composable
 fun LazyItemScope.NewQuestionRow(
     newStepLabel: String,
+    isLastPosition: Boolean,
     viewModel: PathEditorModel,
 ) {
-    Row(
-        spacingUnits = 1,
+    val lineColor = Color.Green
+    Column(
+        spacingUnits = 0,
         modifier = Modifier.fillMaxWidth()
             .animateItem()
             .padding(Pond.ruler.unitPadding),
@@ -134,7 +138,7 @@ fun LazyItemScope.NewQuestionRow(
             lineSlot = {
                 StepLineSegment(
                     modifier = Modifier.drawBehind {
-                        drawStepCircle(Color.Green)
+                        drawStepCircle(lineColor)
                     }
                 ) {
                     StepImage(
@@ -171,5 +175,11 @@ fun LazyItemScope.NewQuestionRow(
                 ) { viewModel.moveNewStep(1) }
             }
         }
+        Box(
+            modifier = stepLineSegmentModifier
+                .drawBehind {
+                    drawTail(lineColor, !isLastPosition)
+                }
+        )
     }
 }

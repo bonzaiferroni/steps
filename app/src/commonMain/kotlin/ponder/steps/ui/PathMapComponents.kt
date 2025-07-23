@@ -16,11 +16,12 @@ private val pathMapLineColumnModifier = Modifier.fillMaxHeight()
 @Composable
 fun PathMapItemPart(
     lineSlot: @Composable () -> Unit,
+    spacingUnits: Int = 1,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     content: @Composable RowScope.() -> Unit,
 ) {
     Row(
-        spacingUnits = 1,
+        spacingUnits = spacingUnits,
         modifier = pathMapItemRowModifier,
         verticalAlignment = verticalAlignment,
     ) {
