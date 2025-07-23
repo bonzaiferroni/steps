@@ -93,12 +93,12 @@ class PathEditorModel(
         }
     }
 
-    private suspend fun createStep(label: String, description: String? = null) {
+    private suspend fun createStep(label: String, description: String? = null, position: Int? = null) {
         val path = contextStep ?: return
         val stepId = stepRepo.createStep(NewStep(
             pathId = path.id,
             label = label,
-            position = stateNow.newStepPosition,
+            position = position,
             description = description
         ))
         val theme = path.theme ?: valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
@@ -129,7 +129,7 @@ class PathEditorModel(
 
     fun addNewStep(value: String) {
         viewModelScope.launch {
-            createStep(value, null)
+            createStep(value, null, stateNow.newStepPosition)
             setState { it.copy(newStepLabel = "") }
         }
     }
