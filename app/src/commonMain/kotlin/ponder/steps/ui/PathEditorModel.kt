@@ -18,6 +18,7 @@ import ponder.steps.model.data.StepWithDescription
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 @Stable
 class PathEditorModel(
@@ -27,9 +28,9 @@ class PathEditorModel(
     val questionRepo: QuestionSource = QuestionSource()
 ): StateModel<PathMapState>(PathMapState()) {
 
-    private val pathContext = PathContextModel(this)
-    val pathContextFlow get() = pathContext.state
-    private val contextStep get() = pathContext.stateNow.step
+    private val pathContextState = ViewState(PathContextState())
+    val pathContext = PathContextModel(this, pathContextState)
+    private val contextStep get() = pathContextState.value.step
 
     fun setParameters(pathId: StepId) {
         pathContext.setParameters(pathId)
@@ -69,7 +70,7 @@ class PathEditorModel(
 
     fun suggestNextStep() {
         val path = contextStep ?: return
-        val steps = pathContext.stateNow.steps
+        val steps = pathContextState.value.steps
         viewModelScope.launch {
             val response = aiClient.suggestStep(StepSuggestRequest(
                 pathLabel = path.label,
@@ -115,7 +116,7 @@ class PathEditorModel(
 
     fun addDescription() {
         val step = contextStep ?: error("missing step")
-        pathContext.setState { it.copy(step = step.copy(description = "")) }
+        pathContextState.setValue { it.copy(step = step.copy(description = "")) }
     }
 
     fun setEditQuestionRequest(request: EditQuestionRequest?) = setState { it.copy(editQuestionRequest = request) }

@@ -31,7 +31,7 @@ fun PathEditorView(
     viewModel: PathEditorModel = viewModel { PathEditorModel() }
 ) {
     val editorState by viewModel.state.collectAsState()
-    val pathContextState by viewModel.pathContextFlow.collectAsState()
+    val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
 
     LaunchedEffect(pathId) {
         viewModel.setParameters(pathId)

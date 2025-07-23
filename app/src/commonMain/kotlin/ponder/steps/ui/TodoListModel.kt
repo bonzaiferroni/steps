@@ -17,6 +17,7 @@ import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepStatus
 import ponder.steps.model.data.TrekId
 import pondui.ui.core.SubModel
+import pondui.ui.core.ViewState
 
 @Stable
 class TodoListModel(
@@ -24,7 +25,9 @@ class TodoListModel(
     private val trekPath: TrekPath?,
     private val navToTrekPath: (TrekPath?, Boolean) -> Unit,
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
-) : SubModel<TodoListState>(TodoListState(trekPath == null)) {
+) : SubModel<TodoListState>() {
+
+    override val state = ViewState(TodoListState(trekPath == null))
 
     private var allSteps: List<TodoStep> = emptyList()
     var stepFilter: ((TodoStep) -> Boolean)? = null

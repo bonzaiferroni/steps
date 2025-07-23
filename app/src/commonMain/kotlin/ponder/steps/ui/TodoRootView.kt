@@ -27,7 +27,7 @@ fun TodoRootView(
     navToPath: (TrekPath?, Boolean) -> Unit,
 ) {
     val viewModel = viewModel { TodoRootModel(navToPath) }
-    val todoListState by viewModel.todoList.state.collectAsState()
+    val todoListState by viewModel.todoList.stateFlow.collectAsState()
     val state by viewModel.state.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {

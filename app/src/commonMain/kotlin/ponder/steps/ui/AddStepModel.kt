@@ -16,6 +16,7 @@ import ponder.steps.model.data.Step
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class AddStepModel(
     private val dismiss: () -> Unit,
@@ -26,7 +27,8 @@ class AddStepModel(
     private val aiClient: AiClient = AiClient(),
 ) : StateModel<AddIntentState>(AddIntentState()) {
 
-    val adjustIntent = EditIntentModel(this)
+    private val editIntentState = ViewState(EditIntentState())
+    val editIntent = EditIntentModel(this, editIntentState)
 
     init {
         setNewStepLabel("")
@@ -102,9 +104,9 @@ class AddStepModel(
             NewIntent(
                 rootId = stepId,
                 label = label,
-                repeatMins = adjustIntent.stateNow.repeatMinutes,
-                priority = adjustIntent.stateNow.priority,
-                scheduledAt = adjustIntent.stateNow.scheduledAt,
+                repeatMins = editIntentState.value.repeatMinutes,
+                priority = editIntentState.value.priority,
+                scheduledAt = editIntentState.value.scheduledAt,
                 pathIds = pathIds
             )
         )

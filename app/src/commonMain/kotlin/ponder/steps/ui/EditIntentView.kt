@@ -25,7 +25,7 @@ import pondui.ui.controls.TimeWheel
 fun EditIntentView(
     viewModel: EditIntentModel
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     Column(1, modifier = Modifier.fillMaxWidth()) {
         Label("Schedule")

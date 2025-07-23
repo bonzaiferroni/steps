@@ -9,13 +9,16 @@ import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.NewIntent
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class EditIntentCloudModel(
     private val dismiss: () -> Unit,
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository(),
 ): StateModel<EditIntentCloudState>(EditIntentCloudState()) {
-    val editIntent = EditIntentModel(this)
+
+    private val editIntentState = ViewState(EditIntentState())
+    val editIntent = EditIntentModel(this, editIntentState)
 
     fun setParameters(intentId: IntentId) {
         setState { it.copy(intent = null, imgUrl = null, label = null) }
@@ -31,7 +34,7 @@ class EditIntentCloudModel(
                 repeatMinutesToValueUnits(it)
             } ?: (null to TimeUnit.Hour)
 
-            editIntent.setState { it.copy(
+            editIntentState.setValue { it.copy(
                 timing = timing,
                 repeatValue = repeatValue,
                 repeatUnit = repeatUnit,
@@ -47,9 +50,9 @@ class EditIntentCloudModel(
         viewModelScope.launch {
             val isSuccess = intentRepo.updateIntent(
                 intent.copy(
-                    repeatMins = editIntent.stateNow.repeatMinutes,
-                    priority = editIntent.stateNow.priority,
-                    scheduledAt = editIntent.stateNow.scheduledAt,
+                    repeatMins = editIntentState.value.repeatMinutes,
+                    priority = editIntentState.value.priority,
+                    scheduledAt = editIntentState.value.scheduledAt,
                 )
             )
             if (isSuccess) dismiss()

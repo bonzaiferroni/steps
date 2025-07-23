@@ -15,8 +15,7 @@ class QuestionEditorModel(
     val speechService: SpeechService = SpeechService(),
 ): StateModel<QuestionEditorState>(QuestionEditorState()) {
 
-    private val messenger = MessengerModel(this)
-    val messengerState = messenger.state
+    val messenger = MessengerModel(this)
 
     private val questionNow get() = stateNow.question ?: error("missing question")
 
@@ -106,7 +105,9 @@ data class QuestionEditorState(
     val isFinished: Boolean = false,
     val minValue: String? = null,
     val maxValue: String? = null,
-)
+) {
+    val isTextError get() = question?.text?.isBlank() ?: false
+}
 
 data class EditQuestionRequest(
     val questionId: QuestionId,

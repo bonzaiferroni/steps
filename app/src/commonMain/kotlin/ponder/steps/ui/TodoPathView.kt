@@ -29,7 +29,7 @@ fun TodoPathView(
 ) {
     val viewModel = viewModel (key = trekPath.key) { TodoPathModel(trekPath, navToPath) }
     val state by viewModel.state.collectAsState()
-    val todoList by viewModel.todoList.state.collectAsState()
+    val todoList by viewModel.todoList.stateFlow.collectAsState()
 
     LaunchedEffect(isActive) {
         if (isActive) {

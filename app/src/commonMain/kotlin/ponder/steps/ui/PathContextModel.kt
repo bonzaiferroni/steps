@@ -9,12 +9,14 @@ import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import pondui.ui.core.SubModel
+import pondui.ui.core.ViewState
 
 class PathContextModel(
     override val viewModel: ViewModel,
+    override val state: ViewState<PathContextState>,
     val stepRepo: StepRepository = LocalStepRepository(),
     val questionRepo: QuestionSource = QuestionSource()
-): SubModel<PathContextState>(PathContextState()) {
+): SubModel<PathContextState>() {
 
     fun setParameters(pathId: StepId) {
         clearJobs()

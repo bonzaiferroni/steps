@@ -1,33 +1,50 @@
 package ponder.steps.ui
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import pondui.ui.core.SubModel
+import pondui.ui.core.ViewState
+import pondui.ui.nav.LocalPortal
+import pondui.ui.nav.Toast
+import pondui.ui.nav.ToastType
+import kotlin.time.Duration.Companion.seconds
+
+@Composable
+fun MessengerView(viewModel: MessengerModel) {
+    val state by viewModel.stateFlow.collectAsState()
+    val portal = LocalPortal.current
+
+    val toast = state.toast
+    LaunchedEffect(toast) {
+        if (toast != null) {
+            portal.toastPortalModel.setToast(toast)
+        }
+    }
+}
 
 @Stable
 class MessengerModel(
     override val viewModel: ViewModel
-) : SubModel<MessengerState>(MessengerState()) {
+) : SubModel<MessengerState>() {
 
-    fun setMessage(text: String) {
-        setState { it.copy(Toast(text, ToastType.Default)) }
+    override val state = ViewState(MessengerState())
+
+    fun setMessage(text: String, type: ToastType = ToastType.Default) {
+        val toast = Toast(text, type)
+        setState { it.copy(toast = toast) }
     }
 
     fun setError(text: String) {
-        setState { it.copy(toast = Toast(text, ToastType.Error)) }
+        setMessage(text, ToastType.Error)
     }
 }
 
 data class MessengerState(
     val toast: Toast? = null
-)
-
-enum class ToastType {
-    Default,
-    Error,
-}
-
-data class Toast(
-    val content: String,
-    val type: ToastType,
 )

@@ -48,7 +48,7 @@ fun AddStepCloud(
 ) {
     val viewModel = viewModel { AddStepModel(dismiss) }
     val state by viewModel.state.collectAsState()
-    val adjustIntentState by viewModel.adjustIntent.state.collectAsState()
+    val adjustIntentState by viewModel.editIntent.stateFlow.collectAsState()
 
     LaunchedEffect(createIntent, pathId) {
         viewModel.setParameters(createIntent, pathId)
@@ -135,7 +135,7 @@ fun AddStepCloud(
                     }
                 }
                 Tab("Adjust", state.createIntent) {
-                    EditIntentView(viewModel.adjustIntent)
+                    EditIntentView(viewModel.editIntent)
                 }
             }
         }

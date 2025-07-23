@@ -24,7 +24,7 @@ fun TodoListView(
     pathId: StepId?,
 //    branchStep: ((PathStepId?) -> Unit)?,
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     AddStepCloud(
         title = "Add step",

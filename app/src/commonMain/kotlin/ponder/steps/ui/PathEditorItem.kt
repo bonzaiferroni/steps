@@ -52,7 +52,7 @@ fun LazyItemScope.PathEditorItem(
     isLastStep: Boolean,
     viewModel: PathEditorModel,
 ) {
-    val pathContextState by viewModel.pathContextFlow.collectAsState()
+    val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
     val nav = LocalNav.current
     var isHovered by remember { mutableStateOf(false) }
     val showControls = isSelected || isHovered

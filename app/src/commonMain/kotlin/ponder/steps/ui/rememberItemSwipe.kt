@@ -12,7 +12,7 @@ import pondui.ui.core.StateScope
 
 //class ItemSwiper<T>: StateScope<ItemSwiperState<T>>(ItemSwiperState()) {
 //    fun setAnimation(value: Float) {
-//        setState { it.copy(animation = value) }
+//        setValue { it.copy(animation = value) }
 //    }
 //}
 //

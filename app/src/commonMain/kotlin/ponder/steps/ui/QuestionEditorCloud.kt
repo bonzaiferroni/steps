@@ -12,6 +12,7 @@ import compose.icons.tablericons.PlayerPlay
 import ponder.steps.model.data.DataType
 import pondui.LocalWavePlayer
 import pondui.ui.behavior.MagicItem
+import pondui.ui.behavior.selected
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.DropMenu
@@ -50,12 +51,9 @@ fun QuestionEditorView(
     viewModel: QuestionEditorModel = viewModel { QuestionEditorModel() }
 ) {
     val state by viewModel.state.collectAsState()
-    val messengerState by viewModel.messengerState.collectAsState()
     val wavePlayer = LocalWavePlayer.current
 
-    LaunchedEffect(messengerState.toast) {
-
-    }
+    MessengerView(viewModel.messenger)
 
     LaunchedEffect(request) {
         viewModel.setParameters(request)
@@ -68,11 +66,12 @@ fun QuestionEditorView(
         if (state.isFinished) onDismiss()
     }
 
-    Column(1) {
+    Column(2) {
         TextField(
             text = question.text,
             placeholder = "Question text",
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .selected(state.isTextError, Pond.colors.danger),
             label = "question text",
             minLines = 2
         ) { dispatch(EditQuestion(question.copy(text = it))) }
