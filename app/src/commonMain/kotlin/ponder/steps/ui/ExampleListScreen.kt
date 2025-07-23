@@ -12,7 +12,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun ExampleListScreen() {
     val viewModel: ExampleListModel = viewModel { ExampleListModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     Cloud(state.isCreatingItem, viewModel::toggleIsCreatingItem) {
         ControlSet {

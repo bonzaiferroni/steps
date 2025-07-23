@@ -25,7 +25,8 @@ class AddStepModel(
     private val intentRepo: IntentRepository = LocalIntentRepository(),
     private val valueRepo: ValueRepository = LocalValueRepository(),
     private val aiClient: AiClient = AiClient(),
-) : StateModel<AddIntentState>(AddIntentState()) {
+) : StateModel<AddIntentState>() {
+    override val state = ViewState(AddIntentState())
 
     private val editIntentState = ViewState(EditIntentState())
     val editIntent = EditIntentModel(this, editIntentState)

@@ -9,10 +9,12 @@ import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class PlanModel(
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
-) : StateModel<PlanState>(PlanState()) {
+) : StateModel<PlanState>() {
+    override val state = ViewState(PlanState())
 
     init {
         intentRepo.flowActiveIntents().launchCollect { intents ->

@@ -16,7 +16,7 @@ fun ExampleProfileScreen(
     route: ExampleProfileRoute,
     viewModel: ExampleProfileModel = viewModel { ExampleProfileModel(route) }
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     val example = state.example
     if (example == null) return
     Scaffold {

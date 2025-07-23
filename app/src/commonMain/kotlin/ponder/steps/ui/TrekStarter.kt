@@ -18,6 +18,7 @@ import ponder.steps.io.SyncAgent
 import ponder.steps.model.data.Intent
 import pondui.ui.core.StateModel
 import pondui.ui.core.SubModel
+import pondui.ui.core.ViewState
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
@@ -26,7 +27,9 @@ class TrekStarter(
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
     private val trekPointDao: TrekPointDao = appDb.getTrekPointDao()
-): StateModel<TrekStarterState>(TrekStarterState()) {
+): StateModel<TrekStarterState>() {
+
+    override val state = ViewState(TrekStarterState())
 
     private var intents: List<Intent> = emptyList()
     private var nextRefresh = Instant.DISTANT_PAST

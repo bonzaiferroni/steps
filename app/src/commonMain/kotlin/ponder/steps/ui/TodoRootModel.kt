@@ -16,6 +16,7 @@ import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.*
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class TodoRootModel(
     navToTrekPath: (TrekPath?, Boolean) -> Unit,
@@ -25,7 +26,9 @@ class TodoRootModel(
     private val questionRepo: QuestionSource = QuestionSource(),
     private val answerRepo: LocalAnswerRepository = LocalAnswerRepository(),
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
-) : StateModel<TodoRootState>(TodoRootState()) {
+) : StateModel<TodoRootState>() {
+
+    override val state = ViewState(TodoRootState())
 
     val todoList = TodoListModel(
         viewModel = this,

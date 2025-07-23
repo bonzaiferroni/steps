@@ -26,7 +26,8 @@ class PathEditorModel(
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
     val questionRepo: QuestionSource = QuestionSource()
-): StateModel<PathMapState>(PathMapState()) {
+): StateModel<PathMapState>() {
+    override val state = ViewState(PathMapState())
 
     private val pathContextState = ViewState(PathContextState())
     val pathContext = PathContextModel(this, pathContextState)

@@ -23,7 +23,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun PathsScreen() {
     val viewModel: PathsModel = viewModel { PathsModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     val nav = LocalNav.current
 
     HotKey(Key.NumPadAdd, viewModel::toggleAddingStep)

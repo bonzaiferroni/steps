@@ -28,7 +28,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun TodoScreen() {
     val viewModel = viewModel { TodoModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     val pagerState = rememberPagerState(pageCount = {
         10

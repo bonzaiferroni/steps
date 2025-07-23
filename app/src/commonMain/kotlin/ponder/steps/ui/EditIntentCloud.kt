@@ -25,7 +25,7 @@ fun EditIntentCloud(
     dismiss: () -> Unit
 ) {
     val viewModel = viewModel { EditIntentCloudModel(dismiss) }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     LaunchedEffect(intentId) {
         if (intentId != null) viewModel.setParameters(intentId)

@@ -15,7 +15,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.db.TimeUnit
 import pondui.ui.charts.LineChartArray
-import pondui.ui.charts.ChartConfig
 import pondui.ui.charts.AxisSide
 import pondui.ui.charts.BarChart
 import pondui.ui.charts.BarChartArray
@@ -25,7 +24,6 @@ import pondui.ui.charts.ChartBox
 import pondui.ui.charts.LineChart
 import pondui.ui.charts.LineChartConfig
 import pondui.ui.charts.SideAxisAutoConfig
-import pondui.ui.charts.TimeChart
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.MenuWheel
 import pondui.ui.controls.Row
@@ -37,7 +35,7 @@ import kotlin.time.Duration.Companion.hours
 @Composable
 fun StepActivityView(stepId: String) {
     val viewModel = viewModel { StepActivityModel(stepId) }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     LazyColumn(1) {
         item("controls") {

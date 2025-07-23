@@ -22,7 +22,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun FocusView() {
     val viewModel = viewModel { FocusModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     Column(1, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         val focus = state.focus

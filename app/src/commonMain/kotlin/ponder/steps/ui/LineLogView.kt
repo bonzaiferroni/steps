@@ -59,7 +59,7 @@ import kotlin.time.Duration.Companion.minutes
 @Composable
 fun LineLogView() {
     val viewModel = viewModel { LineLogModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.setParameters(Clock.startOfDay(), Clock.startOfDay() + 1.days)
     }

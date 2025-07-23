@@ -8,12 +8,15 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.TrekId
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class TodoModel(
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository()
-): StateModel<TodoState>(TodoState()) {
+): StateModel<TodoState>() {
+
+    override val state = ViewState(TodoState())
 
     fun navToPath(trekPath: TrekPath?, isDeeper: Boolean) {
         if (trekPath == null) {

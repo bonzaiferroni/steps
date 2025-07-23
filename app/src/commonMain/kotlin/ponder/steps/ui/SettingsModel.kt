@@ -4,14 +4,16 @@ import ponder.steps.model.data.SpeechVoice
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class SettingsModel(
     private val valueRepo: ValueRepository = LocalValueRepository()
-): StateModel<SettingsState>(SettingsState(
-    defaultImageTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME),
-    defaultAudioTheme = valueRepo.readString(SETTINGS_DEFAULT_AUDIO_THEME),
-    defaultVoice = valueRepo.readInt(SETTINGS_DEFAULT_VOICE).let { SpeechVoice.entries[it] }
-)) {
+): StateModel<SettingsState>() {
+    override val state = ViewState(SettingsState(
+        defaultImageTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME),
+        defaultAudioTheme = valueRepo.readString(SETTINGS_DEFAULT_AUDIO_THEME),
+        defaultVoice = valueRepo.readInt(SETTINGS_DEFAULT_VOICE).let { SpeechVoice.entries[it] }
+    ))
 
     fun setImageTheme(value: String) {
         setState { it.copy(defaultImageTheme = value) }

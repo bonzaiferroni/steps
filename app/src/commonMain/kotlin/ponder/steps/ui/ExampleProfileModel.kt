@@ -6,11 +6,13 @@ import ponder.steps.ExampleProfileRoute
 import ponder.steps.io.ExampleRepository
 import ponder.steps.model.data.Example
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class ExampleProfileModel(
     route: ExampleProfileRoute,
     private val store: ExampleRepository = ExampleRepository()
-): StateModel<ExampleProfileState>(ExampleProfileState()) {
+): StateModel<ExampleProfileState>() {
+    override val state = ViewState(ExampleProfileState())
     init {
         viewModelScope.launch {
             val example = store.readExample(route.exampleId)

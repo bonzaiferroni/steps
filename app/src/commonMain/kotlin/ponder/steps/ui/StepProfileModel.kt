@@ -22,6 +22,7 @@ import ponder.steps.model.data.TagId
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class StepProfileModel(
     route: StepProfileRoute,
@@ -30,7 +31,9 @@ class StepProfileModel(
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
     val tagRepo: LocalTagRepository = LocalTagRepository()
-): StateModel<StepProfileState>(StepProfileState()) {
+): StateModel<StepProfileState>() {
+
+    override val state = ViewState(StepProfileState())
 
     private val stepId: String = route.stepId
 

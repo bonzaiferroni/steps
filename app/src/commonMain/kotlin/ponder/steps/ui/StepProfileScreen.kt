@@ -36,7 +36,7 @@ fun StepProfileScreen(
     route: StepProfileRoute,
 ) {
     val viewModel = viewModel(key = route.stepId) { StepProfileModel(route) }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     val appWindow = LocalAppWindow.current
     val nav = LocalNav.current
 

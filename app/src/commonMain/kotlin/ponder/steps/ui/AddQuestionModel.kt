@@ -14,6 +14,7 @@ import ponder.steps.model.data.SpeechVoice
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 
 class AddQuestionModel(
@@ -21,7 +22,8 @@ class AddQuestionModel(
     private val questionRepo: QuestionRepository = QuestionSource(),
     private val aiClient: AiClient = AiClient(),
     private val valueRepo: ValueRepository = LocalValueRepository(),
-) : StateModel<AddQuestionState>(AddQuestionState()) {
+) : StateModel<AddQuestionState>() {
+    override val state = ViewState(AddQuestionState())
 
     init {
         setQuestionText("")
@@ -134,4 +136,3 @@ data class AddQuestionState(
     val isValidQuestion: Boolean
         get() = questionText.isNotEmpty() && stepId != null
 }
-

@@ -15,7 +15,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun SettingsScreen() {
     val viewModel = viewModel { SettingsModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     Scaffold {
         Label("Default image theme")

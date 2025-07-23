@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.minutes
 @Composable
 fun PlanScreen() {
     val viewModel = viewModel { PlanModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     AddStepCloud(
         title = "Add step",

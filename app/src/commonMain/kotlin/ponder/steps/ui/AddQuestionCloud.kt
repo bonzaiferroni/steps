@@ -22,7 +22,7 @@ import pondui.ui.controls.TitleCloud
 @Composable
 fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
     val viewModel = viewModel { AddQuestionModel(dismiss) }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     // Set the stepId in the model
     viewModel.setStepId(stepId)

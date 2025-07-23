@@ -9,11 +9,13 @@ import ponder.steps.model.data.QuestionId
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.forStep
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class QuestionEditorModel(
     val questionSource: QuestionSource = QuestionSource(),
     val speechService: SpeechService = SpeechService(),
-): StateModel<QuestionEditorState>(QuestionEditorState()) {
+): StateModel<QuestionEditorState>() {
+    override val state = ViewState(QuestionEditorState())
 
     val messenger = MessengerModel(this)
 

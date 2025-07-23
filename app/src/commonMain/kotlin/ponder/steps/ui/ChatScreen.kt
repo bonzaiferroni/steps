@@ -18,7 +18,7 @@ import pondui.ui.controls.TextField
 @Composable
 fun ChatScreen() {
     val viewModel = viewModel { ChatModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     Scaffold {
         LazyColumn(1, modifier = Modifier.weight(1f)) {

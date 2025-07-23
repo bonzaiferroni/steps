@@ -6,10 +6,12 @@ import ponder.steps.io.ExampleRepository
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.NewExample
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class ExampleListModel(
     private val store: ExampleRepository = ExampleRepository()
-): StateModel<ExampleListState>(ExampleListState()) {
+): StateModel<ExampleListState>() {
+    override val state = ViewState(ExampleListState())
     init {
         refreshItems()
     }

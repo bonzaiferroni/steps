@@ -18,7 +18,7 @@ import pondui.ui.theme.Pond
 @Composable
 fun GeminiScreen() {
     val viewModel: GeminiModel = viewModel { GeminiModel() }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
 
     Scaffold {
         Column(1) {

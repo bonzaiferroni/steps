@@ -15,7 +15,8 @@ class EditIntentCloudModel(
     private val dismiss: () -> Unit,
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository(),
-): StateModel<EditIntentCloudState>(EditIntentCloudState()) {
+): StateModel<EditIntentCloudState>() {
+    override val state = ViewState(EditIntentCloudState())
 
     private val editIntentState = ViewState(EditIntentState())
     val editIntent = EditIntentModel(this, editIntentState)

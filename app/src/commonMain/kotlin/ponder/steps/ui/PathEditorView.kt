@@ -30,7 +30,7 @@ fun PathEditorView(
     pathId: StepId,
     viewModel: PathEditorModel = viewModel { PathEditorModel() }
 ) {
-    val editorState by viewModel.state.collectAsState()
+    val editorState by viewModel.stateFlow.collectAsState()
     val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
 
     LaunchedEffect(pathId) {

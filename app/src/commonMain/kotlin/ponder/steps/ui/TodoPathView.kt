@@ -12,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ponder.steps.model.data.StepId
-import ponder.steps.model.data.TrekId
 import pondui.ui.controls.Column
 import pondui.ui.controls.H2
 import pondui.ui.controls.ProgressBar
@@ -28,7 +26,7 @@ fun TodoPathView(
     navToPath: (TrekPath?, Boolean) -> Unit
 ) {
     val viewModel = viewModel (key = trekPath.key) { TodoPathModel(trekPath, navToPath) }
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     val todoList by viewModel.todoList.stateFlow.collectAsState()
 
     LaunchedEffect(isActive) {

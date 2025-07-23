@@ -5,10 +5,12 @@ import kotlinx.coroutines.launch
 import ponder.steps.io.TrekApiRepository
 import ponder.steps.model.data.Focus
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class FocusModel(
     private val journeyStore: TrekApiRepository = TrekApiRepository()
-) : StateModel<FocusState>(FocusState()) {
+) : StateModel<FocusState>() {
+    override val state = ViewState(FocusState())
 
     init {
         refreshFocus()

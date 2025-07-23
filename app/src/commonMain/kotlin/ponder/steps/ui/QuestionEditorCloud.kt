@@ -50,7 +50,7 @@ fun QuestionEditorView(
     onDismiss: () -> Unit,
     viewModel: QuestionEditorModel = viewModel { QuestionEditorModel() }
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     val wavePlayer = LocalWavePlayer.current
 
     MessengerView(viewModel.messenger)

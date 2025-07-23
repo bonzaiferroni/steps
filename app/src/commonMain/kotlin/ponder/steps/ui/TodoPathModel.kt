@@ -9,6 +9,7 @@ import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
+import pondui.ui.core.ViewState
 
 class TodoPathModel(
     private val trekPath: TrekPath,
@@ -18,7 +19,9 @@ class TodoPathModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
     private val questionsRepo: QuestionSource = QuestionSource(),
     private val answersRepo: LocalAnswerRepository = LocalAnswerRepository(),
-) : StateModel<TodoPathState>(TodoPathState()) {
+) : StateModel<TodoPathState>() {
+
+    override val state = ViewState(TodoPathState())
 
     val todoList = TodoListModel(
         viewModel = this,
