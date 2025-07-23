@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import pondui.ui.controls.Row
 
@@ -17,7 +18,11 @@ fun PathMapItemPart(
     lineSlot: @Composable () -> Unit,
     content: @Composable RowScope.() -> Unit,
 ) {
-    Row(spacingUnits = 1, modifier = pathMapItemRowModifier) {
+    Row(
+        spacingUnits = 1,
+        modifier = pathMapItemRowModifier,
+        verticalAlignment = Alignment.Top,
+    ) {
         Column(
             modifier = pathMapLineColumnModifier
         ) {

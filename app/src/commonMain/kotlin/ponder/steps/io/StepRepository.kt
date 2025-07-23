@@ -2,6 +2,7 @@ package ponder.steps.io
 
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Step
 
 interface StepRepository {
@@ -40,7 +41,7 @@ interface StepRepository {
      * @param delta The change in position (positive to move down, negative to move up)
      * @return True if the move was successful, false otherwise
      */
-    suspend fun moveStepPosition(pathId: String, stepId: String, delta: Int): Boolean
+    suspend fun moveStepPosition(pathStepId: PathStepId, delta: Int): Boolean
 
     /**
      * Delete a step.

@@ -83,12 +83,12 @@ class StepProfileModel(
         }
     }
 
-    fun moveStep(step: Step, delta: Int) {
-        val path = stateNow.step ?: return
-        viewModelScope.launch {
-            stepRepo.moveStepPosition(path.id, step.id, delta)
-        }
-    }
+//    fun moveStep(step: Step, delta: Int) {
+//        val path = stateNow.step ?: return
+//        viewModelScope.launch {
+//            stepRepo.moveStepPosition(path.id, step.id, delta)
+//        }
+//    }
 
     fun createStep() {
         if (!stateNow.isValidNewStep) return

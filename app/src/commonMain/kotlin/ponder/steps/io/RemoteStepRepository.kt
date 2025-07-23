@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.Api
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.PathStepId
 import pondui.io.ApiClient
 import pondui.io.globalApiClient
 
@@ -20,7 +21,7 @@ class RemoteStepRepository(private val client: ApiClient = globalApiClient): Ste
         TODO("Not yet implemented")
     }
 
-    override suspend fun moveStepPosition(pathId: String, stepId: String, delta: Int): Boolean {
+    override suspend fun moveStepPosition(pathStepId: PathStepId, delta: Int): Boolean {
         TODO("Not yet implemented")
     }
 

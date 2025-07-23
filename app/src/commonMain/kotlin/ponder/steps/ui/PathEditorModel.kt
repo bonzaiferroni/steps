@@ -10,7 +10,6 @@ import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Question
-import ponder.steps.model.data.QuestionId
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepSuggestRequest
@@ -26,8 +25,8 @@ class PathEditorModel(
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
     val questionRepo: QuestionSource = QuestionSource()
-): StateModel<PathMapState>() {
-    override val state = ViewState(PathMapState())
+): StateModel<PathEditorState>() {
+    override val state = ViewState(PathEditorState())
 
     private val pathContextState = ViewState(PathContextState())
     val pathContext = PathContextModel(this, pathContextState)
@@ -63,9 +62,9 @@ class PathEditorModel(
     }
 
     fun moveStep(step: Step, delta: Int) {
-        val path = contextStep ?: return
+        val pathStepId = step.pathStepId ?: error("Missing pathStepId")
         viewModelScope.launch {
-            stepRepo.moveStepPosition(path.id, step.id, delta)
+            stepRepo.moveStepPosition(pathStepId, delta)
         }
     }
 
@@ -99,7 +98,7 @@ class PathEditorModel(
         val stepId = stepRepo.createStep(NewStep(
             pathId = path.id,
             label = label,
-            position = null,
+            position = stateNow.newStepPosition,
             description = description
         ))
         val theme = path.theme ?: valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME)
@@ -127,13 +126,29 @@ class PathEditorModel(
             questionRepo.deleteQuestion(question)
         }
     }
+
+    fun addNewStep(value: String) {
+        viewModelScope.launch {
+            createStep(value, null)
+            setState { it.copy(newStepLabel = "") }
+        }
+    }
+
+    fun moveNewStep(positionDelta: Int) {
+        val pathSize = pathContextState.value.steps.size
+        val currentPosition = stateNow.newStepPosition ?: pathSize
+        val newPosition = maxOf(0, currentPosition + positionDelta)
+        setState { it.copy(newStepPosition = newPosition.takeIf { newPosition < pathSize })}
+    }
 }
 
-data class PathMapState(
+data class PathEditorState(
     val selectedStepId: String? = null,
     val suggestions: List<StepWithDescription> = emptyList(),
     val isAddingStep: Boolean = false,
-    val editQuestionRequest: EditQuestionRequest? = null
+    val editQuestionRequest: EditQuestionRequest? = null,
+    val newStepLabel: String = "",
+    val newStepPosition: Int? = null,
 )
 
 sealed interface PathEditorAction

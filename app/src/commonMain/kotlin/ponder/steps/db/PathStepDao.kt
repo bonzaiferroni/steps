@@ -9,6 +9,7 @@ import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.PathStep
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Step
 
 @Dao
@@ -66,7 +67,7 @@ interface PathStepDao {
     suspend fun readPathStep(pathId: String, stepId: String): PathStep
 
     @Query("SELECT * FROM PathStepEntity WHERE id = :pathStepId")
-    suspend fun readPathStep(pathStepId: String): PathStep?
+    suspend fun readPathStep(pathStepId: PathStepId): PathStep?
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId AND position = :position")
     suspend fun readPathStepByPosition(pathId: String, position: Int): PathStep?
@@ -82,4 +83,9 @@ interface PathStepDao {
 
     @Query("SELECT * FROM PathStepEntity WHERE pathId = :pathId")
     suspend fun readPathStepsByPathId(pathId: String): List<PathStep>
+
+    @Query("UPDATE PathStepEntity " +
+            "SET position = position + 1, updatedAt = CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER) " +
+            "WHERE pathId = :pathId AND position >= :position")
+    suspend fun incrementPositions(pathId: StepId, position: Int): Int
 }

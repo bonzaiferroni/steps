@@ -14,6 +14,7 @@ import ponder.steps.db.StepDao
 import ponder.steps.db.toEntity
 import ponder.steps.db.toStep
 import ponder.steps.model.data.NewStep
+import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import kotlin.uuid.ExperimentalUuidApi
@@ -72,8 +73,10 @@ class LocalStepRepository(
         return true
     }
 
-    private suspend fun addVerifiedStepToPath(pathId: String, stepId: String, position: Int?) {
+    private suspend fun addVerifiedStepToPath(pathId: StepId, stepId: String, position: Int?) {
         val pathPosition = position ?: stepDao.readFinalPosition(pathId)?.let { it + 1 } ?: 0
+
+        pathStepDao.incrementPositions(pathId, pathPosition)
 
         val pathStepId = randomUuidStringId()
         pathStepDao.insert(
@@ -123,14 +126,14 @@ class LocalStepRepository(
 
     override fun flowRootSteps(limit: Int) = stepDao.flowRootSteps(limit).map { list -> list.map { it.toStep() } }
 
-    override suspend fun moveStepPosition(pathId: String, stepId: String, delta: Int): Boolean {
+    override suspend fun moveStepPosition(pathStepId: PathStepId, delta: Int): Boolean {
         if (delta == 0) return false
-        val pathStep = pathStepDao.readPathStep(pathId, stepId)
+        val pathStep = pathStepDao.readPathStep(pathStepId) ?: return false
         val movedPosition = pathStep.position + delta
         if (movedPosition < 0) return false
-        val stepCount = pathStepDao.readPathStepCount(pathId)
+        val stepCount = pathStepDao.readPathStepCount(pathStep.pathId)
         if (movedPosition > stepCount - 1) return false
-        val displacedPathStep = pathStepDao.readPathStepByPosition(pathId, movedPosition) ?: return false
+        val displacedPathStep = pathStepDao.readPathStepByPosition(pathStep.pathId, movedPosition) ?: return false
         pathStepDao.setPositions(
             firstId = pathStep.id, firstPos = displacedPathStep.position,
             secondId = displacedPathStep.id, secondPos = pathStep.position,

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +48,6 @@ import pondui.utils.darken
 @Composable
 fun LazyItemScope.PathEditorItem(
     step: Step,
-    index: Int,
     isSelected: Boolean,
     isLastStep: Boolean,
     viewModel: PathEditorModel,
@@ -87,7 +87,7 @@ fun LazyItemScope.PathEditorItem(
                         url = step.thumbUrl,
                         modifier = Modifier.fillMaxWidth()
                             .padding(StepLineStrokeWidth * 2)
-                            .drawLabel("step ${index + 1}", alignX = AlignX.Center)
+                            .drawLabel("step ${(step.position ?: 0) + 1}", alignX = AlignX.Center)
                             .clip(CircleShape)
                     )
                 }
@@ -119,20 +119,21 @@ fun LazyItemScope.PathEditorItem(
 
             }
             // position controls
-            ControlSet(
-                maxItemsInEachRow = 1,
-                modifier = Modifier.padding(end = Pond.ruler.unitSpacing)
-                    .magic(showControls, scale = .8f)
+            Column(
+                spacingUnits = 0,
+                modifier = Modifier.magic(showControls, scale = .8f)
             ) {
-                ControlSetButton(
+                Button(
                     imageVector = TablerIcons.ArrowUp,
                     isEnabled = showControls && (step.position ?: 0) > 0,
-                    background = Pond.colors.secondary
+                    background = Pond.colors.secondary,
+                    shape = Pond.ruler.roundTop,
                 ) { viewModel.moveStep(step, -1) }
-                ControlSetButton(
+                Button(
                     imageVector = TablerIcons.ArrowDown,
                     isEnabled = showControls && (step.position ?: 0) < pathContextState.steps.size - 1,
-                    background = Pond.colors.secondary
+                    background = Pond.colors.secondary,
+                    shape = Pond.ruler.roundBottom
                 ) { viewModel.moveStep(step, 1) }
             }
         }
