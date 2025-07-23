@@ -37,123 +37,21 @@ fun StepProfileScreen(
 ) {
     val viewModel = viewModel(key = route.stepId) { StepProfileModel(route) }
     val state by viewModel.stateFlow.collectAsState()
-    val appWindow = LocalAppWindow.current
+    val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
     val nav = LocalNav.current
 
-    val profileStep = state.step ?: return
+    val profileStep = pathContextState.step ?: return
 
     profileStep.audioLabelUrl?.let {
         // PlayWave("http://localhost:8080/${it}")
     }
 
-    TitleCloud("Add a step to ${state.step?.label ?: "path"}", state.isAddingStep, viewModel::toggleAddingStep) {
-        Column(
-            spacingUnits = 1,
-            modifier = Modifier.height(400.dp)
-                .widthIn(max = 300.dp)
-                .fillMaxWidth()
-        ) {
-            ControlSet(modifier = Modifier.fillMaxWidth()) {
-                TextField(
-                    text = state.newStepLabel,
-                    onTextChanged = viewModel::setNewStepLabel,
-                    placeholder = "Enter step name",
-                    modifier = Modifier.weight(1f)
-                        .takeInitialFocus()
-                        .onEnterPressed(viewModel::createStep)
-                )
-                ControlSetButton("Add", onClick = viewModel::createStep)
-            }
-            Label("Similar Steps:")
-            LazyColumn {
-                items(state.similarSteps, key = { it.id }) { step ->
-                    StepRow(step, modifier = Modifier.actionable { viewModel.addSimilarStep(step) })
-                }
-            }
-        }
-    }
-
-    AddQuestionCloud(
-        title = "Add a question",
-        stepId = if (state.isAddingQuestion) profileStep.id else null,
-        dismiss = viewModel::toggleAddingQuestion
-    )
-
     Column(1, horizontalAlignment = Alignment.CenterHorizontally) {
         TopBarSpacer()
 
-        if (appWindow.widthSizeClass == WindowSizeClass.Compact) {
-            Box(
-                modifier = Modifier.clip(Pond.ruler.defaultCorners)
-                    .magic(offsetX = (-20).dp)
-            ) {
-                // feature image
-                StepImage(
-                    url = profileStep.imgUrl,
-                    modifier = Modifier.fillMaxWidth()
-                        .aspectRatio(1f)
-                )
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(.6f))
-                ) {
-                    // label
-                    EditText(
-                        text = profileStep.label,
-                        placeholder = "Step label",
-                        style = Pond.typo.h1.addShadow(),
-                        modifier = Modifier.padding(Pond.ruler.unitPadding)
-                    ) { viewModel.editStep(profileStep.copy(label = it)) }
-                }
-            }
-            // description
-            state.step?.description?.let {
-                Text(
-                    text = it,
-                    style = Pond.typo.bodyLarge,
-                    modifier = Modifier.padding(Pond.ruler.unitPadding)
-                        .magic(offsetX = 20.dp)
-                )
-            }
-        } else {
-            Row(1) {
-                // feature image
-                StepImage(
-                    url = profileStep.imgUrl,
-                    modifier = Modifier.weight(1f)
-                        .clip(Pond.ruler.defaultCorners)
-                        .aspectRatio(1f)
-                        .magic(offsetX = (-20).dp)
-                )
-                Column(
-                    spacingUnits = 1,
-                    modifier = Modifier.weight(1f)
-                        .magic(offsetX = 20.dp)
-                ) {
-                    // label
-                    EditText(
-                        text = profileStep.label,
-                        placeholder = "Step label",
-                        style = Pond.typo.h1.addShadow(),
-                        modifier = Modifier.padding(Pond.ruler.unitPadding)
-                    ) { viewModel.editStep(profileStep.copy(label = it)) }
-                    // description
-                    state.step?.description?.let {
-                        Text(
-                            it,
-                            Pond.typo.bodyLarge,
-                            modifier = Modifier.padding(Pond.ruler.unitPadding)
-                        )
-                    }
-                }
-            }
-        }
-
         Tabs("Steps") {
             Tab("Steps") {
-                PathEditorView(pathId = route.stepId)
+                PathContextView(viewModel.pathContext)
             }
             Tab("Edit", modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Label("Description")
@@ -176,7 +74,7 @@ fun StepProfileScreen(
                 Button("Add Question") { viewModel.toggleAddingQuestion() }
                 Label("Tags")
                 LazyRow(1) {
-                    items(state.tags) { tag ->
+                    items(pathContextState.tags) { tag ->
                         Row(1) {
                             Text(tag.label)
                             IconButton(TablerIcons.X, Pond.colors.danger) { viewModel.removeTag(tag.id) }
@@ -185,7 +83,7 @@ fun StepProfileScreen(
                 }
                 ControlSet {
                     TextField(
-                        text = state.newStepLabel,
+                        text = state.newTagLabel,
                         onTextChanged = viewModel::setNewTagLabel,
                         modifier = Modifier.onEnterPressed(viewModel::addNewTag))
                     Button("Add", onClick = viewModel::addNewTag)

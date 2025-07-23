@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
 import ponder.steps.PathEditorRoute
+import ponder.steps.StepProfileRoute
 import pondui.ui.behavior.HotKey
 import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
@@ -52,7 +53,7 @@ fun PathsScreen() {
                 itemsIndexed(state.steps, key = { index, step -> step.id }) { index, step ->
                     StepRow(
                         step = step,
-                        modifier = Modifier.actionable { nav.go(PathEditorRoute(step.id)) }
+                        modifier = Modifier.actionable { nav.go(StepProfileRoute(step.id)) }
                             .fillMaxWidth()
                             .padding(Pond.ruler.unitPadding)
                             .animateItem()

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +24,6 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import pondui.ui.behavior.AlignX
 import pondui.ui.behavior.drawLabel
-import pondui.ui.behavior.magic
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.EditText
@@ -43,7 +41,7 @@ fun PathEditorView(
     pathId: StepId,
     viewModel: PathEditorModel = viewModel { PathEditorModel() }
 ) {
-    val editorState by viewModel.stateFlow.collectAsState()
+    val state by viewModel.stateFlow.collectAsState()
     val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
 
     LaunchedEffect(pathId) {
@@ -53,13 +51,13 @@ fun PathEditorView(
     val pathStep = pathContextState.step ?: return
 
     QuestionEditorCloud(
-        request = editorState.editQuestionRequest,
+        request = state.editQuestionRequest,
         onDismiss = { viewModel.setEditQuestionRequest(null) },
     )
 
     fun getStep(index: Int): Step? {
         val steps = pathContextState.steps
-        val newStepPosition = editorState.newStepPosition
+        val newStepPosition = state.newStepPosition
         if (newStepPosition == null) {
             if (index == steps.size) return null
             return steps[index]
@@ -87,13 +85,13 @@ fun PathEditorView(
             if (step != null) {
                 PathEditorItem(
                     step = step,
-                    isSelected = editorState.selectedStepId == step.id,
+                    isSelected = pathContextState.selectedStepId == step.id,
                     isLastStep = (step.position ?: 0) == pathStep.pathSize - 1,
                     viewModel = viewModel
                 )
             } else {
                 NewQuestionRow(
-                    newStepLabel = editorState.newStepLabel,
+                    newStepLabel = state.newStepLabel,
                     viewModel = viewModel
                 )
             }
@@ -105,7 +103,7 @@ fun PathEditorView(
                 Button(TablerIcons.Drone, onClick = viewModel::suggestNextStep)
             }
         }
-        items(editorState.suggestions, key = { it.label }) { suggestion ->
+        items(state.suggestions, key = { it.label }) { suggestion ->
             Column(1) {
                 TextButton(
                     suggestion.label,
@@ -132,6 +130,7 @@ fun LazyItemScope.NewQuestionRow(
             .padding(Pond.ruler.unitPadding),
     ) {
         PathMapItemPart(
+            verticalAlignment = Alignment.Top,
             lineSlot = {
                 StepLineSegment(
                     modifier = Modifier.drawBehind {

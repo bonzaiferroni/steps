@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,8 +33,6 @@ import pondui.ui.behavior.magic
 import pondui.ui.behavior.selected
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
-import pondui.ui.controls.ControlSet
-import pondui.ui.controls.ControlSetButton
 import pondui.ui.controls.EditText
 import pondui.ui.controls.Icon
 import pondui.ui.controls.IconButton
@@ -47,13 +44,13 @@ import pondui.ui.theme.Pond
 import pondui.utils.darken
 
 @Composable
-fun LazyItemScope.PathEditorItem(
+fun LazyItemScope.PathContextItem(
     step: Step,
     isSelected: Boolean,
     isLastStep: Boolean,
-    viewModel: PathEditorModel,
+    viewModel: PathContextModel,
 ) {
-    val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
+    val pathContextState by viewModel.stateFlow.collectAsState()
     val nav = LocalNav.current
     var isHovered by remember { mutableStateOf(false) }
     val showControls = isSelected || isHovered
@@ -68,8 +65,8 @@ fun LazyItemScope.PathEditorItem(
             .padding(Pond.ruler.unitSpacing)
             .focusable { state ->
                 when (state.isFocused) {
-                    true -> viewModel.pathContext.setFocus(step.id)
-                    false -> viewModel.pathContext.setFocus(null)
+                    true -> viewModel.setFocus(step.id)
+                    false -> viewModel.setFocus(null)
                 }
             }
             .actionable(
@@ -105,38 +102,12 @@ fun LazyItemScope.PathEditorItem(
                 modifier = Modifier.weight(1f)
                     .padding(bottom = Pond.ruler.unitSpacing)
             ) {
-                EditText(
+                Text(
                     text = step.label,
-                    placeholder = "Step Label",
-                    maxLines = 2,
-                    style = Pond.typo.h5,
-                    isContainerVisible = true,
-                ) { viewModel.editStep(step.copy(label = it)) }
-                EditText(
-                    text = step.description ?: "",
-                    placeholder = "Step Description",
-                    modifier = Modifier.fillMaxWidth(),
-                    isContainerVisible = true,
-                ) { viewModel.editStep(step.copy(description = it)) }
+                    style = Pond.typo.h3,
+                )
+                Text(text = step.description ?: "")
 
-            }
-            // position controls
-            Column(
-                spacingUnits = 0,
-                modifier = Modifier.magic(showControls, scale = .8f)
-            ) {
-                Button(
-                    imageVector = TablerIcons.ArrowUp,
-                    isEnabled = showControls && (step.position ?: 0) > 0,
-                    background = Pond.colors.secondary,
-                    shape = Pond.ruler.roundTop,
-                ) { viewModel.moveStep(step, -1) }
-                Button(
-                    imageVector = TablerIcons.ArrowDown,
-                    isEnabled = showControls && (step.position ?: 0) < pathContextState.steps.size - 1,
-                    background = Pond.colors.secondary,
-                    shape = Pond.ruler.roundBottom
-                ) { viewModel.moveStep(step, 1) }
             }
         }
         if (step.pathSize > 0) {
@@ -167,40 +138,7 @@ fun LazyItemScope.PathEditorItem(
                 ) {
                     // question controls
                     Text(question.text, modifier = Modifier.weight(1f))
-                    IconButton(TablerIcons.Edit) { viewModel.setEditQuestionRequest(EditQuestionRequest(question.id, step.id)) }
                 }
-            }
-        }
-        PathMapItemPart(
-            lineSlot = {
-                StepLineFiller(modifier = Modifier.drawBehind {
-                    drawStepLine(animatedLineColor, !isLastStep)
-                })
-            }
-        ) {
-            // step controls
-            Row(
-                spacingUnits = 1,
-                modifier = Modifier.padding(bottom = Pond.ruler.unitSpacing)
-                    .magic(showControls, scale = .8f)
-            ) {
-                if (step.pathSize == 0) {
-                    Button(
-                        text = "Add branch",
-                        isEnabled = showControls,
-                    ) { nav.go(PathEditorRoute(step.id)) }
-                }
-
-                Button(
-                    text = "Add Question",
-                    isEnabled = showControls
-                ) { viewModel.setEditQuestionRequest(EditQuestionRequest.newQuestionRequest(step.id)) }
-
-                Button(
-                    imageVector = TablerIcons.Trash,
-                    isEnabled = showControls,
-                    background = Pond.colors.danger,
-                ) { viewModel.removeStepFromPath(step) }
             }
         }
     }

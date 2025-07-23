@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
 import ponder.steps.io.QuestionSource
 import ponder.steps.io.LocalStepRepository
+import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Question
@@ -14,6 +15,7 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
+import ponder.steps.model.data.TagId
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
@@ -24,7 +26,8 @@ class PathEditorModel(
     val stepRepo: StepRepository = LocalStepRepository(),
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
-    val questionRepo: QuestionSource = QuestionSource()
+    val questionRepo: QuestionSource = QuestionSource(),
+    val tagRepo: LocalTagRepository = LocalTagRepository()
 ): StateModel<PathEditorState>() {
     override val state = ViewState(PathEditorState())
 
@@ -34,17 +37,6 @@ class PathEditorModel(
 
     fun setParameters(pathId: StepId) {
         pathContext.setParameters(pathId)
-    }
-
-    fun setFocus(stepId: StepId?) {
-        setState { it.copy(selectedStepId = stepId) }
-    }
-
-    fun toggleFocus(stepId: StepId) {
-        when (stepId) {
-            stateNow.selectedStepId -> setFocus(null)
-            else -> setFocus(stepId)
-        }
     }
 
     fun editStep(step: Step) {
@@ -140,15 +132,32 @@ class PathEditorModel(
         val newPosition = maxOf(0, currentPosition + positionDelta)
         setState { it.copy(newStepPosition = newPosition.takeIf { newPosition < pathSize })}
     }
+
+    fun addNewTag(stepId: StepId) {
+        if (!stateNow.isValidNewTagLabel) return
+
+        viewModelScope.launch {
+            tagRepo.addTag(stepId, stateNow.newTagLabel)
+            setState { it.copy(newStepLabel = "") }
+        }
+    }
+
+    fun removeTag(stepId: StepId, tagId: TagId) {
+        viewModelScope.launch {
+            tagRepo.removeTag(stepId, tagId)
+        }
+    }
 }
 
 data class PathEditorState(
-    val selectedStepId: String? = null,
+    val newTagLabel: String = "",
     val suggestions: List<StepWithDescription> = emptyList(),
     val isAddingStep: Boolean = false,
     val editQuestionRequest: EditQuestionRequest? = null,
     val newStepLabel: String = "",
     val newStepPosition: Int? = null,
-)
+) {
+    val isValidNewTagLabel get() = newTagLabel.isNotBlank()
+}
 
 sealed interface PathEditorAction
