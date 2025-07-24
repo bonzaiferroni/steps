@@ -64,13 +64,14 @@ class TodoListModel(
         }
     }
 
-    fun answerQuestion(trekId: TrekId, step: Step, stepLog: StepLog, question: Question, answerText: String?) {
+    fun answerQuestion(step: Step, stepLog: StepLog, question: Question, answerText: String?) {
+        val trekPointId = trekPath?.trekPointId ?: return
         ioLaunch {
             trekRepo.createAnswer(
-                trekId = trekId,
+                trekPointId = trekPointId,
                 step = step,
                 answer = NewAnswer(stepLog.id, question.id, answerText, question.type),
-                breadcrumbs = trekPath?.breadcrumbs
+                breadcrumbs = trekPath.breadcrumbs
             )
         }
     }

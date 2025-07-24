@@ -41,7 +41,7 @@ class StepProfileModel(
     private val stepId: String = route.stepId
 
     init {
-        pathContext.setParameters(route.stepId)
+        pathContext.setParameters(route.stepId, null)
         questionRepo.flowQuestionsByStepId(stepId).launchCollect { questions ->
             setState { it.copy(questions = questions) }
         }

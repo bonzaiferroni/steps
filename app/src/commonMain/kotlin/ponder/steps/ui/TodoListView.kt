@@ -49,9 +49,8 @@ fun TodoListView(
                 offsetX = 50.dp,
                 itemContent = { question ->
                     QuestionRow(step.label, question) { answerText ->
-                        val trekId = todoStep.trekId
-                        if (trekId != null && log != null)
-                            viewModel.answerQuestion(trekId, step, log, question, answerText)
+                        if (log != null)
+                            viewModel.answerQuestion(step, log, question, answerText)
                     }
                 },
                 isVisibleInit = true,

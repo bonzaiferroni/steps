@@ -1,12 +1,6 @@
 package ponder.steps.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -16,20 +10,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.X
 import ponder.steps.StepProfileRoute
-import pondui.ui.behavior.magic
 import pondui.ui.behavior.onEnterPressed
-import pondui.ui.behavior.takeInitialFocus
 import pondui.ui.controls.*
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
-import pondui.utils.addShadow
 
 @Composable
 fun StepProfileScreen(
@@ -51,7 +40,7 @@ fun StepProfileScreen(
 
         Tabs("Steps") {
             Tab("Steps") {
-                PathContextView(viewModel.pathContext)
+                PathMapView(viewModel.pathContext)
             }
             Tab("Edit", modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Label("Description")

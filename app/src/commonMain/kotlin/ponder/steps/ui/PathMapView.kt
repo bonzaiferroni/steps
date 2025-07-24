@@ -15,12 +15,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ponder.steps.PathEditorRoute
+import ponder.steps.db.TrekPointId
+import ponder.steps.model.data.Step
 import pondui.ui.behavior.magic
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
-import pondui.ui.controls.EditText
 import pondui.ui.controls.LazyColumn
 import pondui.ui.controls.LocalAppWindow
+import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.WindowSizeClass
@@ -30,12 +32,16 @@ import pondui.ui.theme.Pond
 import pondui.utils.addShadow
 
 @Composable
-fun PathContextView(viewModel: PathContextModel) {
+fun PathMapView(
+    viewModel: PathContextModel,
+    navToPath: ((TrekPointId, Step) -> Unit)? = null,
+) {
     val state by viewModel.stateFlow.collectAsState()
     val appWindow = LocalAppWindow.current
     val nav = LocalNav.current
 
     val pathStep = state.step ?: return
+    val trekPath = state.trekPath
 
     LazyColumn(1, Alignment.CenterHorizontally) {
 
@@ -109,10 +115,19 @@ fun PathContextView(viewModel: PathContextModel) {
         }
 
         item("edit button") {
-            Box(
-                contentAlignment = Alignment.Center,
+            Column(
+                spacingUnits = 1,
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                state.progressRatio?.let { progressRatio ->
+                    ProgressBar(
+                        progress = progressRatio,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("${state.progress} of ${pathStep.pathSize}")
+                    }
+                }
                 Row(1) {
                     Button("Edit Path") { nav.go(PathEditorRoute(pathStep.id)) }
                 }
@@ -120,11 +135,13 @@ fun PathContextView(viewModel: PathContextModel) {
         }
 
         items(state.steps, key = { it.pathStepId ?: it.id }) { step ->
-            PathContextItem(
+            PathMapStep(
                 step = step,
+                trekPointId = trekPath?.trekPointId,
                 isSelected = state.selectedStepId == step.id,
                 isLastStep = (step.position ?: 0) == pathStep.pathSize - 1,
-                viewModel = viewModel
+                viewModel = viewModel,
+                navToPath = navToPath
             )
         }
 

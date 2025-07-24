@@ -93,12 +93,11 @@ class LineLogModel(
     }
 
     fun answerQuestion(nextStep: NextStep, answerText: String?) {
-        val trekId = nextStep.trek?.id ?: error("Missing trek")
         val logId = nextStep.stepLog?.id ?: error("Missing stepLog")
         val question = nextStep.question ?: error("Missing question")
         viewModelScope.launch {
             trekRepo.createAnswer(
-                trekId = trekId,
+                trekPointId = nextStep.trekPointId,
                 step = nextStep.step,
                 answer = NewAnswer(
                     stepLogId = logId,

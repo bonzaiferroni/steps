@@ -187,7 +187,8 @@ class LocalTrekRepository(
         else return PathStatus.Completed
     }
 
-    suspend fun createAnswer(trekId: TrekId, step: Step, answer: NewAnswer, breadcrumbs: List<Step>?): Boolean {
+    suspend fun createAnswer(trekPointId: TrekPointId, step: Step, answer: NewAnswer, breadcrumbs: List<Step>?): Boolean {
+        val trekId = trekDao.readTrekIdByTrekPointId(trekPointId) ?: error("Missing TrekId")
         val id = randomUuidStringId()
         val answer = AnswerEntity(
             id = id,

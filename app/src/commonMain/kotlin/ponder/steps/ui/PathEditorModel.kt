@@ -36,7 +36,7 @@ class PathEditorModel(
     private val contextStep get() = pathContextState.value.step
 
     fun setParameters(pathId: StepId) {
-        pathContext.setParameters(pathId)
+        pathContext.setParameters(pathId, null)
     }
 
     fun editStep(step: Step) {
