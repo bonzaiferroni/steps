@@ -30,18 +30,18 @@ import pondui.ui.controls.bottomBarSpacerItem
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import pondui.utils.addShadow
+import kotlin.text.get
 
 @Composable
 fun PathMapView(
     viewModel: PathContextModel,
-    navToPath: ((TrekPointId, Step) -> Unit)? = null,
+    navToPath: (Step) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
     val appWindow = LocalAppWindow.current
     val nav = LocalNav.current
 
     val pathStep = state.step ?: return
-    val trekPath = state.trekPath
 
     LazyColumn(1, Alignment.CenterHorizontally) {
 
@@ -135,13 +135,34 @@ fun PathMapView(
         }
 
         items(state.steps, key = { it.pathStepId ?: it.id }) { step ->
+            val log = state.getLog(step)
+            val progress = state.getProgress(step)
+            val questions = state.questions[step.id] ?: emptyList()
+            val answers = log?.let { state.getAnswers(it.id) } ?: emptyList()
+            val question = log?.let { questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } } }
+
             PathMapStep(
                 step = step,
-                trekPointId = trekPath?.trekPointId,
                 isSelected = state.selectedStepId == step.id,
                 isLastStep = (step.position ?: 0) == pathStep.pathSize - 1,
-                viewModel = viewModel,
-                navToPath = navToPath
+                isTrekContext = state.isTrekContext,
+                log = log,
+                progress = progress,
+                questionsAndAnswers = QuestionsAndAnswers(questions, answers),
+                currentQuestion = question,
+                setOutcome = viewModel::setOutcome,
+                onFocusChanged = { focusState ->
+                    when (focusState.isFocused) {
+                        true -> viewModel.setFocus(step.id)
+                        false -> viewModel.setFocus(null)
+
+                    }
+                },
+                answerQuestion = { answerText ->
+                    if (log != null && question != null)
+                        viewModel.answerQuestion(step, log, question, answerText)
+                },
+                navToPath = navToPath,
             )
         }
 

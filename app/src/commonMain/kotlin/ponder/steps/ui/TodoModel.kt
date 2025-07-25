@@ -22,8 +22,8 @@ class TodoModel(
         if (trekPath == null) {
             setState { it.copy(pageIndex = null) }
         } else {
-            val pathId = trekPath.pathId
-            val indexOfStepId = stateNow.pageStack.indexOfFirst { it.pathId == pathId }
+            val pathId = trekPath.pathId; val trekPointId = trekPath.trekPointId
+            val indexOfStepId = stateNow.pageStack.indexOfFirst { it.pathId == pathId && it.trekPointId == trekPointId }
             val currentIndex = stateNow.pageIndex
             if (indexOfStepId >= 0) {
                 setState { it.copy(pageIndex = indexOfStepId, trekPath = trekPath) }
@@ -49,7 +49,7 @@ data class TrekPath(
     val pathId: StepId,
     val breadcrumbs: List<Step>,
 ) {
-    val key get() = trekPointId.toString() + pathId
+    val key get() = "$trekPointId-$pathId"
 
     fun toSubPath(stepId: StepId): TrekPath {
         val index = breadcrumbs.indexOfFirst { it.id == stepId }
@@ -59,4 +59,9 @@ data class TrekPath(
             breadcrumbs = breadcrumbs.subList(0, index + 1)
         )
     }
+
+    fun toExtendedPath(step: Step) = copy(
+        pathId = step.id,
+        breadcrumbs = breadcrumbs + step
+    )
 }

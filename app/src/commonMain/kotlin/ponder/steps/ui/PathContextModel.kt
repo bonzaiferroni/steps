@@ -86,7 +86,6 @@ class PathContextModel(
     }
 
     fun answerQuestion(step: Step, stepLog: StepLog, question: Question, answerText: String?) {
-        println(stateNow.trekPath?.trekPointId)
         val trekPointId = stateNow.trekPath?.trekPointId ?: return
         viewModelScope.launch {
             trekRepo.createAnswer(
@@ -118,4 +117,5 @@ data class PathContextState(
     val progress get() = stepLogs.size
     val totalSteps get() = steps.size
     val progressRatio get() = totalSteps.takeIf { it > 0 }?.let { progress / it.toFloat() }
+    val isTrekContext get() = trekPath != null
 }

@@ -60,7 +60,7 @@ fun QuestionRow(
                     DataType.Integer -> IntegerAnswer(fieldText, ::updateAnswer)
                     DataType.Decimal -> IntegerAnswer(fieldText, ::updateAnswer)
                     DataType.Boolean -> BooleanAnswer(fieldText, ::updateAnswer, ::onSubmit)
-                    DataType.TimeStamp -> TODO()
+                    DataType.TimeStamp -> StringAnswer(fieldText, ::updateAnswer, ::onSubmit)
                 }
             }
             Row(1) {

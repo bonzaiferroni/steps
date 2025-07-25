@@ -8,24 +8,27 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowRight
 import compose.icons.tablericons.Point
 import compose.icons.tablericons.QuestionMark
-import ponder.steps.StepProfileRoute
-import ponder.steps.db.TrekPointId
 import ponder.steps.io.StepOutcome
+import ponder.steps.model.data.Answer
+import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
+import ponder.steps.model.data.StepLog
 import pondui.ui.behavior.AlignX
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.drawLabel
@@ -39,48 +42,49 @@ import pondui.ui.controls.ProgressBarButton
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.actionable
-import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import pondui.utils.darken
 
 @Composable
 fun LazyItemScope.PathMapStep(
     step: Step,
-    trekPointId: TrekPointId?,
     isSelected: Boolean,
     isLastStep: Boolean,
-    viewModel: PathContextModel,
-    navToPath: ((TrekPointId, Step) -> Unit)?,
+    isTrekContext: Boolean,
+    log: StepLog?,
+    progress: Int?,
+    questionsAndAnswers: QuestionsAndAnswers,
+    currentQuestion: Question?,
+    setOutcome: (Step, StepOutcome?) -> Unit,
+    onFocusChanged: (FocusState) -> Unit,
+    answerQuestion: (String?) -> Unit,
+    navToPath: (Step) -> Unit,
 ) {
-    val state by viewModel.stateFlow.collectAsState()
-    val log = state.getLog(step)
-    val progress = state.getProgress(step)
-    val questions = state.questions[step.id] ?: emptyList()
-    val answers = log?.let { state.getAnswers(it.id) } ?: emptyList()
-    val question = log?.let { questions.firstOrNull { q -> answers.all { a -> a.questionId != q.id } } }
     val isCompleted = log != null
+    val questions = questionsAndAnswers.questions;
+    val answers = questionsAndAnswers.answers
 
     MagicItem(
-        item = question,
+        item = currentQuestion,
         offsetX = 50.dp,
         itemContent = { question ->
-            QuestionRow(step.label, question) { answerText ->
-                if (trekPointId != null && log != null)
-                    viewModel.answerQuestion(step, log, question, answerText)
-            }
+            QuestionRow(
+                stepLabel = step.label,
+                question = question,
+                answerQuestion = answerQuestion
+            )
         },
         isVisibleInit = true,
         modifier = Modifier.animateItem()
     ) {
-        val nav = LocalNav.current
         var isHovered by remember { mutableStateOf(false) }
-        val showControls = isSelected || isHovered
         val swatchColor = Pond.colors.swatches[0]
-        val lineColor = when {
-            trekPointId != null -> when {
-                log != null -> Pond.colors.data
+        val lineColor = when (isTrekContext) {
+            true -> when (isCompleted) {
+                true -> Pond.colors.data
                 else -> Pond.colors.void
             }
+
             else -> when (isHovered) {
                 true -> swatchColor
                 else -> swatchColor.darken(.2f)
@@ -91,81 +95,36 @@ fun LazyItemScope.PathMapStep(
             modifier = Modifier.selected(isSelected, radius = Pond.ruler.defaultCorner)
                 // .background(Pond.colors.void.copy(.2f))
                 .padding(Pond.ruler.unitSpacing)
-                .focusable { state ->
-                    when (state.isFocused) {
-                        true -> viewModel.setFocus(step.id)
-                        false -> viewModel.setFocus(null)
-                    }
-                }
+                .focusable(onFocusChanged)
                 .actionable(
                     onHover = { isHovered = it },
                     isIndicated = false,
                 ) { },
         ) {
-            PathMapItemPart(
-                verticalAlignment = Alignment.Top,
-                lineSlot = {
-                    StepLineSegment(
-                        modifier = Modifier.drawBehind {
-                            drawStepCircle(animatedLineColor)
-                        }
-                    ) {
-                        StepImage(
-                            url = step.thumbUrl,
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(StepLineStrokeWidth * 2)
-                                .drawLabel("step ${(step.position ?: 0) + 1}", alignX = AlignX.Center)
-                                .clip(CircleShape)
-                        )
-                    }
-                    val isContinued = !isLastStep || step.pathSize > 0 || questions != null
-                    StepLineFiller(modifier = Modifier.drawBehind {
-                        drawStepLine(animatedLineColor, isContinued)
-                    })
-                }
+            PathMapStepHeader(
+                step = step,
+                progress = progress,
+                isCompleted = isCompleted,
+                navToPath = navToPath,
+                setOutcome = setOutcome,
             ) {
-                // text fields
-                Column(
-                    spacingUnits = 1,
-                    modifier = Modifier.weight(1f)
-                        .padding(bottom = Pond.ruler.unitSpacing)
-                ) {
-                    Row(1, modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = step.label,
-                            style = Pond.typo.h3,
-                            modifier = Modifier.weight(1f)
-                        )
-
-                        if (progress != null) {
-                            val progressRatio = progress / step.pathSize.toFloat()
-                            ProgressBarButton(
-                                progress = progressRatio,
-                                onClick = {
-                                    val trekPointId = trekPointId ?: return@ProgressBarButton
-                                    val navToPath = navToPath ?: return@ProgressBarButton
-                                    navToPath(trekPointId, step)
-                                }
-                            ) {
-                                Row(1) {
-                                    Text("$progress of ${step.pathSize}")
-                                    Icon(TablerIcons.ArrowRight)
-                                }
-                            }
-                        } else {
-                            Checkbox(isCompleted, modifier = Modifier.padding(end = 10.dp)) {
-                                val outcome = when {
-                                    isCompleted -> null
-                                    else -> StepOutcome.Finished
-                                }
-                                viewModel.setOutcome(step, outcome)
-                            }
-                        }
+                StepLineSegment(
+                    modifier = Modifier.drawBehind {
+                        drawStepCircle(animatedLineColor)
                     }
-                    Text(text = step.description ?: "")
-
+                ) {
+                    StepImage(
+                        url = step.thumbUrl,
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(StepLineStrokeWidth * 2)
+                            .drawLabel("step ${(step.position ?: 0) + 1}", alignX = AlignX.Center)
+                            .clip(CircleShape)
+                    )
                 }
-
+                val isContinued = !isLastStep || step.pathSize > 0 || questions.isNotEmpty()
+                StepLineFiller(modifier = Modifier.drawBehind {
+                    drawStepLine(lineColor, isContinued)
+                })
             }
             if (step.pathSize > 0) {
                 PathMapItemPart(
@@ -179,36 +138,53 @@ fun LazyItemScope.PathMapStep(
                     Row(
                         spacingUnits = 0,
                     ) {
-                        repeat(minOf(8, step.pathSize)) {
+                        val maxStepRowSize = 8
+                        repeat(minOf(maxStepRowSize, step.pathSize)) { index ->
+                            val alpha = if (index < maxStepRowSize - 2 || step.pathSize <= maxStepRowSize) 1f
+                            else if (index == maxStepRowSize - 2) .66f
+                            else .33f
+                            val lineColor = progress?.let {
+                                if (index < it) Pond.colors.data else Pond.colors.void
+                            } ?: animatedLineColor
                             Icon(
                                 imageVector = TablerIcons.Point,
-                                modifier = Modifier.drawBehind {
-                                    drawStepCircle(animatedLineColor)
-                                },
+                                modifier = Modifier.alpha(alpha)
+                                    .drawBehind {
+                                        drawStepCircle(lineColor)
+                                    },
                             )
                         }
                     }
                     // Text("${step.pathSize} steps")
-                    IconButton(TablerIcons.ArrowRight) { nav.go(StepProfileRoute(step.id)) }
+                    IconButton(TablerIcons.ArrowRight) { navToPath(step) }
                 }
             }
-            if (questions != null) {
-                for (question in questions) {
-                    PathMapItemPart(
-                        lineSlot = {
-                            StepLineFiller(
-                                modifier = Modifier.drawBehind {
-                                    drawStepCircle(animatedLineColor)
-                                }
-                                    .padding(StepLineStrokeWidth)
-                            ) {
-                                Icon(TablerIcons.QuestionMark)
+            for (question in questions) {
+                PathMapItemPart(
+                    lineSlot = {
+                        val isQuestionAnswered = answers.any { a -> a.questionId == question.id }
+                        val lineColor = when (isTrekContext) {
+                            true -> when (isQuestionAnswered) {
+                                true -> Pond.colors.data
+                                false -> Pond.colors.void
                             }
+                            false -> animatedLineColor
                         }
-                    ) {
-                        // question controls
-                        Text(question.text, modifier = Modifier.weight(1f))
+                        StepLineFiller(
+                            modifier = Modifier.drawBehind {
+                                drawStepCircle(lineColor)
+                            }
+                                .padding(StepLineStrokeWidth)
+                        ) {
+                            Icon(TablerIcons.QuestionMark)
+                        }
                     }
+                ) {
+                    // question controls
+                    Text(
+                        text = question.text,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
             Box(
@@ -217,6 +193,65 @@ fun LazyItemScope.PathMapStep(
                         drawTail(animatedLineColor, !isLastStep)
                     }
             )
+        }
+    }
+}
+
+@Stable
+data class QuestionsAndAnswers(
+    val questions: List<Question>,
+    val answers: List<Answer>,
+)
+
+@Composable
+fun PathMapStepHeader(
+    step: Step,
+    progress: Int?,
+    isCompleted: Boolean,
+    navToPath: (Step) -> Unit,
+    setOutcome: (Step, StepOutcome?) -> Unit,
+    lineSlot: @Composable () -> Unit,
+) {
+    PathMapItemPart(
+        verticalAlignment = Alignment.Top,
+        lineSlot = lineSlot
+    ) {
+        // text fields
+        Column(
+            spacingUnits = 1,
+            modifier = Modifier.weight(1f)
+                .padding(bottom = Pond.ruler.unitSpacing)
+        ) {
+            Row(1, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = step.label,
+                    style = Pond.typo.h3,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (step.pathSize > 0) {
+                    val progress = progress ?: 0
+                    val progressRatio = progress / step.pathSize.toFloat()
+                    ProgressBarButton(
+                        progress = progressRatio,
+                        onClick = { navToPath(step) },
+                        minWidth = 80.dp
+                    ) {
+                        Text("$progress of ${step.pathSize}")
+                    }
+                } else {
+                    Checkbox(isCompleted, modifier = Modifier.padding(end = 10.dp)) {
+                        val outcome = when {
+                            isCompleted -> null
+                            else -> StepOutcome.Finished
+                        }
+                        setOutcome(step, outcome)
+                    }
+                }
+            }
+            step.description?.let {
+                Text(it)
+            }
         }
     }
 }

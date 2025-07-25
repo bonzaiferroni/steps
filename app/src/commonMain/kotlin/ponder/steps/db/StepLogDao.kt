@@ -10,6 +10,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.PathStepId
 import ponder.steps.model.data.StepLog
+import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepStatus
 import ponder.steps.model.data.TrekId
 
@@ -29,10 +30,7 @@ interface StepLogDao {
     suspend fun deletePathStepLog(trekId: String, stepId: String, pathStepId: String): Int
 
     @Query("DELETE FROM StepLogEntity WHERE trekId = :trekId AND stepId = :pathId AND pathStepId IS NULL")
-    suspend fun deletePathLog(trekId: String, pathId: StepId): Int
-
-    @Query("DELETE FROM StepLogEntity WHERE trekId = :trekId AND stepId IN (:pathIds) AND pathStepId IS NULL")
-    suspend fun deletePathLogs(trekId: String, pathIds: List<StepId>): Int
+    suspend fun deleteRootStepLog(trekId: String, pathId: StepId): Int
 
     @Query("DELETE FROM StepLogEntity WHERE id = :id")
     suspend fun deleteStepLogById(id: String): Int
@@ -134,4 +132,9 @@ interface StepLogDao {
 
     @Query("UPDATE StepLogEntity SET status = :status WHERE id = :stepLogId")
     suspend fun updateStepLogStatus(stepLogId: String, status: StepStatus): Int
+
+    @Query("SELECT COUNT(*) FROM QuestionEntity AS q " +
+            "LEFT JOIN AnswerEntity AS a ON q.id = a.questionId AND a.stepLogId = :stepLogId " +
+            "WHERE q.stepId = :stepId AND a.id IS NULL")
+    suspend fun countUnansweredQuestions(stepId: StepId, stepLogId: StepLogId): Int
 }

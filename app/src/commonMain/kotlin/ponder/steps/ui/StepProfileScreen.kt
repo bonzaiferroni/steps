@@ -40,7 +40,7 @@ fun StepProfileScreen(
 
         Tabs("Steps") {
             Tab("Steps") {
-                PathMapView(viewModel.pathContext)
+                PathMapView(viewModel.pathContext) { nav.go(StepProfileRoute(it.id))}
             }
             Tab("Edit", modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Label("Description")

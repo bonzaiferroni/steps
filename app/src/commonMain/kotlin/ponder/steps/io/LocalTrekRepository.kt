@@ -21,7 +21,6 @@ import ponder.steps.db.toEntity
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
 import ponder.steps.model.data.NewAnswer
-import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
@@ -50,13 +49,13 @@ class LocalTrekRepository(
     ) {
         val trekId = readOrCreateTrekId(trekPointId)
         if (outcome != null) {
-            setOutcome(trekId, step, outcome)
+            updateOrInsertLog(trekId, step, outcome)
         } else {
             val pathStepId = step.pathStepId
             if (pathStepId != null) {
                 stepLogDao.deletePathStepLog(trekId, step.id, pathStepId)
             } else {
-                stepLogDao.deletePathLog(trekId, step.id)
+                stepLogDao.deleteRootStepLog(trekId, step.id)
             }
             null
         }
@@ -69,25 +68,32 @@ class LocalTrekRepository(
         )
     }
 
-    private suspend fun setOutcome(trekId: TrekId, step: Step, outcome: StepOutcome) {
+    private suspend fun updateOrInsertLog(trekId: TrekId, step: Step, outcome: StepOutcome) {
         val now = Clock.System.now()
+        val questions = questionDao.readQuestionsByStepId(step.id)
+        val currentLog = stepLogDao.readTrekLog(trekId, step.pathStepId)
         val status = if (outcome == StepOutcome.Finished) {
-            val questionCount = questionDao.countQuestionsByStepId(step.id)
-            if (questionCount > 0) StepStatus.AskedQuestion else StepStatus.Completed
+            val answers = currentLog?.let { answerDao.readAnswersByLogId(it.id) } ?: emptyList()
+            val isAnyQuestionUnanswered = questions.any { q -> answers.none { a -> a.questionId == q.id } }
+            if (isAnyQuestionUnanswered) StepStatus.AskedQuestion else StepStatus.Completed
         } else {
             StepStatus.Skipped
         }
-        stepLogDao.insert(
-            StepLogEntity(
-                id = randomUuidStringId(),
-                stepId = step.id,
-                trekId = trekId,
-                pathStepId = step.pathStepId,
-                status = status,
-                updatedAt = now,
-                createdAt = now
+        if (currentLog != null) {
+            stepLogDao.update(currentLog.copy(status = status).toEntity())
+        } else {
+            stepLogDao.insert(
+                StepLogEntity(
+                    id = randomUuidStringId(),
+                    stepId = step.id,
+                    trekId = trekId,
+                    pathStepId = step.pathStepId,
+                    status = status,
+                    updatedAt = now,
+                    createdAt = now
+                )
             )
-        )
+        }
     }
 
     private suspend fun readOrCreateTrekId(trekPointId: TrekPointId): TrekId {
@@ -118,12 +124,19 @@ class LocalTrekRepository(
                 status = getPathStatus(trek, step, isTopLevel)
                 if (status != PathStatus.Completed) break
                 if (step.pathSize > 0) {
-                    setOutcome(trekId, step, StepOutcome.Finished)
+                    updateOrInsertLog(trekId, step, StepOutcome.Finished)
                 }
             }
         } else {
             // mark as incomplete down the chain of breadcrumbs
-            stepLogDao.deletePathLogs(trekId, breadcrumbs.map { it.id })
+            for (breadcrumb in breadcrumbs) {
+                val pathStepId = breadcrumb.pathStepId
+                if (pathStepId != null) {
+                    stepLogDao.deletePathStepLog(trek.id, breadcrumb.id, pathStepId)
+                } else {
+                    stepLogDao.deleteRootStepLog(trek.id, breadcrumb.id)
+                }
+            }
         }
 
         val updatedTrek = when (status) {
@@ -200,15 +213,10 @@ class LocalTrekRepository(
         )
         val isSuccess = answerDao.insert(answer) != -1L
         if (isSuccess) {
-            val questionCount = questionDao.countQuestionsByStepId(step.id)
-            val answerCount = answerDao.countAnswersByStepLogId(answer.stepLogId)
-            val status = when {
-                questionCount == answerCount -> StepStatus.Completed
-                else -> StepStatus.AskedQuestion
-            }
-            setPathOutcomes(trekId, step, breadcrumbs, true)
-            if (status == StepStatus.Completed) {
-                stepLogDao.updateStepLogStatus(answer.stepLogId, status)
+            val unansweredQuestionCount = stepLogDao.countUnansweredQuestions(step.id, answer.stepLogId)
+            if (unansweredQuestionCount == 0) {
+                updateOrInsertLog(trekId, step, StepOutcome.Finished)
+                setPathOutcomes(trekId, step, breadcrumbs, true)
             }
         }
         return isSuccess

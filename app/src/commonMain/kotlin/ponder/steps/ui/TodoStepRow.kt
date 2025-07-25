@@ -1,6 +1,7 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,6 +45,10 @@ fun TodoStepRow(
     val trekPointId = todoStep.trekPointId; val step = todoStep.step
     val nav = LocalNav.current
     val isFinishedAnimated by animateFloatAsState(if (isCompleted) 1f else 0f)
+
+    Column {
+
+    }
 
     Row(
         spacingUnits = 1,

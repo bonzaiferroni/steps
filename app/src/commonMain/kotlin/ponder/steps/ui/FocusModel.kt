@@ -9,8 +9,8 @@ import pondui.ui.core.ViewState
 
 class FocusModel(
     private val journeyStore: TrekApiRepository = TrekApiRepository()
-) : StateModel<FocusState>() {
-    override val state = ViewState(FocusState())
+) : StateModel<StepFocusState>() {
+    override val state = ViewState(StepFocusState())
 
     init {
         refreshFocus()
@@ -56,6 +56,6 @@ class FocusModel(
     }
 }
 
-data class FocusState(
+data class StepFocusState(
     val focus: Focus? = null
 )

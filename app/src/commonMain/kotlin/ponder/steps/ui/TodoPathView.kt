@@ -39,6 +39,8 @@ fun TodoPathView(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        PathMapView(viewModel.pathContext)
+        PathMapView(viewModel.pathContext) {
+            navToPath(trekPath.toExtendedPath(it), true)
+        }
     }
 }
