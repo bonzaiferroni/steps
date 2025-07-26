@@ -23,6 +23,8 @@ import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
 import ponder.steps.model.data.TagId
 import ponder.steps.model.data.QuantityType
+import ponder.steps.model.data.StepMaterial
+import ponder.steps.model.data.StepMaterialJoin
 import ponder.steps.model.data.defaultQuantity
 import ponder.steps.model.data.defaultQuantityType
 import pondui.LocalValueRepository
@@ -189,6 +191,12 @@ class PathEditorModel(
                 materialUnit = unit
             )
             setNewMaterialLabel("")
+        }
+    }
+
+    fun removeMaterial(material: StepMaterialJoin) {
+        viewModelScope.launch {
+            materialSource.deleteStepMaterialById(material.id)
         }
     }
 }

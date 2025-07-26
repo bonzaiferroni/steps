@@ -13,6 +13,8 @@ import ponder.steps.model.data.MaterialType
 import ponder.steps.model.data.MaterialUnit
 import ponder.steps.model.data.StepMaterial
 import ponder.steps.model.data.QuantityType
+import ponder.steps.model.data.StepMaterialId
+import ponder.steps.model.data.StepMaterialJoin
 
 class MaterialSource(
     private val stepMaterialDao: StepMaterialDao = appDb.getStepMaterialDao(),
@@ -53,4 +55,6 @@ class MaterialSource(
         val isSuccess = stepMaterialDao.insert(stepMaterial.toEntity()) != -1L
         return if (isSuccess) stepMaterial else null
     }
+
+    suspend fun deleteStepMaterialById(stepMaterialId: StepMaterialId) = stepMaterialDao.deleteStepMaterialById(stepMaterialId)
 }

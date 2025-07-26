@@ -11,18 +11,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import compose.icons.TablerIcons
+import compose.icons.tablericons.Trash
 import ponder.steps.model.data.Step
 import pondui.ui.behavior.AlignX
-import pondui.ui.behavior.Magic
 import pondui.ui.behavior.drawLabel
+import pondui.ui.behavior.drawSection
 import pondui.ui.behavior.padBottom
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.EditText
+import pondui.ui.controls.Expando
+import pondui.ui.controls.MoreMenuItem
+import pondui.ui.controls.MoreMenu
 import pondui.ui.controls.Row
 import pondui.ui.controls.Text
-import pondui.ui.controls.TextField
-import pondui.ui.controls.TextFieldWithSuggestions
+import pondui.ui.controls.TextFieldMenu
 import pondui.ui.theme.Pond
 import pondui.utils.addShadow
 
@@ -70,18 +74,30 @@ fun PathEditorHeader(
         ) { viewModel.editStep(pathStep.copy(description = it)) }
         Column(
             spacingUnits = 1,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.drawSection("materials")
+                .fillMaxWidth()
                 .animateContentSize()
         ) {
             for (stepMaterial in pathContextState.stepMaterials) {
-                Text(stepMaterial.label)
+                Row(1) {
+                    Text(stepMaterial.label)
+                    Expando()
+                    MoreMenu {
+                        MoreMenuItem(
+                            label = "Delete step",
+                            color = Pond.localColors.dangerContent,
+                            icon = TablerIcons.Trash
+                        ) { viewModel.removeMaterial(stepMaterial) }
+                    }
+                }
             }
-            TextFieldWithSuggestions(
+            TextFieldMenu(
                 text = state.newMaterialLabel,
-                suggestions = state.materialSuggestions,
+                items = state.materialSuggestions,
                 onTextChanged = viewModel::setNewMaterialLabel,
                 onEnterPressed = viewModel::addNewResource,
-                onChooseSuggestion = viewModel::addNewResource
+                onChooseSuggestion = viewModel::addNewResource,
+                label = "add material"
             ) { material ->
                 Text(material.label)
             }
