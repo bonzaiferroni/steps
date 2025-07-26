@@ -80,7 +80,7 @@ fun PathEditorHeader(
                 text = state.newMaterialLabel,
                 suggestions = state.materialSuggestions,
                 onTextChanged = viewModel::setNewMaterialLabel,
-                onEnterPressed = { viewModel.addNewResource() },
+                onEnterPressed = viewModel::addNewResource,
                 onChooseSuggestion = viewModel::addNewResource
             ) { material ->
                 Text(material.label)
