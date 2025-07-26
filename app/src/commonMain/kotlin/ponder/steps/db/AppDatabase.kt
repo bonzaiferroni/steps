@@ -10,7 +10,6 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import ponder.steps.RecordDeletionTrigger
-import ponder.steps.model.data.SyncType
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -22,7 +21,8 @@ import kotlin.time.Duration.Companion.milliseconds
         StepLogEntity::class, AnswerEntity::class, QuestionEntity::class,
         DeletionEntity::class, SyncLog::class,
         TagEntity::class, StepTagEntity::class,
-    ], version = 68
+        MaterialEntity::class, StepMaterialEntity::class
+    ], version = 71
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -40,6 +40,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getTagDao(): TagDao
     abstract fun getStepTagDao(): StepTagDao
     abstract fun getTrekPointDao(): TrekPointDao
+    abstract fun getMaterialDao(): MaterialDao
+    abstract fun getStepMaterialDao(): StepMaterialDao
 }
 
 class Converters {

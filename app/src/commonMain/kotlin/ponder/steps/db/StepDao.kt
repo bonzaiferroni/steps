@@ -26,16 +26,16 @@ interface StepDao {
     suspend fun delete(step: StepEntity): Int
 
     @Query("DELETE FROM StepEntity WHERE id = :id")
-    suspend fun deleteStepById(id: String): Int
+    suspend fun deleteStepById(id: StepId): Int
 
     @Query("SELECT * FROM StepEntity")
     fun getAllStepsAsFlow(): Flow<List<StepEntity>>
 
     @Query("SELECT * FROM StepEntity WHERE id = :stepId")
-    suspend fun readStepById(stepId: String): Step?
+    suspend fun readStepById(stepId: StepId): Step?
 
     @Query("SELECT * FROM StepEntity WHERE id = :stepId")
-    fun flowStep(stepId: String): Flow<Step>
+    fun flowStep(stepId: StepId): Flow<Step>
 
     suspend fun readStep(stepId: String) = readStepById(stepId) ?: error("stepId missing: $stepId")
 

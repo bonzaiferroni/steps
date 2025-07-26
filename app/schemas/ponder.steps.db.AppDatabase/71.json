@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 69,
-    "identityHash": "ddc9f31f7cbd6cd2b1d90cb3d68c1ab3",
+    "version": 71,
+    "identityHash": "a529852ab1189c9346badc8ac40ca285",
     "entities": [
       {
         "tableName": "Sprite",
@@ -1047,7 +1047,7 @@
       },
       {
         "tableName": "MaterialEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `label` TEXT NOT NULL, `materialType` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `label` TEXT NOT NULL, `materialType` TEXT NOT NULL, `quantityType` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -1068,6 +1068,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "quantityType",
+            "columnName": "quantityType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "updatedAt",
             "columnName": "updatedAt",
             "affinity": "INTEGER",
@@ -1083,7 +1089,7 @@
       },
       {
         "tableName": "StepMaterialEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `materialId` TEXT NOT NULL, `stepId` TEXT NOT NULL, `quantity` REAL NOT NULL, `materialUnit` TEXT NOT NULL, FOREIGN KEY(`materialId`) REFERENCES `MaterialEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`stepId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `materialId` TEXT NOT NULL, `stepId` TEXT NOT NULL, `quantity` REAL NOT NULL, `materialUnit` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`materialId`) REFERENCES `MaterialEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`stepId`) REFERENCES `StepEntity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1114,11 +1120,19 @@
             "columnName": "materialUnit",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
-          "columnNames": []
+          "columnNames": [
+            "id"
+          ]
         },
         "indices": [
           {
@@ -1168,7 +1182,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ddc9f31f7cbd6cd2b1d90cb3d68c1ab3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a529852ab1189c9346badc8ac40ca285')"
     ]
   }
 }

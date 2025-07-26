@@ -2,10 +2,7 @@ package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ponder.steps.db.TodoStep
-import ponder.steps.db.TrekPointId
 import ponder.steps.io.LocalAnswerRepository
 import ponder.steps.io.LocalStepLogRepository
 import ponder.steps.io.QuestionSource
@@ -14,6 +11,7 @@ import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.StepOutcome
 import ponder.steps.io.StepRepository
+import ponder.steps.io.MaterialSource
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.NewAnswer
 import ponder.steps.model.data.Question
@@ -21,9 +19,8 @@ import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepLog
 import ponder.steps.model.data.StepLogId
+import ponder.steps.model.data.StepMaterialJoin
 import ponder.steps.model.data.Tag
-import ponder.steps.model.data.TagId
-import ponder.steps.model.data.TrekId
 import pondui.ui.core.SubModel
 import pondui.ui.core.ViewState
 
@@ -36,6 +33,7 @@ class PathContextModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
     private val answersRepo: LocalAnswerRepository = LocalAnswerRepository(),
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
+    private val materialSource: MaterialSource = MaterialSource()
 ): SubModel<PathContextState>() {
 
     fun setParameters(pathId: StepId, trekPath: TrekPath?) {
@@ -52,6 +50,9 @@ class PathContextModel(
         }
         tagRepo.flowTagsByStepId(pathId).launchCollect { tags ->
             setState { it.copy(tags = tags) }
+        }
+        materialSource.flowStepMaterialsByStepId(pathId).launchCollect { resources ->
+            setState { it.copy(stepMaterials = resources)}
         }
         trekPath?.let { trekPath ->
             val trekPointId = trekPath.trekPointId
@@ -109,6 +110,7 @@ data class PathContextState(
     val stepLogs: List<StepLog> = emptyList(),
     val answers: Map<StepLogId, List<Answer>> = emptyMap(),
     val progresses: Map<String, Int> = emptyMap(),
+    val stepMaterials: List<StepMaterialJoin> = emptyList()
 ) {
     fun getLog(step: Step) = stepLogs.firstOrNull { it.pathStepId == step.pathStepId }
     fun getAnswers(stepLogId: StepLogId) = answers[stepLogId] ?: emptyList()

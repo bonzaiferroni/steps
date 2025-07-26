@@ -2,20 +2,29 @@ package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
 import ponder.steps.io.QuestionSource
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTagRepository
+import ponder.steps.io.MaterialSource
 import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Question
+import ponder.steps.model.data.Material
+import ponder.steps.model.data.MaterialType
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
 import ponder.steps.model.data.TagId
+import ponder.steps.model.data.QuantityType
+import ponder.steps.model.data.defaultQuantity
+import ponder.steps.model.data.defaultQuantityType
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
@@ -27,10 +36,12 @@ class PathEditorModel(
     val aiClient: AiClient = AiClient(),
     val valueRepo: ValueRepository = LocalValueRepository(),
     val questionRepo: QuestionSource = QuestionSource(),
-    val tagRepo: LocalTagRepository = LocalTagRepository()
+    val tagRepo: LocalTagRepository = LocalTagRepository(),
+    val materialSource: MaterialSource = MaterialSource(),
 ): StateModel<PathEditorState>() {
     override val state = ViewState(PathEditorState())
 
+    val messenger = MessengerModel(this)
     private val pathContextState = ViewState(PathContextState())
     val pathContext = PathContextModel(this, pathContextState)
     private val contextStep get() = pathContextState.value.step
@@ -147,6 +158,39 @@ class PathEditorModel(
             tagRepo.removeTag(stepId, tagId)
         }
     }
+
+    fun setNewMaterialLabel(value: String) {
+        val materialSuggestions = if (value.isEmpty()) persistentListOf() else stateNow.materialSuggestions
+        setState { it.copy(newMaterialLabel = value, materialSuggestions = materialSuggestions) }
+        if (value.isEmpty()) return
+        viewModelScope.launch {
+            val materialSuggestions = materialSource.searchMaterialsByLabel(value).toImmutableList()
+            setState { it.copy(materialSuggestions = materialSuggestions) }
+        }
+    }
+
+    fun addNewResource(material: Material? = null) {
+        val stepId = pathContextState.value.step?.id ?: return
+        val newMaterialLabel = stateNow.newMaterialLabel.takeIf { it.isNotEmpty() } ?: return
+        val suggestions = stateNow.materialSuggestions
+        viewModelScope.launch {
+            val material = material ?: suggestions.firstOrNull { it.label.equals(newMaterialLabel, ignoreCase = true) }
+                ?: materialSource.createNewMaterial(newMaterialLabel, MaterialType.Tool, QuantityType.Quantity)
+            if (material == null) {
+                messenger.setError("Unable to provide material")
+                return@launch
+            }
+            val unit = material.quantityType.defaultQuantityType()
+            val quantity = unit.defaultQuantity()
+            materialSource.createNewStepMaterial(
+                materialId = material.id,
+                stepId = stepId,
+                quantity = quantity,
+                materialUnit = unit
+            )
+            setNewMaterialLabel("")
+        }
+    }
 }
 
 data class PathEditorState(
@@ -156,8 +200,8 @@ data class PathEditorState(
     val editQuestionRequest: EditQuestionRequest? = null,
     val newStepLabel: String = "",
     val newStepPosition: Int? = null,
+    val newMaterialLabel: String = "",
+    val materialSuggestions: ImmutableList<Material> = persistentListOf()
 ) {
     val isValidNewTagLabel get() = newTagLabel.isNotBlank()
 }
-
-sealed interface PathEditorAction

@@ -10,18 +10,8 @@ import ponder.steps.model.data.PathStep
 
 @Entity(
     foreignKeys = [
-        ForeignKey(
-            entity = StepEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["pathId"],
-            onDelete = ForeignKey.CASCADE,
-        ),
-        ForeignKey(
-            entity = StepEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["stepId"],
-            onDelete = ForeignKey.CASCADE,
-        )
+        ForeignKey(StepEntity::class, ["id"], ["pathId"], ForeignKey.CASCADE),
+        ForeignKey(StepEntity::class, ["id"], ["stepId"], ForeignKey.CASCADE)
     ],
     indices = [
         Index(value = ["pathId"]),
