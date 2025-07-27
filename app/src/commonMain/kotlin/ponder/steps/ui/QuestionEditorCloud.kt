@@ -71,7 +71,7 @@ fun QuestionEditorView(
             text = question.text,
             placeholder = "Question text",
             modifier = Modifier.fillMaxWidth()
-                .selected(state.isTextError, Pond.colors.danger),
+                .selected(state.isTextError, Pond.colors.deletion),
             label = "question text",
             minLines = 2
         ) { dispatch(EditQuestion(question.copy(text = it))) }
@@ -113,7 +113,7 @@ fun QuestionEditorView(
         }
         Row(1) {
             Expando()
-            Button("Delete", Pond.colors.danger) { dispatch(DeleteQuestion) }
+            Button("Delete", Pond.colors.deletion) { dispatch(DeleteQuestion) }
             Button("Cancel", Pond.colors.tertiary, onClick = onDismiss)
             Button("Accept") { dispatch(AcceptQuestionEdit) }
         }

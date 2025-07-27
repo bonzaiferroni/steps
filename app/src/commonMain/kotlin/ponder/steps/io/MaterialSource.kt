@@ -12,9 +12,8 @@ import ponder.steps.model.data.MaterialId
 import ponder.steps.model.data.MaterialType
 import ponder.steps.model.data.MaterialUnit
 import ponder.steps.model.data.StepMaterial
-import ponder.steps.model.data.QuantityType
+import ponder.steps.model.data.UnitType
 import ponder.steps.model.data.StepMaterialId
-import ponder.steps.model.data.StepMaterialJoin
 
 class MaterialSource(
     private val stepMaterialDao: StepMaterialDao = appDb.getStepMaterialDao(),
@@ -24,13 +23,13 @@ class MaterialSource(
 
     suspend fun searchMaterialsByLabel(label: String) = materialDao.searchMaterialsByLabel(label)
 
-    suspend fun createNewMaterial(label: String, materialType: MaterialType, quantityType: QuantityType): Material? {
+    suspend fun createNewMaterial(label: String, materialType: MaterialType, unitType: UnitType): Material? {
         val materialId = randomUuidStringId()
         val material = Material(
             id = materialId,
             label = label,
             materialType = materialType,
-            quantityType = quantityType,
+            unitType = unitType,
             updatedAt = Clock.System.now()
         )
         val isSuccess = materialDao.insert(material.toEntity()) != -1L
@@ -57,4 +56,7 @@ class MaterialSource(
     }
 
     suspend fun deleteStepMaterialById(stepMaterialId: StepMaterialId) = stepMaterialDao.deleteStepMaterialById(stepMaterialId)
+
+    suspend fun updateStepMaterialQuantity(stepMaterialId: StepMaterialId, quantity: Float) =
+        stepMaterialDao.updateStepMaterialQuantity(stepMaterialId, quantity)
 }

@@ -50,7 +50,7 @@ fun PlanScreen() {
                         }
                     }
                     Button(TablerIcons.Edit, Pond.colors.secondary) { viewModel.setEditIntentId(intent.id) }
-                    Button(TablerIcons.Trash, Pond.colors.danger) { viewModel.removeIntent(intent) }
+                    Button(TablerIcons.Trash, Pond.colors.deletion) { viewModel.removeIntent(intent) }
                 }
             }
         }

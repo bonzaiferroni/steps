@@ -42,4 +42,7 @@ interface StepMaterialDao {
                 "JOIN MaterialEntity AS r ON sr.materialId = r.id " +
             "WHERE sr.stepId = :stepId")
     fun flowStepMaterialsByStepId(stepId: StepId): Flow<List<StepMaterialJoin>>
+
+    @Query("UPDATE StepMaterialEntity SET quantity = :quantity WHERE id = :stepMaterialId")
+    suspend fun updateStepMaterialQuantity(stepMaterialId: StepMaterialId, quantity: Float)
 }

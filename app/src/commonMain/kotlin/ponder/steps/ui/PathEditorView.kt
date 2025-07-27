@@ -84,14 +84,14 @@ fun PathEditorView(
         }) { index ->
             val step = getStep(index)
             if (step != null) {
-                PathEditorItem(
+                PathEditorStep(
                     step = step,
                     isSelected = pathContextState.selectedStepId == step.id,
                     isLastStep = (step.position ?: 0) == pathStep.pathSize - 1,
                     viewModel = viewModel
                 )
             } else {
-                NewQuestionRow(
+                NewPathEditorStep(
                     newStepLabel = state.newStepLabel,
                     isLastPosition = state.newStepPosition == null,
                     viewModel = viewModel
@@ -121,12 +121,12 @@ fun PathEditorView(
 }
 
 @Composable
-fun LazyItemScope.NewQuestionRow(
+fun LazyItemScope.NewPathEditorStep(
     newStepLabel: String,
     isLastPosition: Boolean,
     viewModel: PathEditorModel,
 ) {
-    val lineColor = Color.Green
+    val lineColor = Pond.colors.creation
     Column(
         spacingUnits = 0,
         modifier = Modifier.fillMaxWidth()

@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +34,6 @@ import pondui.ui.behavior.magic
 import pondui.ui.behavior.selected
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
-import pondui.ui.controls.ControlSet
-import pondui.ui.controls.ControlSetButton
 import pondui.ui.controls.EditText
 import pondui.ui.controls.Icon
 import pondui.ui.controls.IconButton
@@ -49,7 +45,7 @@ import pondui.ui.theme.Pond
 import pondui.utils.darken
 
 @Composable
-fun LazyItemScope.PathEditorItem(
+fun LazyItemScope.PathEditorStep(
     step: Step,
     isSelected: Boolean,
     isLastStep: Boolean,
@@ -213,7 +209,7 @@ fun LazyItemScope.PathEditorItem(
                 Button(
                     imageVector = TablerIcons.Trash,
                     isEnabled = showControls,
-                    background = Pond.colors.danger,
+                    background = Pond.colors.deletion,
                 ) { viewModel.removeStepFromPath(step) }
             }
         }

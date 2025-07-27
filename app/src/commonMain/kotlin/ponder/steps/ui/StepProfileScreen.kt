@@ -66,7 +66,7 @@ fun StepProfileScreen(
                     items(pathContextState.tags) { tag ->
                         Row(1) {
                             Text(tag.label)
-                            IconButton(TablerIcons.X, Pond.colors.danger) { viewModel.removeTag(tag.id) }
+                            IconButton(TablerIcons.X, Pond.colors.deletion) { viewModel.removeTag(tag.id) }
                         }
                     }
                 }

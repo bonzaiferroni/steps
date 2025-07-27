@@ -15,11 +15,11 @@ data class StepMaterial(
 
 typealias StepMaterialId = String
 
-enum class MaterialUnit(val quantityType: QuantityType) {
-    Quantity(QuantityType.Quantity),
-    Grams(QuantityType.Weight),
-    Liters(QuantityType.Volume),
-    Milliliters(QuantityType.Volume),
+enum class MaterialUnit(val unitType: UnitType) {
+    Quantity(UnitType.Quantity),
+    Grams(UnitType.Weight),
+    Liters(UnitType.Volume),
+    Milliliters(UnitType.Volume),
 }
 
 fun MaterialUnit.defaultQuantity() = when (this) {

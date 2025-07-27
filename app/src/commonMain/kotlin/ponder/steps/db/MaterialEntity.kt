@@ -6,7 +6,7 @@ import kotlinx.datetime.Instant
 import ponder.steps.model.data.Material
 import ponder.steps.model.data.MaterialId
 import ponder.steps.model.data.MaterialType
-import ponder.steps.model.data.QuantityType
+import ponder.steps.model.data.UnitType
 
 @Entity
 data class MaterialEntity(
@@ -14,7 +14,7 @@ data class MaterialEntity(
     val id: MaterialId,
     val label: String,
     val materialType: MaterialType,
-    val quantityType: QuantityType,
+    val unitType: UnitType,
     val updatedAt: Instant,
 )
 
@@ -22,6 +22,6 @@ fun Material.toEntity() = MaterialEntity(
     id = id,
     label = label,
     materialType = materialType,
-    quantityType = quantityType,
+    unitType = unitType,
     updatedAt = updatedAt,
 )
