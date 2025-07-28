@@ -28,7 +28,7 @@ fun ExampleListScreen() {
                     Text(it.label)
                     Expando()
                     ControlSet {
-                        Button("Delete", background = Pond.colors.deletion) { viewModel.deleteItem(it) }
+                        Button("Delete", background = Pond.colors.negation) { viewModel.deleteItem(it) }
                         RouteButton("View") { ExampleProfileRoute(it.id) }
                     }
                 }

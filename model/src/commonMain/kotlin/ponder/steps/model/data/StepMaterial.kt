@@ -1,5 +1,6 @@
 package ponder.steps.model.data
 
+import kabinet.model.LabeledEnum
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -15,11 +16,22 @@ data class StepMaterial(
 
 typealias StepMaterialId = String
 
-enum class MaterialUnit(val unitType: UnitType) {
-    Quantity(UnitType.Quantity),
-    Grams(UnitType.Weight),
-    Liters(UnitType.Volume),
-    Milliliters(UnitType.Volume),
+enum class MaterialUnit(override val label: String): LabeledEnum<MaterialUnit> {
+    Quantity("quantity"),
+    Grams("grams"),
+    Liters("liters"),
+    Milliliters("milliliters");
+
+    val unitType get () = when (this) {
+        Quantity -> UnitType.Quantity
+        Grams -> UnitType.Weight
+        Liters -> UnitType.Volume
+        Milliliters -> UnitType.Volume
+    }
+
+    companion object {
+        fun fromLabel(label: String): MaterialUnit? = entries.firstOrNull { it.label == label }
+    }
 }
 
 fun MaterialUnit.defaultQuantity() = when (this) {

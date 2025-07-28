@@ -49,8 +49,8 @@ fun PlanScreen() {
                             if (it > now) Label("scheduled for ${(it - now).toShortDescription()}")
                         }
                     }
-                    Button(TablerIcons.Edit, Pond.colors.secondary) { viewModel.setEditIntentId(intent.id) }
-                    Button(TablerIcons.Trash, Pond.colors.deletion) { viewModel.removeIntent(intent) }
+                    Button(TablerIcons.Edit, Pond.colors.action) { viewModel.setEditIntentId(intent.id) }
+                    Button(TablerIcons.Trash, Pond.colors.negation) { viewModel.removeIntent(intent) }
                 }
             }
         }

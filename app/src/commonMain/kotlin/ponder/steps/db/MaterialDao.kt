@@ -9,6 +9,8 @@ import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ponder.steps.model.data.Material
 import ponder.steps.model.data.MaterialId
+import ponder.steps.model.data.MaterialType
+import ponder.steps.model.data.UnitType
 
 @Dao
 interface MaterialDao {
@@ -38,7 +40,8 @@ interface MaterialDao {
 
     @Query(
         "SELECT * FROM MaterialEntity " +
-            "WHERE label LIKE '%' || :label || '%' COLLATE NOCASE " +
-            "ORDER BY LENGTH(label) ASC")
-    suspend fun searchMaterialsByLabel(label: String): List<Material>
+                "WHERE label LIKE '%' || :label || '%' COLLATE NOCASE " +
+                "AND materialType = :materialType AND unitType = :unitType " +
+                "ORDER BY LENGTH(label) ASC")
+    suspend fun searchMaterials(label: String, materialType: MaterialType, unitType: UnitType): List<Material>
 }

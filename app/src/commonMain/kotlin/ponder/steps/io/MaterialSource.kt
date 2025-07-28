@@ -21,7 +21,8 @@ class MaterialSource(
 ) {
     fun flowStepMaterialsByStepId(stepId: StepId) = stepMaterialDao.flowStepMaterialsByStepId(stepId)
 
-    suspend fun searchMaterialsByLabel(label: String) = materialDao.searchMaterialsByLabel(label)
+    suspend fun searchMaterials(label: String, materialType: MaterialType, unitType: UnitType) =
+        materialDao.searchMaterials(label, materialType, unitType)
 
     suspend fun createNewMaterial(label: String, materialType: MaterialType, unitType: UnitType): Material? {
         val materialId = randomUuidStringId()
@@ -55,7 +56,8 @@ class MaterialSource(
         return if (isSuccess) stepMaterial else null
     }
 
-    suspend fun deleteStepMaterialById(stepMaterialId: StepMaterialId) = stepMaterialDao.deleteStepMaterialById(stepMaterialId)
+    suspend fun deleteStepMaterialById(stepMaterialId: StepMaterialId) =
+        stepMaterialDao.deleteStepMaterialById(stepMaterialId)
 
     suspend fun updateStepMaterialQuantity(stepMaterialId: StepMaterialId, quantity: Float) =
         stepMaterialDao.updateStepMaterialQuantity(stepMaterialId, quantity)

@@ -66,11 +66,11 @@ fun FocusView() {
         FlowRow(1, 2) {
 
             Button(
-                "Step into", background = Pond.colors.secondary, onClick = viewModel::stepIntoPath,
+                "Step into", background = Pond.colors.action, onClick = viewModel::stepIntoPath,
                 modifier = Modifier.weight(1f).magic(focus.stepPathSize > 0, rotationX = 90)
             )
             Button(
-                text = "Pause", background = Pond.colors.secondary,
+                text = "Pause", background = Pond.colors.action,
                 modifier = Modifier.weight(1f), onClick = viewModel::pauseTrek
             )
         }

@@ -11,13 +11,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Plus
 import kotlinx.collections.immutable.ImmutableList
 import ponder.steps.model.data.*
-import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.selected
 import pondui.ui.controls.BottomBarSpacer
 import pondui.ui.controls.Button
@@ -124,7 +122,7 @@ fun TagSetRow(
 ) {
     LazyRow(1) {
         items(tagSet) { tag ->
-            Button(tag.label, Pond.colors.secondary, modifier = Modifier.selected(tag == selectedTag)) { clickTag(tag) }
+            Button(tag.label, Pond.colors.action, modifier = Modifier.selected(tag == selectedTag)) { clickTag(tag) }
         }
     }
 }

@@ -158,7 +158,7 @@ fun RenderLogLines(
     val minsNowFromStart = (now - state.start).inWholeMinutes.toFloat()
     val lineHeight = with(density) { (minsNowFromStart / state.minPerDp).dp }
     Divider(
-        color = Pond.colors.primary.lighten(.2f),
+        color = Pond.colors.creation.lighten(.2f),
         height = 2.dp,
         modifier = Modifier
             .fillMaxWidth()
@@ -189,7 +189,7 @@ fun RenderLogLines(
                 }
                 .selected(state.openMenuId == line.trekPointId)
                 .clip(Pond.ruler.pill)
-                .background(Pond.colors.secondary.lighten(.2f))
+                .background(Pond.colors.action.lighten(.2f))
                 .focusProperties { canFocus = false }
                 .actionable { viewModel.setOpenMenuId(line.trekPointId) }
                 .padding(2.dp),

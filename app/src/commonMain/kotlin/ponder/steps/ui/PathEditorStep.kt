@@ -43,6 +43,7 @@ import pondui.ui.controls.actionable
 import pondui.ui.nav.LocalNav
 import pondui.ui.theme.Pond
 import pondui.utils.darken
+import pondui.utils.electrify
 
 @Composable
 fun LazyItemScope.PathEditorStep(
@@ -55,7 +56,7 @@ fun LazyItemScope.PathEditorStep(
     val nav = LocalNav.current
     var isHovered by remember { mutableStateOf(false) }
     val showControls = isSelected || isHovered
-    val lineColor = Pond.colors.swatches[0]
+    val lineColor = Pond.colors.action.electrify()
     val animatedLineColor by animateColorAsState(if (isHovered) lineColor else lineColor.darken(.2f))
     val questions = pathContextState.questions[step.id]
     Column(
@@ -126,13 +127,13 @@ fun LazyItemScope.PathEditorStep(
                 Button(
                     imageVector = TablerIcons.ArrowUp,
                     isEnabled = showControls && (step.position ?: 0) > 0,
-                    background = Pond.colors.secondary,
+                    background = Pond.colors.action,
                     shape = Pond.ruler.roundTop,
                 ) { viewModel.moveStep(step, -1) }
                 Button(
                     imageVector = TablerIcons.ArrowDown,
                     isEnabled = showControls && (step.position ?: 0) < pathContextState.steps.size - 1,
-                    background = Pond.colors.secondary,
+                    background = Pond.colors.action,
                     shape = Pond.ruler.roundBottom
                 ) { viewModel.moveStep(step, 1) }
             }
@@ -209,7 +210,7 @@ fun LazyItemScope.PathEditorStep(
                 Button(
                     imageVector = TablerIcons.Trash,
                     isEnabled = showControls,
-                    background = Pond.colors.deletion,
+                    background = Pond.colors.negation,
                 ) { viewModel.removeStepFromPath(step) }
             }
         }

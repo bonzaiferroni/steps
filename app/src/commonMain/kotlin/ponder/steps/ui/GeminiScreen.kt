@@ -40,7 +40,7 @@ fun GeminiScreen() {
 
             // Show loading indicator when waiting for response
             if (state.isLoading) {
-                Text("The AI be thinkin'...", color = Pond.colors.secondary)
+                Text("The AI be thinkin'...", color = Pond.colors.action)
             }
 
             // Input area at the bottom

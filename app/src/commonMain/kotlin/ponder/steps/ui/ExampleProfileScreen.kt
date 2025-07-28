@@ -28,7 +28,7 @@ fun ExampleProfileScreen(
             } else {
                 Text(example.label)
                 Expando()
-                Button("Edit", onClick = viewModel::toggleEdit, background = Pond.colors.secondary)
+                Button("Edit", onClick = viewModel::toggleEdit, background = Pond.colors.action)
             }
         }
     }

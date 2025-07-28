@@ -86,7 +86,7 @@ fun AddStepCloud(
                             Label("${step.pathSize} step${pluralize(step.pathSize)}")
                         }
                         ControlSet {
-                            ControlSetButton(TablerIcons.X, Pond.colors.tertiary) { viewModel.setIntentStep(null) }
+                            ControlSetButton(TablerIcons.X, Pond.colors.regression) { viewModel.setIntentStep(null) }
                             ControlSetButton("Add", onClick = viewModel::addExistingStep)
                         }
                     }

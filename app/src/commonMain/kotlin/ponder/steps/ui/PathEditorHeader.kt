@@ -17,7 +17,9 @@ import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Trash
 import kabinet.utils.pluralize
+import kotlinx.collections.immutable.toImmutableList
 import ponder.steps.model.data.MaterialType
+import ponder.steps.model.data.MaterialUnit
 import ponder.steps.model.data.UnitType
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepMaterialJoin
@@ -36,6 +38,7 @@ import pondui.ui.controls.MoreMenu
 import pondui.ui.controls.Row
 import pondui.ui.controls.Section
 import pondui.ui.controls.Text
+import pondui.ui.controls.TextField
 import pondui.ui.controls.TextFieldMenu
 import pondui.ui.theme.Pond
 import pondui.utils.addShadow
@@ -112,51 +115,69 @@ fun PathEditorHeader(
             }
         }
         Section() {
-            Row(
-                spacingUnits = 1,
-                verticalAlignment = Alignment.Top
+            Column(
+                spacingUnits = 2,
+                modifier = Modifier.width(IntrinsicSize.Max),
+                horizontalAlignment = Alignment.End
             ) {
-                Column(
+                Row(
                     spacingUnits = 1,
-                    modifier = Modifier.animateContentSize()
-                        .width(IntrinsicSize.Max)
                 ) {
                     DropMenu(
                         selected = state.newMaterialType,
                         onSelect = viewModel::setNewMaterialType,
-                        modifier = Modifier.fillMaxWidth()
                     )
-                    if (state.newMaterialType == MaterialType.Ingredient) {
+
+                    val matchedMaterial = state.matchedMaterial
+                    val labelColor = when (matchedMaterial) {
+                        null -> Pond.colors.creationVoid
+                        else -> Pond.colors.selectionVoid
+                    }
+                    val label = when (matchedMaterial) {
+                        null -> when (state.newMaterialLabel.isNotEmpty()) {
+                            true -> "add ${state.newMaterialLabel}"
+                            else -> "add ${state.newMaterialType.label.lowercase()}"
+                        }
+
+                        else -> "add ${matchedMaterial.label}"
+                    }
+                    TextFieldMenu(
+                        text = state.newMaterialLabel,
+                        items = state.materialSuggestions,
+                        onTextChanged = viewModel::setNewMaterialLabel,
+                        onEnterPressed = viewModel::addNewResource,
+                        onChooseSuggestion = viewModel::addNewResource,
+                        modifier = Modifier.weight(1f).drawLabel(label, labelColor)
+                    ) { material ->
+                        Text(material.label)
+                    }
+                }
+                if (state.newMaterialType == MaterialType.Ingredient) {
+                    Row(1) {
                         DropMenu(
-                            selected = state.newMaterialUnitType,
-                            onSelect = viewModel::setNewMaterialUnitType,
-                            modifier = Modifier.fillMaxWidth()
+                            selected = state.newUnitType,
+                            onSelect = viewModel::setNewUnitType,
+                        )
+                        if (state.newUnitType != UnitType.Quantity) {
+                            val materialUnitOptions = remember(state.newUnitType) {
+                                MaterialUnit.entries.filter { println(it.unitType); it.unitType == state.newUnitType }.map { it.label }
+                                    .toImmutableList()
+                            }
+                            DropMenu(
+                                selected = state.newMaterialUnit.label,
+                                options = materialUnitOptions,
+                                onSelect = { value ->
+                                    MaterialUnit.fromLabel(value)?.let { viewModel.setNewMaterialUnit(it) }
+                                },
+                            )
+                        }
+                        TextField(
+                            text = state.newMaterialQuantity,
+                            onTextChanged = viewModel::setNewMaterialQuantity,
+                            label = state.newMaterialUnit.label,
+                            modifier = Modifier.width(100.dp)
                         )
                     }
-                }
-
-                val matchedMaterial = state.matchedMaterial
-                val labelColor = when (matchedMaterial) {
-                    null -> Pond.colors.creationVoid
-                    else -> Pond.colors.selectionVoid
-                }
-                val label = when (matchedMaterial) {
-                    null -> when (state.newMaterialLabel.isNotEmpty()) {
-                        true -> "add ${state.newMaterialLabel}"
-                        else -> "add ${state.newMaterialType.label.lowercase()}"
-                    }
-
-                    else -> "add ${matchedMaterial.label}"
-                }
-                TextFieldMenu(
-                    text = state.newMaterialLabel,
-                    items = state.materialSuggestions,
-                    onTextChanged = viewModel::setNewMaterialLabel,
-                    onEnterPressed = viewModel::addNewResource,
-                    onChooseSuggestion = viewModel::addNewResource,
-                    modifier = Modifier.drawLabel(label, labelColor)
-                ) { material ->
-                    Text(material.label)
                 }
             }
         }
@@ -183,7 +204,7 @@ fun MaterialRow(
         Expando()
         MoreMenu {
             MoreMenuItem(
-                label = "Delete step",
+                label = "remove",
                 color = Pond.localColors.dangerContent,
                 icon = TablerIcons.Trash
             ) { viewModel.removeMaterial(stepMaterial) }

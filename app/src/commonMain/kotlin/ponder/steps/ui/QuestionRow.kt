@@ -73,12 +73,12 @@ fun QuestionRow(
                 ControlSet {
                     ControlSetButton(
                         text = "Skip",
-                        background = Pond.colors.secondary,
+                        background = Pond.colors.action,
                         onClick = ::onSubmit,
                     )
                     ControlSetButton(
                         text = "Done",
-                        background = Pond.colors.primary,
+                        background = Pond.colors.creation,
                         isEnabled = !isAnswering || hasAnswer,
                         onClick = ::onSubmit,
                     )
@@ -131,7 +131,7 @@ fun BooleanAnswer(
 ) {
     ControlSet {
         val selectedAnswer = answerText.toBooleanStrictOrNull()
-        val bgColor = Pond.colors.secondary
+        val bgColor = Pond.colors.action
         val selectedColor = bgColor.lighten()
         val toBg: (Boolean?) -> Color = { value -> if (value == true) selectedColor else bgColor }
         Button("True", toBg(selectedAnswer)) { changeAnswer(true.toString()); onSubmit() }

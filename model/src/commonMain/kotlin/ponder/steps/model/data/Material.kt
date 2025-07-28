@@ -20,10 +20,13 @@ enum class MaterialType(override val label: String): LabeledEnum<MaterialType> {
     Tool("Tool")
 }
 
-enum class UnitType(override val label: String): LabeledEnum<UnitType> {
-    Weight("Weight"),
-    Volume("Volume"),
-    Quantity("Quantity")
+enum class UnitType(
+    override val label: String,
+    val defaultUnit: MaterialUnit,
+): LabeledEnum<UnitType> {
+    Weight("Weight", MaterialUnit.Grams),
+    Volume("Volume", MaterialUnit.Milliliters),
+    Quantity("Quantity", MaterialUnit.Quantity)
 }
 
 fun UnitType.defaultQuantityType() = when (this) {

@@ -71,7 +71,7 @@ fun QuestionEditorView(
             text = question.text,
             placeholder = "Question text",
             modifier = Modifier.fillMaxWidth()
-                .selected(state.isTextError, Pond.colors.deletion),
+                .selected(state.isTextError, Pond.colors.negation),
             label = "question text",
             minLines = 2
         ) { dispatch(EditQuestion(question.copy(text = it))) }
@@ -79,7 +79,7 @@ fun QuestionEditorView(
             DropMenu(
                 selected = question.type,
                 label = "question type",
-                color = Pond.colors.secondary
+                color = Pond.colors.action
             ) { dispatch(EditQuestion(question.copy(type = it))) }
         }
         if (question.type == DataType.Integer || question.type == DataType.Decimal) {
@@ -106,15 +106,15 @@ fun QuestionEditorView(
             val audioUrl = question.audioUrl
             Button(
                 imageVector = TablerIcons.PlayerPlay,
-                background = Pond.colors.secondary,
+                background = Pond.colors.action,
                 isEnabled = audioUrl != null
             ) { audioUrl?.let { wavePlayer.play(it) } }
             // other toggle options
         }
         Row(1) {
             Expando()
-            Button("Delete", Pond.colors.deletion) { dispatch(DeleteQuestion) }
-            Button("Cancel", Pond.colors.tertiary, onClick = onDismiss)
+            Button("Delete", Pond.colors.negation) { dispatch(DeleteQuestion) }
+            Button("Cancel", Pond.colors.regression, onClick = onDismiss)
             Button("Accept") { dispatch(AcceptQuestionEdit) }
         }
     }

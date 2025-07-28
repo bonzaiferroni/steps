@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
@@ -117,69 +116,5 @@ fun PathEditorView(
         }
 
         bottomBarSpacerItem()
-    }
-}
-
-@Composable
-fun LazyItemScope.NewPathEditorStep(
-    newStepLabel: String,
-    isLastPosition: Boolean,
-    viewModel: PathEditorModel,
-) {
-    val lineColor = Pond.colors.creation
-    Column(
-        spacingUnits = 0,
-        modifier = Modifier.fillMaxWidth()
-            .animateItem()
-            .padding(Pond.ruler.unitPadding),
-    ) {
-        PathMapItemPart(
-            verticalAlignment = Alignment.Top,
-            lineSlot = {
-                StepLineSegment(
-                    modifier = Modifier.drawBehind {
-                        drawStepCircle(lineColor)
-                    }
-                ) {
-                    StepImage(
-                        url = null,
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(StepLineStrokeWidth * 2)
-                            .drawLabel("new", alignX = AlignX.Center)
-                            .clip(CircleShape)
-                    )
-                }
-            }
-        ) {
-            EditText(
-                text = newStepLabel,
-                placeholder = "new step label",
-                maxLines = 2,
-                style = Pond.typo.h5,
-                isContainerVisible = true,
-                onAcceptEdit = viewModel::addNewStep,
-                modifier = Modifier.weight(1f)
-            )
-            Column(
-                spacingUnits = 0,
-            ) {
-                Button(
-                    imageVector = TablerIcons.ArrowUp,
-                    background = Pond.colors.secondary,
-                    shape = Pond.ruler.roundTop,
-                ) { viewModel.moveNewStep(-1) }
-                Button(
-                    imageVector = TablerIcons.ArrowDown,
-                    background = Pond.colors.secondary,
-                    shape = Pond.ruler.roundBottom
-                ) { viewModel.moveNewStep(1) }
-            }
-        }
-        Box(
-            modifier = stepLineSegmentModifier
-                .drawBehind {
-                    drawTail(lineColor, !isLastPosition)
-                }
-        )
     }
 }
