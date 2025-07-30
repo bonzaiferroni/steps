@@ -40,8 +40,7 @@ interface MaterialDao {
 
     @Query(
         "SELECT * FROM MaterialEntity " +
-                "WHERE label LIKE '%' || :label || '%' COLLATE NOCASE " +
-                "AND materialType = :materialType AND unitType = :unitType " +
+                "WHERE label LIKE '%' || :label || '%' COLLATE NOCASE AND materialType = :materialType " +
                 "ORDER BY LENGTH(label) ASC")
-    suspend fun searchMaterials(label: String, materialType: MaterialType, unitType: UnitType): List<Material>
+    suspend fun searchMaterials(label: String, materialType: MaterialType): List<Material>
 }

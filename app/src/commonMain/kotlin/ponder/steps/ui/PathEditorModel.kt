@@ -2,9 +2,6 @@ package ponder.steps.ui
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.io.AiClient
@@ -161,13 +158,16 @@ class PathEditorModel(
     }
 
     fun setNewMaterialLabel(value: String) {
-        val materialSuggestions = if (value.isEmpty()) persistentListOf() else stateNow.materialSuggestions
-        setState { it.copy(newMaterialLabel = value, materialSuggestions = materialSuggestions) }
-        if (value.isEmpty()) return
-        viewModelScope.launch {
-            val unitType = stateNow.newUnitType; val materialType = stateNow.newMaterialType
-            val materialSuggestions = materialSource.searchMaterials(value, materialType, unitType).toImmutableList()
-            setState { it.copy(materialSuggestions = materialSuggestions) }
+        if (value.isEmpty()) {
+            setState { it.copy(newMaterialLabel = value, materialSuggestions = emptyList()) }
+        } else {
+            setState { it.copy(newMaterialLabel = value) }
+            viewModelScope.launch {
+                val materialType = stateNow.newMaterialType
+                val materialSuggestions = materialSource.searchMaterials(value, materialType)
+                setState { it.copy(materialSuggestions = materialSuggestions) }
+                println("assigned suggestions")
+            }
         }
     }
 
@@ -237,7 +237,7 @@ data class PathEditorState(
     val newMaterialLabel: String = "",
     val newUnitType: UnitType = UnitType.Weight,
     val newMaterialUnit: MaterialUnit = MaterialUnit.Grams,
-    val materialSuggestions: ImmutableList<Material> = persistentListOf(),
+    val materialSuggestions: List<Material> = emptyList(),
     val newMaterialQuantity: Float = 1f,
     val newMaterialTab: String = ADD_TOOL_LABEL
 ) {

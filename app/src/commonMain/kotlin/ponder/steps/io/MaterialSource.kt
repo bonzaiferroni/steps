@@ -21,8 +21,8 @@ class MaterialSource(
 ) {
     fun flowStepMaterialsByStepId(stepId: StepId) = stepMaterialDao.flowStepMaterialsByStepId(stepId)
 
-    suspend fun searchMaterials(label: String, materialType: MaterialType, unitType: UnitType) =
-        materialDao.searchMaterials(label, materialType, unitType)
+    suspend fun searchMaterials(label: String, materialType: MaterialType) =
+        materialDao.searchMaterials(label, materialType)
 
     suspend fun createNewMaterial(label: String, materialType: MaterialType, unitType: UnitType): Material? {
         val materialId = randomUuidStringId()

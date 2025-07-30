@@ -91,6 +91,15 @@ fun StartScreen() {
 fun EyBox() {
     Box() {
         var count by remember { mutableStateOf(0) }
-        Button(count.toString()) { count++ }
+        Button(onClick = { count++ }) {
+            EyText({ count.toString() })
+        }
     }
+}
+
+@Composable
+fun EyText(
+    provideValue: () -> String
+) {
+    Text(provideValue())
 }

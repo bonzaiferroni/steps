@@ -2,17 +2,11 @@ package ponder.steps.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Trash
 import kabinet.utils.pluralize
@@ -34,7 +28,6 @@ import pondui.ui.controls.Section
 import pondui.ui.controls.Tab
 import pondui.ui.controls.Tabs
 import pondui.ui.controls.Text
-import pondui.ui.controls.TextField
 import pondui.ui.controls.TextFieldMenu
 import pondui.ui.theme.Pond
 
@@ -88,7 +81,7 @@ fun PathEditorMaterials(
         ) {
             Tab(ADD_TOOL_LABEL) {
                 Row(1, modifier = Modifier.fillMaxWidth()) {
-                    AddMaterialField(state, viewModel, modifier = Modifier.weight(1f))
+                    AddMaterialField(viewModel, modifier = Modifier.weight(1f))
                     Button(label, background = labelColor, onClick = viewModel::addMaterial)
                 }
             }
@@ -104,7 +97,6 @@ fun PathEditorMaterials(
                             onValueSelected = viewModel::setNewMaterialQuantity,
                         )
                         AddMaterialField(
-                            state = state,
                             viewModel = viewModel,
                             modifier = Modifier.weight(1f)
                         )
@@ -129,13 +121,14 @@ fun PathEditorMaterials(
 
 @Composable
 fun AddMaterialField(
-    state: PathEditorState,
     viewModel: PathEditorModel,
     modifier: Modifier = Modifier,
 ) {
+    val state by viewModel.stateFlow.collectAsState()
+
     TextFieldMenu(
         text = state.newMaterialLabel,
-        items = state.materialSuggestions,
+        provideOptions = { println("state suggestions: ${state.materialSuggestions.size}"); state.materialSuggestions },
         onTextChanged = viewModel::setNewMaterialLabel,
         onEnterPressed = viewModel::addMaterial,
         onChooseSuggestion = viewModel::addMaterial,
