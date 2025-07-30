@@ -26,8 +26,6 @@ import ponder.steps.model.data.TagId
 import ponder.steps.model.data.UnitType
 import ponder.steps.model.data.StepMaterialId
 import ponder.steps.model.data.StepMaterialJoin
-import ponder.steps.model.data.defaultQuantity
-import ponder.steps.model.data.defaultQuantityType
 import pondui.LocalValueRepository
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
@@ -173,10 +171,10 @@ class PathEditorModel(
         }
     }
 
-    fun addNewResource(material: Material? = null) {
+    fun addMaterial(material: Material? = null) {
         val stepId = pathContextState.value.step?.id ?: return
         val newMaterialLabel = stateNow.newMaterialLabel.takeIf { it.isNotEmpty() } ?: return
-        val quantity = stateNow.newMaterialQuantity.toFloatOrNull() ?: return
+        val quantity = stateNow.newMaterialQuantity
         viewModelScope.launch {
             val materialType = stateNow.newMaterialType; val unitType = stateNow.newUnitType
             val material = material ?: stateNow.matchedMaterial
@@ -192,7 +190,7 @@ class PathEditorModel(
                 quantity = quantity,
                 materialUnit = materialUnit
             )
-            setState { it.copy(newMaterialLabel = "", newMaterialQuantity = "1.0") }
+            setState { it.copy(newMaterialLabel = "", newMaterialQuantity = 1f) }
         }
     }
 
@@ -208,12 +206,12 @@ class PathEditorModel(
         }
     }
 
-    fun setNewMaterialType(value: MaterialType) {
+    fun setNewMaterialTab(value: String) {
         val unitType = when (value) {
-            MaterialType.Tool -> UnitType.Quantity
+            ADD_TOOL_LABEL -> UnitType.Quantity
             else -> stateNow.newUnitType
         }
-        setState { it.copy(newMaterialType = value, newUnitType = unitType) }
+        setState { it.copy(newMaterialTab = value, newUnitType = unitType) }
     }
 
     fun setNewUnitType(value: UnitType) {
@@ -224,7 +222,7 @@ class PathEditorModel(
         setState { it.copy(newMaterialUnit = value) }
     }
 
-    fun setNewMaterialQuantity(value: String) {
+    fun setNewMaterialQuantity(value: Float) {
         setState { it.copy(newMaterialQuantity = value) }
     }
 }
@@ -237,12 +235,19 @@ data class PathEditorState(
     val newStepLabel: String = "",
     val newStepPosition: Int? = null,
     val newMaterialLabel: String = "",
-    val newMaterialType: MaterialType = MaterialType.Tool,
     val newUnitType: UnitType = UnitType.Weight,
     val newMaterialUnit: MaterialUnit = MaterialUnit.Grams,
     val materialSuggestions: ImmutableList<Material> = persistentListOf(),
-    val newMaterialQuantity: String = "1.0"
+    val newMaterialQuantity: Float = 1f,
+    val newMaterialTab: String = ADD_TOOL_LABEL
 ) {
     val isValidNewTagLabel get() = newTagLabel.isNotBlank()
     val matchedMaterial get() = materialSuggestions.firstOrNull()?.takeIf { it.label.equals(newMaterialLabel, true) }
+    val newMaterialType: MaterialType get() = when (newMaterialTab) {
+        ADD_TOOL_LABEL -> MaterialType.Tool
+        else -> MaterialType.Ingredient
+    }
 }
+
+const val ADD_TOOL_LABEL = "add tool"
+const val ADD_INGREDIENT_LABEL = "add ingredient"

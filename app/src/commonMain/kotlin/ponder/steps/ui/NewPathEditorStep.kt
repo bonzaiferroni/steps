@@ -80,7 +80,6 @@ fun LazyItemScope.NewPathEditorStep(
         }
         Box(
             modifier = stepLineSegmentModifier
-                .animateContentSize()
                 .drawBehind {
                     drawTail(lineColor, !isLastPosition)
                 }
