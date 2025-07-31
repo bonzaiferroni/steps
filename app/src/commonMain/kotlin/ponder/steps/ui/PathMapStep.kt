@@ -50,8 +50,7 @@ fun LazyItemScope.PathMapStep(
     step: Step,
     isSelected: Boolean,
     isLastStep: Boolean,
-    isTrekContext: Boolean,
-    log: StepLog?,
+    isCompleted: Boolean?,
     progress: Int?,
     questionsAndAnswers: QuestionsAndAnswers,
     currentQuestion: Question?,
@@ -60,7 +59,6 @@ fun LazyItemScope.PathMapStep(
     answerQuestion: (String?) -> Unit,
     navToPath: (Step) -> Unit,
 ) {
-    val isCompleted = log != null
     val questions = questionsAndAnswers.questions;
     val answers = questionsAndAnswers.answers
 
@@ -78,23 +76,12 @@ fun LazyItemScope.PathMapStep(
         modifier = Modifier.animateItem()
     ) {
         var isHovered by remember { mutableStateOf(false) }
-        val swatchColor = Pond.colors.swatches[0]
-        val lineColor = when (isTrekContext) {
-            true -> when (isCompleted) {
-                true -> Pond.colors.data
-                else -> Pond.colors.void
-            }
-
-            else -> when (isHovered) {
-                true -> swatchColor
-                else -> swatchColor.darken(.2f)
-            }
-        }
+        val lineColor = provideStepLineColor(isCompleted, isHovered)
         val animatedLineColor by animateColorAsState(lineColor)
         Column(
             modifier = Modifier.selected(isSelected, radius = Pond.ruler.defaultCorner)
                 // .background(Pond.colors.void.copy(.2f))
-                .padding(Pond.ruler.unitSpacing)
+                .padding(vertical = Pond.ruler.unitSpacing)
                 .focusable(onFocusChanged)
                 .actionable(
                     onHover = { isHovered = it },
@@ -108,11 +95,7 @@ fun LazyItemScope.PathMapStep(
                 navToPath = navToPath,
                 setOutcome = setOutcome,
             ) {
-                StepLineSegment(
-                    modifier = Modifier.drawBehind {
-                        drawStepCircle(animatedLineColor)
-                    }
-                ) {
+                StepLineCircle(isCompleted, isHovered) {
                     StepImage(
                         url = step.thumbUrl,
                         modifier = Modifier.fillMaxWidth()
@@ -122,16 +105,12 @@ fun LazyItemScope.PathMapStep(
                     )
                 }
                 val isContinued = !isLastStep || step.pathSize > 0 || questions.isNotEmpty()
-                StepLineFiller(modifier = Modifier.drawBehind {
-                    drawStepLine(lineColor, isContinued)
-                })
+                StepLineFill(isContinued, isCompleted, isHovered)
             }
             if (step.pathSize > 0) {
                 PathMapItemPart(
                     lineSlot = {
-                        StepLineFiller(modifier = Modifier.drawBehind {
-                            drawStepBranch(animatedLineColor, isLastStep)
-                        })
+                        StepLineBranch(!isLastStep, isCompleted, isHovered)
                     },
                     spacingUnits = 0,
                 ) {
@@ -162,20 +141,8 @@ fun LazyItemScope.PathMapStep(
             for (question in questions) {
                 PathMapItemPart(
                     lineSlot = {
-                        val isQuestionAnswered = answers.any { a -> a.questionId == question.id }
-                        val lineColor = when (isTrekContext) {
-                            true -> when (isQuestionAnswered) {
-                                true -> Pond.colors.data
-                                false -> Pond.colors.void
-                            }
-                            false -> animatedLineColor
-                        }
-                        StepLineFiller(
-                            modifier = Modifier.drawBehind {
-                                drawStepCircle(lineColor)
-                            }
-                                .padding(StepLineStrokeWidth)
-                        ) {
+                        val isQuestionAnswered = answers?.any { a -> a.questionId == question.id }
+                        StepLineCircle(isQuestionAnswered, isHovered) {
                             Icon(TablerIcons.QuestionMark)
                         }
                     }
@@ -187,12 +154,7 @@ fun LazyItemScope.PathMapStep(
                     )
                 }
             }
-            Box(
-                modifier = stepLineSegmentModifier
-                    .drawBehind {
-                        drawTail(animatedLineColor, !isLastStep)
-                    }
-            )
+            StepLineTail(!isLastStep, isCompleted, isHovered)
         }
     }
 }
@@ -200,14 +162,14 @@ fun LazyItemScope.PathMapStep(
 @Stable
 data class QuestionsAndAnswers(
     val questions: List<Question>,
-    val answers: List<Answer>,
+    val answers: List<Answer>?,
 )
 
 @Composable
 fun PathMapStepHeader(
     step: Step,
     progress: Int?,
-    isCompleted: Boolean,
+    isCompleted: Boolean?,
     navToPath: (Step) -> Unit,
     setOutcome: (Step, StepOutcome?) -> Unit,
     lineSlot: @Composable () -> Unit,
@@ -240,12 +202,14 @@ fun PathMapStepHeader(
                         Text("$progress of ${step.pathSize}")
                     }
                 } else {
-                    Checkbox(isCompleted, modifier = Modifier.padding(end = 10.dp)) {
-                        val outcome = when {
-                            isCompleted -> null
-                            else -> StepOutcome.Finished
+                    if (isCompleted != null) {
+                        Checkbox(isCompleted, modifier = Modifier.padding(end = 10.dp)) {
+                            val outcome = when {
+                                isCompleted -> null
+                                else -> StepOutcome.Finished
+                            }
+                            setOutcome(step, outcome)
                         }
-                        setOutcome(step, outcome)
                     }
                 }
             }

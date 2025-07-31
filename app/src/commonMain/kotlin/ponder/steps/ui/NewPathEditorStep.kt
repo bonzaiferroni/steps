@@ -39,15 +39,10 @@ fun LazyItemScope.NewPathEditorStep(
         PathMapItemPart(
             verticalAlignment = Alignment.Top,
             lineSlot = {
-                StepLineSegment(
-                    modifier = Modifier.drawBehind {
-                        drawStepCircle(lineColor)
-                    }
-                ) {
+                StepLineCircle(lineColor) {
                     StepImage(
                         url = null,
                         modifier = Modifier.fillMaxWidth()
-                            .padding(StepLineStrokeWidth * 2)
                             .drawLabel("new", alignX = AlignX.Center)
                             .clip(CircleShape)
                     )
@@ -78,11 +73,8 @@ fun LazyItemScope.NewPathEditorStep(
                 ) { viewModel.moveNewStep(1) }
             }
         }
-        Box(
-            modifier = stepLineSegmentModifier
-                .drawBehind {
-                    drawTail(lineColor, !isLastPosition)
-                }
-        )
+        if (!isLastPosition) {
+            StepLineTail(lineColor)
+        }
     }
 }

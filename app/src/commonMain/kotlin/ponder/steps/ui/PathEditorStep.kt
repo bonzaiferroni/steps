@@ -79,23 +79,16 @@ fun LazyItemScope.PathEditorStep(
         PathMapItemPart(
             verticalAlignment = Alignment.Top,
             lineSlot = {
-                StepLineSegment(
-                    modifier = Modifier.drawBehind {
-                        drawStepCircle(animatedLineColor)
-                    }
-                ) {
+                StepLineCircle(null, isHovered) {
                     StepImage(
                         url = step.thumbUrl,
                         modifier = Modifier.fillMaxWidth()
-                            .padding(StepLineStrokeWidth * 2)
                             .drawLabel("step ${(step.position ?: 0) + 1}", alignX = AlignX.Center)
                             .clip(CircleShape)
                     )
                 }
                 val isContinued = !isLastStep || step.pathSize > 0 || questions != null
-                StepLineFiller(modifier = Modifier.drawBehind {
-                    drawStepLine(animatedLineColor, isContinued)
-                })
+                StepLineFill(isContinued, null, isHovered)
             }
         ) {
             // text fields
@@ -141,9 +134,7 @@ fun LazyItemScope.PathEditorStep(
         if (step.pathSize > 0) {
             PathMapItemPart(
                 lineSlot = {
-                    StepLineFiller(modifier = Modifier.drawBehind {
-                        drawStepBranch(animatedLineColor, isLastStep)
-                    })
+                    StepLineBranch(!isLastStep, null, isHovered)
                 },
                 spacingUnits = 0
             ) {
@@ -166,12 +157,7 @@ fun LazyItemScope.PathEditorStep(
             for (question in questions) {
                 PathMapItemPart(
                     lineSlot = {
-                        StepLineFiller(
-                            modifier = Modifier.drawBehind {
-                                drawStepCircle(animatedLineColor)
-                            }
-                                .padding(StepLineStrokeWidth)
-                        ) {
+                        StepLineCircle(null, isHovered) {
                             Icon(TablerIcons.QuestionMark)
                         }
                     }
@@ -184,9 +170,7 @@ fun LazyItemScope.PathEditorStep(
         }
         PathMapItemPart(
             lineSlot = {
-                StepLineFiller(modifier = Modifier.drawBehind {
-                    drawStepLine(animatedLineColor, !isLastStep)
-                })
+                StepLineFill(!isLastStep, null, isHovered)
             }
         ) {
             // step controls
@@ -214,11 +198,6 @@ fun LazyItemScope.PathEditorStep(
                 ) { viewModel.removeStepFromPath(step) }
             }
         }
-        Box(
-            modifier = stepLineSegmentModifier
-                .drawBehind {
-                    drawTail(animatedLineColor, !isLastStep)
-                }
-        )
+        StepLineTail(!isLastStep, null, isHovered)
     }
 }

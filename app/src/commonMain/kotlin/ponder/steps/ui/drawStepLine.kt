@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -13,8 +12,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import pondui.ui.theme.Pond
+import pondui.utils.darken
+import pondui.utils.electrify
 
 val StepLineColumnWidth = 72.dp
 val StepLineStrokeWidth = 3.dp
@@ -24,24 +25,35 @@ val stepLineSegmentModifier = Modifier.width(StepLineColumnWidth)
 @Composable
 fun StepLineSegment(
     modifier: Modifier = Modifier,
-    content: (@Composable BoxScope.() -> Unit)? = null
+    content: (@Composable () -> Unit)? = null
 ) {
     Box(
         modifier = stepLineSegmentModifier.then(modifier),
-        content = content ?: { },
         contentAlignment = Alignment.Center
-    )
+    ) {
+        content?.invoke()
+    }
 }
 
 @Composable
 fun ColumnScope.StepLineFiller(
     modifier: Modifier = Modifier,
-    content: (@Composable BoxScope.() -> Unit)? = null
+    content: (@Composable () -> Unit)? = null
 ) {
     StepLineSegment(
         modifier = stepLineSegmentModifier.weight(1f).then(modifier),
         content = content
     )
+}
+
+@Composable
+fun provideStepLineColor(isCompleted: Boolean?, isHighlighted: Boolean) = when (isCompleted) {
+    true -> Pond.colors.data
+    false -> Pond.colors.void
+    else -> when (isHighlighted) {
+        true -> Pond.colors.action.electrify()
+        else -> Pond.colors.action.electrify().darken()
+    }
 }
 
 fun DrawScope.drawStepLine(
@@ -62,7 +74,7 @@ fun DrawScope.drawStepLine(
 
 fun DrawScope.drawStepBranch(
     color: Color,
-    isLastStep: Boolean
+    isContinued: Boolean
 ) {
     val w = size.width
     val h = size.height
@@ -84,7 +96,7 @@ fun DrawScope.drawStepBranch(
         lineTo(size.width, midY)
         moveTo(midX + r, midY)
 
-        if (!isLastStep) {
+        if (isContinued) {
             // inward bulge → bottom at midY + r
             cubicTo(
                 midX + r - k * r, midY,         // cp1 just above right‑point
