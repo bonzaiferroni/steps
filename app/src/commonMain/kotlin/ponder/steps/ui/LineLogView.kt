@@ -77,7 +77,7 @@ fun LineLogView() {
 
     Box {
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
@@ -219,7 +219,7 @@ fun RenderLogLines(
                             }
                         } else {
                             Row(
-                                spacingUnits = 1,
+                                gap = 1,
                                 modifier = Modifier
                                     .height(70.dp)
                                     .fillMaxWidth()

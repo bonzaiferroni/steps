@@ -1,6 +1,6 @@
 package ponder.steps.io
 
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
@@ -84,7 +84,7 @@ class LocalTrekRepository(
         } else {
             stepLogDao.insert(
                 StepLogEntity(
-                    id = randomUuidStringId(),
+                    id = generateUuidString(),
                     stepId = step.id,
                     trekId = trekId,
                     pathStepId = step.pathStepId,
@@ -202,7 +202,7 @@ class LocalTrekRepository(
 
     suspend fun createAnswer(trekPointId: TrekPointId, step: Step, answer: NewAnswer, breadcrumbs: List<Step>?): Boolean {
         val trekId = trekDao.readTrekIdByTrekPointId(trekPointId) ?: error("Missing TrekId")
-        val id = randomUuidStringId()
+        val id = generateUuidString()
         val answer = AnswerEntity(
             id = id,
             stepLogId = answer.stepLogId,
@@ -225,7 +225,7 @@ class LocalTrekRepository(
     suspend fun readTreksLastStartedAt(intentIds: List<IntentId>) = trekDao.readTreksLastStartedAt(intentIds)
 
     private suspend fun createTrekFromIntent(intent: Intent): TrekId {
-        val id = randomUuidStringId()
+        val id = generateUuidString()
         val now = Clock.System.now()
 
         trekDao.create(

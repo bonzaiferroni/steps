@@ -5,7 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.collections.immutable.toImmutableList
-import ponder.steps.model.data.SpeechVoice
+import kabinet.model.SpeechVoice
 import pondui.ui.controls.EditText
 import pondui.ui.controls.Label
 import pondui.ui.controls.MenuWheel

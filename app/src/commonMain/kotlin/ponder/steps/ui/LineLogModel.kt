@@ -13,7 +13,7 @@ import ponder.steps.io.NextStep
 import ponder.steps.io.StepOutcome
 import ponder.steps.model.data.NewAnswer
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 import java.util.PriorityQueue
 import kotlin.time.Duration.Companion.minutes
 
@@ -21,7 +21,7 @@ class LineLogModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
     private val trekRepo: LocalTrekRepository = LocalTrekRepository(),
 ) : StateModel<LineLogState>() {
-    override val state = ViewState(LineLogState())
+    override val state = ModelState(LineLogState())
 
     fun setParameters(start: Instant, end: Instant) {
         setState { it.copy(start = start, end = end) }

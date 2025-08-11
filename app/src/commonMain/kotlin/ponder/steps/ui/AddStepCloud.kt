@@ -60,7 +60,7 @@ fun AddStepCloud(
         onDismiss = dismiss
     ) {
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.height(400.dp),
         ) {
             MagicItem(
@@ -69,7 +69,7 @@ fun AddStepCloud(
                 modifier = Modifier.height(44.dp),
                 itemContent = { step ->
                     Row(
-                        spacingUnits = 1,
+                        gap = 1,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         StepImage(

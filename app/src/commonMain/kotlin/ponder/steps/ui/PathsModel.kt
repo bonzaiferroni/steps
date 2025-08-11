@@ -8,12 +8,12 @@ import ponder.steps.io.StepRepository
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class PathsModel(
     val stepRepo: StepRepository = LocalStepRepository()
 ): StateModel<StepListState>() {
-    override val state = ViewState(StepListState())
+    override val state = ModelState(StepListState())
 
     private var flowJob: Job? = null
 

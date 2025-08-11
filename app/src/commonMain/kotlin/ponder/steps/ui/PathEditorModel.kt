@@ -23,24 +23,24 @@ import ponder.steps.model.data.TagId
 import ponder.steps.model.data.UnitType
 import ponder.steps.model.data.StepMaterialId
 import ponder.steps.model.data.StepMaterialJoin
-import pondui.LocalValueRepository
+import pondui.LocalValueSource
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 @Stable
 class PathEditorModel(
     val stepRepo: StepRepository = LocalStepRepository(),
     val aiClient: AiClient = AiClient(),
-    val valueRepo: ValueRepository = LocalValueRepository(),
+    val valueRepo: ValueRepository = LocalValueSource(),
     val questionRepo: QuestionSource = QuestionSource(),
     val tagRepo: LocalTagRepository = LocalTagRepository(),
     val materialSource: MaterialSource = MaterialSource(),
 ): StateModel<PathEditorState>() {
-    override val state = ViewState(PathEditorState())
+    override val state = ModelState(PathEditorState())
 
     val messenger = MessengerModel(this)
-    private val pathContextState = ViewState(PathContextState())
+    private val pathContextState = ModelState(PathContextState())
     val pathContext = PathContextModel(this, pathContextState)
     private val contextStep get() = pathContextState.value.step
 

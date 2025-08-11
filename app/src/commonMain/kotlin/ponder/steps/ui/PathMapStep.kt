@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,7 +27,6 @@ import ponder.steps.io.StepOutcome
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Question
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepLog
 import pondui.ui.behavior.AlignX
 import pondui.ui.behavior.MagicItem
 import pondui.ui.behavior.drawLabel
@@ -43,7 +41,6 @@ import pondui.ui.controls.Row
 import pondui.ui.controls.Text
 import pondui.ui.controls.actionable
 import pondui.ui.theme.Pond
-import pondui.utils.darken
 
 @Composable
 fun LazyItemScope.PathMapStep(
@@ -115,7 +112,7 @@ fun LazyItemScope.PathMapStep(
                     spacingUnits = 0,
                 ) {
                     Row(
-                        spacingUnits = 0,
+                        gap = 0,
                     ) {
                         val maxStepRowSize = 8
                         repeat(minOf(maxStepRowSize, step.pathSize)) { index ->
@@ -180,7 +177,7 @@ fun PathMapStepHeader(
     ) {
         // text fields
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.weight(1f)
                 .padding(bottom = Pond.ruler.unitSpacing)
         ) {

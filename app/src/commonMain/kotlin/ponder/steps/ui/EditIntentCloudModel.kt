@@ -7,18 +7,17 @@ import ponder.steps.io.LocalIntentRepository
 import ponder.steps.io.LocalStepRepository
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
-import ponder.steps.model.data.NewIntent
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class EditIntentCloudModel(
     private val dismiss: () -> Unit,
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
     private val stepRepo: LocalStepRepository = LocalStepRepository(),
 ): StateModel<EditIntentCloudState>() {
-    override val state = ViewState(EditIntentCloudState())
+    override val state = ModelState(EditIntentCloudState())
 
-    private val editIntentState = ViewState(EditIntentState())
+    private val editIntentState = ModelState(EditIntentState())
     val editIntent = EditIntentModel(this, editIntentState)
 
     fun setParameters(intentId: IntentId) {

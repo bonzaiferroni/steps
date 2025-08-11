@@ -6,14 +6,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import pondui.ui.core.SubModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 import pondui.ui.nav.LocalPortal
 import pondui.ui.nav.Toast
 import pondui.ui.nav.ToastType
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun MessengerView(viewModel: MessengerModel) {
@@ -33,7 +30,7 @@ class MessengerModel(
     override val viewModel: ViewModel
 ) : SubModel<MessengerState>() {
 
-    override val state = ViewState(MessengerState())
+    override val state = ModelState(MessengerState())
 
     fun setMessage(text: String, type: ToastType = ToastType.Default) {
         val toast = Toast(text, type)

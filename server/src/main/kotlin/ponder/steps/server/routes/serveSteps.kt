@@ -1,6 +1,8 @@
 package ponder.steps.server.routes
 
 import io.ktor.server.routing.Routing
+import klutch.environment.Environment
+import klutch.environment.readEnvFromPath
 import klutch.server.*
 import klutch.utils.getUserId
 import ponder.steps.model.Api
@@ -8,7 +10,7 @@ import ponder.steps.model.data.StepSuggestGeminiResponse
 import ponder.steps.model.data.StepSuggestResponse
 import ponder.steps.model.data.StepWithDescription
 import ponder.steps.model.data.toAiPrompt
-import ponder.steps.server.clients.GeminiService
+import klutch.gemini.GeminiService
 import ponder.steps.server.db.services.PathService
 import java.io.File
 

@@ -21,7 +21,7 @@ fun PathMapItemPart(
     content: @Composable RowScope.() -> Unit,
 ) {
     Row(
-        spacingUnits = spacingUnits,
+        gap = spacingUnits,
         modifier = pathMapItemRowModifier,
         verticalAlignment = verticalAlignment,
     ) {

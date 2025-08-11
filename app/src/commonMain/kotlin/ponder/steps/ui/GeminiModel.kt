@@ -6,7 +6,7 @@ import kabinet.clients.GeminiRole
 import kotlinx.coroutines.launch
 import ponder.steps.io.GeminiRepository
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 /**
  * Arr! This be the model for the Gemini screen, matey!
@@ -15,7 +15,7 @@ import pondui.ui.core.ViewState
 class GeminiModel(
     private val geminiStore: GeminiRepository = GeminiRepository()
 ): StateModel<GeminiState>() {
-    override val state = ViewState(GeminiState())
+    override val state = ModelState(GeminiState())
 
     /**
      * Updates the current message text as the user types

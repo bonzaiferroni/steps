@@ -1,7 +1,7 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.coroutines.launch
 import ponder.steps.io.QuestionSource
 import ponder.steps.model.data.Question
@@ -9,13 +9,13 @@ import ponder.steps.model.data.QuestionId
 import ponder.steps.model.data.StepId
 import ponder.steps.model.data.forStep
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class QuestionEditorModel(
     val questionSource: QuestionSource = QuestionSource(),
     val speechService: SpeechService = SpeechService(),
 ): StateModel<QuestionEditorState>() {
-    override val state = ViewState(QuestionEditorState())
+    override val state = ModelState(QuestionEditorState())
 
     val messenger = MessengerModel(this)
 
@@ -83,7 +83,7 @@ class QuestionEditorModel(
             }
 
             if (questionNow.id.isBlank()) {
-                val id = randomUuidStringId()
+                val id = generateUuidString()
                 questionSource.createQuestion(questionNow.copy(
                     id = id
                 ))

@@ -3,18 +3,16 @@ package ponder.steps.ui
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ponder.steps.io.LocalIntentRepository
-import ponder.steps.io.LocalStepRepository
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.IntentId
-import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.Step
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class PlanModel(
     private val intentRepo: LocalIntentRepository = LocalIntentRepository(),
 ) : StateModel<PlanState>() {
-    override val state = ViewState(PlanState())
+    override val state = ModelState(PlanState())
 
     init {
         intentRepo.flowActiveIntents().launchCollect { intents ->

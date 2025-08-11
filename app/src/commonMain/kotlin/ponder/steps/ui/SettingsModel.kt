@@ -1,15 +1,15 @@
 package ponder.steps.ui
 
-import ponder.steps.model.data.SpeechVoice
-import pondui.LocalValueRepository
+import kabinet.model.SpeechVoice
+import pondui.LocalValueSource
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class SettingsModel(
-    private val valueRepo: ValueRepository = LocalValueRepository()
+    private val valueRepo: ValueRepository = LocalValueSource()
 ): StateModel<SettingsState>() {
-    override val state = ViewState(SettingsState(
+    override val state = ModelState(SettingsState(
         defaultImageTheme = valueRepo.readString(SETTINGS_DEFAULT_IMAGE_THEME),
         defaultAudioTheme = valueRepo.readString(SETTINGS_DEFAULT_AUDIO_THEME),
         defaultVoice = valueRepo.readInt(SETTINGS_DEFAULT_VOICE).let { SpeechVoice.entries[it] }

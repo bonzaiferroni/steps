@@ -8,12 +8,12 @@ import kotlinx.datetime.Instant
 import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.IntentPriority
 import pondui.ui.core.SubModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 @Stable
 class EditIntentModel(
     override val viewModel: ViewModel,
-    override val state: ViewState<EditIntentState>
+    override val state: ModelState<EditIntentState>
 ): SubModel<EditIntentState>() {
 
     fun setIntentTiming(value: IntentTiming) {

@@ -1,6 +1,6 @@
 package ponder.steps.io
 
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.datetime.Clock
 import ponder.steps.appDb
 import ponder.steps.db.MaterialDao
@@ -25,7 +25,7 @@ class MaterialSource(
         materialDao.searchMaterials(label, materialType)
 
     suspend fun createNewMaterial(label: String, materialType: MaterialType, unitType: UnitType): Material? {
-        val materialId = randomUuidStringId()
+        val materialId = generateUuidString()
         val material = Material(
             id = materialId,
             label = label,
@@ -43,7 +43,7 @@ class MaterialSource(
         quantity: Float,
         materialUnit: MaterialUnit,
     ): StepMaterial? {
-        val stepMaterialId = randomUuidStringId()
+        val stepMaterialId = generateUuidString()
         val stepMaterial = StepMaterial(
             id = stepMaterialId,
             materialId = materialId,

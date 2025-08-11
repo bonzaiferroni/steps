@@ -44,7 +44,7 @@ fun PathEditorMaterials(
 
     if (tools.isNotEmpty()) {
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.drawSection("${tools.size} tool${pluralize(tools.size)}")
                 .fillMaxWidth()
                 .animateContentSize()
@@ -56,7 +56,7 @@ fun PathEditorMaterials(
     }
     if (ingredients.isNotEmpty()) {
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.drawSection("${ingredients.size} ingredient${pluralize(ingredients.size)}")
                 .fillMaxWidth()
                 .animateContentSize()
@@ -87,10 +87,10 @@ fun PathEditorMaterials(
             }
             Tab(ADD_INGREDIENT_LABEL) {
                 Column(
-                    spacingUnits = 1,
+                    gap = 1,
                 ) {
                     Row(
-                        spacingUnits = 1,
+                        gap = 1,
                     ) {
                         FloatFieldMenu(
                             value = state.newMaterialQuantity,

@@ -1,7 +1,7 @@
 package ponder.steps.io
 
 import ponder.steps.model.Api
-import ponder.steps.model.data.SpeechRequest
+import kabinet.model.SpeechRequest
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
 import ponder.steps.model.data.StepSuggestRequest

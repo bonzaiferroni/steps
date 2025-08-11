@@ -1,6 +1,6 @@
 package ponder.steps.io
 
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import ponder.steps.appDb
@@ -18,12 +18,12 @@ class LocalTagRepository(
     fun flowTagsByStepId(stepId: StepId) = tagDao.flowTagsByStepId(stepId)
 
     suspend fun addTag(stepId: StepId, label: String): Boolean {
-        val tagId = tagDao.readTagIdByLabel(label) ?: randomUuidStringId().also {
+        val tagId = tagDao.readTagIdByLabel(label) ?: generateUuidString().also {
             require(tagDao.insert(TagEntity(it, label, Clock.System.now())) > 0)
         }
 
         return stepTagDao.readStepTagId(stepId, tagId) != null || stepTagDao.insert(StepTagEntity(
-            id = randomUuidStringId(),
+            id = generateUuidString(),
             stepId = stepId,
             tagId = tagId,
             updatedAt = Clock.System.now()

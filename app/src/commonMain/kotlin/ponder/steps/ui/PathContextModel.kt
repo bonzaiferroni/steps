@@ -22,11 +22,11 @@ import ponder.steps.model.data.StepLogId
 import ponder.steps.model.data.StepMaterialJoin
 import ponder.steps.model.data.Tag
 import pondui.ui.core.SubModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class PathContextModel(
     override val viewModel: ViewModel,
-    override val state: ViewState<PathContextState>,
+    override val state: ModelState<PathContextState>,
     private val stepRepo: StepRepository = LocalStepRepository(),
     private val questionRepo: QuestionSource = QuestionSource(),
     private val tagRepo: LocalTagRepository = LocalTagRepository(),

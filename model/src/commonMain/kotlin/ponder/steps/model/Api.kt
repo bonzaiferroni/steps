@@ -4,18 +4,16 @@ import kabinet.api.*
 import kabinet.clients.GeminiMessage
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.Focus
-import ponder.steps.model.data.ImageUrls
+import kabinet.model.ImageUrls
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.NewExample
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
-import ponder.steps.model.data.ReadSyncRequest
-import ponder.steps.model.data.SpeechRequest
+import kabinet.model.SpeechRequest
 import ponder.steps.model.data.Step
 import ponder.steps.model.data.StepImageRequest
 import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepSuggestResponse
-import ponder.steps.model.data.FullSync
 import ponder.steps.model.data.TrekItem
 
 object Api: ParentEndpoint(null, apiPrefix) {

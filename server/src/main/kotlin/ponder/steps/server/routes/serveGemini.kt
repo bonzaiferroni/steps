@@ -3,9 +3,7 @@ package ponder.steps.server.routes
 import io.ktor.server.routing.Routing
 import klutch.server.*
 import ponder.steps.model.Api
-import ponder.steps.server.clients.GeminiService
-import java.io.File
-import java.util.Base64
+import klutch.gemini.GeminiService
 
 /**
  * Arr! This be the route for the Gemini AI chat, ye scallywags!
@@ -26,8 +24,3 @@ fun Routing.serveGemini(service: GeminiService = GeminiService()) {
         service.generateSpeech(request)
     }
 }
-
-fun requestToFilename(input: String): String =
-    input
-        .take(64).lowercase()
-        .replace(Regex("[^A-Za-z0-9]"), "_")

@@ -6,8 +6,6 @@ import kabinet.utils.startOfDay
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ponder.steps.db.TodoStep
@@ -21,8 +19,7 @@ import ponder.steps.io.LocalTrekRepository
 import ponder.steps.io.StepOutcome
 import ponder.steps.model.data.*
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
-import kotlin.collections.plus
+import pondui.ui.core.ModelState
 
 class TodoRootModel(
     navToTrekPath: (TrekPath?, Boolean) -> Unit,
@@ -34,7 +31,7 @@ class TodoRootModel(
     private val stepLogRepo: LocalStepLogRepository = LocalStepLogRepository(),
 ) : StateModel<TodoRootState>() {
 
-    override val state = ViewState(TodoRootState())
+    override val state = ModelState(TodoRootState())
 
     private var allSteps: List<TodoStep> = emptyList()
     var stepFilter: ((TodoStep) -> Boolean)? = null

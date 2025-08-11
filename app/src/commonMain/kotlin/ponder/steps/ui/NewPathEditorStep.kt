@@ -1,7 +1,5 @@
 package ponder.steps.ui
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -10,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ArrowDown
 import compose.icons.tablericons.ArrowUp
@@ -31,7 +28,7 @@ fun LazyItemScope.NewPathEditorStep(
 ) {
     val lineColor = Pond.colors.creation.electrify()
     Column(
-        spacingUnits = 0,
+        gap = 0,
         modifier = Modifier.fillMaxWidth()
             .animateItem()
             .padding(Pond.ruler.unitPadding),
@@ -59,7 +56,7 @@ fun LazyItemScope.NewPathEditorStep(
                 modifier = Modifier.weight(1f)
             )
             Column(
-                spacingUnits = 0,
+                gap = 0,
             ) {
                 Button(
                     imageVector = TablerIcons.ArrowUp,

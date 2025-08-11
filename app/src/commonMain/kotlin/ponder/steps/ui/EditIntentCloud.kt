@@ -37,11 +37,11 @@ fun EditIntentCloud(
         onDismiss = dismiss
     ) {
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.height(400.dp),
         ) {
             Row(
-                spacingUnits = 1,
+                gap = 1,
                 modifier = Modifier.height(44.dp)
                     .fillMaxWidth()
             ) {

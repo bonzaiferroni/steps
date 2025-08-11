@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -93,7 +92,7 @@ fun LazyItemScope.PathEditorStep(
         ) {
             // text fields
             Column(
-                spacingUnits = 1,
+                gap = 1,
                 modifier = Modifier.weight(1f)
                     .padding(bottom = Pond.ruler.unitSpacing)
             ) {
@@ -114,7 +113,7 @@ fun LazyItemScope.PathEditorStep(
             }
             // position controls
             Column(
-                spacingUnits = 0,
+                gap = 0,
                 modifier = Modifier.magic(showControls, scale = .8f)
             ) {
                 Button(
@@ -139,7 +138,7 @@ fun LazyItemScope.PathEditorStep(
                 spacingUnits = 0
             ) {
                 Row(
-                    spacingUnits = 0,
+                    gap = 0,
                 ) {
                     repeat(minOf(8, step.pathSize)) {
                         Icon(
@@ -175,7 +174,7 @@ fun LazyItemScope.PathEditorStep(
         ) {
             // step controls
             Row(
-                spacingUnits = 1,
+                gap = 1,
                 modifier = Modifier.padding(bottom = Pond.ruler.unitSpacing)
                     .magic(showControls, scale = .8f)
             ) {

@@ -1,6 +1,5 @@
 package ponder.steps.ui
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
@@ -9,24 +8,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kabinet.utils.pluralize
 import ponder.steps.PathEditorRoute
-import ponder.steps.model.data.MaterialType
 import ponder.steps.model.data.Step
-import pondui.ui.behavior.drawSection
 import pondui.ui.behavior.magic
 import pondui.ui.controls.Button
 import pondui.ui.controls.Column
 import pondui.ui.controls.LocalAppWindow
 import pondui.ui.controls.ProgressBar
 import pondui.ui.controls.Row
-import pondui.ui.controls.Section
 import pondui.ui.controls.Text
 import pondui.ui.controls.WindowSizeClass
 import pondui.ui.nav.LocalNav
@@ -117,7 +111,7 @@ fun PathMapHeaderFull(pathStep: Step) {
                 .magic(offsetX = (-20).dp)
         )
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.weight(1f)
                 .magic(offsetX = 20.dp)
         ) {

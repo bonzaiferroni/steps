@@ -2,7 +2,7 @@
 
 package ponder.steps.io
 
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import ponder.steps.appDb
@@ -27,7 +27,7 @@ class LocalStepRepository(
 
     override suspend fun createStep(newStep: NewStep): String {
         val (label, pathId, position) = newStep
-        val stepId = randomUuidStringId()
+        val stepId = generateUuidString()
         stepDao.insert(
             StepEntity.Empty.copy(
                 id = stepId,
@@ -78,7 +78,7 @@ class LocalStepRepository(
 
         pathStepDao.incrementPositions(pathId, pathPosition)
 
-        val pathStepId = randomUuidStringId()
+        val pathStepId = generateUuidString()
         pathStepDao.insert(
             PathStepEntity(
                 id = pathStepId,

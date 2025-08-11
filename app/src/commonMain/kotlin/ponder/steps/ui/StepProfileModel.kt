@@ -1,7 +1,6 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ponder.steps.StepProfileRoute
 import ponder.steps.io.AiClient
@@ -10,32 +9,30 @@ import ponder.steps.io.LocalStepRepository
 import ponder.steps.io.LocalTagRepository
 import ponder.steps.io.QuestionRepository
 import ponder.steps.io.StepRepository
-import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Question
-import ponder.steps.model.data.SpeechRequest
-import ponder.steps.model.data.SpeechVoice
+import kabinet.model.SpeechRequest
+import kabinet.model.SpeechVoice
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepSuggestRequest
 import ponder.steps.model.data.StepWithDescription
 import ponder.steps.model.data.Tag
 import ponder.steps.model.data.TagId
-import pondui.LocalValueRepository
+import pondui.LocalValueSource
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class StepProfileModel(
     route: StepProfileRoute,
     val stepRepo: StepRepository = LocalStepRepository(),
     val questionRepo: QuestionRepository = QuestionSource(),
     val aiClient: AiClient = AiClient(),
-    val valueRepo: ValueRepository = LocalValueRepository(),
+    val valueRepo: ValueRepository = LocalValueSource(),
     val tagRepo: LocalTagRepository = LocalTagRepository()
 ): StateModel<StepProfileState>() {
 
-    override val state = ViewState(StepProfileState())
+    override val state = ModelState(StepProfileState())
 
-    private val pathContextState = ViewState(PathContextState())
+    private val pathContextState = ModelState(PathContextState())
     val pathContext = PathContextModel(this, pathContextState)
 
     private val stepId: String = route.stepId

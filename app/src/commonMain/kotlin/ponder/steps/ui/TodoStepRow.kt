@@ -19,7 +19,6 @@ import ponder.steps.db.TodoStep
 import ponder.steps.db.TrekPointId
 import ponder.steps.io.StepOutcome
 import ponder.steps.model.data.Step
-import ponder.steps.model.data.StepStatus
 import pondui.ui.behavior.MagicItem
 import pondui.ui.controls.Checkbox
 import pondui.ui.controls.Column
@@ -51,12 +50,12 @@ fun TodoStepRow(
     }
 
     Row(
-        spacingUnits = 1,
+        gap = 1,
         modifier = Modifier.height(72.dp)
             .fillMaxWidth()
     ) {
         Row(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.graphicsLayer { alpha = (1f - isFinishedAnimated) * .5f + .5f }
         ) {
             ContentButton(

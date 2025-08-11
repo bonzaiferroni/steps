@@ -30,12 +30,12 @@ fun PathEditorHeader(
     val state by viewModel.stateFlow.collectAsState()
     val pathContextState by viewModel.pathContext.stateFlow.collectAsState()
     Column(
-        spacingUnits = 2,
+        gap = 2,
         modifier = Modifier.animateContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            spacingUnits = 2,
+            gap = 2,
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.Top

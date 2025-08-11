@@ -1,7 +1,7 @@
 package ponder.steps.ui
 
 import androidx.lifecycle.viewModelScope
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import ponder.steps.io.AiClient
@@ -9,21 +9,21 @@ import ponder.steps.io.QuestionSource
 import ponder.steps.io.QuestionRepository
 import ponder.steps.model.data.DataType
 import ponder.steps.model.data.Question
-import ponder.steps.model.data.SpeechRequest
-import ponder.steps.model.data.SpeechVoice
-import pondui.LocalValueRepository
+import kabinet.model.SpeechRequest
+import kabinet.model.SpeechVoice
+import pondui.LocalValueSource
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 
 class AddQuestionModel(
     private val dismiss: () -> Unit,
     private val questionRepo: QuestionRepository = QuestionSource(),
     private val aiClient: AiClient = AiClient(),
-    private val valueRepo: ValueRepository = LocalValueRepository(),
+    private val valueRepo: ValueRepository = LocalValueSource(),
 ) : StateModel<AddQuestionState>() {
-    override val state = ViewState(AddQuestionState())
+    override val state = ModelState(AddQuestionState())
 
     init {
         setQuestionText("")
@@ -54,7 +54,7 @@ class AddQuestionModel(
         setState { it.copy(status = "Creating question...") }
 
         viewModelScope.launch {
-            val questionId = randomUuidStringId()
+            val questionId = generateUuidString()
             val stepId = stateNow.stepId ?: return@launch
 
             // Convert min and max values to integers if applicable

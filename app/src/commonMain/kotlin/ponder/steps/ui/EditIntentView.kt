@@ -52,7 +52,7 @@ fun EditIntentView(
                         )
                         val canSChedule = state.repeatUnit > TimeUnit.Hour
                         Row(
-                            spacingUnits = 1,
+                            gap = 1,
                             modifier = Modifier.magic(canSChedule, offsetX = 40.dp)
                         ) {
                             Label("at")

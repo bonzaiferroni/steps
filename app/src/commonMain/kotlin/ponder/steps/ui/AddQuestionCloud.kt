@@ -33,7 +33,7 @@ fun AddQuestionCloud(title: String, stepId: String?, dismiss: () -> Unit) {
         onDismiss = dismiss
     ) {
         Column(
-            spacingUnits = 1,
+            gap = 1,
             modifier = Modifier.height(400.dp),
         ) {
             // Question text input

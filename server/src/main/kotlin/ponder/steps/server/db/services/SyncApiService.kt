@@ -2,31 +2,21 @@ package ponder.steps.server.db.services
 
 import kabinet.model.UserId
 import kabinet.utils.nameOrError
-import kabinet.utils.randomUuidStringId
-import kabinet.utils.toLocalDateTimeUtc
+import kabinet.utils.generateUuidString
 import klutch.db.DbService
 import klutch.db.read
 import klutch.utils.eq
-import klutch.utils.fromStringId
 import klutch.utils.greater
-import klutch.utils.less
 import klutch.utils.lessEq
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.batchUpsert
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.upsert
 import ponder.steps.model.data.Answer
 import ponder.steps.model.data.Deletion
-import ponder.steps.model.data.FullSync
 import ponder.steps.model.data.Intent
 import ponder.steps.model.data.PathStep
 import ponder.steps.model.data.Question
@@ -90,7 +80,7 @@ class SyncApiService : DbService() {
         StepTagTable.read { readSyncData(it.userId, it.syncAt) }.forEach { records.add(it.toStepTag()) }
         DeletionTable.read { readSyncData(it.userId, it.deletedAt) }.forEach { records.add(it.toDeletion()) }
 
-        val id = randomUuidStringId()
+        val id = generateUuidString()
         SyncPacket(id, SYNC_SERVER_ORIGIN_LABEL, Clock.System.now(), records)
     }
 

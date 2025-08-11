@@ -1,6 +1,6 @@
 package ponder.steps.io
 
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -38,7 +38,7 @@ class LocalStepLogRepository(
     }
 
     override suspend fun createStepLog(stepLog: StepLog): String {
-        val id = randomUuidStringId()
+        val id = generateUuidString()
         val now = Clock.System.now()
         stepLogDao.insert(stepLog.copy(
             id = id,

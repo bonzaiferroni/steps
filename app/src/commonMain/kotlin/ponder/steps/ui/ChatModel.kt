@@ -16,14 +16,13 @@ import kotlinx.coroutines.launch
 import ponder.steps.appOrigin
 import ponder.steps.model.data.ChatMessage
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 import kabinet.utils.toFrame
-import kabinet.utils.toObject
 import kabinet.utils.toObjectOrNull
 import kotlinx.coroutines.withContext
 
 class ChatModel(): StateModel<ChatState>() {
-    override val state = ViewState(ChatState())
+    override val state = ModelState(ChatState())
 
     val client = HttpClient(CIO) {
         install(WebSockets)

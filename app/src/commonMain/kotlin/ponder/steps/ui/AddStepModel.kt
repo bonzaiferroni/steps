@@ -13,22 +13,22 @@ import ponder.steps.io.TrekRepository
 import ponder.steps.model.data.NewIntent
 import ponder.steps.model.data.NewStep
 import ponder.steps.model.data.Step
-import pondui.LocalValueRepository
+import pondui.LocalValueSource
 import pondui.ValueRepository
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 
 class AddStepModel(
     private val dismiss: () -> Unit,
     private val trekRepo: TrekRepository = LocalTrekRepository(),
     private val stepRepo: StepRepository = LocalStepRepository(),
     private val intentRepo: IntentRepository = LocalIntentRepository(),
-    private val valueRepo: ValueRepository = LocalValueRepository(),
+    private val valueRepo: ValueRepository = LocalValueSource(),
     private val aiClient: AiClient = AiClient(),
 ) : StateModel<AddIntentState>() {
-    override val state = ViewState(AddIntentState())
+    override val state = ModelState(AddIntentState())
 
-    private val editIntentState = ViewState(EditIntentState())
+    private val editIntentState = ModelState(EditIntentState())
     val editIntent = EditIntentModel(this, editIntentState)
 
     init {

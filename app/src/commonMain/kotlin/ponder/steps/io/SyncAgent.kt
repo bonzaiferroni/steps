@@ -2,7 +2,7 @@ package ponder.steps.io
 
 import kabinet.PAST_MOMENT
 import kabinet.utils.nameOrError
-import kabinet.utils.randomUuidStringId
+import kabinet.utils.generateUuidString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -60,7 +60,7 @@ class SyncAgent(
     private val frameIds = mutableMapOf<String, Instant>()
 
     private suspend fun sendPacket(records: List<SyncRecord>, updatedAt: Instant) {
-        val id = randomUuidStringId()
+        val id = generateUuidString()
         frameIds[id] = updatedAt
         val packet = SyncPacket(id, origin, updatedAt, records)
         sentPackets.send(packet)

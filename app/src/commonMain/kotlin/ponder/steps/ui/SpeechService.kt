@@ -1,13 +1,13 @@
 package ponder.steps.ui
 
 import ponder.steps.io.AiClient
-import ponder.steps.model.data.SpeechRequest
-import ponder.steps.model.data.SpeechVoice
-import pondui.LocalValueRepository
+import kabinet.model.SpeechRequest
+import kabinet.model.SpeechVoice
+import pondui.LocalValueSource
 import pondui.ValueRepository
 
 class SpeechService(
-    private val valueRepo: ValueRepository = LocalValueRepository(),
+    private val valueRepo: ValueRepository = LocalValueSource(),
     private val aiClient: AiClient = AiClient(),
 ) {
     suspend fun generateSpeech(text: String): String? {

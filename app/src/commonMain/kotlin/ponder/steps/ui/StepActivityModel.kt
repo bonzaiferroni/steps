@@ -15,7 +15,7 @@ import ponder.steps.db.TimeUnit
 import ponder.steps.model.data.CountBucket
 import ponder.steps.model.data.IntBucket
 import pondui.ui.core.StateModel
-import pondui.ui.core.ViewState
+import pondui.ui.core.ModelState
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -28,7 +28,7 @@ class StepActivityModel(
     private val questionRepo: QuestionRepository = QuestionSource()
 ): StateModel<StepActivityState>() {
 
-    override val state = ViewState(StepActivityState())
+    override val state = ModelState(StepActivityState())
 
     init {
         viewModelScope.launch {
