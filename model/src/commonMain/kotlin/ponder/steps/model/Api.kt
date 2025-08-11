@@ -18,10 +18,14 @@ import ponder.steps.model.data.StepSuggestResponse
 import ponder.steps.model.data.TrekItem
 
 object Api: ParentEndpoint(null, apiPrefix) {
-    object Gemini : ParentEndpoint(this, "/gemini") {
+    object Gemini : ParentEndpoint(this, "/gemini"), GeminiApi {
         object Chat : PostEndpoint<List<GeminiMessage>, String>(this, "/chat")
         object Image : PostEndpoint<String, ImageUrls>(this, "/image")
         object GenerateSpeech: PostEndpoint<SpeechRequest, String>(this, "/generate-speech")
+
+        override val chat = Chat
+        override val image = Image
+        override val speech = GenerateSpeech
     }
 
     object Examples : GetByIdEndpoint<Example>(this, "/example") {
@@ -69,9 +73,3 @@ object Api: ParentEndpoint(null, apiPrefix) {
 }
 
 val apiPrefix = "/api/v1"
-
-val geminiApi = object : GeminiApi {
-    override val chat = Api.Gemini.Chat
-    override val image = Api.Gemini.Image
-    override val speech = Api.Gemini.GenerateSpeech
-}
