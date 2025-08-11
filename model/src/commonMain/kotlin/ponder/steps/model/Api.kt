@@ -2,6 +2,7 @@ package ponder.steps.model
 
 import kabinet.api.*
 import kabinet.clients.GeminiMessage
+import kabinet.gemini.GeminiApi
 import ponder.steps.model.data.Example
 import ponder.steps.model.data.Focus
 import kabinet.model.ImageUrls
@@ -68,3 +69,9 @@ object Api: ParentEndpoint(null, apiPrefix) {
 }
 
 val apiPrefix = "/api/v1"
+
+val geminiApi = object : GeminiApi {
+    override val chat = Api.Gemini.Chat
+    override val image = Api.Gemini.Image
+    override val speech = Api.Gemini.GenerateSpeech
+}
