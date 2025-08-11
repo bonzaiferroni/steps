@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import kabinet.clients.GeminiMessage
 import kabinet.clients.GeminiRole
 import kotlinx.coroutines.launch
-import ponder.steps.io.GeminiApiClient
+import pondui.io.GeminiApiClient
 import ponder.steps.model.geminiApi
 import pondui.ui.core.StateModel
 import pondui.ui.core.ModelState
